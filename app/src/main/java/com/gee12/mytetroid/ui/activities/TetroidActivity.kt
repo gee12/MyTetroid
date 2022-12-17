@@ -21,6 +21,7 @@ import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.extensions.hideKeyboard
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
+import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.logs.Message
 import com.gee12.mytetroid.ui.ActivityDoubleTapListener
 import com.gee12.mytetroid.ui.IViewEventListener
@@ -28,9 +29,11 @@ import com.gee12.mytetroid.ui.TetroidMessage
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
 import com.gee12.mytetroid.viewmodels.BaseViewModel
 import com.gee12.mytetroid.viewmodels.PermissionRequestParams
-import com.gee12.mytetroid.viewmodels.ViewEvent
+import com.gee12.mytetroid.viewmodels.BaseEvent
 import com.gee12.mytetroid.viewmodels.*
 import kotlinx.coroutines.launch
+import org.koin.core.scope.Scope
+import org.koin.core.scope.get
 
 abstract class TetroidActivity<VM : BaseViewModel>
     : AppCompatActivity(), View.OnTouchListener, IViewEventListener {
@@ -39,6 +42,10 @@ abstract class TetroidActivity<VM : BaseViewModel>
         fun onSuccess(uri: Uri)
         fun onError(ex: Exception)
     }
+
+    protected lateinit var scopeSource: ScopeSource
+    protected val koinScope: Scope
+        get() = scopeSource.scope
 
     protected var receivedIntent: Intent? = null
     protected var optionsMenu: Menu? = null
@@ -58,25 +65,15 @@ abstract class TetroidActivity<VM : BaseViewModel>
 
     protected abstract fun getLayoutResourceId(): Int
 
-    abstract fun createViewModel()
+    protected abstract fun getViewModelClazz(): Class<VM>
 
-    protected open fun initViewModel() {
-        viewModel.initialize()
-
-        viewModel.logDebug(getString(R.string.log_activity_opened_mask, javaClass.simpleName))
-        lifecycleScope.launch {
-            viewModel.viewEventFlow.collect { event -> onViewEvent(event) }
-        }
-        lifecycleScope.launch {
-            viewModel.messageEventFlow.collect { message -> showMessage(message) }
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(getLayoutResourceId())
 
         receivedIntent = intent
+
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
         setVisibilityActionHome(true)
@@ -94,8 +91,30 @@ abstract class TetroidActivity<VM : BaseViewModel>
         isOnCreateProcessed = false
         isGUICreated = false
 
+        createDependencyScope()
         createViewModel()
         initViewModel()
+    }
+
+    protected open fun createDependencyScope() {
+        scopeSource = ScopeSource()
+    }
+
+    protected open fun createViewModel() {
+        this.viewModel = koinScope.get(getViewModelClazz())
+    }
+
+    protected open fun initViewModel() {
+        viewModel.initialize()
+
+        viewModel.logDebug(getString(R.string.log_activity_opened_mask, javaClass.simpleName))
+
+        lifecycleScope.launch {
+            viewModel.eventFlow.collect { event -> onBaseEvent(event) }
+        }
+        lifecycleScope.launch {
+            viewModel.messageEventFlow.collect { message -> showMessage(message) }
+        }
     }
 
     override fun onResume() {
@@ -131,16 +150,16 @@ abstract class TetroidActivity<VM : BaseViewModel>
      * @param event
      * @param data
      */
-    protected open fun onViewEvent(event: ViewEvent) {
+    protected open fun onBaseEvent(event: BaseEvent) {
         when (event) {
-            is ViewEvent.ShowProgress -> setProgressVisibility(event.isVisible)
-            is ViewEvent.ShowProgressText -> setProgressText(event.message)
-            is ViewEvent.ShowPermissionRequest -> showPermissionRequest(event.request)
-            is ViewEvent.TaskStarted -> {
+            is BaseEvent.ShowProgress -> setProgressVisibility(event.isVisible)
+            is BaseEvent.ShowProgressText -> setProgressText(event.message)
+            is BaseEvent.ShowPermissionRequest -> showPermissionRequest(event.request)
+            is BaseEvent.TaskStarted -> {
                 taskPreExecute(event.titleResId ?: R.string.progress_loading)
             }
-            ViewEvent.TaskFinished -> taskPostExecute()
-            ViewEvent.ShowMoreInLogs -> showSnackMoreInLogs()
+            BaseEvent.TaskFinished -> taskPostExecute()
+            BaseEvent.ShowMoreInLogs -> showSnackMoreInLogs()
             else -> {}
         }
     }

@@ -10,10 +10,9 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.model.TetroidStorage
+import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import com.gee12.mytetroid.viewmodels.StorageViewModel
-import com.gee12.mytetroid.ui.dialogs.TetroidDialogFragment
 import kotlinx.coroutines.launch
-import org.koin.java.KoinJavaComponent.get
 
 /**
  * Диалог информации о записи.
@@ -21,7 +20,7 @@ import org.koin.java.KoinJavaComponent.get
 class RecordInfoDialog(
     val record: TetroidRecord,
     override var storageId: Int?
-) : TetroidDialogFragment<StorageViewModel>() {
+) : TetroidStorageDialogFragment<StorageViewModel>() {
 
     override fun getRequiredTag() = TAG
 
@@ -29,9 +28,7 @@ class RecordInfoDialog(
 
     override fun getLayoutResourceId() = R.layout.dialog_record_info
 
-    override fun createViewModel() {
-        this.viewModel = get(StorageViewModel::class.java)
-    }
+    override fun getViewModelClazz() = StorageViewModel::class.java
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
         setTitle(record.name)

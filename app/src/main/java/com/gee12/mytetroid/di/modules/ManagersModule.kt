@@ -1,10 +1,9 @@
-package com.gee12.mytetroid.di
+package com.gee12.mytetroid.di.modules
 
 import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.TetroidLogger
-import com.gee12.mytetroid.providers.BuildInfoProvider
-import com.gee12.mytetroid.providers.CommonSettingsProvider
+import com.gee12.mytetroid.providers.*
 import org.koin.android.ext.koin.androidApplication
 import org.koin.dsl.module
 
@@ -36,7 +35,7 @@ object ManagersModule {
         single<ITetroidLogger> {
             TetroidLogger(
                 failureHandler = get(),
-                localeHelper = get(),
+                localeProvider = get(),
                 resourcesProvider = get(),
                 notificator = get(),
             )
@@ -55,6 +54,10 @@ object ManagersModule {
                 logger = get(),
                 buildInfoProvider = get()
             )
+        }
+
+        single<IDataNameProvider> {
+            DataNameProvider()
         }
 
     }

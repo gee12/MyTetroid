@@ -1,54 +1,39 @@
 package com.gee12.mytetroid.ui.activities
 
 import android.content.Intent
-import android.os.Bundle
 import android.view.*
-import androidx.lifecycle.lifecycleScope
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.di.ScopeContainer
-import com.gee12.mytetroid.helpers.StorageProvider
+import com.gee12.mytetroid.di.ScopeSource
+import com.gee12.mytetroid.providers.IStorageProvider
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.ui.activities.StorageSettingsActivity.Companion.newIntent
 import com.gee12.mytetroid.ui.activities.StoragesActivity.Companion.start
 import com.gee12.mytetroid.ui.dialogs.storage.StorageDialogs.askForDefaultStorageNotSpecified
+import com.gee12.mytetroid.viewmodels.BaseEvent
 import com.gee12.mytetroid.viewmodels.BaseStorageViewModel
 import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
-import com.gee12.mytetroid.viewmodels.VMEvent
-import kotlinx.coroutines.launch
 import lib.folderpicker.FolderPicker
-import org.koin.android.ext.android.get
-import org.koin.core.scope.Scope
 
 abstract class TetroidStorageActivity<VM : BaseStorageViewModel> : TetroidActivity<VM>() {
 
-    private val scopeContainer: ScopeContainer
-    protected val storageScope: Scope
-
-    init {
-        val currentStorageProvider = ScopeContainer.current.scope.get<StorageProvider>()
+    override fun createDependencyScope() {
+        val currentStorageProvider = ScopeSource.current.scope.get<IStorageProvider>()
         val currentStorageId = currentStorageProvider.storage?.id
-        scopeContainer = (if (currentStorageId?.let { it == getStorageId() } == true) ScopeContainer.current else get())
-        storageScope = scopeContainer.scope
+        // создавать новый koin scope или использовать существующий current.scope
+        scopeSource = if (currentStorageId?.let { it == getStorageId() } == true) ScopeSource.current else ScopeSource()
     }
 
     fun getStorageId(): Int {
         return intent.getIntExtra(Constants.EXTRA_STORAGE_ID, 0)
     }
 
-    override fun initViewModel() {
-        super.initViewModel()
+    override fun onDestroy() {
+        super.onDestroy()
 
-        lifecycleScope.launch {
-            viewModel.storageEventFlow.collect { event -> onStorageEvent(event) }
+        if (scopeSource != ScopeSource.current) {
+            scopeSource.scope.close()
         }
-        lifecycleScope.launch {
-            viewModel.objectEventFlow.collect { event -> onObjectEvent(event) }
-        }
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
     }
 
     override fun onResume() {
@@ -57,6 +42,13 @@ abstract class TetroidStorageActivity<VM : BaseStorageViewModel> : TetroidActivi
 
     override fun onStart() {
         super.onStart()
+    }
+
+    override fun onBaseEvent(event: BaseEvent) {
+        when (event) {
+            is StorageEvent -> onStorageEvent(event)
+            else -> super.onBaseEvent(event)
+        }
     }
 
     /**
@@ -72,14 +64,6 @@ abstract class TetroidStorageActivity<VM : BaseStorageViewModel> : TetroidActivi
             StorageEvent.Decrypted -> afterStorageDecrypted(/*data as TetroidNode*/)
             else -> {}
         }
-    }
-
-    /**
-     * Обработчик изменения состояния объекта.
-     * @param event
-     * @param data
-     */
-    protected open fun onObjectEvent(event: VMEvent) {
     }
 
     open fun afterStorageInited() {

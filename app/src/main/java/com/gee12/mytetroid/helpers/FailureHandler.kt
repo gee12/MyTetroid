@@ -5,6 +5,7 @@ import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.Failure
 import com.gee12.mytetroid.common.extensions.ifNotEmpty
 import com.gee12.mytetroid.model.NotificationData
+import com.gee12.mytetroid.providers.IResourcesProvider
 
 interface IFailureHandler {
     fun getFailureMessage(failure: Failure): NotificationData

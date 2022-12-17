@@ -12,15 +12,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.extensions.getAppVersionName
-import com.gee12.mytetroid.viewmodels.MainViewModel
-import org.koin.android.ext.android.inject
+import com.gee12.mytetroid.di.ScopeSource
+import com.gee12.mytetroid.logs.ITetroidLogger
 
 /**
  * Активность для просмотра информации о приложении.
  */
 class AboutActivity() : AppCompatActivity() {
 
-    private val viewModel: MainViewModel by inject()
+    private val logger: ITetroidLogger by ScopeSource.current.scope.inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,8 +29,6 @@ class AboutActivity() : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
-        viewModel.initialize()
-
         val tvVersion = findViewById<TextView>(R.id.text_view_version)
         tvVersion.text = this.getAppVersionName()
         val bRateApp = findViewById<Button>(R.id.button_rate_app)
@@ -38,7 +36,7 @@ class AboutActivity() : AppCompatActivity() {
             rateApp()
         }
 
-        viewModel.logDebug(getString(R.string.log_activity_opened_mask, this.javaClass.simpleName))
+        logger.logDebug(getString(R.string.log_activity_opened_mask, this.javaClass.simpleName))
     }
 
     private fun rateApp() {
@@ -54,7 +52,7 @@ class AboutActivity() : AppCompatActivity() {
         try {
             startActivity(goToMarket)
         } catch (ex: ActivityNotFoundException) {
-            viewModel.logError(ex, true)
+            logger.logError(ex, show = true)
             startActivity(
                 Intent(
                     Intent.ACTION_VIEW,

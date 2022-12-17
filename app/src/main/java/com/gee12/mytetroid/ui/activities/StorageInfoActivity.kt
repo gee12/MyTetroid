@@ -7,15 +7,15 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.RelativeLayout
+import android.widget.TableRow
 import android.widget.TextView
 import androidx.core.view.isVisible
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.viewmodels.ViewEvent
+import com.gee12.mytetroid.viewmodels.BaseEvent
 import com.gee12.mytetroid.viewmodels.StorageInfoViewModel
 import com.gee12.mytetroid.viewmodels.StorageInfoViewModel.StorageInfoEvent
 import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
-import com.gee12.mytetroid.viewmodels.VMEvent
 
 /**
  * Активность для просмотра информации о хранилище.
@@ -31,6 +31,9 @@ class StorageInfoActivity : TetroidStorageActivity<StorageInfoViewModel>() {
 
     override fun getLayoutResourceId() = R.layout.activity_storage_info
 
+    override fun getViewModelClazz() = StorageInfoViewModel::class.java
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -42,18 +45,45 @@ class StorageInfoActivity : TetroidStorageActivity<StorageInfoViewModel>() {
         buttonLoadStorage = findViewById(R.id.button_load_storage)
 
         // загружаем параметры хранилища из бд
-        viewModel.startInitStorage(intent)
+        viewModel.startInitStorage(storageId = getStorageId())
     }
 
-    override fun createViewModel() {
-        this.viewModel = storageScope.get()
-    }
-
-    override fun onViewEvent(event: ViewEvent) {
+    override fun onBaseEvent(event: BaseEvent) {
         when (event) {
-            ViewEvent.PermissionCheck -> viewModel.checkWriteExtStoragePermission(this)
-            is ViewEvent.PermissionGranted -> viewModel.initStorage()
-            else -> Unit
+            is StorageInfoEvent -> {
+                onStorageInfoEvent(event)
+            }
+            BaseEvent.PermissionCheck -> viewModel.checkWriteExtStoragePermission(this)
+            is BaseEvent.PermissionGranted -> viewModel.initStorage()
+            else -> super.onBaseEvent(event)
+        }
+    }
+
+    private fun onStorageInfoEvent(event: StorageInfoEvent) {
+        when (event) {
+            StorageInfoEvent.GetStorageFolderSize.InProgress -> {
+                progressSize.visibility = View.VISIBLE
+            }
+            is StorageInfoEvent.GetStorageFolderSize.Failed -> {
+                findViewById<TextView>(R.id.text_view_size).text = getString(R.string.title_error)
+                progressSize.visibility = View.GONE
+            }
+            is StorageInfoEvent.GetStorageFolderSize.Success -> {
+                findViewById<TextView>(R.id.text_view_size).text = event.size
+                progressSize.visibility = View.GONE
+            }
+
+            StorageInfoEvent.GetMyTetraXmlLastModifiedDate.InProgress -> {
+                progressLastEdit.visibility = View.VISIBLE
+            }
+            is StorageInfoEvent.GetMyTetraXmlLastModifiedDate.Failed -> {
+                findViewById<TextView>(R.id.text_view_last_edit).text = getString(R.string.title_error)
+                progressLastEdit.visibility = View.GONE
+            }
+            is StorageInfoEvent.GetMyTetraXmlLastModifiedDate.Success -> {
+                findViewById<TextView>(R.id.text_view_last_edit).text = event.date
+                progressLastEdit.visibility = View.GONE
+            }
         }
     }
 
@@ -130,34 +160,6 @@ class StorageInfoActivity : TetroidStorageActivity<StorageInfoViewModel>() {
     private fun onStorageInitFailed() {
         layoutError.visibility = View.VISIBLE
         textViewError.text = viewModel.checkStorageFilesExistingError() ?: getString(R.string.mes_storage_init_error)
-    }
-
-    override fun onObjectEvent(event: VMEvent) {
-        when (event) {
-            StorageInfoEvent.GetStorageFolderSize.InProgress -> {
-                progressSize.visibility = View.VISIBLE
-            }
-            is StorageInfoEvent.GetStorageFolderSize.Failed -> {
-                findViewById<TextView>(R.id.text_view_size).text = getString(R.string.title_error)
-                progressSize.visibility = View.GONE
-            }
-            is StorageInfoEvent.GetStorageFolderSize.Success -> {
-                findViewById<TextView>(R.id.text_view_size).text = event.size
-                progressSize.visibility = View.GONE
-            }
-
-            StorageInfoEvent.GetMyTetraXmlLastModifiedDate.InProgress -> {
-                progressLastEdit.visibility = View.VISIBLE
-            }
-            is StorageInfoEvent.GetMyTetraXmlLastModifiedDate.Failed -> {
-                findViewById<TextView>(R.id.text_view_last_edit).text = getString(R.string.title_error)
-                progressLastEdit.visibility = View.GONE
-            }
-            is StorageInfoEvent.GetMyTetraXmlLastModifiedDate.Success -> {
-                findViewById<TextView>(R.id.text_view_last_edit).text = event.date
-                progressLastEdit.visibility = View.GONE
-            }
-        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

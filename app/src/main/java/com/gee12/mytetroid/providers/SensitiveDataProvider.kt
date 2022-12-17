@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.helpers
+package com.gee12.mytetroid.providers
 
 interface ISensitiveDataProvider {
     fun getMiddlePassHashOrNull(): String?

@@ -8,16 +8,15 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.extensions.addAfterTextChangedListener
 import com.gee12.mytetroid.common.extensions.setSelectionAtEnd
 import com.gee12.mytetroid.model.TetroidTag
+import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import com.gee12.mytetroid.viewmodels.StorageViewModel
-import com.gee12.mytetroid.ui.dialogs.TetroidDialogFragment
-import org.koin.java.KoinJavaComponent.get
 import java.util.*
 import kotlin.math.abs
 
 class TagFieldsDialog(
     private val tag: TetroidTag?,
     private val onApply: (name: String) -> Unit,
-) : TetroidDialogFragment<StorageViewModel>() {
+) : TetroidStorageDialogFragment<StorageViewModel>() {
 
     private lateinit var etName: EditText
 
@@ -27,9 +26,7 @@ class TagFieldsDialog(
 
     override fun getLayoutResourceId() = R.layout.dialog_tag
 
-    override fun createViewModel() {
-        this.viewModel = get(StorageViewModel::class.java)
-    }
+    override fun getViewModelClazz() = StorageViewModel::class.java
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
         etName = view.findViewById(R.id.edit_text_name)

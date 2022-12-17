@@ -9,6 +9,7 @@ import com.gee12.mytetroid.interactors.TrashInteractor
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.providers.BuildInfoProvider
 import com.gee12.mytetroid.providers.CommonSettingsProvider
+import com.gee12.mytetroid.providers.IResourcesProvider
 import com.gee12.mytetroid.repo.StoragesRepo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -95,7 +96,5 @@ class CommonSettingsViewModel(
     }
 
     //endregion Pin
-
-    fun getLastFolderPathOrDefault(forWrite: Boolean) = commonSettingsProvider.getLastFolderPathOrDefault(forWrite)
 
 }

@@ -6,8 +6,8 @@ import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.data.crypt.IStorageCrypter
-import com.gee12.mytetroid.helpers.IRecordPathProvider
-import com.gee12.mytetroid.helpers.IResourcesProvider
+import com.gee12.mytetroid.providers.IRecordPathProvider
+import com.gee12.mytetroid.providers.IResourcesProvider
 import com.gee12.mytetroid.providers.IDataNameProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj

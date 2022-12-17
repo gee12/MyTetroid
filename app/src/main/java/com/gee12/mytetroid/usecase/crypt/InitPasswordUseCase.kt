@@ -3,7 +3,7 @@ package com.gee12.mytetroid.usecase.crypt
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.data.crypt.IStorageCrypter
 import com.gee12.mytetroid.data.ini.DatabaseConfig
-import com.gee12.mytetroid.helpers.ISensitiveDataProvider
+import com.gee12.mytetroid.providers.ISensitiveDataProvider
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.repo.StoragesRepo
 

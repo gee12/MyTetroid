@@ -1,25 +1,23 @@
-package com.gee12.mytetroid.di
+package com.gee12.mytetroid.di.modules
 
 import com.gee12.mytetroid.data.crypt.Crypter
 import com.gee12.mytetroid.data.crypt.IStorageCrypter
 import com.gee12.mytetroid.data.crypt.StorageCrypter
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.data.xml.StorageDataXmlProcessor
-import com.gee12.mytetroid.helpers.*
-import com.gee12.mytetroid.providers.IStorageSettingsProvider
-import com.gee12.mytetroid.providers.StorageSettingsProvider
+import com.gee12.mytetroid.di.ScopeSource
+import com.gee12.mytetroid.interactors.FavoritesManager
+import com.gee12.mytetroid.providers.*
 import org.koin.dsl.module
 
 object StorageModule {
-    val helpersModule = module {
+    val storageModule = module {
 
-        scope<DependencyScope> {
+        scope<ScopeSource> {
 
             scoped<IStorageProvider> {
                 StorageProvider(
                     logger = get(),
-                    crypter = get(),
-                    dataProcessor = get(),
                 )
             }
 
@@ -48,8 +46,8 @@ object StorageModule {
             scoped<IStorageDataProcessor> {
                 StorageDataXmlProcessor(
                     logger = get(),
-                    encryptHelper = get(),
-                    favoritesInteractor = get(),
+                    storageCrypter = get(),
+                    favoritesManager = get(),
                     parseRecordTagsUseCase = get(),
                     loadNodeIconUseCase = get(),
                 )
@@ -65,8 +63,13 @@ object StorageModule {
                 StorageCrypter(
                     logger = get(),
                     crypter = get(),
-                    cryptRecordFilesUseCase = get(),
-                    parseRecordTagsUseCase = get(),
+                )
+            }
+
+            scoped {
+                FavoritesManager(
+                    favoritesRepo = get(),
+                    storageProvider = get(),
                 )
             }
 

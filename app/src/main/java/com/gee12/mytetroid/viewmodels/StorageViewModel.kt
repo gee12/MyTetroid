@@ -25,9 +25,7 @@ import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.TaskStage
-import com.gee12.mytetroid.providers.BuildInfoProvider
-import com.gee12.mytetroid.providers.CommonSettingsProvider
-import com.gee12.mytetroid.providers.IDataNameProvider
+import com.gee12.mytetroid.providers.*
 import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.ui.activities.TetroidActivity
 import com.gee12.mytetroid.usecase.storage.CheckStorageFilesExistingUseCase
@@ -63,9 +61,8 @@ open class StorageViewModel(
 
     val interactionInteractor: InteractionInteractor,
     val syncInteractor: SyncInteractor,
-    val favoritesInteractor: FavoritesInteractor, //TODO
+    val favoritesManager: FavoritesManager, //TODO
     val passInteractor: PasswordInteractor, //TODO
-//    val cryptInteractor: EncryptionInteractor, //TODO
     val tagsInteractor: TagsInteractor, //TODO
     val trashInteractor: TrashInteractor,
 
@@ -96,7 +93,7 @@ open class StorageViewModel(
     storageProvider,
 ) {
 
-    sealed class StorageEvent : VMEvent() {
+    sealed class StorageEvent : BaseEvent() {
         object NoDefaultStorage : StorageEvent()
         data class NotFoundInBase(
             val storageId: Int,
@@ -214,8 +211,8 @@ open class StorageViewModel(
         return if (storage != null && storage?.id == storageId) {
             launchOnMain {
                 storage?.let {
-                    sendStorageEvent(StorageEvent.FoundInBase(it))
-                    sendStorageEvent(StorageEvent.Inited(it))
+                    sendEvent(StorageEvent.FoundInBase(it))
+                    sendEvent(StorageEvent.Inited(it))
                 }
             }
             true
@@ -240,7 +237,7 @@ open class StorageViewModel(
         } else {
             logError(getString(R.string.log_not_transferred_storage_id), true)
             launchOnMain {
-                sendViewEvent(ViewEvent.FinishActivity)
+                sendEvent(BaseEvent.FinishActivity)
             }
             false
         }
@@ -254,23 +251,23 @@ open class StorageViewModel(
                 if (storage != null) {
                     storageProvider.setStorage(currentStorage.resetFields(storage))
 
-                    sendStorageEvent(StorageEvent.FoundInBase(storage))
+                    sendEvent(StorageEvent.FoundInBase(storage))
                 } else {
-                    sendStorageEvent(StorageEvent.NotFoundInBase(storageId))
+                    sendEvent(StorageEvent.NotFoundInBase(storageId))
                     log(getString(R.string.log_storage_not_found_mask, storageId), show = true)
                 }
             }
         }
     }
 
-    open fun startInitStorageFromBase(storageId: Int) {
+    override fun startInitStorageFromBase(storageId: Int) {
         launchOnIo {
             val storage = storagesRepo.getStorage(storageId)
             if (storage != null) {
                 storageProvider.setStorage(storage)
 
                 withMain {
-                    sendStorageEvent(StorageEvent.FoundInBase(storage))
+                    sendEvent(StorageEvent.FoundInBase(storage))
                 }
 
                 // если используется уже загруженное дерево веток из кэша
@@ -282,7 +279,7 @@ open class StorageViewModel(
                 initStorage()
             } else {
                 withMain {
-                    sendStorageEvent(StorageEvent.NotFoundInBase(storageId = storageId))
+                    sendEvent(StorageEvent.NotFoundInBase(storageId = storageId))
                 }
                 log(getString(R.string.log_storage_not_found_mask, storageId))
             }
@@ -309,7 +306,7 @@ open class StorageViewModel(
                 startInitStorage(storageId)
             } else {
                 log(R.string.log_def_storage_not_specified)
-                sendStorageEvent(StorageEvent.NoDefaultStorage)
+                sendEvent(StorageEvent.NoDefaultStorage)
             }
         }
     }
@@ -317,14 +314,14 @@ open class StorageViewModel(
     /**
      * Поиск хранилища в базе данных и запуск первичной его инициализация.
      */
-    fun startInitStorage(storageId: Int) {
+    open fun startInitStorage(storageId: Int) {
         launchOnIo {
             val storage = storagesRepo.getStorage(storageId)
             if (storage != null) {
-                sendStorageEvent(StorageEvent.FoundInBase(storage))
+                sendEvent(StorageEvent.FoundInBase(storage))
                 startInitStorage(storage)
             } else {
-                sendStorageEvent(StorageEvent.NotFoundInBase(storageId))
+                sendEvent(StorageEvent.NotFoundInBase(storageId))
                 log(getString(R.string.log_storage_not_found_mask, storageId), true)
             }
         }
@@ -341,7 +338,7 @@ open class StorageViewModel(
 
         // сначала проверяем разрешение на запись во внешнюю память
         launchOnMain {
-            sendViewEvent(ViewEvent.PermissionCheck)
+            sendEvent(BaseEvent.PermissionCheck)
         }
     }
 
@@ -379,7 +376,7 @@ open class StorageViewModel(
             }.onFailure { failure ->
                 logFailure(failure)
                 //logError(getString(R.string.log_failed_storage_init) + getStoragePath(), false)
-                sendStorageEvent(
+                sendEvent(
                     StorageEvent.InitFailed(
                         isOnlyFavorites = isLoadFavoritesOnly ?: checkIsNeedLoadFavoritesOnly()
                     )
@@ -388,14 +385,14 @@ open class StorageViewModel(
                 when (result) {
                     is InitOrCreateStorageUseCase.Result.CreateStorage -> {
                         logger.log(R.string.log_storage_created, true)
-                        sendStorageEvent(StorageEvent.FilesCreated(storage))
+                        sendEvent(StorageEvent.FilesCreated(storage))
                     }
                     is InitOrCreateStorageUseCase.Result.InitStorage -> {
 
                     }
                 }
                 log(getString(R.string.log_storage_inited) + getStoragePath())
-                sendStorageEvent(StorageEvent.Inited(storage))
+                sendEvent(StorageEvent.Inited(storage))
                 if (isLoadAfter) {
                     startLoadStorage(
                         isLoadFavoritesOnly = isLoadFavoritesOnly ?: checkIsNeedLoadFavoritesOnly()
@@ -475,7 +472,7 @@ open class StorageViewModel(
      * @param isHandleReceivedIntent  Нужно ли после загрузки открыть ветку, сохраненную в опции getLastNodeId()
      * или ветку с избранным (если именно она передана в node)
      */
-    fun loadOrDecryptStorage(params: StorageParams) {
+    open fun loadOrDecryptStorage(params: StorageParams) {
         // расшифровуем хранилище только в том случаем, если:
         //  1) не используем проверку ПИН-кода
         //  2) используем проверку ПИН-кода, при этом расшифровуем с открытием конкретной <b>зашифрованной</b> ветки
@@ -485,7 +482,7 @@ open class StorageViewModel(
         isDecrypt = (isDecrypt
                 && (!isRequestPINCode()
                     || isRequestPINCode() && node != null
-                        && (node.isCrypted || node == FavoritesInteractor.FAVORITES_NODE)))
+                        && (node.isCrypted || node == FavoritesManager.FAVORITES_NODE)))
         if (isStorageLoaded() && isDecrypt && isNodesExist()) {
             // расшифровываем уже загруженное хранилище
             startDecryptStorage(node)
@@ -517,8 +514,8 @@ open class StorageViewModel(
         logOperStart(LogObj.STORAGE, LogOper.LOAD)
 
         launchOnMain {
-            sendViewEvent(
-                ViewEvent.TaskStarted(
+            sendEvent(
+                BaseEvent.TaskStarted(
                     if (isDecrypt) R.string.task_storage_decrypting else R.string.task_storage_loading
                 )
             )
@@ -536,7 +533,7 @@ open class StorageViewModel(
             }.foldResult(
                 onLeft = { failure ->
                     logFailure(failure, show = true)
-                    sendViewEvent(ViewEvent.TaskFinished)
+                    sendEvent(BaseEvent.TaskFinished)
 
                     // TODO ?
                     //logWarning(getString(R.string.log_failed_storage_load_mask) + getStoragePath(), true)
@@ -544,7 +541,7 @@ open class StorageViewModel(
                     false
                 },
                 onRight = {
-                    sendViewEvent(ViewEvent.TaskFinished)
+                    sendEvent(BaseEvent.TaskFinished)
 
                     storageProvider.setStorage(storage)
 
@@ -565,8 +562,8 @@ open class StorageViewModel(
             )
 
             // инициализация контролов
-            sendViewEvent(
-                ViewEvent.InitUI(
+            sendEvent(
+                BaseEvent.InitUI(
                     storage = storage,
                     isLoadFavoritesOnly = isFavoritesOnly,
                     isHandleReceivedIntent = isOpenLastNode,
@@ -574,7 +571,7 @@ open class StorageViewModel(
                 )
             )
             // действия после загрузки хранилища
-            sendStorageEvent(StorageEvent.Loaded(result))
+            sendEvent(StorageEvent.Loaded(result))
 
         }
     }
@@ -591,7 +588,7 @@ open class StorageViewModel(
 
         launchOnMain {
             // перед расшифровкой
-            sendViewEvent(ViewEvent.TaskStarted(R.string.task_storage_decrypting))
+            sendEvent(BaseEvent.TaskStarted(R.string.task_storage_decrypting))
 
             // непосредственная расшифровка
             withIo {
@@ -615,13 +612,13 @@ open class StorageViewModel(
                 }
             }
             // после расшифровки
-            sendViewEvent(ViewEvent.TaskFinished)
+            sendEvent(BaseEvent.TaskFinished)
         }
     }
 
     open fun afterStorageDecrypted(node: TetroidNode?) {
         launchOnMain {
-            sendStorageEvent(StorageEvent.Decrypted/*, node*/)
+            sendEvent(StorageEvent.Decrypted/*, node*/)
         }
     }
 
@@ -670,7 +667,7 @@ open class StorageViewModel(
                         loadOrDecryptStorage(params)
                     }
                     is CheckStoragePasswordAndDecryptUseCase.Result.AskForEmptyPassCheckingField -> {
-                        sendStorageEvent(
+                        sendEvent(
                             StorageEvent.AskForEmptyPassCheckingField(
                                 fieldName = result.fieldName,
                                 passHash = result.passHash,
@@ -709,7 +706,7 @@ open class StorageViewModel(
             val params = StorageParams(
                 storage = storage!!, // FIXME
                 isDecrypt = true,
-                node = FavoritesInteractor.FAVORITES_NODE,
+                node = FavoritesManager.FAVORITES_NODE,
                 isNodeOpening = true,
                 isLoadFavoritesOnly = isLoadFavoritesOnly(),
                 isHandleReceivedIntent = false
@@ -781,7 +778,7 @@ open class StorageViewModel(
                     syncType == SyncStorageType.BeforeInit && it.isSyncBeforeInit -> {
                         if (it.isAskBeforeSyncOnInit) {
                             launchOnMain {
-                                sendStorageEvent(StorageEvent.AskOnSync.BeforeInit(callback))
+                                sendEvent(StorageEvent.AskOnSync.BeforeInit(callback))
                             }
                         } else {
                             startStorageSync(activity, callback)
@@ -791,7 +788,7 @@ open class StorageViewModel(
                     syncType == SyncStorageType.BeforeExit && it.isSyncBeforeExit -> {
                         if (it.isAskBeforeSyncOnExit) {
                             launchOnMain {
-                                sendStorageEvent(StorageEvent.AskOnSync.BeforeExit(callback))
+                                sendEvent(StorageEvent.AskOnSync.BeforeExit(callback))
                             }
                         } else {
                             startStorageSync(activity, callback)
@@ -859,7 +856,7 @@ open class StorageViewModel(
                     syncCallback?.run(result)
                 } else {
                     launchOnMain {
-                        sendStorageEvent(StorageEvent.AskOnSync.AfterInit(result))
+                        sendEvent(StorageEvent.AskOnSync.AfterInit(result))
                     }
                 }
             }
@@ -868,7 +865,7 @@ open class StorageViewModel(
                     syncCallback?.run(result)
                 } else {
                     launchOnMain {
-                        sendStorageEvent(StorageEvent.AskOnSync.AfterExit(result))
+                        sendEvent(StorageEvent.AskOnSync.AfterExit(result))
                     }
                 }
             }
@@ -974,7 +971,7 @@ open class StorageViewModel(
     protected fun checkExistenceCryptedNodes() {
         launchOnMain {
             if (!isExistCryptedNodes(true)) {
-                sendStorageEvent(StorageEvent.AskForClearStoragePass)
+                sendEvent(StorageEvent.AskForClearStoragePass)
             }
         }
     }
@@ -1005,8 +1002,8 @@ open class StorageViewModel(
             logError(R.string.log_link_is_empty)
             return
         }
-        this.sendViewEvent(
-            ViewEvent.ShowProgressText(
+        this.sendEvent(
+            BaseEvent.ShowProgressText(
                 message = getString(R.string.title_file_downloading)
             )
         )
@@ -1025,7 +1022,7 @@ open class StorageViewModel(
             override fun onSuccess() {
                 callback?.onSuccess(Uri.fromFile(File(outputFileName)))
                 launchOnMain {
-                    sendViewEvent(ViewEvent.ShowProgress(isVisible = false))
+                    sendEvent(BaseEvent.ShowProgress(isVisible = false))
                 }
             }
 
@@ -1033,7 +1030,7 @@ open class StorageViewModel(
                 callback?.onError(ex)
                 logError(getString(R.string.log_error_download_file_mask, ex.message ?: ""))
                 launchOnMain {
-                    sendViewEvent(ViewEvent.ShowProgress(isVisible = false))
+                    sendEvent(BaseEvent.ShowProgress(isVisible = false))
                 }
             }
         })
@@ -1133,8 +1130,7 @@ open class StorageViewModel(
 
     //region Encryption
 
-
-    fun isStorageCrypted(): Boolean {
+    override fun isStorageCrypted(): Boolean {
         var iniFlag = false
         try {
             iniFlag = storageProvider.databaseConfig.isCryptMode
@@ -1200,7 +1196,7 @@ open class StorageViewModel(
                         askPinCode(true, callbackEvent)
                     }
                     is CheckStoragePasswordAndAskUseCase.Result.AskForEmptyPassCheckingField -> {
-                        sendStorageEvent(
+                        sendEvent(
                             StorageEvent.AskForEmptyPassCheckingField(
                                 fieldName = result.fieldName,
                                 passHash = result.passHash,
@@ -1215,7 +1211,7 @@ open class StorageViewModel(
 
     fun confirmEmptyPassCheckingFieldDialog(passHash: String, callbackEvent: VMEvent) {
 //        cryptInteractor.initCryptPass(passHash, true)
-        crypter.setKeyFromMiddleHash(passHash)
+        storageCrypter.setKeyFromMiddleHash(passHash)
         askPinCode(true, callbackEvent)
     }
 
@@ -1239,7 +1235,7 @@ open class StorageViewModel(
         logger.log(R.string.log_show_pass_dialog, false)
         // выводим окно с запросом пароля в асинхронном режиме
         launchOnMain {
-            sendStorageEvent(StorageEvent.AskPassword(callbackEvent))
+            sendEvent(StorageEvent.AskPassword(callbackEvent))
         }
     }
 
@@ -1284,7 +1280,7 @@ open class StorageViewModel(
 
     suspend fun setupPass(password: String) {
         log(R.string.log_start_pass_setup)
-        sendViewEvent(ViewEvent.TaskStarted(R.string.task_pass_setting))
+        sendEvent(BaseEvent.TaskStarted(R.string.task_pass_setting))
         isBusy = true
 
         withIo {
@@ -1297,14 +1293,14 @@ open class StorageViewModel(
             )
         }.onComplete {
             isBusy = false
-            sendViewEvent(ViewEvent.TaskFinished)
+            sendEvent(BaseEvent.TaskFinished)
         }.onFailure {
             // TODO
             //logger.log(R.string.log_pass_set_error, true)
             logFailure(it)
         }.onSuccess {
             logger.log(R.string.log_pass_setted, true)
-            sendStorageEvent(StorageEvent.PassSetuped)
+            sendEvent(StorageEvent.PassSetuped)
         }
     }
 
@@ -1323,7 +1319,7 @@ open class StorageViewModel(
             logFailure(it)
         }.onSuccess {
             //logger.log(R.string.log_pass_inited, true)
-            //sendStorageEvent(StorageEvent.PasswordInited)
+            //sendEvent(StorageEvent.PasswordInited)
         }
     }
 
@@ -1344,7 +1340,7 @@ open class StorageViewModel(
             logger.logError(ex)
             // спрашиваем "continue anyway?"
             launchOnMain {
-                sendStorageEvent(
+                sendEvent(
                     StorageEvent.AskForEmptyPassCheckingField(
                         fieldName = ex.fieldName,
                         passHash = "",
@@ -1368,7 +1364,7 @@ open class StorageViewModel(
             logger.logError(ex)
             // спрашиваем "continue anyway?"
             launchOnMain {
-                sendStorageEvent(
+                sendEvent(
                     StorageEvent.AskForEmptyPassCheckingField(
                         fieldName = ex.fieldName,
                         passHash = "",
@@ -1385,7 +1381,7 @@ open class StorageViewModel(
 
     fun startChangePass(curPass: String, newPass: String) {
         launchOnMain {
-            sendViewEvent(ViewEvent.TaskStarted(R.string.task_pass_changing))
+            sendEvent(BaseEvent.TaskStarted(R.string.task_pass_changing))
             isBusy = true
             withIo {
                 changePasswordUseCase.run(
@@ -1400,16 +1396,16 @@ open class StorageViewModel(
             }.onFailure {
                 logger.logFailure(it)
                 isBusy = false
-                sendViewEvent(ViewEvent.TaskFinished)
+                sendEvent(BaseEvent.TaskFinished)
             }.onSuccess { result ->
                 isBusy = false
-                sendViewEvent(ViewEvent.TaskFinished)
+                sendEvent(BaseEvent.TaskFinished)
                 if (result) {
-                    sendStorageEvent(StorageEvent.PassChanged)
+                    sendEvent(StorageEvent.PassChanged)
                     logger.log(R.string.log_pass_changed, true)
                 } else {
                     logger.logError(R.string.log_pass_change_error, true)
-                    sendViewEvent(ViewEvent.ShowMoreInLogs)
+                    sendEvent(BaseEvent.ShowMoreInLogs)
                 }
 
             }
@@ -1441,7 +1437,7 @@ open class StorageViewModel(
         launchOnMain {
             if (isRequestPINCode() && specialFlag) {
                 // выводим запрос ввода ПИН-кода
-                sendStorageEvent(StorageEvent.AskPinCode(callbackEvent))
+                sendEvent(StorageEvent.AskPinCode(callbackEvent))
             } else {
                 sendEventFromCallbackParam(callbackEvent)
             }
@@ -1480,7 +1476,7 @@ open class StorageViewModel(
             false
         } else {
             launchOnMain {
-                sendStorageEvent(StorageEvent.SavePassHashLocalChanged(isSaveLocal))
+                sendEvent(StorageEvent.SavePassHashLocalChanged(isSaveLocal))
             }
             false
         }
@@ -1504,8 +1500,8 @@ open class StorageViewModel(
         private fun setStage(obj: LogObj, oper: LogOper, stage: TaskStage.Stages) {
             val taskStage = TaskStage(Constants.TetroidView.Settings, obj, oper, stage)
             launchOnMain {
-                sendViewEvent(
-                    ViewEvent.ShowProgressText(
+                sendEvent(
+                    BaseEvent.ShowProgressText(
                         message = logger.logTaskStage(taskStage).orEmpty()
                     )
                 )
@@ -1552,7 +1548,7 @@ open class StorageViewModel(
     }
 
     fun getFavoriteRecords(): List<TetroidRecord> {
-        return favoritesInteractor.getFavoriteRecords()
+        return favoritesManager.getFavoriteRecords()
     }
 
     /**
@@ -1604,26 +1600,6 @@ open class StorageViewModel(
 
     //region Getters
 
-    fun isStorageInited() = storage?.isInited ?: false
-
-    fun isStorageLoaded() = (storage?.isLoaded ?: false) && storageProvider.isLoaded()
-
-    fun isStorageDecrypted() = storage?.isDecrypted ?: false
-
-    fun isStorageNonEncryptedOrDecrypted() = !isStorageCrypted() || isStorageDecrypted()
-
-    fun getStorageId() = storage?.id ?: 0
-
-    fun getStoragePath() = storage?.path.orEmpty()
-
-    fun getStorageName() = storage?.name ?: ""
-
-    fun isStorageDefault() = storage?.isDefault ?: false
-
-    fun isStorageReadOnly() = storage?.isReadOnly ?: false
-
-    fun getTrashPath() = storage?.trashPath.orEmpty()
-
     fun getQuicklyNodeName() = quicklyNode?.name.orEmpty()
 
     fun getQuicklyNodeNameOrMessage(): String? {
@@ -1637,36 +1613,6 @@ open class StorageViewModel(
     }
 
     fun getQuicklyNodeId() = quicklyNode?.id.orEmpty()
-
-    fun getStorageSyncProfile() = storage?.syncProfile
-
-    fun isStorageSyncEnabled() = storage?.syncProfile?.isEnabled ?: false
-
-    fun getStorageSyncAppName() = storage?.syncProfile?.appName.orEmpty()
-
-    fun getStorageSyncCommand() = storage?.syncProfile?.command.orEmpty()
-
-    fun isLoadFavoritesOnly() = /*storageProvider.isLoadedFavoritesOnly()*/ storage?.isLoadFavoritesOnly ?: false
-
-    fun isKeepLastNode() = storage?.isKeepLastNode ?: false
-
-    fun getLastNodeId() = storage?.lastNodeId
-
-    fun isSaveMiddlePassLocal() = storage?.isSavePassLocal ?: false
-
-    fun isDecryptAttachesToTemp() = storage?.isDecyptToTemp ?: false
-
-    fun getMiddlePassHash() = storage?.middlePassHash
-
-    fun isCheckOutsideChanging() = storage?.syncProfile?.isCheckOutsideChanging ?: false
-
-    fun isNodesExist() = storageProvider.getRootNodes().isNotEmpty()
-
-    fun isLoadedFavoritesOnly() = storageProvider.isLoadedFavoritesOnly()
-
-    fun getRootNodes(): List<TetroidNode> = storageProvider.getRootNodes()
-
-    fun getTagsMap(): Map<String,TetroidTag> = storageProvider.getTagsMap()
 
     fun saveMiddlePassHashLocalIfCached() {
         // сохраняем хеш локально, если пароль был введен

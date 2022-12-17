@@ -9,6 +9,7 @@ import com.gee12.mytetroid.common.flatMap
 import com.gee12.mytetroid.common.onFailure
 import com.gee12.mytetroid.common.onSuccess
 import com.gee12.mytetroid.common.toRight
+import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.interactors.StoragesInteractor
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -17,6 +18,8 @@ import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.providers.BuildInfoProvider
 import com.gee12.mytetroid.providers.CommonSettingsProvider
+import com.gee12.mytetroid.providers.IResourcesProvider
+import com.gee12.mytetroid.providers.IStorageProvider
 import com.gee12.mytetroid.usecase.storage.CheckStorageFilesExistingUseCase
 import com.gee12.mytetroid.usecase.storage.InitStorageFromDefaultSettingsUseCase
 
@@ -27,22 +30,20 @@ class StoragesViewModel(
     notificator: INotificator,
     failureHandler: IFailureHandler,
     commonSettingsProvider: CommonSettingsProvider,
-    storageProvider: IStorageProvider,
     private val buildInfoProvider: BuildInfoProvider,
     private val storagesInteractor: StoragesInteractor,
     private val checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
     private val initStorageFromDefaultSettingsUseCase: InitStorageFromDefaultSettingsUseCase,
-) : BaseStorageViewModel(
+) : BaseViewModel(
     app,
     resourcesProvider,
     logger,
     notificator,
     failureHandler,
     commonSettingsProvider,
-    storageProvider,
 ) {
 
-    sealed class StoragesEvent : VMEvent() {
+    sealed class StoragesEvent : BaseEvent() {
         object ShowAddNewStorageDialog : StoragesEvent()
         data class AddedNewStorage(
             val storage: TetroidStorage,
@@ -54,6 +55,7 @@ class StoragesViewModel(
 
     var checkStoragesFilesExisting: Boolean = false
 
+
     fun loadStorages() {
         launchOnIo {
             val storages = storagesInteractor.getStorages()
@@ -64,6 +66,11 @@ class StoragesViewModel(
                 }
             _storages.postValue(storages)
         }
+    }
+
+    fun getCurrentStorageId(): Int? {
+        val currentStorageProvider = ScopeSource.current.scope.get<IStorageProvider>()
+        return currentStorageProvider.storage?.id
     }
 
     private suspend fun checkStorageFilesExisting(storage: TetroidStorage) {

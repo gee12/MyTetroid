@@ -9,7 +9,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.helpers.IResourcesProvider
+import com.gee12.mytetroid.providers.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 
 

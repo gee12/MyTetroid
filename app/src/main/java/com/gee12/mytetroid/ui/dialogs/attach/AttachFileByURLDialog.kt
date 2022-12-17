@@ -4,13 +4,12 @@ import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import com.gee12.mytetroid.viewmodels.StorageViewModel
-import com.gee12.mytetroid.ui.dialogs.TetroidDialogFragment
+import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import com.lumyjuwon.richwysiwygeditor.R
-import org.koin.java.KoinJavaComponent.get
 
 class AttachFileByURLDialog(
     val onApply: (url: String) -> Unit,
-) : TetroidDialogFragment<StorageViewModel>() {
+) : TetroidStorageDialogFragment<StorageViewModel>() {
 
     override fun getRequiredTag() = TAG
 
@@ -18,9 +17,7 @@ class AttachFileByURLDialog(
 
     override fun getLayoutResourceId() = R.layout.dialog_insert_web_content
 
-    override fun createViewModel() {
-        this.viewModel = get(StorageViewModel::class.java)
-    }
+    override fun getViewModelClazz() = StorageViewModel::class.java
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
         setTitle(com.gee12.mytetroid.R.string.title_download_attach_file)

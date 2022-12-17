@@ -2,7 +2,7 @@ package com.gee12.mytetroid.usecase.tag
 
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.data.xml.StorageDataXmlProcessor
-import com.gee12.mytetroid.helpers.IStorageProvider
+import com.gee12.mytetroid.providers.IStorageProvider
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.model.TetroidTag
 import java.util.*

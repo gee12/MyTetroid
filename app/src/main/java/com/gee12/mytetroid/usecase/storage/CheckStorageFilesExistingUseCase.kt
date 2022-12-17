@@ -4,8 +4,8 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.isDirEmpty
 import com.gee12.mytetroid.common.extensions.isFileExist
-import com.gee12.mytetroid.helpers.IResourcesProvider
-import com.gee12.mytetroid.helpers.StoragePathProvider
+import com.gee12.mytetroid.providers.IResourcesProvider
+import com.gee12.mytetroid.providers.StoragePathProvider
 import com.gee12.mytetroid.model.TetroidStorage
 
 class CheckStorageFilesExistingUseCase(

@@ -25,7 +25,7 @@ import com.gee12.mytetroid.App
 import com.gee12.mytetroid.BuildConfig
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.viewmodels.ViewEvent
+import com.gee12.mytetroid.viewmodels.BaseEvent
 import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.common.utils.ViewUtils
@@ -33,8 +33,9 @@ import com.gee12.mytetroid.data.ICallback
 import com.gee12.mytetroid.data.ScanManager
 import com.gee12.mytetroid.data.TetroidClipboard
 import com.gee12.mytetroid.data.settings.CommonSettings
+import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.helpers.SortHelper
-import com.gee12.mytetroid.interactors.FavoritesInteractor.Companion.FAVORITES_NODE
+import com.gee12.mytetroid.interactors.FavoritesManager.Companion.FAVORITES_NODE
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.LogType
@@ -58,7 +59,7 @@ import com.gee12.mytetroid.ui.dialogs.node.NodeFieldsDialog
 import com.gee12.mytetroid.ui.dialogs.node.NodeInfoDialog
 import com.gee12.mytetroid.ui.dialogs.pass.PassDialogs.IPassInputResult
 import com.gee12.mytetroid.ui.dialogs.pass.PassDialogs.showEmptyPassCheckingFieldDialog
-import com.gee12.mytetroid.ui.dialogs.pass.PassDialogs.showPassEnterDialog
+import com.gee12.mytetroid.ui.dialogs.pass.PassDialogs.showPasswordEnterDialog
 import com.gee12.mytetroid.ui.dialogs.pin.PinCodeDialog.Companion.showDialog
 import com.gee12.mytetroid.ui.dialogs.pin.PinCodeDialog.IPinInputResult
 import com.gee12.mytetroid.ui.dialogs.record.RecordDialogs
@@ -108,6 +109,9 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         get() = viewPagerAdapter.foundFragment
 
     override fun getLayoutResourceId() = R.layout.activity_main
+
+    override fun getViewModelClazz() = MainViewModel::class.java
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -221,6 +225,21 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         initNodesTagsListAdapters()
     }
 
+    override fun createDependencyScope() {
+        scopeSource = ScopeSource.current
+    }
+
+    override fun initViewModel() {
+        super.initViewModel()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        // TODO ?
+        //ScopeSource.main.scope.close()
+    }
+
     /**
      * Обработчик события, когда создался главный фрагмент активности.
      */
@@ -240,21 +259,15 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         }
     }
 
-    override fun createViewModel() {
-        viewModel = storageScope.get()
-    }
-
-    override fun initViewModel() {
-        super.initViewModel()
-    }
-
     /**
      * Обработчик событий UI.
      */
-    override fun onViewEvent(event: ViewEvent) {
-        Log.i("MYTETROID", "MainActivity.onViewEvent(): event=$event")
+    override fun onBaseEvent(event: BaseEvent) {
         when (event) {
-            is ViewEvent.InitUI -> {
+            is MainEvent -> {
+                onMainEvent(event)
+            }
+            is BaseEvent.InitUI -> {
                 initUI(
                     isLoaded = event.result,
                     isOnlyFavorites = event.isLoadFavoritesOnly,
@@ -262,22 +275,22 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                     isAllNodesOpening = event.isAllNodesLoading,
                 )
             }
-            is ViewEvent.UpdateToolbar -> {
+            is BaseEvent.UpdateToolbar -> {
                 updateMainToolbar(event.viewId, event.title)
             }
-            ViewEvent.HandleReceivedIntent -> checkReceivedIntent(receivedIntent)
-            ViewEvent.PermissionCheck -> viewModel.checkWriteExtStoragePermission(this)
-            is ViewEvent.PermissionGranted -> viewModel.syncAndInitStorage(this)
-            is ViewEvent.PermissionCanceled -> {}
-            is ViewEvent.OpenPage -> viewPager.setCurrent(event.pageId)
-            is ViewEvent.ShowMainView -> mainPage.showView(event.viewId)
-            ViewEvent.ClearMainView -> mainPage.clearView()
-            ViewEvent.CloseFoundView -> closeFoundFragment()
-            is ViewEvent.TaskStarted -> {
+            BaseEvent.HandleReceivedIntent -> checkReceivedIntent(receivedIntent)
+            BaseEvent.PermissionCheck -> viewModel.checkWriteExtStoragePermission(this)
+            is BaseEvent.PermissionGranted -> viewModel.syncAndInitStorage(this)
+            is BaseEvent.PermissionCanceled -> {}
+            is BaseEvent.OpenPage -> viewPager.setCurrent(event.pageId)
+            is BaseEvent.ShowMainView -> mainPage.showView(event.viewId)
+            BaseEvent.ClearMainView -> mainPage.clearView()
+            BaseEvent.CloseFoundView -> closeFoundFragment()
+            is BaseEvent.TaskStarted -> {
                 openedDrawerBeforeLock = taskMainPreExecute(event.titleResId ?: R.string.task_wait)
             }
-            ViewEvent.TaskFinished -> taskMainPostExecute()
-            else -> super.onViewEvent(event)
+            BaseEvent.TaskFinished -> taskMainPostExecute()
+            else -> super.onBaseEvent(event)
         }
     }
 
@@ -285,7 +298,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      * Обработчик событий хранилища.
      */
     override fun onStorageEvent(event: StorageEvent) {
-        Log.i("MYTETROID", "MainActivity.onStorageEvent(): event=$event")
         when (event) {
             is StorageEvent.FoundInBase -> onStorageUpdated()
             is StorageEvent.Inited -> onStorageInited()
@@ -347,8 +359,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     /**
      * Обработчик событий в главном окне приложения.
      */
-    override fun onObjectEvent(event: VMEvent) {
-        Log.i("MYTETROID", "MainActivity.onEvent(): event=$event")
+    private fun onMainEvent(event: MainEvent) {
         when (event) {
             MainEvent.Migrated -> showMigrationDialog()
             is MainEvent.Node.Encrypt -> viewModel.encryptNode(event.node)
@@ -2056,10 +2067,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         // устанавливаем признак необходимости запроса PIN-кода
         viewModel.setIsPINNeedToEnter()
         super.onPause()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
     }
 
     private fun askForExit() {

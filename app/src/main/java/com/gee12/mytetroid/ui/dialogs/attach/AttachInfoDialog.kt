@@ -9,8 +9,7 @@ import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StorageViewModel
-import com.gee12.mytetroid.ui.dialogs.TetroidDialogFragment
-import org.koin.java.KoinJavaComponent.get
+import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 
 /**
  * Диалог информации о прикрепленном файле.
@@ -18,7 +17,7 @@ import org.koin.java.KoinJavaComponent.get
 class AttachInfoDialog(
     val attach: TetroidFile?,
     override var storageId: Int?
-) : TetroidDialogFragment<StorageViewModel>() {
+) : TetroidStorageDialogFragment<StorageViewModel>() {
 
     override fun getRequiredTag() = TAG
 
@@ -26,9 +25,7 @@ class AttachInfoDialog(
 
     override fun getLayoutResourceId() = R.layout.dialog_attach_info
 
-    override fun createViewModel() {
-        this.viewModel = get(StorageViewModel::class.java)
-    }
+    override fun getViewModelClazz() = StorageViewModel::class.java
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
         dialog.setTitle(attach?.name)

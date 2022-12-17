@@ -6,13 +6,12 @@ import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import com.gee12.htmlwysiwygeditor.ViewUtils.TextChangedListener
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import com.gee12.mytetroid.viewmodels.StorageViewModel
-import com.gee12.mytetroid.ui.dialogs.TetroidDialogFragment
-import org.koin.java.KoinJavaComponent.get
 
 class PassChangeDialog(
     private val onApplyPass: (curPass: String, newPass: String) -> Boolean,
-) : TetroidDialogFragment<StorageViewModel>() {
+) : TetroidStorageDialogFragment<StorageViewModel>() {
 
     override fun getRequiredTag() = TAG
 
@@ -20,9 +19,7 @@ class PassChangeDialog(
 
     override fun getLayoutResourceId() = R.layout.dialog_pass_change
 
-    override fun createViewModel() {
-        this.viewModel = get(StorageViewModel::class.java)
-    }
+    override fun getViewModelClazz() = StorageViewModel::class.java
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
         dialog.setCanceledOnTouchOutside(false)

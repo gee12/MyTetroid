@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.helpers.IResourcesProvider
+import com.gee12.mytetroid.providers.IResourcesProvider
 import com.gee12.mytetroid.model.FoundType
 import com.gee12.mytetroid.model.ITetroidObject
 import com.gee12.mytetroid.model.TetroidRecord

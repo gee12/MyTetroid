@@ -3,10 +3,10 @@ package com.gee12.mytetroid.usecase.record
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.data.crypt.IStorageCrypter
 import com.gee12.mytetroid.providers.BuildInfoProvider
-import com.gee12.mytetroid.helpers.IRecordPathProvider
-import com.gee12.mytetroid.helpers.IStoragePathProvider
+import com.gee12.mytetroid.providers.IRecordPathProvider
+import com.gee12.mytetroid.providers.IStoragePathProvider
 import com.gee12.mytetroid.providers.DataNameProvider
-import com.gee12.mytetroid.interactors.FavoritesInteractor
+import com.gee12.mytetroid.interactors.FavoritesManager
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
@@ -23,10 +23,10 @@ import com.gee12.mytetroid.usecase.tag.ParseRecordTagsUseCase
  */
 class EditRecordFieldsUseCase(
     private val logger: ITetroidLogger,
-    private val appBuildProvider: BuildInfoProvider,
+    private val buildInfoProvider: BuildInfoProvider,
     private val storagePathProvider: IStoragePathProvider,
     private val recordPathProvider: IRecordPathProvider,
-    private val favoritesInteractor: FavoritesInteractor,
+    private val favoritesManager: FavoritesManager,
     private val crypter: IStorageCrypter,
     private val moveFileUseCase: MoveFileUseCase,
     private val deleteRecordTagsUseCase: DeleteRecordTagsUseCase,
@@ -128,9 +128,9 @@ class EditRecordFieldsUseCase(
                         )
                     }
                 }.flatMap {
-                    ifEitherOrNoneSuspend(appBuildProvider.isFullVersion()) {
+                    ifEitherOrNoneSuspend(buildInfoProvider.isFullVersion()) {
                         // добавляем/удаляем из избранного
-                        favoritesInteractor.addOrRemoveIfNeed(record, isFavor)
+                        favoritesManager.addOrRemoveIfNeed(record, isFavor)
                         None.toRight()
                     }
                 }.flatMap {
@@ -165,8 +165,8 @@ class EditRecordFieldsUseCase(
                     }
                     node.deleteRecord(record)
                     oldNode?.addRecord(record)
-                    if (appBuildProvider.isFullVersion()) {
-                        favoritesInteractor.addOrRemoveIfNeed(record, oldIsFavor)
+                    if (buildInfoProvider.isFullVersion()) {
+                        favoritesManager.addOrRemoveIfNeed(record, oldIsFavor)
                     }
                     if (isTemp) {
                         record.setIsTemp(true)

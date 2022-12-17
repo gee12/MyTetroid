@@ -6,7 +6,7 @@ import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.getAppVersionName
 import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.providers.CommonSettingsProvider
-import com.gee12.mytetroid.helpers.IResourcesProvider
+import com.gee12.mytetroid.providers.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import java.io.File
 

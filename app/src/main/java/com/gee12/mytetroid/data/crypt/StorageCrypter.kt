@@ -12,7 +12,11 @@ import java.io.File
 
 interface IStorageCrypter {
 
-//    fun init(storageProvider: StorageProvider)
+    fun init(
+        cryptRecordFilesUseCase: CryptRecordFilesUseCase,
+        parseRecordTagsUseCase: ParseRecordTagsUseCase,
+    )
+
     fun setKeyFromPassword(pass: String)
     fun setKeyFromMiddleHash(passHash: String)
 
@@ -167,17 +171,20 @@ interface IStorageCrypter {
 
 class StorageCrypter(
     private val logger: ITetroidLogger,
-//    private val storageProvider: IStorageProvider,
     private val crypter: Crypter,
-    private val cryptRecordFilesUseCase: CryptRecordFilesUseCase,
-    private val parseRecordTagsUseCase: ParseRecordTagsUseCase,
 ) : IStorageCrypter {
 
-//    private val tagsMap: HashMap<String, TetroidTag>
 
-//    override fun init(storageProvider: StorageProvider) {
-//
-//    }
+    private lateinit var cryptRecordFilesUseCase: CryptRecordFilesUseCase
+    private lateinit var parseRecordTagsUseCase: ParseRecordTagsUseCase
+
+    override fun init(
+        cryptRecordFilesUseCase: CryptRecordFilesUseCase,
+        parseRecordTagsUseCase: ParseRecordTagsUseCase,
+    ) {
+        this.cryptRecordFilesUseCase = cryptRecordFilesUseCase
+        this.parseRecordTagsUseCase = parseRecordTagsUseCase
+    }
 
     override fun setKeyFromPassword(pass: String) {
         val key = crypter.passToKey(pass)
@@ -621,8 +628,6 @@ class StorageCrypter(
         return cryptRecordFilesUseCase.run(
             CryptRecordFilesUseCase.Params(
                 record = record,
-                // TODO: это по идее уйдет
-//                pathToRecordFolder = storageProvider.recordPathProvider.getPathToRecordFolder(record),
                 isCrypted = isCrypted,
                 isEncrypt = isEncrypt,
             )

@@ -14,7 +14,7 @@ import com.gee12.mytetroid.App
 import com.gee12.mytetroid.App.isFullVersion
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.utils.Utils
-import com.gee12.mytetroid.helpers.IResourcesProvider
+import com.gee12.mytetroid.providers.IResourcesProvider
 import com.gee12.mytetroid.model.TetroidRecord
 import java.util.*
 

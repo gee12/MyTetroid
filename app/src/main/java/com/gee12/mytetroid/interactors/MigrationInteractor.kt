@@ -15,7 +15,7 @@ class MigrationInteractor(
     private val buildInfoProvider: BuildInfoProvider,
     private val commonSettingsProvider: CommonSettingsProvider,
     private val storagesInteractor: StoragesInteractor,
-    private val favoritesInteractor: FavoritesInteractor,
+    private val favoritesManager: FavoritesManager,
     private val initStorageFromDefaultSettingsUseCase: InitStorageFromDefaultSettingsUseCase,
 ) {
 
@@ -46,7 +46,7 @@ class MigrationInteractor(
                     if (result && buildInfoProvider.isFullVersion()) {
                         val favorites = commonSettingsProvider.getFavorites()
                         favorites.forEach { recordId ->
-                            favoritesInteractor.addFavorite(storage.id, recordId)
+                            favoritesManager.addFavorite(storage.id, recordId)
                         }
                     }
                     result.toRight()

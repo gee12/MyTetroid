@@ -3,8 +3,7 @@ package com.gee12.mytetroid.usecase.record
 import android.net.Uri
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.makePath
-import com.gee12.mytetroid.helpers.IRecordPathProvider
-import com.gee12.mytetroid.helpers.IResourcesProvider
+import com.gee12.mytetroid.providers.IRecordPathProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
@@ -19,7 +18,6 @@ import java.util.*
  * Создание временной записи (без сохранения в дерево) при использовании виджета.
  */
 class CreateTempRecordUseCase(
-    private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
     private val dataNameProvider: IDataNameProvider,
     private val recordPathProvider: IRecordPathProvider,

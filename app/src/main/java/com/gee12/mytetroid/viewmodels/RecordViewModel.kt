@@ -27,9 +27,7 @@ import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.interactors.*
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.logs.ITetroidLogger
-import com.gee12.mytetroid.providers.BuildInfoProvider
-import com.gee12.mytetroid.providers.CommonSettingsProvider
-import com.gee12.mytetroid.providers.IDataNameProvider
+import com.gee12.mytetroid.providers.*
 import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.ui.activities.TetroidActivity
 import com.gee12.mytetroid.usecase.InitAppUseCase
@@ -67,8 +65,7 @@ class RecordViewModel(
     storageCrypter: IStorageCrypter,
 
     passInteractor: PasswordInteractor,
-    favoritesInteractor: FavoritesInteractor,
-//    cryptInteractor: EncryptionInteractor,
+    favoritesManager: FavoritesManager,
     tagsInteractor: TagsInteractor,
     interactionInteractor: InteractionInteractor,
     syncInteractor: SyncInteractor,
@@ -117,7 +114,7 @@ class RecordViewModel(
     storagesRepo = storagesRepo,
     storageCrypter = storageCrypter,
 
-    favoritesInteractor = favoritesInteractor,
+    favoritesManager = favoritesManager,
     interactionInteractor = interactionInteractor,
     passInteractor = passInteractor,
     syncInteractor = syncInteractor,
@@ -143,7 +140,7 @@ class RecordViewModel(
     getRecordByIdUseCase = getRecordByIdUseCase,
 ) {
 
-    sealed class RecordEvent : VMEvent() {
+    sealed class RecordEvent : StorageEvent() {
         object NeedMigration : RecordEvent()
         data class LoadFields(
             val record: TetroidRecord,
@@ -229,7 +226,7 @@ class RecordViewModel(
             }
             else -> {
                 launchOnMain {
-                    sendViewEvent(ViewEvent.FinishActivity)
+                    sendEvent(BaseEvent.FinishActivity)
                 }
             }
         }
@@ -438,11 +435,11 @@ class RecordViewModel(
                     }
                 } else {
                     logError(getString(R.string.log_not_found_record) + recordId, true)
-                    sendViewEvent(ViewEvent.FinishActivity)
+                    sendEvent(BaseEvent.FinishActivity)
                 }
             } else {
                 logError(getString(R.string.log_not_transferred_record_id), true)
-                sendViewEvent(ViewEvent.FinishActivity)
+                sendEvent(BaseEvent.FinishActivity)
             }
         }
     }
@@ -453,7 +450,7 @@ class RecordViewModel(
      */
     private fun initRecordFromWidget() {
         launchOnMain {
-            sendViewEvent(ViewEvent.ShowHomeButton(isVisible = false))
+            sendEvent(BaseEvent.ShowHomeButton(isVisible = false))
 
             // создаем временную запись
             withIo {
@@ -468,7 +465,7 @@ class RecordViewModel(
             }.onFailure {
                 logFailure(it)
 //                logOperError(LogObj.RECORD, LogOper.CREATE, true)
-                sendViewEvent(ViewEvent.FinishActivity)
+                sendEvent(BaseEvent.FinishActivity)
             }.onSuccess { record ->
                 curRecord.postValue(record)
                 setTitle(record.name)
@@ -512,7 +509,7 @@ class RecordViewModel(
                 if (text == null) {
                     if (record.isCrypted && storageCrypter.getErrorCode() > 0) {
                         logError(R.string.log_error_record_file_decrypting)
-                        sendViewEvent(ViewEvent.ShowMoreInLogs)
+                        sendEvent(BaseEvent.ShowMoreInLogs)
                     }
                 }
             }
@@ -555,8 +552,8 @@ class RecordViewModel(
         }
 //        finishWithResult(RESULT_OPEN_RECORD, bundle)
         launchOnMain {
-            sendViewEvent(
-                ViewEvent.FinishWithResult(
+            sendEvent(
+                BaseEvent.FinishWithResult(
                     code = Constants.RESULT_OPEN_RECORD,
                     bundle = bundle
                 )
@@ -588,8 +585,8 @@ class RecordViewModel(
         bundle.putString(Constants.EXTRA_OBJECT_ID, id)
 //        finishWithResult(RESULT_OPEN_NODE, bundle)
         launchOnMain {
-            sendViewEvent(
-                ViewEvent.FinishWithResult(
+            sendEvent(
+                BaseEvent.FinishWithResult(
                     code = Constants.RESULT_OPEN_NODE, bundle = bundle
                 )
             )
@@ -627,8 +624,8 @@ class RecordViewModel(
         }
 //        finishWithResult(RESULT_SHOW_TAG, bundle)
         launchOnMain {
-            sendViewEvent(
-                ViewEvent.FinishWithResult(
+            sendEvent(
+                BaseEvent.FinishWithResult(
                     code = Constants.RESULT_SHOW_TAG, bundle = bundle
                 )
             )
@@ -671,7 +668,7 @@ class RecordViewModel(
             }
             if (errorCount > 0) {
                 logWarning(getString(R.string.log_failed_to_save_images_mask, errorCount))
-                sendViewEvent(ViewEvent.ShowMoreInLogs)
+                sendEvent(BaseEvent.ShowMoreInLogs)
             }
 
             sendEvent(RecordEvent.InsertImages(images = savedImages))
@@ -720,15 +717,15 @@ class RecordViewModel(
                 sendEvent(RecordEvent.InsertImages(images = listOf(image)))
             } else {
                 logOperError(LogObj.IMAGE, LogOper.SAVE, true)
-                sendViewEvent(ViewEvent.ShowMoreInLogs)
+                sendEvent(BaseEvent.ShowMoreInLogs)
             }
         }
     }
 
     fun downloadWebPageContent(url: String?, isTextOnly: Boolean) {
         launchOnMain {
-            sendViewEvent(
-                ViewEvent.ShowProgressText(
+            sendEvent(
+                BaseEvent.ShowProgressText(
                     message = getString(R.string.title_page_downloading)
                 )
             )
@@ -740,14 +737,14 @@ class RecordViewModel(
                             if (isTextOnly) RecordEvent.InsertWebPageText(text = content)
                             else RecordEvent.InsertWebPageContent(content = content)
                         )
-                        sendViewEvent(ViewEvent.ShowProgress(isVisible = false))
+                        sendEvent(BaseEvent.ShowProgress(isVisible = false))
                     }
                 }
 
                 override fun onError(ex: java.lang.Exception) {
                     launchOnMain {
                         logError(getString(R.string.log_error_download_web_page_mask, ex.message!!), true)
-                        sendViewEvent(ViewEvent.ShowProgress(isVisible = false))
+                        sendEvent(BaseEvent.ShowProgress(isVisible = false))
                     }
                 }
             })
@@ -756,8 +753,8 @@ class RecordViewModel(
 
     fun downloadImage(url: String?) {
         launchOnMain {
-            sendViewEvent(
-                ViewEvent.ShowProgressText(
+            sendEvent(
+                BaseEvent.ShowProgressText(
                     message = getString(R.string.title_image_downloading)
                 )
             )
@@ -765,14 +762,14 @@ class RecordViewModel(
                 override fun onSuccess(bitmap: Bitmap) {
                     launchOnMain {
                         saveImage(bitmap)
-                        sendViewEvent(ViewEvent.ShowProgress(isVisible = false))
+                        sendEvent(BaseEvent.ShowProgress(isVisible = false))
                     }
                 }
 
                 override fun onError(ex: java.lang.Exception) {
                     launchOnMain {
                         logError(getString(R.string.log_error_download_image_mask, ex.message!!), true)
-                        sendViewEvent(ViewEvent.ShowProgress(isVisible = false))
+                        sendEvent(BaseEvent.ShowProgress(isVisible = false))
                     }
                 }
             })
@@ -810,7 +807,7 @@ class RecordViewModel(
 
     private fun attachFile(fileFullName: String, record: TetroidRecord, deleteSrcFile: Boolean) {
         launchOnMain {
-            sendViewEvent(ViewEvent.TaskStarted(R.string.task_attach_file))
+            sendEvent(BaseEvent.TaskStarted(R.string.task_attach_file))
             withIo {
                 createAttachToRecordUseCase.run(
                     CreateAttachToRecordUseCase.Params(
@@ -820,11 +817,11 @@ class RecordViewModel(
                     )
                 )
             }.onComplete {
-                sendViewEvent(ViewEvent.TaskFinished)
+                sendEvent(BaseEvent.TaskFinished)
             }.onFailure {
                 logFailure(it)
 //                    logError(getString(R.string.log_files_attach_error), true)
-                sendViewEvent(ViewEvent.ShowMoreInLogs)
+                sendEvent(BaseEvent.ShowMoreInLogs)
             }.onSuccess { attach ->
                 log(getString(R.string.log_file_was_attached), true)
                 sendEvent(RecordEvent.FileAttached(attach))
@@ -854,8 +851,8 @@ class RecordViewModel(
         bundle.putString(Constants.EXTRA_OBJECT_ID, record.id)
 //        finishWithResult(RESULT_SHOW_ATTACHES, bundle)
         launchOnMain {
-            sendViewEvent(
-                ViewEvent.FinishWithResult(
+            sendEvent(
+                BaseEvent.FinishWithResult(
                     code = Constants.RESULT_SHOW_ATTACHES, bundle = bundle
                 )
             )
@@ -914,7 +911,7 @@ class RecordViewModel(
                 sendEvent(RecordEvent.SwitchViews(viewMode = newMode))
             }
             curMode = newMode
-            sendViewEvent(ViewEvent.UpdateOptionsMenu)
+            sendEvent(BaseEvent.UpdateOptionsMenu)
         }
     }
 
@@ -1056,7 +1053,7 @@ class RecordViewModel(
             ResultObj.START_MAIN_ACTIVITY ->
                 if (!onRecordFieldsIsEdited(resObj.type == ResultObj.START_MAIN_ACTIVITY)) {
                     launchOnMain {
-                        sendViewEvent(ViewEvent.FinishActivity)
+                        sendEvent(BaseEvent.FinishActivity)
                     }
                 }
             ResultObj.OPEN_RECORD -> openAnotherRecord(resObj, false)
@@ -1089,8 +1086,8 @@ class RecordViewModel(
                         // указываем родительской активности, что нужно обновить список записей
                         val intent = Intent()
                         intent.putExtra(Constants.EXTRA_IS_FIELDS_EDITED, true)
-                        sendViewEvent(
-                            ViewEvent.SetActivityResult(
+                        sendEvent(
+                            BaseEvent.SetActivityResult(
                                 code = Activity.RESULT_OK,
                                 intent = intent
                             )
@@ -1103,7 +1100,7 @@ class RecordViewModel(
 //                bundle.putString(EXTRA_OBJECT_ID, mRecord.getId());
                         if (curRecord.value!!.node != null) {
                             openRecordNodeInMainView()
-                            sendViewEvent(ViewEvent.FinishActivity)
+                            sendEvent(BaseEvent.FinishActivity)
                         } else {
                             showMessage(getString(R.string.log_record_node_is_empty), LogType.WARNING)
                         }
@@ -1112,7 +1109,7 @@ class RecordViewModel(
                 }
                 else -> {
                     launchOnMain {
-                        sendViewEvent(ViewEvent.FinishActivity)
+                        sendEvent(BaseEvent.FinishActivity)
                     }
                     return true
                 }
@@ -1131,7 +1128,7 @@ class RecordViewModel(
             action = Constants.ACTION_RECORD
         }
         launchOnMain {
-            sendViewEvent(ViewEvent.StartActivity(intent))
+            sendEvent(BaseEvent.StartActivity(intent))
         }
     }
 
@@ -1211,8 +1208,8 @@ class RecordViewModel(
         val bundle = Bundle()
         bundle.putString(Constants.EXTRA_OBJECT_ID, curRecord.value!!.id)
         launchOnMain {
-            sendViewEvent(
-                ViewEvent.FinishWithResult(
+            sendEvent(
+                BaseEvent.FinishWithResult(
                     code = Constants.RESULT_DELETE_RECORD, bundle = bundle
                 )
             )
@@ -1273,7 +1270,7 @@ class RecordViewModel(
                     }
                     saveRecord(resObj)
                     // показываем кнопку Home для возврата в ветку записи
-                    sendViewEvent(ViewEvent.ShowHomeButton(isVisible = true))
+                    sendEvent(BaseEvent.ShowHomeButton(isVisible = true))
                 } else {
                     log(R.string.log_record_fields_changed, true)
                 }
@@ -1311,7 +1308,7 @@ class RecordViewModel(
 
     fun setTitle(title: String) {
         launchOnMain {
-            sendViewEvent(ViewEvent.UpdateTitle(title))
+            sendEvent(BaseEvent.UpdateTitle(title))
         }
     }
 

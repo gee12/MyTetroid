@@ -13,14 +13,13 @@ import com.gee12.mytetroid.model.TetroidIcon
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.viewmodels.IconsViewModel
 import com.gee12.mytetroid.ui.adapters.IconsListAdapter
-import com.gee12.mytetroid.viewmodels.ViewEvent
-import org.koin.android.ext.android.get
+import com.gee12.mytetroid.viewmodels.BaseEvent
 import java.util.stream.IntStream
 
 /**
  * Активность для выбора иконки ветки.
  */
-class IconsActivity : TetroidActivity<IconsViewModel>() {
+class IconsActivity : TetroidStorageActivity<IconsViewModel>() {
 
     private lateinit var spFolders: Spinner
     private lateinit var iconsListView: ListView
@@ -33,9 +32,8 @@ class IconsActivity : TetroidActivity<IconsViewModel>() {
 
     override fun getLayoutResourceId() = R.layout.activity_icons
 
-    override fun createViewModel() {
-        viewModel = get()
-    }
+    override fun getViewModelClazz() = IconsViewModel::class.java
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,7 +78,7 @@ class IconsActivity : TetroidActivity<IconsViewModel>() {
         viewModel.init(nodeId, iconPath)
     }
 
-    override fun onViewEvent(event: ViewEvent) {
+    override fun onBaseEvent(event: BaseEvent) {
         when (event) {
             is IconsViewModel.IconsEvent.IconsFolders -> {
                 loadIconsFolders(event.folders)
@@ -91,7 +89,7 @@ class IconsActivity : TetroidActivity<IconsViewModel>() {
             is IconsViewModel.IconsEvent.IconsFromFolder -> {
                 loadIconsFromFolder(event.folder, event.icons)
             }
-            else -> super.onViewEvent(event)
+            else -> super.onBaseEvent(event)
         }
     }
 

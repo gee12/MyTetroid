@@ -4,6 +4,8 @@ import com.gee12.mytetroid.data.crypt.IStorageCrypter
 import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.model.TetroidStorage
+import com.gee12.mytetroid.providers.ISensitiveDataProvider
+import com.gee12.mytetroid.providers.IStorageProvider
 
 /**
  * Создается для конкретного хранилища.

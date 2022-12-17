@@ -7,9 +7,8 @@ import com.andrognito.pinlockview.IndicatorDots
 import com.andrognito.pinlockview.PinLockListener
 import com.andrognito.pinlockview.PinLockView
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import com.gee12.mytetroid.viewmodels.StorageViewModel
-import com.gee12.mytetroid.ui.dialogs.TetroidDialogFragment
-import org.koin.java.KoinJavaComponent.get
 
 class PinCodeDialog(
     private val length: Int,
@@ -17,7 +16,7 @@ class PinCodeDialog(
     private val isConfirm: Boolean,
     private val firstPin: String?,
     private val callback: IPinInputResult
-) : TetroidDialogFragment<StorageViewModel>() {
+) : TetroidStorageDialogFragment<StorageViewModel>() {
 
     interface IPinInputResult {
         fun onApply(pin: String): Boolean
@@ -30,9 +29,7 @@ class PinCodeDialog(
 
     override fun getLayoutResourceId() = R.layout.dialog_pin_code
 
-    override fun createViewModel() {
-        this.viewModel = get(StorageViewModel::class.java)
-    }
+    override fun getViewModelClazz() = StorageViewModel::class.java
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
         dialog.setCanceledOnTouchOutside(false)

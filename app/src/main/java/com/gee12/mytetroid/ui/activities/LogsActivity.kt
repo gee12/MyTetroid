@@ -9,40 +9,31 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import androidx.lifecycle.lifecycleScope
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.gee12.mytetroid.ui.adapters.TextAdapter
 import com.gee12.mytetroid.viewmodels.LogsViewModel
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.utils.FileUtils
-import com.gee12.mytetroid.logs.Message
 import com.gee12.mytetroid.viewmodels.LogsViewModel.*
-import com.gee12.mytetroid.ui.TetroidMessage
-import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
+import com.gee12.mytetroid.viewmodels.BaseEvent
 import java.io.IOException
 
 /**
  * Активность для просмотра логов.
  */
-class LogsActivity : AppCompatActivity() {
+class LogsActivity : TetroidActivity<LogsViewModel>() {
 
     private lateinit var recycleView: RecyclerView
     private lateinit var layoutError: LinearLayout
     private lateinit var textAdapter: TextAdapter
 
-    private val viewModel: LogsViewModel by inject()
+    override fun getLayoutResourceId() = R.layout.activity_logs
+
+    override fun getViewModelClazz() = LogsViewModel::class.java
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_logs)
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-
-        viewModel.initialize()
 
         /*// убираем перенос слов, замедляющий работу
         if (Build.VERSION.SDK_INT >= 23) {
@@ -54,29 +45,20 @@ class LogsActivity : AppCompatActivity() {
         recycleView.adapter = textAdapter
         layoutError = findViewById(R.id.layout_read_error)
 
-        lifecycleScope.launch {
-            viewModel.logsEventFlow.collect { event -> onEvent(event) }
-        }
-        lifecycleScope.launch {
-            viewModel.messageEventFlow.collect { showMessage(it) }
-        }
-
-        viewModel.load()
-
-        viewModel.logDebug(getString(R.string.log_activity_opened_mask, javaClass.simpleName))
+        viewModel.loadLogs()
     }
 
-    private fun onEvent(event: LogsEvent) {
+    override fun onBaseEvent(event: BaseEvent) {
         when (event) {
             LogsEvent.Loading.InProcess -> {
                 window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-                setProgresVisible(true)
+                setProgressVisible(true)
             }
 
             is LogsEvent.Loading.Success,
             is LogsEvent.Loading.Failed -> {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-                setProgresVisible(false)
+                setProgressVisible(false)
 
                 when (event) {
                     is LogsEvent.Loading.Success -> {
@@ -102,6 +84,7 @@ class LogsActivity : AppCompatActivity() {
             LogsEvent.ShowBufferLogs -> {
                 showBufferLogs()
             }
+            else -> super.onBaseEvent(event)
         }
     }
 
@@ -131,11 +114,14 @@ class LogsActivity : AppCompatActivity() {
      * Пролистывание в конец.
      */
     private fun scrollToBottom() {
-        recycleView.postDelayed({ recycleView.scrollToPosition(textAdapter.itemCount - 1) }, 100)
+        recycleView.postDelayed(
+            { recycleView.scrollToPosition(textAdapter.itemCount - 1) },
+            100
+        )
     }
 
-    private fun setProgresVisible(isVisible: Boolean) {
-        findViewById<View>(R.id.progress_bar).visibility = if (isVisible) View.VISIBLE else View.GONE
+    private fun setProgressVisible(isVisible: Boolean) {
+        findViewById<View>(R.id.progress_bar).isVisible = isVisible
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -148,14 +134,11 @@ class LogsActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    private fun showMessage(message: Message) {
-        TetroidMessage.show(this, message)
-    }
-
     companion object {
         fun start(context: Context) {
             val intent = Intent(context, LogsActivity::class.java)
             context.startActivity(intent)
         }
     }
+
 }

@@ -5,6 +5,8 @@ import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.model.TetroidStorage
+import com.gee12.mytetroid.providers.IResourcesProvider
+import com.gee12.mytetroid.providers.IStorageProvider
 import java.io.File
 import java.io.FileInputStream
 

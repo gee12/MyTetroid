@@ -11,6 +11,9 @@ import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidIcon
 import com.gee12.mytetroid.providers.CommonSettingsProvider
+import com.gee12.mytetroid.providers.IResourcesProvider
+import com.gee12.mytetroid.providers.IStoragePathProvider
+import com.gee12.mytetroid.providers.IStorageProvider
 import com.gee12.mytetroid.usecase.node.icon.GetIconsFoldersUseCase
 import com.gee12.mytetroid.usecase.node.icon.GetIconsFromFolderUseCase
 import java.io.File
@@ -22,19 +25,21 @@ class IconsViewModel(
     notificator: INotificator,
     failureHandler: IFailureHandler,
     commonSettingsProvider: CommonSettingsProvider,
+    storageProvider: IStorageProvider,
     private val storagePathProvider: IStoragePathProvider,
     private val getIconsFoldersUseCase: GetIconsFoldersUseCase,
     private val getIconsFromFolderUseCase: GetIconsFromFolderUseCase,
-) : BaseViewModel(
-    app,
-    resourcesProvider,
-    logger,
-    notificator,
-    failureHandler,
-    commonSettingsProvider,
+) : BaseStorageViewModel(
+    app = app,
+    resourcesProvider = resourcesProvider,
+    logger = logger,
+    notificator = notificator,
+    failureHandler = failureHandler,
+    commonSettingsProvider = commonSettingsProvider,
+    storageProvider = storageProvider,
 ) {
 
-    sealed class IconsEvent : ViewEvent() {
+    sealed class IconsEvent : BaseEvent() {
         data class IconsFolders(val folders: List<String>) : IconsEvent()
         data class IconsFromFolder(val folder: String, val icons: List<TetroidIcon>?) : IconsEvent()
         data class CurrentIcon(val icon: TetroidIcon) : IconsEvent()
@@ -44,6 +49,10 @@ class IconsViewModel(
 
     private val pathToIcons: String
         get() = storagePathProvider.getPathToIcons()
+
+    override fun startInitStorageFromBase(storageId: Int) {}
+
+    override fun isStorageCrypted() = storageProvider.isExistCryptedNodes()
 
     fun init(nodeId: String, currentIconPath: String) {
         this.nodeId = nodeId
@@ -67,7 +76,7 @@ class IconsViewModel(
             if (folders.isEmpty()) {
                 logWarning(getString(R.string.log_icons_dir_absent_mask, Constants.ICONS_DIR_NAME), show = true)
             } else {
-                sendViewEvent(IconsEvent.IconsFolders(folders))
+                sendEvent(IconsEvent.IconsFolders(folders))
             }
         }
     }
@@ -78,7 +87,7 @@ class IconsViewModel(
             if (pathParts.size >= 2) {
                 val name = pathParts[pathParts.size - 1]
                 val folder = pathParts[pathParts.size - 2]
-                sendViewEvent(
+                sendEvent(
                     IconsEvent.CurrentIcon(icon = TetroidIcon(folder, name))
                 )
             }
@@ -96,9 +105,9 @@ class IconsViewModel(
                 )
             }.onFailure {
                 logFailure(it)
-                sendViewEvent(IconsEvent.IconsFromFolder(folderName, icons = null))
+                sendEvent(IconsEvent.IconsFromFolder(folderName, icons = null))
             }.onSuccess { icons ->
-                sendViewEvent(IconsEvent.IconsFromFolder(folderName, icons))
+                sendEvent(IconsEvent.IconsFromFolder(folderName, icons))
             }
         }
     }

@@ -9,15 +9,17 @@ import android.view.Menu
 import androidx.lifecycle.lifecycleScope
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.model.TetroidStorage
+import com.gee12.mytetroid.providers.IStorageProvider
 import com.gee12.mytetroid.viewmodels.StorageSettingsViewModel
 import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
-import com.gee12.mytetroid.viewmodels.ViewEvent
+import com.gee12.mytetroid.viewmodels.BaseEvent
 import com.gee12.mytetroid.ui.fragments.settings.storage.StorageMainSettingsFragment
 import com.gee12.mytetroid.ui.fragments.settings.storage.StorageSectionsSettingsFragment
 import com.gee12.mytetroid.ui.fragments.settings.storage.TetroidStorageSettingsFragment
 import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
+import org.koin.core.scope.Scope
 
 /**
  * Активность для управления настройками хранилища.
@@ -25,40 +27,64 @@ import org.koin.android.ext.android.inject
  */
 class StorageSettingsActivity : TetroidSettingsActivity() {
 
-    val viewModel: StorageSettingsViewModel by inject()
+    private lateinit var scopeSource: ScopeSource
+    private val koinScope: Scope
+        get() = scopeSource.scope
+
+    lateinit var viewModel: StorageSettingsViewModel
+
+
+    fun getStorageId(): Int {
+        return intent.getIntExtra(Constants.EXTRA_STORAGE_ID, 0)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        createDependencyScope()
+        createViewModel()
         initViewModel()
     }
 
-    fun initViewModel() {
+    private fun createDependencyScope() {
+        val currentStorageProvider = ScopeSource.current.scope.get<IStorageProvider>()
+        val currentStorageId = currentStorageProvider.storage?.id
+        // создавать новый koin scope или использовать существующий current.scope
+        scopeSource = if (currentStorageId?.let { it == getStorageId() } == true) ScopeSource.current else ScopeSource()
+    }
+
+    private fun createViewModel() {
+        viewModel = koinScope.get()
+    }
+
+    private fun initViewModel() {
+        lifecycleScope.launch {
+            viewModel.eventFlow.collect { event -> onBaseEvent(event) }
+        }
         lifecycleScope.launch {
             viewModel.messageEventFlow.collect { message -> showMessage(message) }
         }
-        lifecycleScope.launch {
-            viewModel.viewEventFlow.collect { event -> onViewEvent(event) }
-        }
-        lifecycleScope.launch {
-            viewModel.storageEventFlow.collect { event -> onStorageEvent(event) }
-        }
+
         viewModel.updateStorageField.observe(this) { pair -> onUpdateStorageFieldEvent(pair.first, pair.second.toString()) }
 
     }
 
-    protected fun onViewEvent(event: ViewEvent) {
+    private fun onBaseEvent(event: BaseEvent) {
 //        (getCurrentFragment() as? TetroidStorageSettingsFragment)?.onViewEvent(event, data)
 
         when (event) {
-            is ViewEvent.ShowProgress -> setProgressVisibility(event.isVisible)
-            is ViewEvent.ShowProgressText -> setProgressText(event.message)
-            is ViewEvent.TaskStarted -> {
+            is StorageEvent -> {
+                onStorageEvent(event)
+            }
+            is BaseEvent.ShowProgress -> setProgressVisibility(event.isVisible)
+            is BaseEvent.ShowProgressText -> setProgressText(event.message)
+            is BaseEvent.TaskStarted -> {
                 setProgressVisibility(true, event.titleResId?.let { getString(it) })
             }
-            ViewEvent.TaskFinished -> setProgressVisibility(false)
-            ViewEvent.ShowMoreInLogs -> showSnackMoreInLogs()
-            ViewEvent.PermissionCheck -> viewModel.checkWriteExtStoragePermission(this)
-            is ViewEvent.PermissionGranted -> viewModel.initStorage()
+            BaseEvent.TaskFinished -> setProgressVisibility(false)
+            BaseEvent.ShowMoreInLogs -> showSnackMoreInLogs()
+            BaseEvent.PermissionCheck -> viewModel.checkWriteExtStoragePermission(this)
+            is BaseEvent.PermissionGranted -> viewModel.initStorage()
             else -> Unit
         }
     }
@@ -118,14 +144,6 @@ class StorageSettingsActivity : TetroidSettingsActivity() {
             }
         }
         updateOptionsMenu()
-    }
-
-    fun getStorageId(): Int {
-        return if (intent?.hasExtra(Constants.EXTRA_STORAGE_ID) == true) {
-            intent.getIntExtra(Constants.EXTRA_STORAGE_ID, 0)
-        } else {
-            0
-        }
     }
 
     override fun getLayoutResourceId() = R.layout.activity_settings

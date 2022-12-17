@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.di
+package com.gee12.mytetroid.di.modules
 
 import com.gee12.mytetroid.repo.CommonSettingsRepo
 import com.gee12.mytetroid.repo.FavoritesRepo
@@ -6,8 +6,8 @@ import com.gee12.mytetroid.repo.StoragesRepo
 import org.koin.android.ext.koin.androidApplication
 import org.koin.dsl.module
 
-object ReposModule {
-    val reposModule = module {
+object RepositoriesModule {
+    val repositoriesModule = module {
 
         single {
             CommonSettingsRepo(

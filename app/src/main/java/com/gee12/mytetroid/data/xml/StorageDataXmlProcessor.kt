@@ -6,7 +6,7 @@ import kotlin.Throws
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.data.crypt.IStorageCrypter
 import com.gee12.mytetroid.helpers.*
-import com.gee12.mytetroid.interactors.FavoritesInteractor
+import com.gee12.mytetroid.interactors.FavoritesManager
 import com.gee12.mytetroid.logs.ITetroidLogger
 import org.jdom2.output.XMLOutputter
 import com.gee12.mytetroid.model.*
@@ -47,21 +47,10 @@ interface IStorageDataProcessor : IStorageInfoProvider {
  */
 open class StorageDataXmlProcessor(
     private val logger: ITetroidLogger,
-    private val encryptHelper: IStorageCrypter,
-    private val favoritesInteractor: FavoritesInteractor,
+    private val storageCrypter: IStorageCrypter,
+    private val favoritesManager: FavoritesManager,
     private val parseRecordTagsUseCase: ParseRecordTagsUseCase,
     private val loadNodeIconUseCase: LoadNodeIconUseCase,
-    override var formatVersion: Version? = null,
-    override var nodesCount: Int = 0,
-    override var cryptedNodesCount: Int = 0,
-    override var recordsCount: Int = 0,
-    override var cryptedRecordsCount: Int = 0,
-    override var filesCount: Int = 0,
-    override var tagsCount: Int = 0,
-    override var uniqueTagsCount: Int = 0,
-    override var authorsCount: Int = 0,
-    override var maxSubnodesCount: Int = 0,
-    override var maxDepthLevel: Int = 0
 ) : IStorageDataProcessor {
 
     companion object {
@@ -88,6 +77,18 @@ open class StorageDataXmlProcessor(
     override var isExistCryptedNodes = false // а вообще можно читать из crypt_mode=1
 
     var isNeedDecrypt = false
+
+    override var formatVersion: Version? = null
+    override var nodesCount: Int = 0
+    override var cryptedNodesCount: Int = 0
+    override var recordsCount: Int = 0
+    override var cryptedRecordsCount: Int = 0
+    override var filesCount: Int = 0
+    override var tagsCount: Int = 0
+    override var uniqueTagsCount: Int = 0
+    override var authorsCount: Int = 0
+    override var maxSubnodesCount: Int = 0
+    override var maxDepthLevel: Int = 0
 
     /**
      * Загружено ли хранилище.
@@ -428,7 +429,7 @@ open class StorageDataXmlProcessor(
             id = parser.getAttributeValue(ns, "id")
 
             // проверяем id на избранность
-            isFavorite = favoritesInteractor.isFavorite(id)
+            isFavorite = favoritesManager.isFavorite(id)
             if (isLoadFavoritesOnly && !isFavorite) {
                 // выходим, т.к. загружаем только избранные записи
                 skip(parser) // пропускаем <files>, если есть
@@ -466,7 +467,7 @@ open class StorageDataXmlProcessor(
         record.attachedFiles = files
         if (isFavorite) {
             // добавляем избранную запись
-            favoritesInteractor.setObject(record)
+            favoritesManager.setObject(record)
         }
 
         // расшифровка
@@ -739,7 +740,7 @@ open class StorageDataXmlProcessor(
 
 
     private suspend fun decryptNode(node: TetroidNode): Boolean {
-        return encryptHelper.decryptNode(
+        return storageCrypter.decryptNode(
             node = node,
             isDecryptSubNodes = false,
             isDecryptRecords = false,
@@ -760,7 +761,7 @@ open class StorageDataXmlProcessor(
     }
 
     private suspend fun decryptRecord(record: TetroidRecord): Boolean {
-        return encryptHelper.decryptRecordAndFiles(
+        return storageCrypter.decryptRecordAndFiles(
             record = record,
             dropCrypt = false,
             decryptFiles = false

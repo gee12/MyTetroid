@@ -1,23 +1,19 @@
 package com.gee12.mytetroid.viewmodels
 
 import android.app.Application
-import android.content.Intent
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.data.crypt.IStorageCrypter
+import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.interactors.*
 import com.gee12.mytetroid.logs.ITetroidLogger
-import com.gee12.mytetroid.providers.BuildInfoProvider
-import com.gee12.mytetroid.providers.CommonSettingsProvider
-import com.gee12.mytetroid.providers.IDataNameProvider
-import com.gee12.mytetroid.providers.IStorageInfoProvider
+import com.gee12.mytetroid.providers.*
 import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.usecase.file.GetFileModifiedDateUseCase
 import com.gee12.mytetroid.usecase.file.GetFolderSizeUseCase
 import com.gee12.mytetroid.usecase.InitAppUseCase
-import com.gee12.mytetroid.usecase.node.icon.LoadNodeIconUseCase
 import com.gee12.mytetroid.usecase.crypt.*
 import com.gee12.mytetroid.usecase.node.GetNodeByIdUseCase
 import com.gee12.mytetroid.usecase.record.GetRecordByIdUseCase
@@ -45,10 +41,10 @@ class StorageInfoViewModel(
 
     storageCrypter: IStorageCrypter,
     storagesRepo: StoragesRepo,
+    private val storageDataProcessor: IStorageDataProcessor,
 
-//    cryptInteractor: EncryptionInteractor,
     tagsInteractor: TagsInteractor,
-    favoritesInteractor: FavoritesInteractor,
+    favoritesManager: FavoritesManager,
     passInteractor: PasswordInteractor,
     interactionInteractor: InteractionInteractor,
     syncInteractor: SyncInteractor,
@@ -71,6 +67,9 @@ class StorageInfoViewModel(
 
     getNodeByIdUseCase: GetNodeByIdUseCase,
     getRecordByIdUseCase: GetRecordByIdUseCase,
+
+    private val cryptRecordFilesUseCase: CryptRecordFilesUseCase,
+    private val parseRecordTagsUseCase: ParseRecordTagsUseCase,
 ) : StorageViewModel(
     app = app,
     resourcesProvider = resourcesProvider,
@@ -89,7 +88,7 @@ class StorageInfoViewModel(
     storagesRepo = storagesRepo,
     storageCrypter = storageCrypter,
 
-    favoritesInteractor = favoritesInteractor,
+    favoritesManager = favoritesManager,
     interactionInteractor = interactionInteractor,
     passInteractor = passInteractor,
     syncInteractor = syncInteractor,
@@ -115,7 +114,7 @@ class StorageInfoViewModel(
     getRecordByIdUseCase = getRecordByIdUseCase,
 ), CoroutineScope {
 
-    sealed class StorageInfoEvent : VMEvent() {
+    sealed class StorageInfoEvent : StorageEvent() {
         sealed class GetMyTetraXmlLastModifiedDate : StorageInfoEvent() {
             object InProgress : GetMyTetraXmlLastModifiedDate()
             data class Failed(val failure: Failure) : GetMyTetraXmlLastModifiedDate()
@@ -130,40 +129,35 @@ class StorageInfoViewModel(
 
     fun getStorageInfo(): IStorageInfoProvider = storageProvider.dataProcessor
 
-    fun startInitStorage(intent: Intent) {
-        launchOnMain {
-            sendViewEvent(ViewEvent.TaskStarted())
-            if (!initStorage(intent)) {
-                sendStorageEvent(StorageEvent.InitFailed(isOnlyFavorites = checkIsNeedLoadFavoritesOnly()))
+    override fun startInitStorage(storageId: Int) {
+        if (storage?.id == storageId) {
+            storage?.let {
+                launchOnMain {
+                    sendEvent(StorageEvent.FoundInBase(it))
+                    sendEvent(StorageEvent.Inited(it))
+                }
             }
-            sendViewEvent(ViewEvent.TaskFinished)
+        } else {
+            if (storageId > 0) {
+                prepareToAnotherStorage()
+                startInitStorageFromBase(storageId)
+            } else {
+                launchOnMain {
+                    sendEvent(StorageEvent.InitFailed(isOnlyFavorites = checkIsNeedLoadFavoritesOnly()))
+                }
+            }
         }
     }
 
-    // TODO:
-    override fun initStorage(intent: Intent): Boolean {
-        val storageId = intent.getIntExtra(Constants.EXTRA_STORAGE_ID, 0)
-
-//        return if (currentStorageProvider.storage?.id == storageId) {
-        return if (storageProvider.storage?.id == storageId) {
-//            storageProvider = currentStorageProvider
-            launchOnMain {
-                storage?.let {
-                    sendStorageEvent(StorageEvent.FoundInBase(it))
-                    sendStorageEvent(StorageEvent.Inited(it))
-                }
-            }
-            true
-        } else {
-            if (storageId > 0) {
-                resetToAnotherStorage()
-
-                startInitStorageFromBase(storageId)
-                true
-            } else {
-                false
-            }
-        }
+    private fun prepareToAnotherStorage() {
+        // FIXME: koin: из-за циклической зависимости вместо инжекта storageDataProcessor в конструкторе,
+        //  задаем его вручную позже
+        storageProvider.init(storageDataProcessor)
+        // TODO: нужно ли ?
+        storageCrypter.init(
+            cryptRecordFilesUseCase,
+            parseRecordTagsUseCase,
+        )
     }
 
     /**

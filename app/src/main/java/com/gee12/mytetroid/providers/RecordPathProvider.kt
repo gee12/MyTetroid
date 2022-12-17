@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.helpers
+package com.gee12.mytetroid.providers
 
 import com.gee12.mytetroid.common.extensions.makeFolderPath
 import com.gee12.mytetroid.common.extensions.makePath

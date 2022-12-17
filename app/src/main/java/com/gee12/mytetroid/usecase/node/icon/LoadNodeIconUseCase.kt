@@ -5,7 +5,7 @@ import com.gee12.mytetroid.common.Failure
 import com.gee12.mytetroid.common.UseCase
 import com.gee12.mytetroid.common.toRight
 import com.gee12.mytetroid.common.utils.FileUtils
-import com.gee12.mytetroid.helpers.IStoragePathProvider
+import com.gee12.mytetroid.providers.IStoragePathProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidNode
 import java.lang.Exception

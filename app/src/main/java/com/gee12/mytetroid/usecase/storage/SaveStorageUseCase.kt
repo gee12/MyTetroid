@@ -4,8 +4,8 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.getStringFromTo
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
-import com.gee12.mytetroid.helpers.IResourcesProvider
-import com.gee12.mytetroid.helpers.IStoragePathProvider
+import com.gee12.mytetroid.providers.IResourcesProvider
+import com.gee12.mytetroid.providers.IStoragePathProvider
 import com.gee12.mytetroid.providers.IDataNameProvider
 import com.gee12.mytetroid.interactors.StorageTreeInteractor
 import com.gee12.mytetroid.logs.ITetroidLogger

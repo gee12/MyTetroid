@@ -16,10 +16,9 @@ import com.gee12.mytetroid.common.extensions.setSelectionAtEnd
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
-import com.gee12.mytetroid.viewmodels.StorageViewModel
-import com.gee12.mytetroid.ui.dialogs.TetroidDialogFragment
+import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import com.gee12.mytetroid.ui.dialogs.node.NodeChooserDialog
-import org.koin.java.KoinJavaComponent.get
+import com.gee12.mytetroid.viewmodels.StorageViewModel
 import java.util.*
 import kotlin.math.abs
 
@@ -32,7 +31,7 @@ class RecordFieldsDialog(
     private val node: TetroidNode?,
     override var storageId: Int?,
     private val onApply: (name: String, tags: String, author: String, url: String, node: TetroidNode, isFavor: Boolean) -> Unit,
-) : TetroidDialogFragment<StorageViewModel>() {
+) : TetroidStorageDialogFragment<StorageViewModel>() {
 
     private lateinit var etName: EditText
 
@@ -46,9 +45,7 @@ class RecordFieldsDialog(
 
     override fun getLayoutResourceId() = R.layout.dialog_record
 
-    override fun createViewModel() {
-        this.viewModel = get(StorageViewModel::class.java)
-    }
+    override fun getViewModelClazz() = StorageViewModel::class.java
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
         etName = dialogView.findViewById(R.id.edit_text_name)

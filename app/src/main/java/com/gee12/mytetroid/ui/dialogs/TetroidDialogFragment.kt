@@ -13,29 +13,33 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
 import com.gee12.htmlwysiwygeditor.Dialogs
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.viewmodels.ViewEvent
+import com.gee12.mytetroid.viewmodels.BaseEvent
 import com.gee12.mytetroid.common.extensions.focusAndShowKeyboard
 import com.gee12.mytetroid.common.extensions.hideKeyboard
-import com.gee12.mytetroid.common.extensions.ifTrueOrNull
+import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.logs.Message
-import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.BaseViewModel
-import com.gee12.mytetroid.viewmodels.StorageViewModel
-import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
 import com.gee12.mytetroid.ui.IViewEventListener
 import com.gee12.mytetroid.ui.TetroidMessage
 import kotlinx.coroutines.launch
+import org.koin.core.scope.Scope
+import org.koin.core.scope.get
 
 abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
 
+    protected lateinit var scopeSource: ScopeSource
+
+    protected val koinScope: Scope
+        get() = scopeSource.scope
+
+    protected lateinit var viewModel: VM
+
     private val viewEventListener: IViewEventListener?
-        get() = requireActivity() as IViewEventListener?
+        get() = requireActivity() as? IViewEventListener
 
     lateinit var dialog: AlertDialog
 
     lateinit var dialogView: View
-
-    protected lateinit var viewModel: VM
 
     abstract fun getRequiredTag(): String
 
@@ -57,13 +61,13 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
     protected var onNegativeButtonCallback: DialogInterface.OnClickListener? = null
     protected var onNeutralButtonCallback: DialogInterface.OnClickListener? = null
 
-    protected open var storageId: Int? = null
-
-    protected open var isInitCurrentStorage: Boolean = true
-
     protected abstract fun getLayoutResourceId(): Int
 
+    protected abstract fun getViewModelClazz(): Class<VM>
+
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        createDependencyScope()
         createViewModel()
         initViewModel()
 
@@ -87,55 +91,37 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
         return dialogView
     }
 
-    abstract fun createViewModel()
+    protected open fun createDependencyScope() {
+        scopeSource = ScopeSource()
+    }
+
+    protected open fun createViewModel() {
+        this.viewModel = koinScope.get(getViewModelClazz())
+    }
 
     protected open fun initViewModel() {
         viewModel.logDebug(getString(R.string.log_dialog_opened_mask, javaClass.simpleName))
 
         lifecycleScope.launch {
-            viewModel.messageEventFlow.collect { message -> showMessage(message) }
+            viewModel.eventFlow.collect { event -> onBaseEvent(event) }
         }
         lifecycleScope.launch {
-            viewModel.viewEventFlow.collect { event -> onViewEvent(event) }
-        }
-
-        // для диалогов, которым необходимо хранилище
-        if (viewModel is StorageViewModel) {
-            val storageViewModel = viewModel as StorageViewModel
-            lifecycleScope.launch {
-                storageViewModel.storageEventFlow.collect { event -> onStorageEvent(event) }
-            }
-            val storageId = storageId
-                ?: isInitCurrentStorage.ifTrueOrNull {
-                    storageViewModel.getStorageId()
-                }
-            storageId?.let {
-                storageViewModel.startInitStorageFromBase(storageId = it)
-            }
+            viewModel.messageEventFlow.collect { message -> showMessage(message) }
         }
     }
 
-    protected open fun onViewEvent(event: ViewEvent) {
+    protected open fun onBaseEvent(event: BaseEvent) {
         when (event) {
-            is ViewEvent.ShowProgress -> viewEventListener?.setProgressVisibility(event.isVisible)
-            is ViewEvent.ShowProgressText -> viewEventListener?.setProgressText(event.message)
-            is ViewEvent.TaskStarted -> {
+            is BaseEvent.ShowProgress -> viewEventListener?.setProgressVisibility(event.isVisible)
+            is BaseEvent.ShowProgressText -> viewEventListener?.setProgressText(event.message)
+            is BaseEvent.TaskStarted -> {
                 viewEventListener?.setProgressVisibility(true, event.titleResId?.let { getString(it) })
             }
-            ViewEvent.TaskFinished -> viewEventListener?.setProgressVisibility(false)
-            ViewEvent.ShowMoreInLogs -> viewEventListener?.showSnackMoreInLogs()
+            BaseEvent.TaskFinished -> viewEventListener?.setProgressVisibility(false)
+            BaseEvent.ShowMoreInLogs -> viewEventListener?.showSnackMoreInLogs()
             else -> {}
         }
     }
-
-    open fun onStorageEvent(event: StorageEvent) {
-        when (event) {
-            is StorageEvent.Inited -> onStorageInited(event.storage)
-            else -> {}
-        }
-    }
-
-    open fun onStorageInited(storage: TetroidStorage) {}
 
     protected open fun initButtons() {
         onPositiveButtonCallback?.let { callback ->

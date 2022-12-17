@@ -12,8 +12,7 @@ import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.ui.adapters.NodesListAdapter
 import com.gee12.mytetroid.ui.adapters.NodesListAdapter.OnNodeHeaderClickListener
-import com.gee12.mytetroid.ui.dialogs.TetroidDialogFragment
-import org.koin.java.KoinJavaComponent.get
+import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import pl.openrnd.multilevellistview.MultiLevelListView
 
 /**
@@ -26,7 +25,7 @@ class NodeChooserDialog(
     val rootOnly: Boolean, // разрешены ли только ветки в корне дерева
     override var storageId: Int? = null,
     val callback: IResult
-) : TetroidDialogFragment<StorageViewModel>() {
+) : TetroidStorageDialogFragment<StorageViewModel>() {
 
     interface IResult {
         fun onApply(node: TetroidNode?)
@@ -66,9 +65,7 @@ class NodeChooserDialog(
 
     override fun getLayoutResourceId() = R.layout.dialog_nodes
 
-    override fun createViewModel() {
-        this.viewModel = get(StorageViewModel::class.java)
-    }
+    override fun getViewModelClazz() = StorageViewModel::class.java
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
         dialog.setTitle(R.string.title_choose_node)

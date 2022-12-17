@@ -4,7 +4,9 @@ import android.content.DialogInterface
 import android.text.InputType
 import android.text.TextUtils
 import android.view.View
-import android.widget.*
+import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.RelativeLayout
 import androidx.appcompat.app.AlertDialog
 import com.gee12.mytetroid.BuildConfig
 import com.gee12.mytetroid.R
@@ -12,9 +14,8 @@ import com.gee12.mytetroid.common.extensions.addAfterTextChangedListener
 import com.gee12.mytetroid.common.extensions.setSelectionAtEnd
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.model.TetroidNode
+import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import com.gee12.mytetroid.viewmodels.StorageViewModel
-import com.gee12.mytetroid.ui.dialogs.TetroidDialogFragment
-import org.koin.java.KoinJavaComponent.get
 import java.util.*
 import kotlin.math.abs
 
@@ -26,7 +27,7 @@ class NodeFieldsDialog(
     private val chooseParent: Boolean,
     override var storageId: Int?,
     private val onApply: (name: String, parentNode: TetroidNode) -> Unit,
-) : TetroidDialogFragment<StorageViewModel>() {
+) : TetroidStorageDialogFragment<StorageViewModel>() {
 
     private lateinit var etName: EditText
 
@@ -37,9 +38,7 @@ class NodeFieldsDialog(
 
     override fun getLayoutResourceId() = R.layout.dialog_node
 
-    override fun createViewModel() {
-        this.viewModel = get(StorageViewModel::class.java)
-    }
+    override fun getViewModelClazz() = StorageViewModel::class.java
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
         etName = view.findViewById(R.id.edit_text_name)

@@ -3,14 +3,14 @@ package com.gee12.mytetroid.usecase.storage
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.data.ini.DatabaseConfig
-import com.gee12.mytetroid.interactors.FavoritesInteractor
+import com.gee12.mytetroid.interactors.FavoritesManager
 import com.gee12.mytetroid.model.TetroidStorage
 
 /**
  * Создание файлов хранилища, если оно новое.
  */
 class InitStorageUseCase(
-    private val favoritesInteractor: FavoritesInteractor,
+    private val favoritesManager: FavoritesManager,
 ) : UseCase<UseCase.None, InitStorageUseCase.Params>() {
 
     data class Params(
@@ -29,7 +29,7 @@ class InitStorageUseCase(
             }.flatMap {
                 storage.isInited = true
 
-                favoritesInteractor.initIfNeed()
+                favoritesManager.initIfNeed()
 
                 None.toRight()
             }

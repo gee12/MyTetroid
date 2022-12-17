@@ -4,16 +4,13 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.data.crypt.IStorageCrypter
-import com.gee12.mytetroid.helpers.*
-import com.gee12.mytetroid.providers.DataNameProvider
-import com.gee12.mytetroid.providers.IDataNameProvider
-import com.gee12.mytetroid.interactors.FavoritesInteractor
+import com.gee12.mytetroid.interactors.FavoritesManager
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
-import com.gee12.mytetroid.model.TetroidTag
+import com.gee12.mytetroid.providers.*
 import com.gee12.mytetroid.usecase.attach.CloneAttachesToRecordUseCase
 import com.gee12.mytetroid.usecase.attach.RenameRecordAttachesUseCase
 import com.gee12.mytetroid.usecase.crypt.CryptRecordFilesUseCase
@@ -21,7 +18,6 @@ import com.gee12.mytetroid.usecase.file.MoveFileUseCase
 import com.gee12.mytetroid.usecase.tag.ParseRecordTagsUseCase
 import java.io.File
 import java.io.IOException
-import java.util.HashMap
 
 /**
  * Перемещение или копирование записи в ветку.
@@ -29,7 +25,7 @@ import java.util.HashMap
 class CloneRecordToNodeUseCase(
     private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
-    private val favoritesInteractor: FavoritesInteractor,
+    private val favoritesManager: FavoritesManager,
     private val dataNameProvider: IDataNameProvider,
     private val recordPathProvider: IRecordPathProvider,
     private val storagePathProvider: IStoragePathProvider,
@@ -93,7 +89,7 @@ class CloneRecordToNodeUseCase(
         node.addRecord(record)
         // добавляем в избранное обратно
         if (isCutted && record.isFavorite) {
-            favoritesInteractor.add(record)
+            favoritesManager.add(record)
         }
         // добавляем метки в запись и в коллекцию меток
         parseRecordTags(

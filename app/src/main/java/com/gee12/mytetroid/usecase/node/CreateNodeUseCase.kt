@@ -2,7 +2,7 @@ package com.gee12.mytetroid.usecase.node
 
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.data.crypt.IStorageCrypter
-import com.gee12.mytetroid.helpers.IStorageProvider
+import com.gee12.mytetroid.providers.IStorageProvider
 import com.gee12.mytetroid.providers.IDataNameProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj

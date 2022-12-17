@@ -4,7 +4,7 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.data.crypt.IStorageCrypter
 import com.gee12.mytetroid.data.ini.DatabaseConfig
-import com.gee12.mytetroid.helpers.ISensitiveDataProvider
+import com.gee12.mytetroid.providers.ISensitiveDataProvider
 import com.gee12.mytetroid.interactors.PasswordInteractor
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidStorage

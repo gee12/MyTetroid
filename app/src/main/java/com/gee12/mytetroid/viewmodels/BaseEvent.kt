@@ -5,22 +5,22 @@ import android.os.Bundle
 import com.gee12.mytetroid.model.TetroidStorage
 
 // TODO: BaseVMEvent - наследовать от него остальные евенты
-sealed class ViewEvent : VMEvent() {
+sealed class BaseEvent : VMEvent() {
     // activity
     data class StartActivity(
         val intent: Intent,
-    ) : ViewEvent()
+    ) : BaseEvent()
     data class SetActivityResult(
         val code: Int,
         val bundle: Bundle? = null,
         var intent: Intent? = null,
-    ) : ViewEvent()
-    object FinishActivity : ViewEvent()
+    ) : BaseEvent()
+    object FinishActivity : BaseEvent()
     data class FinishWithResult(
         val code: Int,
         val bundle: Bundle? = null,
         var intent: Intent? = null,
-    ) : ViewEvent()
+    ) : BaseEvent()
 
     // ui
     data class InitUI(  // TODO: в MainEvent, убрать из StorageViewModel
@@ -31,53 +31,53 @@ sealed class ViewEvent : VMEvent() {
         val isHandleReceivedIntent: Boolean, // ужно ли после загрузки открыть ветку, сохраненную в опции getLastNodeId()
         //  или ветку с избранным (если именно она передана в node)
         var isAllNodesLoading: Boolean = false, // загрузка всех веток после режима isLoadedFavoritesOnly
-    ) : ViewEvent()
+    ) : BaseEvent()
     data class UpdateToolbar(  // TODO: MainEvent
         val viewId: Int,
         val title: String?,
-    ) : ViewEvent()
-    object UpdateOptionsMenu : ViewEvent()
-    object HandleReceivedIntent : ViewEvent()
+    ) : BaseEvent()
+    object UpdateOptionsMenu : BaseEvent()
+    object HandleReceivedIntent : BaseEvent()
     data class UpdateTitle(
         val title: String,
-    ) : ViewEvent()
-    object ShowMoreInLogs : ViewEvent()
+    ) : BaseEvent()
+    object ShowMoreInLogs : BaseEvent()
     data class ShowHomeButton(
         val isVisible: Boolean,
-    ) : ViewEvent()
+    ) : BaseEvent()
 
     // permission
-    object PermissionCheck : ViewEvent()
+    object PermissionCheck : BaseEvent()
     data class PermissionGranted(
         val requestCode: Int,
-    ) : ViewEvent()
+    ) : BaseEvent()
     data class PermissionCanceled(
         val requestCode: Int,
-    ) : ViewEvent()
+    ) : BaseEvent()
     data class ShowPermissionRequest(
         val request: PermissionRequestParams,
-    ) : ViewEvent()
+    ) : BaseEvent()
 
     // TODO: MainEvent
     // pages
     data class OpenPage(
         val pageId: Int,
-    ) : ViewEvent()
+    ) : BaseEvent()
     data class ShowMainView(
         val viewId: Int,
-    ) : ViewEvent()
-    object ClearMainView : ViewEvent()
-    object CloseFoundView : ViewEvent()
+    ) : BaseEvent()
+    object ClearMainView : BaseEvent()
+    object CloseFoundView : BaseEvent()
 
     // long-term tasks
     data class TaskStarted(
         val titleResId: Int? = null,
-    ) : ViewEvent()
-    object TaskFinished : ViewEvent()
+    ) : BaseEvent()
+    object TaskFinished : BaseEvent()
     data class ShowProgress(
         val isVisible: Boolean,
-    ) : ViewEvent()
+    ) : BaseEvent()
     data class ShowProgressText(
         val message: String,
-    ) : ViewEvent()
+    ) : BaseEvent()
 }

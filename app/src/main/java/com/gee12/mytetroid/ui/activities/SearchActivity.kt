@@ -19,6 +19,7 @@ import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.ui.dialogs.node.NodeChooserDialog
 import com.gee12.mytetroid.model.SearchProfile
+import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
 import kotlinx.coroutines.launch
 
 /**
@@ -46,6 +47,9 @@ class SearchActivity : TetroidStorageActivity<StorageViewModel>() {
     private var node: TetroidNode? = null
 
     override fun getLayoutResourceId() = R.layout.activity_search
+
+    override fun getViewModelClazz() = StorageViewModel::class.java
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -101,20 +105,9 @@ class SearchActivity : TetroidStorageActivity<StorageViewModel>() {
         viewModel.startInitStorageFromBase(storageId ?: CommonSettings.getLastStorageId(this))
     }
 
-    override fun createViewModel() {
-        this.viewModel = storageScope.get()
-    }
-
-    override fun initViewModel() {
-        super.initViewModel()
-        lifecycleScope.launch {
-            viewModel.storageEventFlow.collect { event -> onStorageEvent(event) }
-        }
-    }
-
-    override fun onStorageEvent(event: StorageViewModel.StorageEvent) {
+    override fun onStorageEvent(event: StorageEvent) {
         when (event) {
-            is StorageViewModel.StorageEvent.Inited -> onStorageInited()
+            is StorageEvent.Inited -> onStorageInited()
             else -> {}
         }
     }

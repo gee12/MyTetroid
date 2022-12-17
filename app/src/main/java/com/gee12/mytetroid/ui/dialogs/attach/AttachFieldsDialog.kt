@@ -9,15 +9,14 @@ import com.gee12.mytetroid.common.extensions.addAfterTextChangedListener
 import com.gee12.mytetroid.common.extensions.setSelectionAtEnd
 import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.viewmodels.StorageViewModel
-import com.gee12.mytetroid.ui.dialogs.TetroidDialogFragment
-import org.koin.java.KoinJavaComponent.get
+import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import java.util.*
 import kotlin.math.abs
 
 class AttachFieldsDialog(
     private val file: TetroidFile?,
     private val onApply: (name: String) -> Unit,
-) : TetroidDialogFragment<StorageViewModel>() {
+) : TetroidStorageDialogFragment<StorageViewModel>() {
 
     private lateinit var etName: EditText
 
@@ -27,13 +26,7 @@ class AttachFieldsDialog(
 
     override fun getLayoutResourceId() = R.layout.dialog_attach
 
-    companion object {
-        const val TAG = "AttachFieldsDialog"
-    }
-
-    override fun createViewModel() {
-        this.viewModel = get(StorageViewModel::class.java)
-    }
+    override fun getViewModelClazz() = StorageViewModel::class.java
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
         etName = view.findViewById(R.id.edit_text_name)
@@ -63,6 +56,10 @@ class AttachFieldsDialog(
 
     private fun checkPositiveButtonIsEnabled() {
         getPositiveButton()?.isEnabled = etName.text.isNotEmpty()
+    }
+
+    companion object {
+        const val TAG = "AttachFieldsDialog"
     }
 
 }

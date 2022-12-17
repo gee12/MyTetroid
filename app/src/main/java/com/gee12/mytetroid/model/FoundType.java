@@ -2,7 +2,7 @@ package com.gee12.mytetroid.model;
 
 import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.StringsIntMask;
-import com.gee12.mytetroid.helpers.IResourcesProvider;
+import com.gee12.mytetroid.providers.IResourcesProvider;
 
 public class FoundType extends StringsIntMask {
 

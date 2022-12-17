@@ -4,8 +4,8 @@ import android.net.Uri
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.data.crypt.IStorageCrypter
-import com.gee12.mytetroid.helpers.IRecordPathProvider
-import com.gee12.mytetroid.interactors.FavoritesInteractor
+import com.gee12.mytetroid.providers.IRecordPathProvider
+import com.gee12.mytetroid.interactors.FavoritesManager
 import com.gee12.mytetroid.providers.IDataNameProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
@@ -29,7 +29,7 @@ class CreateRecordUseCase(
     private val dataNameProvider: IDataNameProvider,
     private val recordPathProvider: IRecordPathProvider,
     private val crypter: IStorageCrypter,
-    private val favoritesInteractor: FavoritesInteractor,
+    private val favoritesManager: FavoritesManager,
     private val checkRecordFolderUseCase: CheckRecordFolderUseCase,
     private val parseRecordTagsUseCase: ParseRecordTagsUseCase,
     private val saveStorageUseCase: SaveStorageUseCase,
@@ -115,7 +115,7 @@ class CreateRecordUseCase(
                 ).flatMap {
                     // добавляем в избранное
                     if (isFavor) {
-                        favoritesInteractor.add(record)
+                        favoritesManager.add(record)
                     }
                     record.toRight()
                 }

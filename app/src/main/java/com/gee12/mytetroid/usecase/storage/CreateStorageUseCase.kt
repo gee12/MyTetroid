@@ -6,8 +6,8 @@ import com.gee12.mytetroid.common.extensions.isDirEmpty
 import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
-import com.gee12.mytetroid.helpers.IResourcesProvider
-import com.gee12.mytetroid.interactors.FavoritesInteractor
+import com.gee12.mytetroid.providers.IResourcesProvider
+import com.gee12.mytetroid.interactors.FavoritesManager
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.usecase.node.CreateNodeUseCase
@@ -20,7 +20,7 @@ class CreateStorageUseCase(
     private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
     private val storageDataProcessor: IStorageDataProcessor,
-    private val favoritesInteractor: FavoritesInteractor,
+    private val favoritesManager: FavoritesManager,
     private val createNodeUseCase: CreateNodeUseCase,
 ) : UseCase<UseCase.None, CreateStorageUseCase.Params>() {
 
@@ -40,11 +40,11 @@ class CreateStorageUseCase(
                 storage.isInited = false
             }.flatMap {
                 storage.isInited = true
-                storage.isNew = false
                 storage.isLoaded = true
+                storage.isNew = false
 
                 // обнуляем список избранных записей для нового хранилища
-                favoritesInteractor.reset()
+                favoritesManager.reset()
 
                 None.toRight()
             }

@@ -1,8 +1,8 @@
 package com.gee12.mytetroid.usecase.record
 
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.helpers.IRecordPathProvider
-import com.gee12.mytetroid.interactors.FavoritesInteractor
+import com.gee12.mytetroid.providers.IRecordPathProvider
+import com.gee12.mytetroid.interactors.FavoritesManager
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
@@ -19,7 +19,7 @@ import com.gee12.mytetroid.usecase.tag.DeleteRecordTagsUseCase
 class CutOrDeleteRecordUseCase(
     private val logger: ITetroidLogger,
     private val recordPathProvider: IRecordPathProvider,
-    private val favoritesInteractor: FavoritesInteractor,
+    private val favoritesManager: FavoritesManager,
     private val checkRecordFolderUseCase: CheckRecordFolderUseCase,
     private val deleteRecordTagsUseCase: DeleteRecordTagsUseCase,
     private val moveOrDeleteRecordFolderUseCase: MoveOrDeleteRecordFolderUseCase,
@@ -73,7 +73,7 @@ class CutOrDeleteRecordUseCase(
             .flatMap {
                 // удаляем из избранного
                 if (record.isFavorite) {
-                    favoritesInteractor.remove(record, false)
+                    favoritesManager.remove(record, false)
                 }
                 // перезагружаем список меток
                 deleteRecordTagsUseCase.run(

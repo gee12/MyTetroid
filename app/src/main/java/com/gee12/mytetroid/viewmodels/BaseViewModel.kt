@@ -13,7 +13,7 @@ import com.gee12.mytetroid.common.extensions.getIdNameString
 import com.gee12.mytetroid.providers.CommonSettingsProvider
 import com.gee12.mytetroid.helpers.IFailureHandler
 import com.gee12.mytetroid.helpers.INotificator
-import com.gee12.mytetroid.helpers.IResourcesProvider
+import com.gee12.mytetroid.providers.IResourcesProvider
 import com.gee12.mytetroid.interactors.PermissionInteractor
 import com.gee12.mytetroid.interactors.PermissionRequestData
 import com.gee12.mytetroid.logs.*
@@ -36,8 +36,8 @@ open class BaseViewModel(
             throwable.printStackTrace()
         }
 
-    private val _viewEventFlow = MutableSharedFlow<ViewEvent>(extraBufferCapacity = 0)
-    val viewEventFlow = _viewEventFlow.asSharedFlow()
+    private val _eventFlow = MutableSharedFlow<BaseEvent>(extraBufferCapacity = 0)
+    val eventFlow = _eventFlow.asSharedFlow()
 
     var isBusy = false
 
@@ -67,14 +67,16 @@ open class BaseViewModel(
         }
     }
 
-    //region View event
-
-    suspend fun sendViewEvent(event: ViewEvent) {
-        Log.i("MYTETROID", "postViewEvent(): state=$event")
-        _viewEventFlow.emit(event)
+    suspend fun sendEvent(event: BaseEvent) {
+        Log.i("MYTETROID", "sendEvent($event)")
+        _eventFlow.emit(event)
     }
 
-    //endregion View event
+    //region Get
+
+    fun getLastFolderPathOrDefault(forWrite: Boolean) = commonSettingsProvider.getLastFolderPathOrDefault(forWrite)
+
+    //endregion Get
 
     //region Permission
 
@@ -174,19 +176,19 @@ open class BaseViewModel(
 
     open fun onPermissionGranted(requestCode: Int) {
         launchOnMain {
-            sendViewEvent(ViewEvent.PermissionGranted(requestCode))
+            sendEvent(BaseEvent.PermissionGranted(requestCode))
         }
     }
 
     open fun onPermissionCanceled(requestCode: Int) {
         launchOnMain {
-            sendViewEvent(ViewEvent.PermissionCanceled(requestCode))
+            sendEvent(BaseEvent.PermissionCanceled(requestCode))
         }
     }
 
     open fun showManualPermissionRequest(request: PermissionRequestParams) {
         launchOnMain {
-            sendViewEvent(ViewEvent.ShowPermissionRequest(request))
+            sendEvent(BaseEvent.ShowPermissionRequest(request))
         }
     }
 
@@ -342,7 +344,7 @@ open class BaseViewModel(
 
     fun showSnackMoreInLogs() {
         launchOnMain {
-            sendViewEvent(ViewEvent.ShowMoreInLogs)
+            sendEvent(BaseEvent.ShowMoreInLogs)
         }
     }
 

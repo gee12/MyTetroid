@@ -9,9 +9,7 @@ import com.gee12.mytetroid.data.settings.TetroidPreferenceDataStore
 import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.interactors.*
 import com.gee12.mytetroid.logs.ITetroidLogger
-import com.gee12.mytetroid.providers.BuildInfoProvider
-import com.gee12.mytetroid.providers.CommonSettingsProvider
-import com.gee12.mytetroid.providers.IDataNameProvider
+import com.gee12.mytetroid.providers.*
 import com.gee12.mytetroid.repo.StoragesRepo
 import com.gee12.mytetroid.usecase.InitAppUseCase
 import com.gee12.mytetroid.usecase.crypt.*
@@ -42,9 +40,8 @@ class StorageSettingsViewModel(
     storagesRepo: StoragesRepo,
     storageCrypter: IStorageCrypter,
 
-    favoritesInteractor: FavoritesInteractor,
+    favoritesManager: FavoritesManager,
     passInteractor: PasswordInteractor,
-//    cryptInteractor: EncryptionInteractor,
     tagsInteractor: TagsInteractor,
     interactionInteractor: InteractionInteractor,
     syncInteractor: SyncInteractor,
@@ -85,7 +82,7 @@ class StorageSettingsViewModel(
     storagesRepo = storagesRepo,
     storageCrypter = storageCrypter,
 
-    favoritesInteractor = favoritesInteractor,
+    favoritesManager = favoritesManager,
     interactionInteractor = interactionInteractor,
     passInteractor = passInteractor,
     syncInteractor = syncInteractor,

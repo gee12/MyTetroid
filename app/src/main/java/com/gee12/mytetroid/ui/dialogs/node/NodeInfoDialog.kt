@@ -1,28 +1,27 @@
 package com.gee12.mytetroid.ui.dialogs.node
 
 import android.view.View
-import android.widget.*
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.onFailure
 import com.gee12.mytetroid.common.onSuccess
 import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.viewmodels.StorageViewModel
-import com.gee12.mytetroid.ui.dialogs.TetroidDialogFragment
+import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import com.gee12.mytetroid.usecase.node.GetNodesAndRecordsCountUseCase
+import com.gee12.mytetroid.viewmodels.StorageViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
-import org.koin.java.KoinJavaComponent.get
 
 /**
  * Диалог информации о ветке.
  */
 class NodeInfoDialog(
     val node: TetroidNode?
-) : TetroidDialogFragment<StorageViewModel>() {
+) : TetroidStorageDialogFragment<StorageViewModel>() {
 
     private val getNodesAndRecordsCountUseCase: GetNodesAndRecordsCountUseCase by inject()
 
@@ -32,9 +31,7 @@ class NodeInfoDialog(
 
     override fun getLayoutResourceId() = R.layout.dialog_node_info
 
-    override fun createViewModel() {
-        this.viewModel = get(StorageViewModel::class.java)
-    }
+    override fun getViewModelClazz() = StorageViewModel::class.java
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
         setTitle(node?.name)

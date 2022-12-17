@@ -1,17 +1,16 @@
 package com.gee12.mytetroid.usecase.tag
 
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.helpers.StorageProvider
 import com.gee12.mytetroid.interactors.TagsInteractor
 import com.gee12.mytetroid.model.TetroidRecord
-import com.gee12.mytetroid.model.TetroidTag
+import com.gee12.mytetroid.providers.IStorageProvider
 import java.util.*
 
 /**
  * Удаление меток записи из списка.
  */
 class DeleteRecordTagsUseCase(
-    private val storageProvider: StorageProvider,
+    private val storageProvider: IStorageProvider,
     private val tagsInteractor: TagsInteractor,
 ) : UseCase<UseCase.None, DeleteRecordTagsUseCase.Params>() {
 

@@ -5,17 +5,13 @@ import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.toFile
 import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.data.crypt.IStorageCrypter
-import com.gee12.mytetroid.helpers.IRecordPathProvider
-import com.gee12.mytetroid.helpers.IStoragePathProvider
-import com.gee12.mytetroid.helpers.ResourcesProvider
-import com.gee12.mytetroid.providers.IDataNameProvider
-import com.gee12.mytetroid.interactors.FavoritesInteractor
+import com.gee12.mytetroid.interactors.FavoritesManager
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
-import com.gee12.mytetroid.providers.DataNameProvider
+import com.gee12.mytetroid.providers.*
 import com.gee12.mytetroid.usecase.attach.CloneAttachesToRecordUseCase
 import com.gee12.mytetroid.usecase.attach.RenameRecordAttachesUseCase
 import com.gee12.mytetroid.usecase.crypt.CryptRecordFilesUseCase
@@ -31,13 +27,13 @@ import java.io.IOException
  * @param withoutDir Не пытаться восстановить каталог записи
  */
 class InsertRecordUseCase(
-    private val resourcesProvider: ResourcesProvider,
+    private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
     private val storagePathProvider: IStoragePathProvider,
     private val recordPathProvider: IRecordPathProvider,
     private val dataNameProvider: IDataNameProvider,
     private val crypter: IStorageCrypter,
-    private val favoritesInteractor: FavoritesInteractor,
+    private val favoritesManager: FavoritesManager,
     private val checkRecordFolderUseCase: CheckRecordFolderUseCase,
     private val cloneAttachesToRecordUseCase: CloneAttachesToRecordUseCase,
     private val renameRecordAttachesUseCase: RenameRecordAttachesUseCase,
@@ -167,7 +163,7 @@ class InsertRecordUseCase(
             .flatMap {
                 // добавляем в избранное обратно
                 if (isCutting && srcRecord.isFavorite) {
-                    favoritesInteractor.add(record)
+                    favoritesManager.add(record)
                 }
                 // добавляем метки в запись и в коллекцию меток
                 parseRecordTagsUseCase.run(

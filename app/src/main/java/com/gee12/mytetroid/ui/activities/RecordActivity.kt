@@ -38,6 +38,7 @@ import com.gee12.mytetroid.common.extensions.hideKeyboard
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
+import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.helpers.HtmlHelper
 import com.gee12.mytetroid.helpers.TetroidClipboardListener
 import com.gee12.mytetroid.model.TetroidFile
@@ -58,8 +59,7 @@ import com.gee12.mytetroid.ui.dialogs.record.RecordFieldsDialog
 import com.gee12.mytetroid.ui.dialogs.record.RecordInfoDialog
 import com.gee12.mytetroid.viewmodels.RecordViewModel
 import com.gee12.mytetroid.viewmodels.ResultObj
-import com.gee12.mytetroid.viewmodels.VMEvent
-import com.gee12.mytetroid.viewmodels.ViewEvent
+import com.gee12.mytetroid.viewmodels.BaseEvent
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
@@ -68,8 +68,6 @@ import com.lumyjuwon.richwysiwygeditor.RichEditor.EditableWebView.*
 import com.lumyjuwon.richwysiwygeditor.WysiwygEditor
 import kotlinx.coroutines.launch
 import net.cachapa.expandablelayout.ExpandableLayout
-import org.koin.android.ext.android.get
-import org.koin.core.qualifier.named
 
 /**
  * Активность просмотра и редактирования содержимого записи.
@@ -104,6 +102,8 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     }
 
     override fun getLayoutResourceId() = R.layout.activity_record
+
+    override fun getViewModelClazz() = RecordViewModel::class.java
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -174,40 +174,51 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         afterOnCreate()
     }
 
-    override fun createViewModel() {
-        viewModel = storageScope.get()
+    override fun createDependencyScope() {
+        scopeSource = ScopeSource.current
     }
 
     override fun initViewModel() {
         super.initViewModel()
+
         viewModel.curRecord.observe(this) { record ->
             viewModel.openRecord(record)
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+
+        // TODO: если открывали активити из виджета, то закрываем главный scope
+        //ScopeContainer.current.scope.close()
+    }
+
     /**
      * Обработчик событий UI.
      */
-    override fun onViewEvent(event: ViewEvent) {
+    override fun onBaseEvent(event: BaseEvent) {
         when (event) {
-            is ViewEvent.StartActivity -> startActivity(event.intent)
-            is ViewEvent.SetActivityResult -> setResult(event.code, event.intent)
-            ViewEvent.FinishActivity -> finish()
-            is ViewEvent.FinishWithResult -> finishWithResult(event.code, event.bundle)
-            ViewEvent.PermissionCheck,
-            is ViewEvent.PermissionGranted ->
+            is RecordEvent -> {
+                onRecordEvent(event)
+            }
+            is BaseEvent.StartActivity -> startActivity(event.intent)
+            is BaseEvent.SetActivityResult -> setResult(event.code, event.intent)
+            BaseEvent.FinishActivity -> finish()
+            is BaseEvent.FinishWithResult -> finishWithResult(event.code, event.bundle)
+            BaseEvent.PermissionCheck,
+            is BaseEvent.PermissionGranted ->
                 // загружаем параметры хранилища только после проверки разрешения на запись во внешнюю память
                 startInitStorage()
-            is ViewEvent.PermissionCanceled ->
+            is BaseEvent.PermissionCanceled ->
                 // закрываем активити, если нет разрешения на запись во внешнюю память
                 // TODO: поведение потребуется изменить, если хранилище загружается только на чтение
                 finish()
-            is ViewEvent.UpdateTitle -> setTitle(event.title)
-            ViewEvent.UpdateOptionsMenu -> updateOptionsMenu()
-            is ViewEvent.ShowHomeButton -> setVisibilityActionHome(event.isVisible)
-            is ViewEvent.TaskStarted -> taskPreExecute(event.titleResId ?: R.string.task_wait)
-            ViewEvent.TaskFinished -> taskPostExecute()
-            else -> super.onViewEvent(event)
+            is BaseEvent.UpdateTitle -> setTitle(event.title)
+            BaseEvent.UpdateOptionsMenu -> updateOptionsMenu()
+            is BaseEvent.ShowHomeButton -> setVisibilityActionHome(event.isVisible)
+            is BaseEvent.TaskStarted -> taskPreExecute(event.titleResId ?: R.string.task_wait)
+            BaseEvent.TaskFinished -> taskPostExecute()
+            else -> super.onBaseEvent(event)
         }
     }
 
@@ -224,7 +235,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     /**
      * Обработчик событий в окне записи.
      */
-    override fun onObjectEvent(event: VMEvent) {
+    private fun onRecordEvent(event: RecordEvent) {
         when (event) {
             RecordEvent.NeedMigration -> showNeedMigrationDialog()
             RecordEvent.Save -> saveRecord()

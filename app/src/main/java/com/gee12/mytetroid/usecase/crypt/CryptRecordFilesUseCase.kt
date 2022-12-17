@@ -3,9 +3,8 @@ package com.gee12.mytetroid.usecase.crypt
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.getIdString
-import com.gee12.mytetroid.helpers.IRecordPathProvider
-import com.gee12.mytetroid.helpers.IResourcesProvider
-import com.gee12.mytetroid.helpers.RecordPathProvider
+import com.gee12.mytetroid.providers.IRecordPathProvider
+import com.gee12.mytetroid.providers.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidRecord
 import java.io.File
@@ -16,15 +15,14 @@ import java.io.File
 class CryptRecordFilesUseCase(
     private val logger: ITetroidLogger,
     private val resourcesProvider: IResourcesProvider,
-    private val recordPathProvider: RecordPathProvider,
+    private val recordPathProvider: IRecordPathProvider,
     private val encryptOrDecryptFileUseCase: EncryptOrDecryptFileUseCase,
 ) : UseCase<Boolean, CryptRecordFilesUseCase.Params>() {
 
     data class Params(
         val record: TetroidRecord,
-//        val pathToRecordFolder: String,
         val isCrypted: Boolean,
-        val isEncrypt: Boolean
+        val isEncrypt: Boolean,
     )
 
     override suspend fun run(params: Params): Either<Failure, Boolean> {
@@ -34,7 +32,6 @@ class CryptRecordFilesUseCase(
 
         // файл записи
         val recordFolderPath = recordPathProvider.getPathToRecordFolder(record)
-//        val recordFolderPath = params.pathToRecordFolder
         var file = File(recordFolderPath, record.fileName)
 
         encryptOrDecryptFileUseCase.run(

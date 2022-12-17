@@ -12,7 +12,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.logs.Message
-import com.gee12.mytetroid.viewmodels.ViewEvent
+import com.gee12.mytetroid.viewmodels.BaseEvent
 import com.gee12.mytetroid.viewmodels.CommonSettingsViewModel
 import com.gee12.mytetroid.ui.TetroidMessage
 import com.gee12.mytetroid.ui.activities.TetroidSettingsActivity
@@ -47,19 +47,19 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
             baseViewModel.messageEventFlow.collect { message -> showMessage(message) }
         }
         lifecycleScope.launch {
-            baseViewModel.viewEventFlow.collect { event -> onViewEvent(event) }
+            baseViewModel.eventFlow.collect { event -> onViewEvent(event) }
         }
     }
 
-    open fun onViewEvent(event: ViewEvent) {
+    open fun onViewEvent(event: BaseEvent) {
         when (event) {
-            is ViewEvent.ShowProgress -> settingsActivity?.setProgressVisibility(event.isVisible)
-            is ViewEvent.ShowProgressText -> settingsActivity?.setProgressText(event.message)
-            is ViewEvent.TaskStarted -> {
+            is BaseEvent.ShowProgress -> settingsActivity?.setProgressVisibility(event.isVisible)
+            is BaseEvent.ShowProgressText -> settingsActivity?.setProgressText(event.message)
+            is BaseEvent.TaskStarted -> {
                 settingsActivity?.setProgressVisibility(true, event.titleResId?.let { getString(it) })
             }
-            ViewEvent.TaskFinished -> settingsActivity?.setProgressVisibility(false)
-            ViewEvent.ShowMoreInLogs -> settingsActivity?.showSnackMoreInLogs()
+            BaseEvent.TaskFinished -> settingsActivity?.setProgressVisibility(false)
+            BaseEvent.ShowMoreInLogs -> settingsActivity?.showSnackMoreInLogs()
             else -> {}
         }
     }

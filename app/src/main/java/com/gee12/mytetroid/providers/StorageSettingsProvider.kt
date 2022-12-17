@@ -1,7 +1,6 @@
 package com.gee12.mytetroid.providers
 
 import com.gee12.mytetroid.database.entity.SyncProfileEntity
-import com.gee12.mytetroid.helpers.IStorageProvider
 import com.gee12.mytetroid.model.TetroidStorage
 
 interface IStorageSettingsProvider {

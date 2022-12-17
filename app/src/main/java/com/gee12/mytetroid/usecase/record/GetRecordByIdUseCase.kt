@@ -2,16 +2,14 @@ package com.gee12.mytetroid.usecase.record
 
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.data.TetroidRecordComparator
-import com.gee12.mytetroid.data.xml.IStorageDataProcessor
-import com.gee12.mytetroid.helpers.IStorageProvider
-import com.gee12.mytetroid.interactors.FavoritesInteractor
+import com.gee12.mytetroid.providers.IStorageProvider
+import com.gee12.mytetroid.interactors.FavoritesManager
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
 
 class GetRecordByIdUseCase(
     private val storageProvider: IStorageProvider,
-    private val storageDataProcessor: IStorageDataProcessor,
-    private val favoritesInteractor: FavoritesInteractor,
+    private val favoritesManager: FavoritesManager,
 ) : UseCase<TetroidRecord, GetRecordByIdUseCase.Params>() {
 
     data class Params(
@@ -33,8 +31,8 @@ class GetRecordByIdUseCase(
         findRecord(storageProvider.getRootNode().records, recordId)?.let { record ->
             return record.toRight()
         }
-        return if (storageDataProcessor.isLoadFavoritesOnlyMode()) {
-            findRecord(favoritesInteractor.getFavoriteRecords(), recordId)?.toRight()
+        return if (storageProvider.isLoadedFavoritesOnly()) {
+            findRecord(favoritesManager.getFavoriteRecords(), recordId)?.toRight()
                 ?: Failure.Record.NotFound(recordId).toLeft()
         } else {
             findRecordInHierarchy(storageProvider.getRootNodes(), recordId)

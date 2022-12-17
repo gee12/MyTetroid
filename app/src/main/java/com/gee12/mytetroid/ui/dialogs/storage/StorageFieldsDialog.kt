@@ -12,9 +12,8 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.extensions.addAfterTextChangedListener
 import com.gee12.mytetroid.common.extensions.setSelectionAtEnd
 import com.gee12.mytetroid.model.TetroidStorage
+import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import com.gee12.mytetroid.viewmodels.StorageViewModel
-import com.gee12.mytetroid.ui.dialogs.TetroidDialogFragment
-import org.koin.java.KoinJavaComponent.get
 import java.io.File
 
 class StorageFieldsDialog(
@@ -22,7 +21,7 @@ class StorageFieldsDialog(
     private val isDefault: Boolean? = null,
     private val onApply: (storage: TetroidStorage) -> Unit,
     private val onSelectPath: (path: String) -> Unit,
-) : TetroidDialogFragment<StorageViewModel>() {
+) : TetroidStorageDialogFragment<StorageViewModel>() {
 
     override var isInitCurrentStorage: Boolean = false
 
@@ -38,9 +37,7 @@ class StorageFieldsDialog(
 
     override fun getLayoutResourceId() = R.layout.dialog_storage
 
-    override fun createViewModel() {
-        this.viewModel = get(StorageViewModel::class.java)
-    }
+    override fun getViewModelClazz() = StorageViewModel::class.java
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
         setTitle(if (storageId != null) R.string.title_edit_storage else R.string.title_add_storage)
