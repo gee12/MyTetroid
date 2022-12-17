@@ -117,7 +117,8 @@ class StorageInfoActivity : TetroidStorageActivity<StorageInfoViewModel>() {
                     setOnClickListener {
                         viewModel.startLoadStorage(
                             isLoadFavoritesOnly = false,
-                            isHandleReceivedIntent = false
+                            isHandleReceivedIntent = false,
+                            isNeedDecrypt = false,
                         )
                     }
                 }
@@ -143,6 +144,7 @@ class StorageInfoActivity : TetroidStorageActivity<StorageInfoViewModel>() {
         layoutLoadStorage.visibility = View.GONE
         findViewById<RelativeLayout>(R.id.layout_data).visibility = View.VISIBLE
         val info = viewModel.getStorageInfo()
+        val isDecrypted = viewModel.isStorageNonEncryptedOrDecrypted()
         info.calcCounters()
         findViewById<TextView>(R.id.text_view_stats_nodes_count).text = info.nodesCount.toString()
         findViewById<TextView>(R.id.text_view_stats_crypt_nodes_count).text = info.cryptedNodesCount.toString()
@@ -152,8 +154,16 @@ class StorageInfoActivity : TetroidStorageActivity<StorageInfoViewModel>() {
         findViewById<TextView>(R.id.text_view_stats_records_count).text = info.recordsCount.toString()
         findViewById<TextView>(R.id.text_view_stats_crypt_records_count).text = info.cryptedRecordsCount.toString()
         findViewById<TextView>(R.id.text_view_stats_files_count).text = info.filesCount.toString()
-        findViewById<TextView>(R.id.text_view_stats_tags_count).text = info.tagsCount.toString()
-        findViewById<TextView>(R.id.text_view_stats_unique_tags_count).text = info.uniqueTagsCount.toString()
+        findViewById<TextView>(R.id.text_view_stats_tags_count).text = if (isDecrypted) {
+            info.uniqueTagsCount.toString()
+        } else {
+            getString(R.string.title_need_decrypt_storage)
+        }
+        if (isDecrypted) {
+            findViewById<TextView>(R.id.text_view_stats_unique_tags_count).text = info.uniqueTagsCount.toString()
+        } else {
+            findViewById<TableRow>(R.id.tags_table_row).isVisible = false
+        }
         findViewById<TextView>(R.id.text_view_stats_authors_count).text = info.authorsCount.toString()
     }
 

@@ -739,10 +739,10 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
     private fun showPasswordDialog(callbackEvent: VMEvent) {
         val isSetup = !viewModel.isStorageCrypted()
-        showPassEnterDialog(
-            isSetup,
-            supportFragmentManager,
-            object : IPassInputResult {
+        showPasswordEnterDialog(
+            isSetup = isSetup,
+            fragmentManager = supportFragmentManager,
+            passResult = object : IPassInputResult {
                 override fun applyPass(pass: String) {
                     viewModel.onPasswordEntered(pass, isSetup, callbackEvent)
                 }
@@ -754,12 +754,11 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     }
 
     private fun showPinCodeDialog(callbackEvent: VMEvent) {
-        val isSetup = !viewModel.isStorageCrypted()
         showDialog(
-            CommonSettings.getPinCodeLength(this),
-            isSetup,
-            supportFragmentManager,
-            object : IPinInputResult {
+            length = CommonSettings.getPinCodeLength(this),
+            isSetup = !viewModel.isStorageCrypted(),
+            fragmentManager = supportFragmentManager,
+            callback = object : IPinInputResult {
                 override fun onApply(pin: String): Boolean {
                     return viewModel.startCheckPinCode(pin, callbackEvent)
                 }
@@ -1208,7 +1207,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     /**
      * Открытие активности RecordActivity.
      */
-    private fun openRecord(bundle: Bundle?) {
+    private fun openRecord(bundle: Bundle) {
         RecordActivity.start(this, Intent.ACTION_MAIN, Constants.REQUEST_CODE_RECORD_ACTIVITY, bundle)
     }
 

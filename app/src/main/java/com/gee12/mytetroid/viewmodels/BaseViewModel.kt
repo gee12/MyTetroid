@@ -34,6 +34,7 @@ open class BaseViewModel(
     private val internalCoroutineExceptionHandler =
         CoroutineExceptionHandler { _, throwable ->
             throwable.printStackTrace()
+            logError(throwable)
         }
 
     private val _eventFlow = MutableSharedFlow<BaseEvent>(extraBufferCapacity = 0)
@@ -241,7 +242,7 @@ open class BaseViewModel(
     }
 
     @JvmOverloads
-    fun logError(ex: Exception, show: Boolean = true) {
+    fun logError(ex: Throwable, show: Boolean = true) {
         logger.logError(ex, show)
     }
 

@@ -11,6 +11,7 @@ import com.gee12.mytetroid.ui.fragments.FoundPageFragment;
 import com.gee12.mytetroid.ui.fragments.MainPageFragment;
 import com.gee12.mytetroid.ui.fragments.TetroidFragment;
 
+// TODO: переписать на новый лад
 public class MainPagerAdapter extends FragmentPagerAdapter {
 
     private final TetroidFragment[] fragments = new TetroidFragment[2];

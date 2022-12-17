@@ -218,7 +218,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
     }
 
     private fun openFolderPicker(title: String?, location: String, isNew: Boolean) {
-        val path = location.ifBlank { viewModel.getLastFolderPathOrDefault(true) }
+        val path = location.ifBlank { viewModel.getLastFolderPathOrDefault(forWrite = true) }
         val intent = Intent(this, FolderPicker::class.java)
         intent.putExtra(FolderPicker.EXTRA_TITLE, title)
         intent.putExtra(FolderPicker.EXTRA_LOCATION, path)

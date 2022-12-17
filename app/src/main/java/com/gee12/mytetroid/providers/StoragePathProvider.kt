@@ -46,7 +46,7 @@ class StoragePathProvider(
     }
 
     override fun getUriToStorageBaseFolder(): Uri {
-        return Uri.parse("${FILE_URI_PREFIX}${getPathToStorageBaseFolder()}")
+        return Uri.parse("$FILE_URI_PREFIX${getPathToStorageBaseFolder()}")
     }
 
     override fun getPathToDatabaseIniConfig(): String {
@@ -66,7 +66,7 @@ class StoragePathProvider(
     }
 
     override fun getUriToStorageTrashFolder(): Uri {
-        return Uri.parse("${FILE_URI_PREFIX}${getPathToTrash()}")
+        return Uri.parse("$FILE_URI_PREFIX${getPathToTrash()}")
     }
 
 }

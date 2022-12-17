@@ -160,25 +160,12 @@ class StorageInfoViewModel(
         )
     }
 
-    /**
-     * (Пере-)создаем объекты для работы с данным хранилищем,
-     *  если оно не совпадает с уже загруженным.
-     */
-    private fun resetToAnotherStorage() {
-//        storagePathProvider = StoragePathHelper(storageProvider)
-//        val dataProcessor = StorageDataXmlProcessor(
-//            logger = logger,
-//            encryptHelper = storageCrypter,
-//            favoritesInteractor = FavoritesInteractor(
-//                favoritesRepo = FavoritesRepo(getContext()),
-//            ),
-//            parseRecordTagsUseCase = ParseRecordTagsUseCase(),
-//            loadNodeIconUseCase = LoadNodeIconUseCase(
-//                logger = logger,
-//                storagePathProvider = storagePathProvider
-//            ),
-//        )
-//        storageProvider.init(dataProcessor)
+    override fun loadOrDecryptStorage(params: StorageParams) {
+        super.loadOrDecryptStorage(
+            params = params.apply {
+                isDecrypt = false
+            }
+        )
     }
 
     fun computeStorageFolderSize() {

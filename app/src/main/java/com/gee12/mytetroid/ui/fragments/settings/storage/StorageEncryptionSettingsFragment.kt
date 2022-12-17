@@ -131,7 +131,7 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
      * Установка пароля хранилища впервые.
      */
     private fun setupPass() {
-        PassDialogs.showPassEnterDialog(
+        PassDialogs.showPasswordEnterDialog(
             isSetup = true,
             fragmentManager = parentFragmentManager,
             passResult = object : PassDialogs.IPassInputResult {

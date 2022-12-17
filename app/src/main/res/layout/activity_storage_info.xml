@@ -351,8 +351,9 @@
                             tools:text="@tools:sample/us_zipcodes"/>
                     </TableRow>
 
-                    <TableRow>
+                    <TableRow android:id="@+id/tags_table_row">
                         <TextView
+                            android:id="@+id/label_stats_unique_tags_count"
                             android:text="@string/stats_unique_tags_count"
                             android:paddingLeft="15dp"
                             android:paddingStart="15dp"

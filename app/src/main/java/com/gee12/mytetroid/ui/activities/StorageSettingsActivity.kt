@@ -89,7 +89,7 @@ class StorageSettingsActivity : TetroidSettingsActivity() {
         }
     }
 
-    protected fun onStorageEvent(event: StorageEvent) {
+    private fun onStorageEvent(event: StorageEvent) {
         (getCurrentFragment() as? TetroidStorageSettingsFragment)?.onStorageEvent(event)
 
         when (event) {
@@ -100,11 +100,11 @@ class StorageSettingsActivity : TetroidSettingsActivity() {
         }
     }
 
-    protected fun onStorageFoundInBase(storage: TetroidStorage) {
+    private fun onStorageFoundInBase(storage: TetroidStorage) {
         (getCurrentFragment() as? TetroidStorageSettingsFragment)?.onStorageFoundInBase(storage)
     }
 
-    protected fun onStorageInited(storage: TetroidStorage) {
+    private fun onStorageInited(storage: TetroidStorage) {
         (getCurrentFragment() as? TetroidStorageSettingsFragment)?.onStorageInited(storage)
 
         val storageFilesError = viewModel.checkStorageFilesExistingError()
@@ -118,7 +118,7 @@ class StorageSettingsActivity : TetroidSettingsActivity() {
         )
     }
 
-    protected fun onStorageInitFailed() {
+    private fun onStorageInitFailed() {
         (getCurrentFragment() as? TetroidStorageSettingsFragment)?.onStorageInitFailed()
 
         setWarningMenuItem(
@@ -131,11 +131,11 @@ class StorageSettingsActivity : TetroidSettingsActivity() {
         )
     }
 
-    protected fun onUpdateStorageFieldEvent(key: String, value: String) {
+    private fun onUpdateStorageFieldEvent(key: String, value: String) {
         (getCurrentFragment() as? TetroidStorageSettingsFragment)?.onUpdateStorageFieldEvent(key, value)
     }
 
-    protected fun setWarningMenuItem(isVisible: Boolean, onClick: (() -> Unit)? = null) {
+    private fun setWarningMenuItem(isVisible: Boolean, onClick: (() -> Unit)? = null) {
         optionsMenu.findItem(R.id.action_error)?.let {
             it.isVisible = isVisible
             it.setOnMenuItemClickListener {

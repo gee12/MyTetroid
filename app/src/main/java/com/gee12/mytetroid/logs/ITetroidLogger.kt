@@ -33,7 +33,7 @@ interface ITetroidLogger {
 
     fun logError(s: String, show: Boolean = true)
     fun logError(resId: Int, show: Boolean = true)
-    fun logError(ex: Exception, show: Boolean = true)
+    fun logError(ex: Throwable, show: Boolean = true)
     fun logError(s: String, ex: Exception, show: Boolean = true)
     fun logOperError(obj: LogObj, oper: LogOper, show: Boolean): String
     fun logOperError(obj: LogObj, oper: LogOper, add: String?, more: Boolean, show: Boolean): String

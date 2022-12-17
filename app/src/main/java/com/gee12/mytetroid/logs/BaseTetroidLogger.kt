@@ -52,7 +52,7 @@ abstract class BaseTetroidLogger(
         log(getString(resId), LogType.ERROR, show)
     }
 
-    override fun logError(ex: Exception, show: Boolean) {
+    override fun logError(ex: Throwable, show: Boolean) {
         log(failureHandler.getExceptionInfo(ex), LogType.ERROR, show)
     }
 

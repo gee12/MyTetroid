@@ -19,7 +19,7 @@ object PassDialogs {
      * @param isSetup
      * @param passResult
      */
-    fun showPassEnterDialog(
+    fun showPasswordEnterDialog(
         isSetup: Boolean,
         fragmentManager: FragmentManager,
         passResult: IPassInputResult

@@ -417,7 +417,8 @@ open class StorageViewModel(
     fun startLoadStorage(
         isLoadFavoritesOnly: Boolean,
         isHandleReceivedIntent: Boolean = true,
-        isAllNodesLoading: Boolean = false
+        isAllNodesLoading: Boolean = false,
+        isNeedDecrypt: Boolean = true,
     ) {
         val params = StorageParams(
             storage = storage!!,
@@ -427,7 +428,7 @@ open class StorageViewModel(
             isHandleReceivedIntent = isHandleReceivedIntent,
             isAllNodesLoading = isAllNodesLoading
         )
-        if (isStorageCrypted()) {
+        if (isStorageCrypted() && isNeedDecrypt) {
             // сначала устанавливаем пароль, а потом загружаем (с расшифровкой)
             params.isDecrypt = true
             checkPassAndDecryptStorage(params)
@@ -1137,24 +1138,21 @@ open class StorageViewModel(
         } catch (ex: Exception) {
             logError(ex, true)
         }
-        /*return (iniFlag == 1 && instance.mIsExistCryptedNodes) ? true
-                : (iniFlag != 1 && !instance.mIsExistCryptedNodes) ? false
-                : (iniFlag == 1 && !instance.mIsExistCryptedNodes) ? true
-                : (iniFlag == 0 && instance.mIsExistCryptedNodes) ? true : false;*/
         return iniFlag || isExistCryptedNodes(false)
     }
 
     /**
      * Проверка существования шифрованных веток в хранилище.
      */
-    // TODO: CheckIsExistEncryptedNodesUSeCase
+    // TODO: CheckIsExistEncryptedNodesUseCase
+    // TODO: можно перенести в BaseStorageViewModel
     private fun isExistCryptedNodes(recheck: Boolean): Boolean {
-        var res: Boolean = storageProvider.isExistCryptedNodes()
+        var isExistCryptedNodes = storageProvider.isExistCryptedNodes()
         if (recheck) {
             storageProvider.setIsExistCryptedNodes(isExistCryptedNodes(storageProvider.getRootNodes()))
-            res = storageProvider.isExistCryptedNodes()
+            isExistCryptedNodes = storageProvider.isExistCryptedNodes()
         }
-        return res
+        return isExistCryptedNodes
     }
 
     private fun isExistCryptedNodes(nodes: List<TetroidNode>): Boolean {

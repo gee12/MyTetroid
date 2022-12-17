@@ -804,6 +804,7 @@ class MainViewModel(
      * @param bundle
      */
     private fun openRecord(bundle: Bundle) {
+        bundle.putInt(Constants.EXTRA_STORAGE_ID, storage?.id.orZero())
         launchOnMain {
             sendEvent(MainEvent.Record.Open(bundle))
         }

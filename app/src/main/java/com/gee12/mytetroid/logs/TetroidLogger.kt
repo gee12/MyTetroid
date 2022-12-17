@@ -7,11 +7,13 @@ import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.helpers.*
 import com.gee12.mytetroid.logs.TaskStage.Stages
 import com.gee12.mytetroid.model.TetroidObject
+import com.gee12.mytetroid.providers.ILocaleProvider
+import com.gee12.mytetroid.providers.IResourcesProvider
 
 
 class TetroidLogger(
     failureHandler: IFailureHandler,
-    private val localeHelper: ILocaleProvider,
+    private val localeProvider: ILocaleProvider,
     private val resourcesProvider: IResourcesProvider,
     private val notificator: INotificator,
 ) : FileTetroidLogger(
@@ -71,8 +73,8 @@ class TetroidLogger(
     @JvmOverloads
     override fun logOperStart(obj: LogObj, oper: LogOper, add: String): String {
         // меняем местами существительное и глагол в зависимости от языка
-        val first = if (localeHelper.isRusLanguage()) oper.getString(PRESENT_CONTINUOUS, ::getStringArray) else obj.getString(PRESENT_CONTINUOUS, ::getStringArray)
-        val second = if (localeHelper.isRusLanguage()) obj.getString(PRESENT_CONTINUOUS, ::getStringArray) else oper.getString(PRESENT_CONTINUOUS, ::getStringArray)
+        val first = if (localeProvider.isRusLanguage()) oper.getString(PRESENT_CONTINUOUS, ::getStringArray) else obj.getString(PRESENT_CONTINUOUS, ::getStringArray)
+        val second = if (localeProvider.isRusLanguage()) obj.getString(PRESENT_CONTINUOUS, ::getStringArray) else oper.getString(PRESENT_CONTINUOUS, ::getStringArray)
         val mes = getString(R.string.log_oper_start_mask, first, second) + add
         log(mes, LogType.INFO)
         return mes

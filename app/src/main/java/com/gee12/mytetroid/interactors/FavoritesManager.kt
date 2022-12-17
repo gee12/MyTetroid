@@ -13,9 +13,6 @@ class FavoritesManager(
     private val favoritesRepo: FavoritesRepo,
     private val storageProvider: IStorageProvider,
 ) {
-    companion object {
-        val FAVORITES_NODE = TetroidNode("FAVORITES_NODE", "", 0)
-    }
 
     private val storageId: Int
         get() = storageProvider.storage?.id ?: 0
@@ -134,56 +131,81 @@ class FavoritesManager(
         }
     }
 
-    /**
-     * Замена местами 2 избранных записи в списке.
-     * @param pos
-     * @param isUp
-     * @return 1 - успешно
-     * 0 - перемещение невозможно (пограничный элемент)
-     * -1 - ошибка
-     */
     suspend fun swap(pos: Int, isUp: Boolean, through: Boolean): Int {
-        try {
-            var newPos: Int? = null
-            val size = favorites.size
-            if (isUp) {
-                if (pos > 0 || through && pos == 0) {
-                    newPos = if (through && pos == 0) size - 1 else pos - 1
+        return swap(
+            favoritesRepo = favoritesRepo,
+            favorites = favorites,
+            storageId = storageId,
+            pos = pos,
+            isUp = isUp,
+            through = through,
+        )
+    }
+
+    companion object {
+
+        val FAVORITES_NODE = TetroidNode("FAVORITES_NODE", "", 0)
+
+        /**
+         * Замена местами 2 избранных записи в списке.
+         * @param pos
+         * @param isUp
+         * @return 1 - успешно
+         * 0 - перемещение невозможно (пограничный элемент)
+         * -1 - ошибка
+         */
+        // TODO: SwapFavoriteRecordsUseCase
+        private suspend fun swap(
+            favoritesRepo: FavoritesRepo,
+            favorites: MutableList<TetroidFavorite>,
+            storageId: Int,
+            pos: Int,
+            isUp: Boolean,
+            through: Boolean
+        ): Int {
+            try {
+                var newPos: Int? = null
+                val size = favorites.size
+                if (isUp) {
+                    if (pos > 0 || through && pos == 0) {
+                        newPos = if (through && pos == 0) size - 1 else pos - 1
+                    }
+                } else {
+                    if (pos < size - 1 || through && pos == size - 1) {
+                        newPos = if (through && pos == size - 1) 0 else pos + 1
+                    }
                 }
-            } else {
-                if (pos < size - 1 || through && pos == size - 1) {
-                    newPos = if (through && pos == size - 1) 0 else pos + 1
+
+                if (newPos != null) {
+                    val first = favorites[pos]
+                    val second = favorites[newPos]
+
+                    // позиции элементов в списке могут не совпадать с order записей,
+                    //  поэтому оперируем их order, а не pos/newPos
+
+                    // не меняем order второго элемента, если текущий перемещается в начало или конец списка
+                    //  (по сути весь список сдвигается вверх или вниз)
+                    val newOrders = when {
+                        isUp && pos == 0 -> Pair(favoritesRepo.getMaxOrder(storageId) + 1, null)
+                        !isUp && pos == size - 1 -> Pair(favoritesRepo.getMinOrder(storageId) - 1, null)
+                        else -> Pair(second.order, first.order)
+                    }
+                    second.order = newOrders.second ?: second.order
+                    first.order = newOrders.first
+
+                    favoritesRepo.updateOrder(first)
+                    favoritesRepo.updateOrder(second)
+
+                    favorites.sortBy { it.order }
+
+                    return 1
                 }
+            } catch (ex: Exception) {
+                return -1
             }
-
-            if (newPos != null) {
-                val first = favorites[pos]
-                val second = favorites[newPos]
-
-                // позиции элементов в списке могут не совпадать с order записей,
-                //  поэтому оперируем их order, а не pos/newPos
-
-                // не меняем order второго элемента, если текущий перемещается в начало или конец списка
-                //  (по сути весь список сдвигается вверх или вниз)
-                val newOrders = when {
-                    isUp && pos == 0 -> Pair(favoritesRepo.getMaxOrder(storageId) + 1, null)
-                    !isUp && pos == size - 1 -> Pair(favoritesRepo.getMinOrder(storageId) - 1, null)
-                    else -> Pair(second.order, first.order)
-                }
-                second.order = newOrders.second ?: second.order
-                first.order = newOrders.first
-
-                updateOrder(first)
-                updateOrder(second)
-
-                favorites.sortBy { it.order }
-
-                return 1
-            }
-        } catch (ex: Exception) {
-            return -1
+            return 0
         }
-        return 0
+
     }
 
 }
