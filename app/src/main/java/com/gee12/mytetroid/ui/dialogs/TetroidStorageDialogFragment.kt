@@ -18,7 +18,11 @@ abstract class TetroidStorageDialogFragment<VM : BaseStorageViewModel> : Tetroid
         val currentStorageProvider = ScopeSource.current.scope.get<IStorageProvider>()
         val currentStorageId = currentStorageProvider.storage?.id
         // создавать новый koin scope или использовать существующий current.scope
-        scopeSource = if (currentStorageId?.let { it == storageId } == true) ScopeSource.current else ScopeSource()
+        scopeSource = if (currentStorageId?.let { it == storageId } == true) {
+            ScopeSource.current
+        } else {
+            ScopeSource.createNew()
+        }
     }
 
     override fun initViewModel() {

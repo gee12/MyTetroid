@@ -51,7 +51,11 @@ class StorageSettingsActivity : TetroidSettingsActivity() {
         val currentStorageProvider = ScopeSource.current.scope.get<IStorageProvider>()
         val currentStorageId = currentStorageProvider.storage?.id
         // создавать новый koin scope или использовать существующий current.scope
-        scopeSource = if (currentStorageId?.let { it == getStorageId() } == true) ScopeSource.current else ScopeSource()
+        scopeSource = if (currentStorageId?.let { it == getStorageId() } == true) {
+            ScopeSource.current
+        } else {
+            ScopeSource.createNew()
+        }
     }
 
     private fun createViewModel() {

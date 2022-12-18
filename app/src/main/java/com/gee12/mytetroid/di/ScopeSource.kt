@@ -8,7 +8,9 @@ class ScopeSource: KoinScopeComponent {
     override val scope: Scope by lazy { createScope(this) }
 
     companion object {
-        val current = ScopeSource()
+        val current = createNew()
+
+        fun createNew() = ScopeSource()
     }
 
 }

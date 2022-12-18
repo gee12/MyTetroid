@@ -97,7 +97,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
     }
 
     protected open fun createDependencyScope() {
-        scopeSource = ScopeSource()
+        scopeSource = ScopeSource.createNew()
     }
 
     protected open fun createViewModel() {
