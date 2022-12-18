@@ -14,7 +14,7 @@ import com.gee12.mytetroid.model.TetroidRecord
  */
 class CloneAttachesToRecordUseCase(
     private val dataNameProvider: IDataNameProvider,
-    private val crypter: IStorageCrypter,
+    private val storageCrypter: IStorageCrypter,
 ) : UseCase<UseCase.None, CloneAttachesToRecordUseCase.Params>() {
 
     data class Params(
@@ -38,9 +38,9 @@ class CloneAttachesToRecordUseCase(
                 val attach = TetroidFile(
                     isCrypted,
                     id,
-                    encryptField(isCrypted, name),
+                    encryptFieldIfNeed(name, isCrypted),
                     srcAttach.fileType,
-                    destRecord
+                    destRecord,
                 )
                 if (isCrypted) {
                     attach.setDecryptedName(name)
@@ -55,12 +55,8 @@ class CloneAttachesToRecordUseCase(
         return None.toRight()
     }
 
-    private fun encryptField(isCrypted: Boolean, field: String): String? {
-        return if (isCrypted) {
-            crypter.encryptTextBase64(field)
-        } else {
-            field
-        }
+    private fun encryptFieldIfNeed(fieldValue: String, isEncrypt: Boolean): String? {
+        return if (isEncrypt) storageCrypter.encryptTextBase64(fieldValue) else fieldValue
     }
 
 }

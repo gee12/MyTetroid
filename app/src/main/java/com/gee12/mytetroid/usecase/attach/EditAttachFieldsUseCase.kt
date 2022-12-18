@@ -26,7 +26,7 @@ class EditAttachFieldsUseCase(
     private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
     private val recordPathProvider: IRecordPathProvider,
-    private val crypter: IStorageCrypter,
+    private val storageCrypter: IStorageCrypter,
     private val checkRecordFolderUseCase: CheckRecordFolderUseCase,
     private val saveStorageUseCase: SaveStorageUseCase,
 ) : UseCase<UseCase.None, EditAttachFieldsUseCase.Params>() {
@@ -79,9 +79,9 @@ class EditAttachFieldsUseCase(
         }
         val oldName = attach.getName(true)
         // обновляем поля
-        val crypted = attach.isCrypted
-        attach.name = crypter.encryptTextBase64(name)
-        if (crypted) {
+        val isCrypted = attach.isCrypted
+        attach.name = encryptFieldIfNeed(name, isCrypted)
+        if (isCrypted) {
             attach.setDecryptedName(name)
         }
 
@@ -105,10 +105,14 @@ class EditAttachFieldsUseCase(
                 logger.logOperCancel(LogObj.FILE_FIELDS, LogOper.CHANGE)
                 // возвращаем изменения
                 attach.name = oldName
-                if (crypted) {
-                    attach.setDecryptedName(crypter.decryptTextBase64(oldName))
+                if (isCrypted) {
+                    attach.setDecryptedName(storageCrypter.decryptTextBase64(oldName))
                 }
             }
+    }
+
+    private fun encryptFieldIfNeed(fieldValue: String, isEncrypt: Boolean): String? {
+        return if (isEncrypt) storageCrypter.encryptTextBase64(fieldValue) else fieldValue
     }
 
 }

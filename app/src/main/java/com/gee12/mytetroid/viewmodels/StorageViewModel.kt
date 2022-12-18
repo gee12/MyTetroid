@@ -198,7 +198,9 @@ open class StorageViewModel(
                 }
                 false
             }
-            else -> true
+            else -> {
+                true
+            }
         }
     }
 

@@ -26,7 +26,7 @@ class CreateAttachToRecordUseCase(
     private val logger: ITetroidLogger,
     private val dataNameProvider: IDataNameProvider,
     private val recordPathProvider: IRecordPathProvider,
-    private val crypter: IStorageCrypter,
+    private val storageCrypter: IStorageCrypter,
     private val checkRecordFolderUseCase: CheckRecordFolderUseCase,
     private val saveStorageUseCase: SaveStorageUseCase,
 ) : UseCase<TetroidFile, CreateAttachToRecordUseCase.Params>() {
@@ -48,27 +48,23 @@ class CreateAttachToRecordUseCase(
         val id = dataNameProvider.createUniqueId()
         // проверка исходного файла
         val srcFile = File(fullName)
-//        try {
         if (!srcFile.exists()) {
             return Failure.File.NotExist(path = srcFile.path).toLeft()
         }
-//        } catch (ex: Exception) {
-//            logger.logError(resourcesProvider.getString(R.string.log_file_checking_error) + fullName, ex)
-//            return null
-//        }
+
         val fileDisplayName = srcFile.name
         val ext = FileUtils.getExtensionWithComma(fileDisplayName)
         val fileIdName = id + ext
         // создание объекта хранилища
-        val crypted = record.isCrypted
+        val isCrypted = record.isCrypted
         val attach = TetroidFile(
-            crypted,
+            isCrypted,
             id,
-            crypter.encryptTextBase64(fileDisplayName),
+            encryptFieldIfNeed(fileDisplayName, isCrypted),
             TetroidFile.DEF_FILE_TYPE,
             record
         )
-        if (crypted) {
+        if (isCrypted) {
             attach.setDecryptedName(fileDisplayName)
             attach.setIsDecrypted(true)
         }
@@ -97,7 +93,7 @@ class CreateAttachToRecordUseCase(
         if (record.isCrypted) {
             logger.logOperStart(LogObj.FILE, LogOper.ENCRYPT)
             try {
-                if (!crypter.encryptDecryptFile(
+                if (!storageCrypter.encryptDecryptFile(
                         srcFile = srcFile,
                         destFile = destFile,
                         encrypt = true
@@ -146,6 +142,10 @@ class CreateAttachToRecordUseCase(
                 // удаляем файл
                 destFile.delete()
             }
+    }
+
+    private fun encryptFieldIfNeed(fieldValue: String, isEncrypt: Boolean): String? {
+        return if (isEncrypt) storageCrypter.encryptTextBase64(fieldValue) else fieldValue
     }
 
 }

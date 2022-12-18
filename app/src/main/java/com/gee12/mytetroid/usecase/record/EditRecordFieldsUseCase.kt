@@ -27,7 +27,7 @@ class EditRecordFieldsUseCase(
     private val storagePathProvider: IStoragePathProvider,
     private val recordPathProvider: IRecordPathProvider,
     private val favoritesManager: FavoritesManager,
-    private val crypter: IStorageCrypter,
+    private val storageCrypter: IStorageCrypter,
     private val moveFileUseCase: MoveFileUseCase,
     private val deleteRecordTagsUseCase: DeleteRecordTagsUseCase,
     private val parseRecordTagsUseCase: ParseRecordTagsUseCase,
@@ -72,13 +72,13 @@ class EditRecordFieldsUseCase(
         val oldDirName = record.dirName
         val oldIsFavor = record.isFavorite
         // обновляем поля
-        val crypted = node.isCrypted
-        record.name = crypter.encryptTextBase64(name)
-        record.tagsString = crypter.encryptTextBase64(tagsString)
-        record.author = crypter.encryptTextBase64(author)
-        record.url = crypter.encryptTextBase64(url)
-        record.setIsCrypted(crypted)
-        if (crypted) {
+        val isCrypted = node.isCrypted
+        record.name = encryptFieldIfNeed(name, isCrypted)
+        record.tagsString = encryptFieldIfNeed(tagsString, isCrypted)
+        record.author = encryptFieldIfNeed(author, isCrypted)
+        record.url = encryptFieldIfNeed(url, isCrypted)
+        record.setIsCrypted(isCrypted)
+        if (isCrypted) {
             record.setDecryptedValues(name, tagsString, author, url)
             record.setIsDecrypted(true)
         }
@@ -139,7 +139,7 @@ class EditRecordFieldsUseCase(
                         CryptRecordFilesUseCase.Params(
                             record = record,
                             isCrypted = oldIsCrypted,
-                            isEncrypt = crypted,
+                            isEncrypt = isCrypted,
                         )
                     ).flatMap {
                         None.toRight()
@@ -155,12 +155,12 @@ class EditRecordFieldsUseCase(
                     record.tagsString = oldTagsString
                     record.author = oldAuthor
                     record.url = oldUrl
-                    if (crypted) {
+                    if (isCrypted) {
                         record.setDecryptedValues(
-                            crypter.decryptTextBase64(oldName),
-                            crypter.decryptTextBase64(oldTagsString),
-                            crypter.decryptTextBase64(oldAuthor),
-                            crypter.decryptTextBase64(url)
+                            storageCrypter.decryptTextBase64(oldName),
+                            storageCrypter.decryptTextBase64(oldTagsString),
+                            storageCrypter.decryptTextBase64(oldAuthor),
+                            storageCrypter.decryptTextBase64(url)
                         )
                     }
                     node.deleteRecord(record)
@@ -183,6 +183,10 @@ class EditRecordFieldsUseCase(
                     }
                 }
             }
+    }
+
+    private fun encryptFieldIfNeed(fieldValue: String, isEncrypt: Boolean): String? {
+        return if (isEncrypt) storageCrypter.encryptTextBase64(fieldValue) else fieldValue
     }
 
 }

@@ -13,7 +13,7 @@ import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
  */
 class EditNodeFieldsUseCase(
     private val logger: ITetroidLogger,
-    private val crypter: IStorageCrypter,
+    private val storageCrypter: IStorageCrypter,
     private val saveStorageUseCase: SaveStorageUseCase,
 ) : UseCase<UseCase.None, EditNodeFieldsUseCase.Params>() {
 
@@ -32,9 +32,9 @@ class EditNodeFieldsUseCase(
         logger.logOperStart(LogObj.NODE_FIELDS, LogOper.CHANGE, node)
         val oldName = node.getName(true)
         // обновляем поля
-        val crypted = node.isCrypted
-        node.name = crypter.encryptTextBase64(name)
-        if (crypted) {
+        val isCrypted = node.isCrypted
+        node.name = encryptFieldIfNeed(name, isCrypted)
+        if (isCrypted) {
             node.setDecryptedName(name)
         }
         // перезаписываем структуру хранилища в файл
@@ -43,10 +43,14 @@ class EditNodeFieldsUseCase(
                 logger.logOperCancel(LogObj.NODE_FIELDS, LogOper.CHANGE)
                 // возвращаем изменения
                 node.name = oldName
-                if (crypted) {
-                    node.setDecryptedName(crypter.decryptTextBase64(oldName))
+                if (isCrypted) {
+                    node.setDecryptedName(storageCrypter.decryptTextBase64(oldName))
                 }
             }
+    }
+
+    private fun encryptFieldIfNeed(fieldValue: String, isEncrypt: Boolean): String? {
+        return if (isEncrypt) storageCrypter.encryptTextBase64(fieldValue) else fieldValue
     }
 
 }

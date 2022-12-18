@@ -32,7 +32,7 @@ class InsertRecordUseCase(
     private val storagePathProvider: IStoragePathProvider,
     private val recordPathProvider: IRecordPathProvider,
     private val dataNameProvider: IDataNameProvider,
-    private val crypter: IStorageCrypter,
+    private val storageCrypter: IStorageCrypter,
     private val favoritesManager: FavoritesManager,
     private val checkRecordFolderUseCase: CheckRecordFolderUseCase,
     private val cloneAttachesToRecordUseCase: CloneAttachesToRecordUseCase,
@@ -86,19 +86,20 @@ class InsertRecordUseCase(
         val url = srcRecord.url
 
         // создаем копию записи
-        val crypted = node.isCrypted
+        val isCrypted = node.isCrypted
         val record = TetroidRecord(
-            crypted, id,
-            crypter.encryptTextBase64(name),
-            crypter.encryptTextBase64(tagsString),
-            crypter.encryptTextBase64(author),
-            crypter.encryptTextBase64(url),
+            isCrypted,
+            id,
+            encryptFieldIfNeed(name, isCrypted),
+            encryptFieldIfNeed(tagsString, isCrypted),
+            encryptFieldIfNeed(author, isCrypted),
+            encryptFieldIfNeed(url, isCrypted),
             srcRecord.created,
             folderName,
             srcRecord.fileName,
-            node
+            node,
         )
-        if (crypted) {
+        if (isCrypted) {
             record.setDecryptedValues(name, tagsString, author, url)
             record.setIsDecrypted(true)
         }
@@ -178,7 +179,7 @@ class InsertRecordUseCase(
                             CryptRecordFilesUseCase.Params(
                                 record = record,
                                 isCrypted = srcRecord.isCrypted,
-                                isEncrypt = crypted,
+                                isEncrypt = isCrypted,
                             )
                         )
                     }
@@ -210,6 +211,10 @@ class InsertRecordUseCase(
                 }
                 return it.toLeft()
             }
+    }
+
+    private fun encryptFieldIfNeed(fieldValue: String, isEncrypt: Boolean): String? {
+        return if (isEncrypt) storageCrypter.encryptTextBase64(fieldValue) else fieldValue
     }
 
 }

@@ -28,7 +28,7 @@ class CreateRecordUseCase(
     private val logger: ITetroidLogger,
     private val dataNameProvider: IDataNameProvider,
     private val recordPathProvider: IRecordPathProvider,
-    private val crypter: IStorageCrypter,
+    private val storageCrypter: IStorageCrypter,
     private val favoritesManager: FavoritesManager,
     private val checkRecordFolderUseCase: CheckRecordFolderUseCase,
     private val parseRecordTagsUseCase: ParseRecordTagsUseCase,
@@ -60,16 +60,20 @@ class CreateRecordUseCase(
         // генерируем уникальные идентификаторы
         val id = dataNameProvider.createUniqueId()
         val folderName = dataNameProvider.createUniqueId()
-        val crypted = node.isCrypted
+        val isCrypted = node.isCrypted
         val record = TetroidRecord(
-            crypted, id,
-            crypter.encryptTextBase64(name),
-            crypter.encryptTextBase64(tagsString),
-            crypter.encryptTextBase64(author),
-            crypter.encryptTextBase64(url),
-            Date(), folderName, TetroidRecord.DEF_FILE_NAME, node
+            isCrypted,
+            id,
+            encryptFieldIfNeed(name, isCrypted),
+            encryptFieldIfNeed(tagsString, isCrypted),
+            encryptFieldIfNeed(author, isCrypted),
+            encryptFieldIfNeed(url, isCrypted),
+            Date(),
+            folderName,
+            TetroidRecord.DEF_FILE_NAME,
+            node,
         )
-        if (crypted) {
+        if (isCrypted) {
             record.setDecryptedValues(name, tagsString, author, url)
             record.setIsDecrypted(true)
         }
@@ -128,6 +132,10 @@ class CreateRecordUseCase(
                 // удаляем каталог записи (пустой)
                 folder.delete()
             }
+    }
+
+    private fun encryptFieldIfNeed(fieldValue: String, isEncrypt: Boolean): String? {
+        return if (isEncrypt) storageCrypter.encryptTextBase64(fieldValue) else fieldValue
     }
 
 }

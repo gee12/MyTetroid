@@ -9,6 +9,7 @@ import com.gee12.mytetroid.ui.dialogs.AskDialogs
 import com.gee12.htmlwysiwygeditor.Dialogs.IApplyCancelResult
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.extensions.buildIntent
 import com.gee12.mytetroid.ui.dialogs.pass.PassDialogs
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
@@ -37,6 +38,9 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
 
         setPreferencesFromResource(R.xml.storage_prefs_encryption, null)
 
+        // отключаем опцию пока еще не проинициализировано хранилище
+        findPreference<Preference>(getString(R.string.pref_key_change_pass))?.isEnabled = false
+
         // сохранение пароля локально
         findPreference<CheckBoxPreference>(getString(R.string.pref_key_is_save_pass_hash_local))
             ?.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
@@ -46,12 +50,17 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
         updateChangeSetupPasswordPref()
     }
 
+    override fun onStorageInited(storage: TetroidStorage) {
+        updateChangeSetupPasswordPref()
+    }
+
     private fun onPasswordChanged() {
         updateChangeSetupPasswordPref()
 
         // устанавливаем флаг для MainActivity
-        val intent = Intent()
-        intent.putExtra(Constants.EXTRA_IS_PASS_CHANGED, true)
+        val intent = buildIntent {
+            putExtra(Constants.EXTRA_IS_PASS_CHANGED, true)
+        }
         requireActivity().setResult(Activity.RESULT_OK, intent)
     }
 
@@ -69,7 +78,8 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
                 if (viewModel.checkStorageIsReady(
                         checkIsFavorMode = true,
                         showMessage = true
-                    )) {
+                    )
+                ) {
                     if (isCrypted) {
                         changePass()
                     } else {
@@ -85,26 +95,31 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
      * Обработка изменения опции локального сохранения пароля.
      */
     private fun changeSavePassHashLocal(newValue: Boolean) {
-        if (newValue) {
-            viewModel.saveMiddlePassHashLocalIfCached()
-            (findPreference<CheckBoxPreference>(getString(R.string.pref_key_is_save_pass_hash_local)))?.isChecked = true
-        } else if (viewModel.isSaveMiddlePassLocal() && !viewModel.getMiddlePassHash().isNullOrEmpty()) {
-            // удалить сохраненный хэш пароля?
-            AskDialogs.showYesNoDialog(
-                context,
-                object : IApplyCancelResult {
-                    override fun onApply() {
-                        viewModel.dropSavedLocalPassHash()
-                        (findPreference<CheckBoxPreference>(getString(R.string.pref_key_is_save_pass_hash_local)))?.isChecked = false
-                    }
+        val pref = findPreference<CheckBoxPreference>(getString(R.string.pref_key_is_save_pass_hash_local))
+        when {
+            newValue -> {
+                viewModel.saveMiddlePassHashLocalIfCached()
+                pref?.isChecked = true
+            }
+            viewModel.getMiddlePassHash().isNullOrEmpty() -> {
+                pref?.isChecked = false
+            }
+            viewModel.isSaveMiddlePassLocal() -> {
+                // удалить сохраненный хэш пароля?
+                AskDialogs.showYesNoDialog(
+                    context,
+                    object : IApplyCancelResult {
+                        override fun onApply() {
+                            viewModel.dropSavedLocalPassHash()
+                            pref?.isChecked = false
+                        }
 
-                    override fun onCancel() {
-                        // устанавливаем галку обратно
-    //                    SettingsManager.setIsSaveMiddlePassHashLocal(true);
-                    }
-                },
-                R.string.ask_clear_saved_pass_hash
-            )
+                        override fun onCancel() {
+                        }
+                    },
+                    R.string.ask_clear_saved_pass_hash
+                )
+            }
         }
     }
 
