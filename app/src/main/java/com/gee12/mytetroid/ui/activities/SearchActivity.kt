@@ -178,34 +178,31 @@ class SearchActivity : TetroidStorageActivity<StorageViewModel>() {
         etNodeName.inputType = InputType.TYPE_NULL
 
         // диалог выбора ветки
-        val nodeCallback: NodeChooserDialog.Result = object : NodeChooserDialog.Result() {
-            override fun onApply(node: TetroidNode?) {
-                selectedNode = node
-                if (node != null) {
-                    etNodeName.setText(node.name)
-                    nodeId = node.id
-                }
-            }
-
-            override fun onProblem(code: Int) {
-                when (code) {
-                    NodeChooserDialog.IResult.LOAD_STORAGE -> {
-                        viewModel.showError(getString(R.string.log_storage_need_load))
-                    }
-                    NodeChooserDialog.IResult.LOAD_ALL_NODES -> {
-                        viewModel.showError(getString(R.string.log_all_nodes_need_load))
-                    }
-                }
-            }
-        }
+        var selectedNode: TetroidNode? = null
         val clickListener = View.OnClickListener {
             NodeChooserDialog(
-                node = if (nodeCallback.selectedNode != null) nodeCallback.selectedNode else node,
+                node = if (selectedNode != null) selectedNode else node,
                 canCrypted = false,
                 canDecrypted = true,
                 rootOnly = false,
                 storageId = viewModel.getStorageId(),
-                callback = nodeCallback
+                onApply = { node ->
+                    selectedNode = node
+                    if (node != null) {
+                        etNodeName.setText(node.name)
+                        nodeId = node.id
+                    }
+                },
+                onProblem = { code ->
+                    when (code) {
+                        NodeChooserDialog.ProblemType.LOAD_STORAGE -> {
+                            viewModel.showError(getString(R.string.log_storage_need_load))
+                        }
+                        NodeChooserDialog.ProblemType.LOAD_ALL_NODES -> {
+                            viewModel.showError(getString(R.string.log_all_nodes_need_load))
+                        }
+                    }
+                }
             ).showIfPossible(supportFragmentManager)
         }
         etNodeName.setOnClickListener(clickListener)

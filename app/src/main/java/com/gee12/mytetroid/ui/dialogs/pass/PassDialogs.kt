@@ -1,10 +1,6 @@
 package com.gee12.mytetroid.ui.dialogs.pass
 
-import android.content.Context
 import androidx.fragment.app.FragmentManager
-import com.gee12.htmlwysiwygeditor.Dialogs.IApplyCancelResult
-import com.gee12.htmlwysiwygeditor.Dialogs
-import com.gee12.mytetroid.R
 
 object PassDialogs {
 
@@ -29,18 +25,6 @@ object PassDialogs {
         } else {
             PassEnterDialog(passResult).showIfPossible(fragmentManager)
         }
-    }
-
-    fun showEmptyPassCheckingFieldDialog(
-        context: Context,
-        fieldName: String,
-        callback: IApplyCancelResult
-    ) {
-        Dialogs.showAlertDialog(
-            context,
-            context.getString(R.string.log_empty_middle_hash_check_data_field, fieldName),
-            callback
-        )
     }
 
 }

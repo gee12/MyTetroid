@@ -27,9 +27,13 @@ class SettingsStorageFragment : TetroidSettingsFragment() {
         // диалог очистки каталога корзины у всех хранилищ
         findPreference<Preference>(getString(R.string.pref_key_clear_trash))
             ?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            AskDialogs.showYesDialog(context, {
-                baseViewModel.clearTrashFolders()
-            }, R.string.ask_clear_trash_all_storages)
+            AskDialogs.showYesDialog(
+                context = requireContext(),
+                messageResId = R.string.ask_clear_trash_all_storages,
+                onApply = {
+                    baseViewModel.clearTrashFolders()
+                },
+            )
             true
         }
 

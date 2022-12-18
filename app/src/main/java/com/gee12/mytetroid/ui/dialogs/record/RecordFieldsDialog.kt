@@ -36,7 +36,7 @@ class RecordFieldsDialog(
     private lateinit var etName: EditText
 
     private var recordNode: TetroidNode? = null
-    private lateinit var nodeCallback: NodeChooserDialog.Result
+    private var selectedNode: TetroidNode? = null
 
 
     override fun getRequiredTag() = TAG
@@ -91,35 +91,31 @@ class RecordFieldsDialog(
         }
 
         // диалог выбора ветки
-        nodeCallback = object : NodeChooserDialog.Result() {
-            override fun onApply(node: TetroidNode?) {
-                selectedNode = node
-                if (node != null) {
-                    etNode.setText(node.name)
-                    getPositiveButton()?.isEnabled = !TextUtils.isEmpty(etName.text)
-                }
-            }
-
-            override fun onProblem(code: Int) {
-                when (code) {
-                    NodeChooserDialog.IResult.LOAD_STORAGE -> {
-                        viewModel.showMessage(getString(R.string.log_storage_need_load), LogType.WARNING)
-                    }
-                    NodeChooserDialog.IResult.LOAD_ALL_NODES -> {
-                        viewModel.showMessage(getString(R.string.log_all_nodes_need_load), LogType.WARNING)
-                    }
-                }
-            }
-        }
         if (chooseNode) {
             val clickListener = View.OnClickListener {
                 NodeChooserDialog(
-                    node = if (nodeCallback.selectedNode != null) nodeCallback.selectedNode else recordNode,
+                    node = if (selectedNode != null) selectedNode else recordNode,
                     canCrypted = false,
                     canDecrypted = true,
                     rootOnly = false,
                     storageId = storageId,
-                    callback = nodeCallback
+                    onApply = { node ->
+                        selectedNode = node
+                        if (node != null) {
+                            etNode.setText(node.name)
+                            getPositiveButton()?.isEnabled = !TextUtils.isEmpty(etName.text)
+                        }
+                    },
+                    onProblem = { code ->
+                        when (code) {
+                            NodeChooserDialog.ProblemType.LOAD_STORAGE -> {
+                                viewModel.showMessage(getString(R.string.log_storage_need_load), LogType.WARNING)
+                            }
+                            NodeChooserDialog.ProblemType.LOAD_ALL_NODES -> {
+                                viewModel.showMessage(getString(R.string.log_all_nodes_need_load), LogType.WARNING)
+                            }
+                        }
+                    },
                 ).showIfPossible(parentFragmentManager)
             }
 
@@ -129,7 +125,7 @@ class RecordFieldsDialog(
 
         // кнопки результата
         setPositiveButton(R.string.answer_ok) { _: DialogInterface?, _: Int ->
-            val selectedNode = if (chooseNode && nodeCallback.selectedNode != null) nodeCallback.selectedNode!! else recordNode ?: return@setPositiveButton
+            val selectedNode = if (chooseNode && selectedNode != null) selectedNode!! else recordNode ?: return@setPositiveButton
             onApply(
                 etName.text.toString(),
                 etTags.text.toString(),
@@ -152,7 +148,7 @@ class RecordFieldsDialog(
     }
 
     private fun checkPositiveButtonIsEnabled() {
-        val node = nodeCallback.selectedNode ?: recordNode
+        val node = selectedNode ?: recordNode
         getPositiveButton()?.isEnabled = etName.text.isNotEmpty() && node != null
     }
 

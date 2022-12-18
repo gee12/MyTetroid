@@ -14,12 +14,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.gee12.htmlwysiwygeditor.Dialogs
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.extensions.buildIntent
 import com.gee12.mytetroid.viewmodels.BaseEvent
-import com.gee12.mytetroid.common.extensions.toApplyCancelResult
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
@@ -123,9 +121,13 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
     }
 
     private fun selectStorage(storage: TetroidStorage) {
-        AskDialogs.showLoadStorageDialog(this, storage.name) {
-            finishWithResult(storage)
-        }
+        AskDialogs.showYesDialog(
+            context = this,
+            message = getString(R.string.ask_load_storage_mask, storage.name),
+            onApply = {
+                finishWithResult(storage)
+            },
+        )
     }
 
     private fun finishWithResult(storage: TetroidStorage) {
@@ -139,9 +141,13 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 
     private fun onStorageAdded(storage: TetroidStorage) {
         if (storage.isNew) {
-            AskDialogs.showCreateStorageFilesDialog(this, storage.path) {
-                createStorageFiles(storage)
-            }
+            AskDialogs.showYesDialog(
+                context = this,
+                message = getString(R.string.ask_create_new_storage_mask, storage.path),
+                onApply = {
+                    createStorageFiles(storage)
+                },
+            )
         }
     }
 
@@ -164,9 +170,14 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 
     private fun onStorageFilesCreated(storage: TetroidStorage) {
         loadStorages()
-        AskDialogs.showOpenStorageSettingsDialog(this) {
-            showStorageSettings(storage)
-        }
+
+        AskDialogs.showYesDialog(
+            context = this,
+            message = getString(R.string.ask_open_storage_settings),
+            onApply = {
+                showStorageSettings(storage)
+            },
+        )
     }
 
     private fun showStorageSettings(storage: TetroidStorage) {
@@ -186,10 +197,12 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 
     private fun deleteStorage(storage: TetroidStorage) {
         AskDialogs.showYesNoDialog(
-            this, Dialogs.IApplyResult {
+            context = this,
+            message = getString(R.string.ask_delete_storage_mask, storage.name),
+            onApply = {
                 viewModel.deleteStorage(storage)
-            }.toApplyCancelResult(),
-            getString(R.string.ask_delete_storage_mask, storage.name)
+            },
+            onCancel = {},
         )
     }
 

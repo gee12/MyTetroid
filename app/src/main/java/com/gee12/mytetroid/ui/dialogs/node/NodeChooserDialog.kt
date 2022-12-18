@@ -24,21 +24,13 @@ class NodeChooserDialog(
     val canDecrypted: Boolean, // разрешены ли уже расшифрованные ветки
     val rootOnly: Boolean, // разрешены ли только ветки в корне дерева
     override var storageId: Int? = null,
-    val callback: IResult
+    val onApply: (TetroidNode?) -> Unit,
+    val onProblem: (ProblemType) -> Unit,
 ) : TetroidStorageDialogFragment<StorageViewModel>() {
 
-    interface IResult {
-        fun onApply(node: TetroidNode?)
-        fun onProblem(code: Int)
-
-        companion object {
-            const val LOAD_STORAGE = 1
-            const val LOAD_ALL_NODES = 2
-        }
-    }
-
-    abstract class Result : IResult {
-        var selectedNode: TetroidNode? = null
+    enum class ProblemType {
+        LOAD_STORAGE,
+        LOAD_ALL_NODES,
     }
 
     private lateinit var adapter: NodesListAdapter
@@ -52,12 +44,12 @@ class NodeChooserDialog(
     fun isStorageLoaded(): Boolean {
         // проверяем загружено ли хранилище
         if (!viewModel.isStorageLoaded()) {
-            callback.onProblem(IResult.LOAD_STORAGE)
+            onProblem(ProblemType.LOAD_STORAGE)
             return false
         }
         // проверяем загружены ли все ветки
         if (viewModel.isLoadedFavoritesOnly()) {
-            callback.onProblem(IResult.LOAD_ALL_NODES)
+            onProblem(ProblemType.LOAD_ALL_NODES)
             return false
         }
         return true
@@ -72,7 +64,7 @@ class NodeChooserDialog(
 
         adapter = NodesListAdapter(context, null)
         // обработчик результата
-        setPositiveButton(R.string.answer_ok) { _, _ -> callback.onApply(adapter.curNode) }
+        setPositiveButton(R.string.answer_ok) { _, _ -> onApply(adapter.curNode) }
         setNegativeButton(R.string.answer_cancel)
     }
 

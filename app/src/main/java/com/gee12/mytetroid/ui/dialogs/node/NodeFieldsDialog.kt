@@ -72,35 +72,32 @@ class NodeFieldsDialog(
         }
 
         // диалог выбора ветки
-        val nodeCallback = object : NodeChooserDialog.Result() {
-            override fun onApply(node: TetroidNode?) {
-                selectedNode = node
-                if (node != null) {
-                    etNode.setText(node.name)
-                    getPositiveButton()?.isEnabled = !TextUtils.isEmpty(etName.text)
-                }
-            }
-
-            override fun onProblem(code: Int) {
-                when (code) {
-                    NodeChooserDialog.IResult.LOAD_STORAGE -> {
-                        viewModel.showMessage(getString(R.string.log_storage_need_load), LogType.WARNING)
-                    }
-                    NodeChooserDialog.IResult.LOAD_ALL_NODES -> {
-                        viewModel.showMessage(getString(R.string.log_all_nodes_need_load), LogType.WARNING)
-                    }
-                }
-            }
-        }
+        var selectedNode: TetroidNode? = null
         if (chooseParent) {
             val clickListener = View.OnClickListener {
                 NodeChooserDialog(
-                    node = if (nodeCallback.selectedNode != null) nodeCallback.selectedNode else parentNode,
+                    node = if (selectedNode != null) selectedNode else parentNode,
                     canCrypted = false,
                     canDecrypted = true,
                     rootOnly = false,
                     storageId = storageId,
-                    callback = nodeCallback
+                    onApply = { node ->
+                        selectedNode = node
+                        if (node != null) {
+                            etNode.setText(node.name)
+                            getPositiveButton()?.isEnabled = !TextUtils.isEmpty(etName.text)
+                        }
+                    },
+                    onProblem = { code ->
+                        when (code) {
+                            NodeChooserDialog.ProblemType.LOAD_STORAGE -> {
+                                viewModel.showMessage(getString(R.string.log_storage_need_load), LogType.WARNING)
+                            }
+                            NodeChooserDialog.ProblemType.LOAD_ALL_NODES -> {
+                                viewModel.showMessage(getString(R.string.log_all_nodes_need_load), LogType.WARNING)
+                            }
+                        }
+                    },
                 ).showIfPossible(parentFragmentManager)
             }
             etNode.setOnClickListener(clickListener)
@@ -111,7 +108,7 @@ class NodeFieldsDialog(
         setPositiveButton(R.string.answer_ok) { _: DialogInterface?, _: Int ->
             onApply(
                 etName.text.toString(),
-                if (chooseParent && nodeCallback.selectedNode != null) nodeCallback.selectedNode!! else parentNode
+                if (chooseParent && selectedNode != null) selectedNode!! else parentNode
             )
         }
         setNegativeButton(R.string.answer_cancel)

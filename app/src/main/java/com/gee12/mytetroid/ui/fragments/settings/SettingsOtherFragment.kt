@@ -28,11 +28,15 @@ class SettingsOtherFragment : TetroidSettingsFragment() {
 
         findPreference<Preference>(getString(R.string.pref_key_clear_search_history))
             ?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            AskDialogs.showYesDialog(context, {
-                TetroidSuggestionProvider.clearHistory(context)
-                CommonSettings.clearSearchOptions(context)
-                baseViewModel.log(R.string.title_search_history_cleared, true)
-            }, R.string.ask_clear_search_history)
+            AskDialogs.showYesDialog(
+                context = requireContext(),
+                messageResId = R.string.ask_clear_search_history,
+                onApply = {
+                    TetroidSuggestionProvider.clearHistory(context)
+                    CommonSettings.clearSearchOptions(context)
+                    baseViewModel.log(R.string.title_search_history_cleared, true)
+                },
+            )
             true
         }
         updateSummary(R.string.pref_key_log_path, CommonSettings.getLogPath(context))

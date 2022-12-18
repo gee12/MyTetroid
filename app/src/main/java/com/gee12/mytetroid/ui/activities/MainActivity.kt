@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.annotation.StringRes
@@ -20,12 +19,10 @@ import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.viewpager.widget.PagerTabStrip
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
-import com.gee12.htmlwysiwygeditor.Dialogs.*
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.BuildConfig
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.viewmodels.BaseEvent
 import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.common.utils.ViewUtils
@@ -40,10 +37,6 @@ import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.model.*
-import com.gee12.mytetroid.viewmodels.*
-import com.gee12.mytetroid.viewmodels.MainViewModel.MainEvent
-import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
-import com.gee12.mytetroid.ui.views.MainViewPager
 import com.gee12.mytetroid.ui.SearchViewXListener
 import com.gee12.mytetroid.ui.activities.SearchActivity.Companion.start
 import com.gee12.mytetroid.ui.activities.StorageInfoActivity.Companion.start
@@ -53,21 +46,21 @@ import com.gee12.mytetroid.ui.adapters.NodesListAdapter.OnNodeHeaderClickListene
 import com.gee12.mytetroid.ui.adapters.TagsListAdapter
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
 import com.gee12.mytetroid.ui.dialogs.IntentDialog
-import com.gee12.mytetroid.ui.dialogs.attach.AttachAskDialogs
-import com.gee12.mytetroid.ui.dialogs.node.NodeDialogs.deleteNode
 import com.gee12.mytetroid.ui.dialogs.node.NodeFieldsDialog
 import com.gee12.mytetroid.ui.dialogs.node.NodeInfoDialog
 import com.gee12.mytetroid.ui.dialogs.pass.PassDialogs.IPassInputResult
-import com.gee12.mytetroid.ui.dialogs.pass.PassDialogs.showEmptyPassCheckingFieldDialog
 import com.gee12.mytetroid.ui.dialogs.pass.PassDialogs.showPasswordEnterDialog
 import com.gee12.mytetroid.ui.dialogs.pin.PinCodeDialog.Companion.showDialog
 import com.gee12.mytetroid.ui.dialogs.pin.PinCodeDialog.IPinInputResult
-import com.gee12.mytetroid.ui.dialogs.record.RecordDialogs
+import com.gee12.mytetroid.ui.dialogs.storage.StorageDialogs
 import com.gee12.mytetroid.ui.dialogs.tag.TagFieldsDialog
 import com.gee12.mytetroid.ui.fragments.FoundPageFragment
 import com.gee12.mytetroid.ui.fragments.MainPageFragment
+import com.gee12.mytetroid.ui.views.MainViewPager
+import com.gee12.mytetroid.viewmodels.*
 import com.gee12.mytetroid.viewmodels.MainViewModel
-import com.gee12.mytetroid.viewmodels.VMEvent
+import com.gee12.mytetroid.viewmodels.MainViewModel.MainEvent
+import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.runBlocking
@@ -312,13 +305,21 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             }
 //            is StorageEvents.AskAfterSyncManually,
             is StorageEvent.AskOnSync.AfterInit -> {
-                AskDialogs.showSyncDoneDialog(this, event.result) {
-                    viewModel.initStorageAndLoad()
-                }
+                AskDialogs.showYesDialog(
+                    context = this,
+                    messageResId = if (event.result) R.string.ask_sync_success_dialog_request else R.string.ask_sync_failed_dialog_request,
+                    onApply = {
+                        viewModel.initStorageAndLoad()
+                    },
+                )
             }
             is StorageEvent.AskOnSync.AfterExit -> {
                 if (!event.result) {
-                    AskDialogs.showSyncFailerBeforeExitDialog(this) {}
+                    AskDialogs.showYesDialog(
+                        context = this,
+                        messageResId = R.string.ask_sync_failed_dialog_request,
+                        onApply = {},
+                    )
                 }
             }
             StorageEvent.AskForSyncAfterFailureSyncOnExit -> {
@@ -407,20 +408,10 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 onGlobalSearchFinished(event.found, event.profile)
             }
             is MainEvent.AskForOperationWithoutFolder -> {
-                val clipboardParams = event.clipboardParams
-                if (clipboardParams.obj is TetroidRecord) {
-                    RecordDialogs.operWithoutDir(this, clipboardParams.operation) {
-                        viewModel.doOperationWithoutDir(clipboardParams)
-                    }
-                } else if (clipboardParams.obj is TetroidFile) {
-                    AttachAskDialogs.renameAttachWithoutDir(this) { viewModel.doOperationWithoutDir(clipboardParams) }
-                }
+                askForOperationWithoutFolder(clipboardParams = event.clipboardParams)
             }
             is MainEvent.AskForOperationWithoutFile -> {
-                val clipboardParams = event.clipboardParams
-                AttachAskDialogs.operWithoutFile(this, clipboardParams.operation) {
-                    viewModel.doOperationWithoutFile(clipboardParams)
-                }
+                askForOperationWithoutFile(clipboardParams = event.clipboardParams)
             }
             MainEvent.OpenFilePicker -> openFilePicker()
             MainEvent.OpenFolderPicker -> openFolderPicker()
@@ -640,7 +631,49 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             tvSubtitle!!.visibility = View.GONE
         }
     }
-    
+
+    private fun askForOperationWithoutFolder(clipboardParams: ClipboardParams) {
+        if (clipboardParams.obj is TetroidRecord) {
+            val title = getString(
+                when (clipboardParams.operation) {
+                    LogOper.DELETE -> R.string.title_delete
+                    LogOper.CUT -> R.string.title_cut
+                    else -> R.string.title_insert
+                }
+            )
+            AskDialogs.showYesNoDialog(
+                context = this,
+                message = getString(R.string.ask_oper_without_record_dir_mask).format(title),
+                isCancelable = true,
+                onApply = {
+                    viewModel.doOperationWithoutDir(clipboardParams)
+                },
+                onCancel = {},
+            )
+
+        } else if (clipboardParams.obj is TetroidFile) {
+            AskDialogs.showYesDialog(
+                context = this,
+                messageResId = R.string.ask_delete_record_without_dir,
+                onApply = {
+                    viewModel.doOperationWithoutDir(clipboardParams)
+                },
+            )
+        }
+    }
+
+    private fun askForOperationWithoutFile(clipboardParams: ClipboardParams) {
+        val oper = clipboardParams.operation
+        AskDialogs.showYesNoDialog(
+            context = this,
+            messageResId = if (oper === LogOper.DELETE) R.string.ask_attach_delete_without_file else R.string.ask_delete_attach_without_file,
+            onApply = {
+                viewModel.doOperationWithoutFile(clipboardParams)
+            },
+            onCancel = {},
+        )
+    }
+
     // endregion UI
 
     // region LoadStorage
@@ -670,7 +703,14 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      * Перезагрузка хранилища.
      */
     private fun reloadStorageAsk() {
-        AskDialogs.showReloadStorageDialog(this, false, false) { reinitStorage() }
+        StorageDialogs.showReloadStorageDialog(
+            context = this,
+            toCreate = false,
+            pathChanged = false,
+            onApply = {
+                reinitStorage()
+            },
+        )
     }
 
     override fun afterStorageDecrypted( /*TetroidNode node*/) {
@@ -710,27 +750,33 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     //region Sync
 
     private fun showSyncRequestDialog(callback: ICallback?) {
-        AskDialogs.showSyncRequestDialog(this@MainActivity, object : IApplyCancelResult {
-            override fun onApply() {
-                viewModel.startStorageSync(this@MainActivity, callback)
-            }
-
-            override fun onCancel() {
+        AskDialogs.showYesNoDialog(
+            context = this,
+            isCancelable = false,
+            messageResId = R.string.ask_start_sync_dialog_title,
+            onApply = {
+                viewModel.startStorageSync(this, callback)
+            },
+            onCancel = {
                 viewModel.cancelStorageSync(callback)
-            }
-        })
+            },
+        )
     }
 
     private fun showSyncRequestDialogAfterFailureSync(/*ICallback callback*/) {
-        AskDialogs.showSyncRequestDialogAfterFailureSync(this@MainActivity, object : IApplyCancelResult {
-            override fun onApply() {
-                viewModel.syncStorageAndExit(this@MainActivity)
-            }
-
-            override fun onCancel() {
+        AskDialogs.showDialog(
+            context = this,
+            message = getString(R.string.ask_start_sync_or_exit_dialog_title),
+            isCancelable = false,
+            applyResId = R.string.action_sync,
+            cancelResId = R.string.action_exit,
+            onApply = {
+                viewModel.syncStorageAndExit(this)
+            },
+            onCancel = {
                 viewModel.exitAfterAsks()
-            }
-        })
+            },
+        )
     }
 
     //endregion Sync
@@ -914,9 +960,9 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         }
     }
 
-    fun showNodeInfoDialog(node: TetroidNode?) {
+    private fun showNodeInfoDialog(node: TetroidNode) {
         NodeInfoDialog(
-            node
+            node = node,
         ).showIfPossible(supportFragmentManager)
     }
 
@@ -961,10 +1007,15 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      * Удаление ветки.
      */
     private fun showDeleteNodeDialog(node: TetroidNode) {
-        val isQuicklyNode = node.id === viewModel.getQuicklyNodeId()
-        deleteNode(this, node.name, isQuicklyNode) {
-            viewModel.deleteOrCutNode(node, isCutting = false)
-        }
+        val isQuicklyNode = node.id == viewModel.getQuicklyNodeId()
+        val mesId = if (isQuicklyNode) R.string.ask_quickly_node_delete_mask else R.string.ask_node_delete_mask
+        AskDialogs.showYesDialog(
+            context = this,
+            message = getString(mesId, node.name),
+            onApply = {
+                viewModel.deleteOrCutNode(node, isCutting = false)
+            }
+        )
     }
 
     private fun onNodeDeleted(node: TetroidNode, isCutted: Boolean) {
@@ -1034,7 +1085,13 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      * Диалог с вопросом о сбросе пароля в связи с отсутствием зашифрованных веток.
      */
     private fun showNoCryptedNodesLeftDialog() {
-        AskDialogs.showYesDialog(this, { viewModel.clearSavedPass() }, R.string.ask_clear_pass_database_ini)
+        AskDialogs.showYesDialog(
+            context = this,
+            messageResId = R.string.ask_clear_pass_database_ini,
+            onApply = {
+                viewModel.clearSavedPass()
+            },
+        )
     }
 
     /**
@@ -1045,20 +1102,18 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         passHash: String,
         callbackEvent: VMEvent
     ) {
-        showEmptyPassCheckingFieldDialog(
+        AskDialogs.showYesNoDialog(
             context = this,
-            fieldName = fieldName,
-            callback = object : IApplyCancelResult {
-                override fun onApply() {
-                    viewModel.confirmEmptyPassCheckingFieldDialog(
-                        passHash = passHash,
-                        callbackEvent = callbackEvent,
-                    )
-                }
-                override fun onCancel() {
-                    viewModel.cancelEmptyPassCheckingFieldDialog(callbackEvent)
-                }
-            }
+            message = getString(R.string.log_empty_middle_hash_check_data_field, fieldName),
+            onApply = {
+                viewModel.confirmEmptyPassCheckingFieldDialog(
+                    passHash = passHash,
+                    callbackEvent = callbackEvent,
+                )
+            },
+            onCancel = {
+                viewModel.cancelEmptyPassCheckingFieldDialog(callbackEvent)
+            },
         )
     }
 
@@ -1067,28 +1122,31 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     // region Storage tree
     
     private fun showStorageTreeChangedOutsideDialog() {
-        AskDialogs.showYesNoDialog(this@MainActivity, object : IApplyCancelDismissResult {
-            override fun onApply() {
+        AskDialogs.showYesNoDialog(
+            context = this,
+            messageResId = R.string.ask_storage_tree_changed_outside,
+            onApply = {
                 viewModel.startReinitStorage()
-            }
-            override fun onCancel() {}
-            override fun onDismiss() {
+            },
+            onCancel = {},
+            onDismiss = {
                 viewModel.dropIsStorageChangingHandled()
-            }
-        }, R.string.ask_storage_tree_changed_outside)
+            },
+        )
     }
 
     private fun showStorageTreeDeletedOutsideDialog() {
-        AskDialogs.showYesNoDialog(this@MainActivity, object : IApplyCancelDismissResult {
-            override fun onApply() {
+        AskDialogs.showYesNoDialog(
+            context = this,
+            messageResId = R.string.ask_storage_tree_deleted_outside,
+            onApply = {
                 viewModel.saveMytetraXmlFromCurrentStorageTree()
-            }
-
-            override fun onCancel() {}
-            override fun onDismiss() {
+            },
+            onCancel = {},
+            onDismiss =  {
                 viewModel.dropIsStorageChangingHandled()
-            }
-        }, R.string.ask_storage_tree_deleted_outside)
+            },
+        )
     }
 
     // endregion Storage tree
@@ -1719,20 +1777,25 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         if (viewModel.isLoadedFavoritesOnly()) {
             // если загружено только избранное, то нужно сначала загрузить все ветки,
             // чтобы добавить текст/картинку в одну из записей или в новую запись одной из веток
-            val resId =
+            val title = getString(
                 when {
                     isText -> R.string.word_received_text
                     imagesUri.size > 1 -> R.string.word_received_images
                     else -> R.string.word_received_image
                 }
-            val mes = Utils.fromHtml(
-                getString(R.string.text_load_nodes_before_receive_mask, getString(resId))
             )
-            showAlertDialog(this, mes) {
-                // сохраняем Intent и загружаем хранилище
-                receivedIntent = intent
-                viewModel.loadAllNodes(false)
-            }
+            AskDialogs.showYesNoDialog(
+                context = this,
+                message = Utils.fromHtml(
+                    getString(R.string.text_load_nodes_before_receive_mask, title)
+                ),
+                onApply = {
+                    // сохраняем Intent и загружаем хранилище
+                    receivedIntent = intent
+                    viewModel.loadAllNodes(false)
+                },
+                onCancel = {},
+            )
         } else {
             IntentDialog(isText) { receivedData: ReceivedData ->
                 if (receivedData.isCreate) {
@@ -2069,19 +2132,27 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     }
 
     private fun askForExit() {
-        AskDialogs.showExitDialog(this) { viewModel.onBeforeExit(this) }
+        AskDialogs.showYesDialog(
+            context = this,
+            messageResId = R.string.ask_exit_from_app,
+            onApply = {
+                viewModel.onBeforeExit(this)
+            },
+        )
     }
 
     private fun showClearTrashDialog(callback: ICallback?) {
-        AskDialogs.showClearTrashDialog(this@MainActivity, object : IApplyCancelResult {
-            override fun onApply() {
+        AskDialogs.showYesNoDialog(
+            context = this,
+            isCancelable = false,
+            messageResId = R.string.ask_clear_trash,
+            onApply = {
                 viewModel.clearTrashFolderAndExit(false, callback)
-            }
-
-            override fun onCancel() {
+            },
+            onCancel = {
                 callback?.run(true)
-            }
-        })
+            },
+        )
     }
 
     // endregion Exit

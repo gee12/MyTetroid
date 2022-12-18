@@ -1,121 +1,113 @@
-package com.gee12.mytetroid.ui.dialogs;
+package com.gee12.mytetroid.ui.dialogs
 
-import android.content.Context;
+import android.content.Context
+import androidx.annotation.StringRes
+import com.gee12.mytetroid.R
 
-import androidx.annotation.StringRes;
+object AskDialogs {
 
-import com.gee12.htmlwysiwygeditor.Dialogs;
-import com.gee12.mytetroid.R;
-
-public class AskDialogs {
-
-    public static void showLoadStorageDialog(Context context, String storageName, final Dialogs.IApplyResult callback) {
-        AskDialogs.showYesDialog(context, callback, context.getString(R.string.ask_load_storage_mask, storageName));
+    fun showYesNoDialog(
+        context: Context,
+        isCancelable: Boolean = true,
+        @StringRes messageResId: Int,
+        onApply: () -> Unit,
+        onCancel: () -> Unit,
+        onDismiss: (() -> Unit)? = null,
+    ) {
+        showYesNoDialog(
+            context = context,
+            isCancelable = isCancelable,
+            message = context.getString(messageResId),
+            onApply = onApply,
+            onCancel = onCancel,
+            onDismiss = onDismiss,
+        )
     }
 
-    public static void showCreateStorageFilesDialog(Context context, String storagePath, final Dialogs.IApplyResult callback) {
-        AskDialogs.showYesDialog(context, callback, context.getString(R.string.ask_create_new_storage_mask, storagePath));
+    fun showYesNoDialog(
+        context: Context,
+        isCancelable: Boolean = true,
+        message: CharSequence,
+        onApply: () -> Unit,
+        onCancel: () -> Unit,
+        onDismiss: (() -> Unit)? = null,
+    ) {
+        showDialog(
+            context = context,
+            isCancelable = isCancelable,
+            message = message,
+            applyResId = R.string.answer_yes,
+            cancelResId = R.string.answer_no,
+            onApply = onApply,
+            onCancel = onCancel,
+            onDismiss = onDismiss,
+        )
     }
 
-    public static void showOpenStorageSettingsDialog(Context context, final Dialogs.IApplyResult callback) {
-        AskDialogs.showYesDialog(context, callback, context.getString(R.string.ask_open_storage_settings));
+    fun showYesDialog(
+        context: Context,
+        @StringRes messageResId: Int,
+        onApply: () -> Unit,
+    ) {
+        showYesDialog(
+            context = context,
+            message = context.getString(messageResId),
+            onApply = onApply,
+        )
     }
 
-    public static void showReloadStorageDialog(Context context, boolean toCreate, boolean pathChanged,
-                                               final Dialogs.IApplyResult callback) {
-        AskDialogs.showYesDialog(context, callback,
-                (toCreate) ? R.string.ask_create_storage_in_folder :
-                        (pathChanged) ? R.string.ask_storage_path_was_changed : R.string.ask_reload_storage);
+    @JvmStatic
+    fun showYesDialog(
+        context: Context,
+        message: String,
+        onApply: () -> Unit,
+    ) {
+        showDialog(
+            context = context,
+            message = message,
+            isCancelable = true,
+            applyResId = R.string.answer_yes,
+            onApply = onApply,
+            onCancel = {},
+        )
     }
 
-    public static void showClearTrashDialog(Context context, final Dialogs.IApplyCancelResult callback) {
-        AskDialogs.showYesNoDialog(context, callback, false, R.string.ask_clear_trash);
+    fun showOkDialog(
+        context: Context,
+        @StringRes messageRes: Int,
+        @StringRes applyResId: Int,
+        isCancelable: Boolean,
+        onApply: () -> Unit,
+    ) {
+        showDialog(
+            context = context,
+            message = context.getString(messageRes),
+            isCancelable = isCancelable,
+            applyResId = applyResId,
+            onApply = onApply,
+        )
     }
 
-    public static void showSyncDoneDialog(Context context, boolean isSyncSuccess, final Dialogs.IApplyResult callback) {
-        int mesRes = (isSyncSuccess) ? R.string.ask_sync_success_dialog_request : R.string.ask_sync_failed_dialog_request;
-        AskDialogs.showYesDialog(context, callback, mesRes);
+    fun showDialog(
+        context: Context,
+        message: CharSequence,
+        isCancelable: Boolean,
+        @StringRes applyResId: Int,
+        @StringRes cancelResId: Int = R.string.cancel,
+        onApply: () -> Unit,
+        onCancel: (() -> Unit)? = null,
+        onDismiss: (() -> Unit)? = null,
+    ) {
+        BaseAskDialog.show(
+            context = context,
+            message = message,
+            isCancelable = isCancelable,
+            applyResId = applyResId,
+            cancelResId = cancelResId,
+            onApply = onApply,
+            onCancel = onCancel,
+            onDismiss = onDismiss,
+        )
     }
 
-    public static void showSyncFailerBeforeExitDialog(Context context, final Dialogs.IApplyResult callback) {
-        AskDialogs.showYesDialog(context, callback, R.string.ask_sync_failed_dialog_request);
-    }
-
-    public static void showSyncRequestDialog(Context context, final Dialogs.IApplyCancelResult callback) {
-        AskDialogs.showYesNoDialog(context, callback, false, R.string.ask_start_sync_dialog_title);
-    }
-
-    public static void showSyncRequestDialogAfterFailureSync(Context context, final Dialogs.IApplyCancelResult callback) {
-        Dialogs.showAlertDialog(context, context.getString(R.string.ask_start_sync_or_exit_dialog_title),
-                true, false, R.string.action_sync, R.string.action_exit, callback);
-    }
-
-    public static void showLoadAllNodesDialog(Context context, final Dialogs.IApplyResult callback) {
-        AskDialogs.showYesDialog(context, callback, R.string.ask_load_all_nodes_dialog_title);
-    }
-
-    public static void showExitDialog(Context context, final Dialogs.IApplyResult callback) {
-        AskDialogs.showYesDialog(context, callback, R.string.ask_exit_from_app);
-    }
-
-    /**
-     *
-     * @param context
-     * @param callback
-     * @param messageRes
-     */
-    public static void showYesNoDialog(Context context, final Dialogs.IApplyCancelResult callback, @StringRes int messageRes) {
-        showYesNoDialog(context, callback, true, messageRes);
-    }
-
-    public static void showYesNoDialog(Context context, final Dialogs.IApplyCancelResult callback, String message) {
-        showYesNoDialog(context, callback, true, message);
-    }
-
-    public static void showYesNoDialog(Context context, final Dialogs.IApplyCancelResult callback, boolean isCancelable, @StringRes int messageRes) {
-        Dialogs.showAlertDialog(context, messageRes, true, isCancelable, callback);
-    }
-
-    public static void showYesNoDialog(Context context, final Dialogs.IApplyCancelResult callback, boolean isCancelable, String message) {
-        Dialogs.showAlertDialog(context, message, true, isCancelable, callback);
-    }
-
-    /**
-     *
-     * @param context
-     * @param callback
-     * @param messageRes
-     */
-    public static void showYesDialog(Context context, final Dialogs.IApplyResult callback, @StringRes int messageRes) {
-        Dialogs.showAlertDialog(context, context.getString(messageRes), true, true, callback);
-    }
-
-    /**
-     *
-     * @param context
-     * @param callback
-     * @param message
-     */
-    public static void showYesDialog(Context context, final Dialogs.IApplyResult callback, String message) {
-        Dialogs.showAlertDialog(context, message, true, true, callback);
-    }
-
-    /**
-     *
-     * @param context
-     * @param callback
-     * @param messageRes
-     */
-    public static void showOkDialog(Context context, @StringRes int messageRes, @StringRes int applyRes, boolean isCancelable,
-                                    final Dialogs.IApplyResult callback) {
-        Dialogs.showAlertDialog(
-                context,
-                context.getString(messageRes),
-                false,
-                isCancelable,
-                applyRes,
-                R.string.cancel,
-                Dialogs.getCancelCallback(callback)
-        );
-    }
 }

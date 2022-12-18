@@ -26,7 +26,6 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
-import com.gee12.htmlwysiwygeditor.Dialogs.IApplyCancelResult
 import com.gee12.htmlwysiwygeditor.IImagePicker
 import com.gee12.htmlwysiwygeditor.INetworkWorker
 import com.gee12.mytetroid.App.checkKeepScreenOn
@@ -44,22 +43,22 @@ import com.gee12.mytetroid.helpers.TetroidClipboardListener
 import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
-import com.gee12.mytetroid.viewmodels.RecordViewModel.RecordEvent
-import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
 import com.gee12.mytetroid.ui.SearchViewXListener
+import com.gee12.mytetroid.ui.TetroidImagePicker
+import com.gee12.mytetroid.ui.activities.StorageInfoActivity.Companion.start
+import com.gee12.mytetroid.ui.dialogs.AskDialogs
+import com.gee12.mytetroid.ui.dialogs.record.RecordFieldsDialog
+import com.gee12.mytetroid.ui.dialogs.record.RecordInfoDialog
+import com.gee12.mytetroid.ui.dialogs.storage.StorageDialogs
 import com.gee12.mytetroid.ui.views.TetroidEditText
 import com.gee12.mytetroid.ui.views.TetroidEditText.ITetroidEditTextListener
 import com.gee12.mytetroid.ui.views.TetroidEditor
 import com.gee12.mytetroid.ui.views.TetroidEditor.IEditorListener
-import com.gee12.mytetroid.ui.TetroidImagePicker
-import com.gee12.mytetroid.ui.activities.StorageInfoActivity.Companion.start
-import com.gee12.mytetroid.ui.dialogs.AskDialogs
-import com.gee12.mytetroid.ui.dialogs.record.RecordDialogs
-import com.gee12.mytetroid.ui.dialogs.record.RecordFieldsDialog
-import com.gee12.mytetroid.ui.dialogs.record.RecordInfoDialog
-import com.gee12.mytetroid.viewmodels.RecordViewModel
-import com.gee12.mytetroid.viewmodels.ResultObj
 import com.gee12.mytetroid.viewmodels.BaseEvent
+import com.gee12.mytetroid.viewmodels.RecordViewModel
+import com.gee12.mytetroid.viewmodels.RecordViewModel.RecordEvent
+import com.gee12.mytetroid.viewmodels.ResultObj
+import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
@@ -247,15 +246,19 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             is RecordEvent.LoadRecordTextFromFile -> loadRecordText(event.recordText)
             RecordEvent.LoadRecordTextFromHtml -> loadRecordTextFromHtmlEditor()
             is RecordEvent.AskForLoadAllNodes -> {
-                val obj = event.resultObj
-                AskDialogs.showLoadAllNodesDialog(this) {
-                    when (obj.type) {
-                        ResultObj.OPEN_RECORD -> viewModel.showAnotherRecord(obj.id)
-                        ResultObj.OPEN_NODE -> viewModel.showAnotherNodeDirectly(obj.id)
-                        ResultObj.OPEN_TAG ->
-                            viewModel.openTagDirectly(obj.id) // id - это tagName
-                    }
-                }
+                AskDialogs.showYesDialog(
+                    context = this,
+                    messageResId = R.string.ask_load_all_nodes_dialog_title,
+                    onApply = {
+                        val obj = event.resultObj
+                        when (obj.type) {
+                            ResultObj.OPEN_RECORD -> viewModel.showAnotherRecord(obj.id)
+                            ResultObj.OPEN_NODE -> viewModel.showAnotherNodeDirectly(obj.id)
+                            ResultObj.OPEN_TAG ->
+                                viewModel.openTagDirectly(obj.id) // id - это tagName
+                        }
+                    },
+                )
             }
             is RecordEvent.FileAttached -> onFileAttached(event.attach)
             is RecordEvent.SwitchViews -> switchViews(event.viewMode)
@@ -577,13 +580,14 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     }
 
     private fun onFileAttached(res: TetroidFile) {
-        AskDialogs.showYesNoDialog(this, object : IApplyCancelResult {
-            override fun onApply() {
+        AskDialogs.showYesNoDialog(
+            context = this,
+            messageResId = R.string.ask_open_attaches,
+            onApply = {
                 viewModel.openRecordAttaches()
-            }
-
-            override fun onCancel() {}
-        }, R.string.ask_open_attaches)
+            },
+            onCancel = {},
+        )
     }
 
     fun downloadAndAttachFile(uri: Uri?) {
@@ -647,15 +651,16 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     // region Save record
 
     private fun askForSaving(obj: ResultObj?) {
-        RecordDialogs.saveRecord(this@RecordActivity, object : IApplyCancelResult {
-            override fun onApply() {
+        AskDialogs.showYesNoDialog(
+            context = this,
+            messageResId = R.string.ask_save_record,
+            onApply = {
                 viewModel.saveRecord(obj)
-            }
-
-            override fun onCancel() {
+            },
+            onCancel = {
                 viewModel.onAfterSaving(obj)
-            }
-        })
+            },
+        )
     }
 
     /**
@@ -690,7 +695,13 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
      * Удаление записи.
      */
     fun deleteRecord() {
-        RecordDialogs.deleteRecord(this, viewModel.getRecordName()) { viewModel.deleteRecord() }
+        AskDialogs.showYesDialog(
+            context = this,
+            message = getString(R.string.ask_record_delete_mask, viewModel.getRecordName()),
+            onApply = {
+                viewModel.deleteRecord()
+            },
+        )
     }
 
     fun showRecordInfoDialog() {
@@ -797,10 +808,15 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                     if (viewModel.isStorageLoaded()) {
                         // спрашиваем о перезагрузке хранилище, только если оно уже загружено
                         val isCreate = data.getBooleanExtra(Constants.EXTRA_IS_CREATE_STORAGE, false)
-                        AskDialogs.showReloadStorageDialog(this, isCreate, true) {
-                            // перезагружаем хранилище в главной активности, если изменили путь,
-                            finishWithResult(Constants.RESULT_REINIT_STORAGE, data.extras)
-                        }
+                        StorageDialogs.showReloadStorageDialog(
+                            context = this,
+                            toCreate = isCreate,
+                            pathChanged = true,
+                            onApply = {
+                                // перезагружаем хранилище в главной активности, если изменили путь,
+                                finishWithResult(Constants.RESULT_REINIT_STORAGE, data.extras)
+                            },
+                        )
                     }
                 } else if (data.getBooleanExtra(Constants.EXTRA_IS_PASS_CHANGED, false)) {
                     // пароль изменен

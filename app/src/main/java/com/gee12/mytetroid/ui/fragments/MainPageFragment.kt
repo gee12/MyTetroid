@@ -2,7 +2,6 @@ package com.gee12.mytetroid.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
-import android.text.TextUtils
 import android.view.*
 import android.widget.*
 import androidx.core.view.GestureDetectorCompat
@@ -15,17 +14,16 @@ import com.gee12.mytetroid.model.FoundType
 import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
-import com.gee12.mytetroid.viewmodels.MainViewModel
 import com.gee12.mytetroid.ui.activities.MainActivity
 import com.gee12.mytetroid.ui.adapters.FilesListAdapter
 import com.gee12.mytetroid.ui.adapters.RecordsListAdapter
-import com.gee12.mytetroid.ui.dialogs.attach.AttachAskDialogs
+import com.gee12.mytetroid.ui.dialogs.AskDialogs
 import com.gee12.mytetroid.ui.dialogs.attach.AttachFieldsDialog
 import com.gee12.mytetroid.ui.dialogs.attach.AttachFileByURLDialog
 import com.gee12.mytetroid.ui.dialogs.attach.AttachInfoDialog
-import com.gee12.mytetroid.ui.dialogs.record.RecordDialogs
 import com.gee12.mytetroid.ui.dialogs.record.RecordFieldsDialog
 import com.gee12.mytetroid.ui.dialogs.record.RecordInfoDialog
+import com.gee12.mytetroid.viewmodels.MainViewModel
 import com.github.clans.fab.FloatingActionMenu
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.runBlocking
@@ -304,9 +302,13 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
      * @param record
      */
     private fun deleteRecord(record: TetroidRecord) {
-        RecordDialogs.deleteRecord(context, record.name) {
-            viewModel.deleteRecord(record)
-        }
+        AskDialogs.showYesDialog(
+            context = requireContext(),
+            message = getString(R.string.ask_record_delete_mask, record.name),
+            onApply = {
+                viewModel.deleteRecord(record)
+            },
+        )
     }
 
     /**
@@ -404,9 +406,13 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
      * @param attach
      */
     private fun deleteAttach(attach: TetroidFile) {
-        AttachAskDialogs.deleteFile(context, attach.name) {
-            viewModel.deleteAttach(attach)
-        }
+        AskDialogs.showYesDialog(
+            context = requireContext(),
+            message = getString(R.string.ask_file_delete_mask, attach.name),
+            onApply = {
+                viewModel.deleteAttach(attach)
+            },
+        )
     }
 
     /**

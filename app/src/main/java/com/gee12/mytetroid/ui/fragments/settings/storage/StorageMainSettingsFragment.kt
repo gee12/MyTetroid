@@ -14,7 +14,6 @@ import com.gee12.mytetroid.ui.views.prefs.DisabledCheckBoxPreference
 import com.gee12.mytetroid.ui.activities.MainActivity
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
 import com.gee12.mytetroid.ui.dialogs.node.NodeChooserDialog
-import com.gee12.mytetroid.ui.dialogs.node.NodeDialogs.INodeChooserResult
 import com.gee12.mytetroid.ui.dialogs.storage.StorageDialogs
 import lib.folderpicker.FolderPicker
 import org.jsoup.internal.StringUtil
@@ -61,9 +60,13 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
         // диалог очистки каталога корзины
         findPreference<Preference>(getString(R.string.pref_key_clear_trash))
             ?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            AskDialogs.showYesDialog(context, {
-                viewModel.clearTrashFolder()
-            }, R.string.ask_clear_trash)
+            AskDialogs.showYesDialog(
+                context = requireContext(),
+                messageResId = R.string.ask_clear_trash,
+                onApply = {
+                    viewModel.clearTrashFolder()
+                },
+            )
             true
         }
 
@@ -116,41 +119,41 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
     }
 
     private fun showNodeChooserDialog() {
-        val nodeCallback = object : NodeChooserDialog.Result() {
-            override fun onApply(node: TetroidNode?) {
-                // устанавливаем ветку, если все хорошо
-                viewModel.quicklyNode = node
-            }
-
-            override fun onProblem(code: Int) {
-                // если хранилище недозагружено, спрашиваем о действиях
-                val mesId = if (code == INodeChooserResult.LOAD_STORAGE) R.string.ask_load_storage else R.string.ask_load_all_nodes
-                AskDialogs.showYesDialog(context, {
-
-                    // возвращаемся в MainActivity
-                    val intent = Intent(requireContext(), MainActivity::class.java)
-                    intent.setAction(Constants.ACTION_STORAGE_SETTINGS)
-                    when (code) {
-                        INodeChooserResult.LOAD_STORAGE -> {
-                            intent.putExtra(Constants.EXTRA_IS_LOAD_STORAGE, true)
-                            intent.putExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, true)
-                        }
-                        INodeChooserResult.LOAD_ALL_NODES -> intent.putExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, true)
-                    }
-                    intent.putExtra(Constants.EXTRA_STORAGE_ID, viewModel.getStorageId())
-                    requireActivity().setResult(Activity.RESULT_OK, intent)
-                    requireActivity().startActivity(intent)
-                    requireActivity().finish()
-                }, mesId)
-            }
-        }
         NodeChooserDialog(
             node = viewModel.quicklyNode,
             canCrypted = false,
             canDecrypted = false,
             rootOnly = true,
             storageId = viewModel.getStorageId(),
-            callback = nodeCallback
+            onApply = { node ->
+                // устанавливаем ветку, если все хорошо
+                viewModel.quicklyNode = node
+            },
+            onProblem = { code ->
+                // если хранилище недозагружено, спрашиваем о действиях
+                AskDialogs.showYesDialog(
+                    context = requireContext(),
+                    messageResId = if (code == NodeChooserDialog.ProblemType.LOAD_STORAGE) R.string.ask_load_storage else R.string.ask_load_all_nodes,
+                    onApply = {
+                        // возвращаемся в MainActivity
+                        val intent = Intent(requireContext(), MainActivity::class.java)
+                        intent.action = Constants.ACTION_STORAGE_SETTINGS
+                        when (code) {
+                            NodeChooserDialog.ProblemType.LOAD_STORAGE -> {
+                                intent.putExtra(Constants.EXTRA_IS_LOAD_STORAGE, true)
+                                intent.putExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, true)
+                            }
+                            NodeChooserDialog.ProblemType.LOAD_ALL_NODES -> {
+                                intent.putExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, true)
+                            }
+                        }
+                        intent.putExtra(Constants.EXTRA_STORAGE_ID, viewModel.getStorageId())
+                        requireActivity().setResult(Activity.RESULT_OK, intent)
+                        requireActivity().startActivity(intent)
+                        requireActivity().finish()
+                    },
+                )
+            },
         ).showIfPossible(parentFragmentManager)
     }
 
@@ -203,12 +206,16 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
 
     private fun onStoragePathChanged(path: String, isCreateStorageFiles: Boolean) {
         if (isCreateStorageFiles) {
-            AskDialogs.showCreateStorageFilesDialog(requireContext(), path) {
-                viewModel.storage?.let {
-                    it.isNew = true
-                    viewModel.startInitStorage(it)
-                }
-            }
+            AskDialogs.showYesDialog(
+                context = requireContext(),
+                message = getString(R.string.ask_create_new_storage_mask, path),
+                onApply = {
+                    viewModel.storage?.let {
+                        it.isNew = true
+                        viewModel.startInitStorage(it)
+                    }
+                },
+            )
         }
     }
 

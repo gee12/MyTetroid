@@ -9,7 +9,7 @@ import com.gee12.mytetroid.providers.IStorageProvider
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.ui.activities.StorageSettingsActivity.Companion.newIntent
 import com.gee12.mytetroid.ui.activities.StoragesActivity.Companion.start
-import com.gee12.mytetroid.ui.dialogs.storage.StorageDialogs.askForDefaultStorageNotSpecified
+import com.gee12.mytetroid.ui.dialogs.AskDialogs
 import com.gee12.mytetroid.viewmodels.BaseEvent
 import com.gee12.mytetroid.viewmodels.BaseStorageViewModel
 import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
@@ -58,7 +58,16 @@ abstract class TetroidStorageActivity<VM : BaseStorageViewModel> : TetroidActivi
      */
     protected open fun onStorageEvent(event: StorageEvent) {
         when (event) {
-            StorageEvent.NoDefaultStorage -> askForDefaultStorageNotSpecified(this) { showStoragesActivity() }
+            StorageEvent.NoDefaultStorage -> {
+                AskDialogs.showYesNoDialog(
+                    context = this,
+                    messageResId = R.string.ask_no_set_default_storage,
+                    onApply = {
+                        showStoragesActivity()
+                    },
+                    onCancel = {},
+                )
+            }
             is StorageEvent.Inited -> afterStorageInited()
             is StorageEvent.Loaded -> afterStorageLoaded(event.result)
             StorageEvent.Decrypted -> afterStorageDecrypted(/*data as TetroidNode*/)

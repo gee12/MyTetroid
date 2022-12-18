@@ -107,17 +107,13 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
             viewModel.isSaveMiddlePassLocal() -> {
                 // удалить сохраненный хэш пароля?
                 AskDialogs.showYesNoDialog(
-                    context,
-                    object : IApplyCancelResult {
-                        override fun onApply() {
-                            viewModel.dropSavedLocalPassHash()
-                            pref?.isChecked = false
-                        }
-
-                        override fun onCancel() {
-                        }
+                    context = requireContext(),
+                    messageResId = R.string.ask_clear_saved_pass_hash,
+                    onApply = {
+                        viewModel.dropSavedLocalPassHash()
+                        pref?.isChecked = false
                     },
-                    R.string.ask_clear_saved_pass_hash
+                    onCancel = {},
                 )
             }
         }

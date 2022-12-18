@@ -167,14 +167,16 @@ abstract class TetroidActivity<VM : BaseViewModel>
     private fun showPermissionRequest(params: PermissionRequestParams) {
         // диалог с объяснием зачем нужно разрешение
         AskDialogs.showYesDialog(
-            this,
-            { params.requestCallback.invoke() },
-            when (params.permission) {
+            context = this,
+            messageResId = when (params.permission) {
                 Constants.TetroidPermission.ReadStorage -> R.string.ask_request_read_ext_storage
                 Constants.TetroidPermission.WriteStorage -> R.string.ask_request_write_ext_storage
                 Constants.TetroidPermission.Camera -> R.string.ask_request_camera
                 Constants.TetroidPermission.Termux -> R.string.ask_permission_termux
-            }
+            },
+            onApply = {
+                params.requestCallback.invoke()
+            },
         )
     }
 

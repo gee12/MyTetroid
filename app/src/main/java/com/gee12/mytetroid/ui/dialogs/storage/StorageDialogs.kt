@@ -5,10 +5,8 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ListView
 import com.gee12.htmlwysiwygeditor.Dialogs.AskDialogBuilder
-import com.gee12.mytetroid.ui.adapters.StorageChooserAdapter
-import com.gee12.htmlwysiwygeditor.Dialogs.IApplyResult
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.extensions.toApplyCancelResult
+import com.gee12.mytetroid.ui.adapters.StorageChooserAdapter
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
 
 object StorageDialogs {
@@ -16,6 +14,7 @@ object StorageDialogs {
     /**
      * Диалог со списком вариантов указания хранилища.
      */
+    // TODO: DialogFragment
     fun createStorageSelectionDialog(
         context: Context,
         onItemClick: (isNew: Boolean) -> Unit,
@@ -32,11 +31,21 @@ object StorageDialogs {
         dialog.show()
     }
 
-    fun askForDefaultStorageNotSpecified(context: Context, callback: IApplyResult?) {
-        AskDialogs.showYesNoDialog(
-            context,
-            callback?.toApplyCancelResult(),
-            R.string.ask_no_set_default_storage
+    fun showReloadStorageDialog(
+        context: Context,
+        toCreate: Boolean,
+        pathChanged: Boolean,
+        onApply: () -> Unit,
+    ) {
+        AskDialogs.showYesDialog(
+            context = context,
+            messageResId = when {
+                toCreate -> R.string.ask_create_storage_in_folder
+                pathChanged -> R.string.ask_storage_path_was_changed
+                else -> R.string.ask_reload_storage
+            },
+            onApply = onApply,
         )
     }
+
 }
