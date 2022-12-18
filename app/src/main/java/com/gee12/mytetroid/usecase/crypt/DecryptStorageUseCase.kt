@@ -11,7 +11,7 @@ import com.gee12.mytetroid.usecase.node.icon.LoadNodeIconUseCase
  */
 class DecryptStorageUseCase(
     private val logger: ITetroidLogger,
-    private val crypter: IStorageCrypter,
+    private val storageCrypter: IStorageCrypter,
     private val storageDataProcessor: IStorageDataProcessor,
     private val loadNodeIconUseCase: LoadNodeIconUseCase,
 ) : UseCase<Boolean, DecryptStorageUseCase.Params>() {
@@ -21,7 +21,7 @@ class DecryptStorageUseCase(
     )
 
     override suspend fun run(params: Params): Either<Failure, Boolean> {
-        return crypter.decryptNodes(
+        return storageCrypter.decryptNodes(
             nodes = storageDataProcessor.getRootNodes(),
             isDecryptSubNodes = true,
             isDecryptRecords = true,

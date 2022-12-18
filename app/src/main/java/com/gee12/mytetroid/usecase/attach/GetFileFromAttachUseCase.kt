@@ -19,7 +19,7 @@ import kotlin.Exception
 class GetFileFromAttachUseCase(
     private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
-    private val crypter: IStorageCrypter,
+    private val storageCrypter: IStorageCrypter,
     private val recordPathProvider: IRecordPathProvider,
     private val storageSettingsProvider: IStorageSettingsProvider,
 ) : UseCase<File, GetFileFromAttachUseCase.Params>() {
@@ -77,7 +77,7 @@ class GetFileFromAttachUseCase(
             }
 
             try {
-                if (existOrCreated && crypter.encryptDecryptFile(
+                if (existOrCreated && storageCrypter.encryptDecryptFile(
                         srcFile = srcFile,
                         destFile = tempFile,
                         encrypt = false

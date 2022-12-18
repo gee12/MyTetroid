@@ -11,7 +11,7 @@ import com.gee12.mytetroid.model.TetroidStorage
 
 class CheckStoragePasswordAndAskUseCase(
     private val logger: ITetroidLogger,
-    private val crypter: IStorageCrypter,
+    private val storageCrypter: IStorageCrypter,
     private val passInteractor: PasswordInteractor,
     private val sensitiveDataProvider: ISensitiveDataProvider,
 ) : UseCase<CheckStoragePasswordAndAskUseCase.Result, CheckStoragePasswordAndAskUseCase.Params>() {
@@ -42,7 +42,7 @@ class CheckStoragePasswordAndAskUseCase(
             sensitiveDataProvider.getMiddlePassHashOrNull()?.also { middlePassHash = it } != null -> {
                 // хэш пароля сохранен в оперативной памяти (вводили до этого и проверяли)
 //                cryptInteractor.initCryptPass(middlePassHash!!, true)
-                crypter.setKeyFromMiddleHash(middlePassHash!!)
+                storageCrypter.setKeyFromMiddleHash(middlePassHash!!)
                 // запрос ПИН-кода
                 Result.AskPin(
                     specialFlag = true,
@@ -53,7 +53,7 @@ class CheckStoragePasswordAndAskUseCase(
                 try {
                     if (passInteractor.checkMiddlePassHash(middlePassHash)) {
 //                        cryptInteractor.initCryptPass(middlePassHash!!, true)
-                        crypter.setKeyFromMiddleHash(middlePassHash!!)
+                        storageCrypter.setKeyFromMiddleHash(middlePassHash!!)
                         // запрос ПИН-кода
                         Result.AskPin(
                             specialFlag = true,
@@ -76,7 +76,7 @@ class CheckStoragePasswordAndAskUseCase(
                     } else {
                         // если нет зашифрованных веток, но пароль сохранен
 //                        cryptInteractor.initCryptPass(middlePassHash!!, true)
-                        crypter.setKeyFromMiddleHash(middlePassHash!!)
+                        storageCrypter.setKeyFromMiddleHash(middlePassHash!!)
                         Result.AskPin(
                             specialFlag = true,
                         ).toRight()

@@ -12,7 +12,7 @@ import com.gee12.mytetroid.providers.IStorageProvider
  */
 class PasswordInteractor(
     private val storageProvider: IStorageProvider,
-    private val crypter: IStorageCrypter,
+    private val storageCrypter: IStorageCrypter,
     private val sensitiveDataProvider: ISensitiveDataProvider,
 ) {
 
@@ -21,27 +21,23 @@ class PasswordInteractor(
 
     /**
      * Проверка введенного пароля с сохраненным проверочным хэшем.
-     * @param pass
-     * @return
      * @throws DatabaseConfig.EmptyFieldException
      */
     @Throws(DatabaseConfig.EmptyFieldException::class)
     fun checkPass(pass: String?): Boolean {
         val salt = databaseConfig.cryptCheckSalt
         val checkHash = databaseConfig.cryptCheckHash
-        return crypter.checkPass(pass, salt, checkHash)
+        return storageCrypter.checkPass(pass, salt, checkHash)
     }
 
     /**
      * Проверка сохраненного хэша пароля с помощью сохраненных зашифрованных данных.
-     * @param passHash
-     * @return
      * @throws DatabaseConfig.EmptyFieldException
      */
     @Throws(DatabaseConfig.EmptyFieldException::class)
     fun checkMiddlePassHash(passHash: String?): Boolean {
         val checkData = databaseConfig.middleHashCheckData
-        return crypter.checkMiddlePassHash(passHash, checkData)
+        return storageCrypter.checkMiddlePassHash(passHash, checkData)
     }
 
     /**
@@ -55,7 +51,6 @@ class PasswordInteractor(
 
     /**
      * Очистка сохраненного проверочнго хэша пароля.
-     * @return
      */
     fun clearPassCheckData(storage: TetroidStorage): Boolean {
         storage.middlePassHash = null
@@ -64,7 +59,6 @@ class PasswordInteractor(
 
     /**
      * Очистка сохраненной проверочной строки промежуточного хэша пароля.
-     * @return
      */
     fun clearMiddlePassCheckData(): Boolean {
         return databaseConfig.saveCheckData(null)

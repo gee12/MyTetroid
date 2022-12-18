@@ -17,14 +17,13 @@ class CreateNodeUseCase(
     private val logger: ITetroidLogger,
     private val dataNameProvider: IDataNameProvider,
     private val storageProvider: IStorageProvider,
-    private val crypter: IStorageCrypter,
+    private val storageCrypter: IStorageCrypter,
     private val saveStorageUseCase: SaveStorageUseCase,
 ) : UseCase<TetroidNode, CreateNodeUseCase.Params>() {
 
     data class Params(
         val name: String,
         val parentNode: TetroidNode?,
-//        val rootNodes: List<TetroidNode>,
     )
 
     override suspend fun run(params: Params): Either<Failure, TetroidNode> {
@@ -38,19 +37,19 @@ class CreateNodeUseCase(
 
         // генерируем уникальные идентификаторы
         val id: String = dataNameProvider.createUniqueId()
-        val crypted = (parentNode != null && parentNode.isCrypted)
+        val isCrypted = (parentNode != null && parentNode.isCrypted)
         val level = if (parentNode != null) parentNode.level + 1 else 0
         val node = TetroidNode(
-            crypted,
+            isCrypted,
             id,
-            encryptField(crypted, name),
+            encryptFieldIfNeed(name, isCrypted),
             null,
-            level
+            level,
         )
         node.parentNode = parentNode
         node.records = ArrayList()
         node.subNodes = ArrayList()
-        if (crypted) {
+        if (isCrypted) {
             node.setDecryptedName(name)
             node.setIsDecrypted(true)
         }
@@ -78,12 +77,8 @@ class CreateNodeUseCase(
             )
     }
 
-    private fun encryptField(isCrypted: Boolean, field: String): String? {
-        return if (isCrypted) {
-            crypter.encryptTextBase64(field)
-        } else {
-            field
-        }
+    private fun encryptFieldIfNeed(fieldValue: String, isEncrypt: Boolean): String? {
+        return if (isEncrypt) storageCrypter.encryptTextBase64(fieldValue) else fieldValue
     }
 
 }

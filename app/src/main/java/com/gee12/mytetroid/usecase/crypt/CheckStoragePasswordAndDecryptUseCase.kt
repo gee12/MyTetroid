@@ -15,7 +15,7 @@ class CheckStoragePasswordAndDecryptUseCase(
     private val logger: ITetroidLogger,
     private val sensitiveDataProvider: ISensitiveDataProvider,
     private val commonSettingsProvider: CommonSettingsProvider,
-    private val crypter: IStorageCrypter,
+    private val storageCrypter: IStorageCrypter,
     private val passInteractor: PasswordInteractor,
 ) : UseCase<CheckStoragePasswordAndDecryptUseCase.Result, CheckStoragePasswordAndDecryptUseCase.Params>() {
 
@@ -48,7 +48,7 @@ class CheckStoragePasswordAndDecryptUseCase(
             sensitiveDataProvider.getMiddlePassHashOrNull()?.also { middlePassHash = it } != null -> {
                 // хэш пароля уже установлен (вводили до этого и проверяли)
 //                cryptInteractor.initCryptPass(middlePassHash!!, true)
-                crypter.setKeyFromMiddleHash(middlePassHash!!)
+                storageCrypter.setKeyFromMiddleHash(middlePassHash!!)
                 // спрашиваем ПИН-код
                 Result.AskPin.toRight()
             }
@@ -60,7 +60,7 @@ class CheckStoragePasswordAndDecryptUseCase(
                     if (passInteractor.checkMiddlePassHash(middlePassHash)) {
                         // сохраненный хеш пароля подошел, устанавливаем его
 //                        cryptInteractor.initCryptPass(middlePassHash!!, true)
-                        crypter.setKeyFromMiddleHash(middlePassHash!!)
+                        storageCrypter.setKeyFromMiddleHash(middlePassHash!!)
                         // спрашиваем ПИН-код
                         Result.AskPin.toRight()
                     } else if (isNodeOpening) {

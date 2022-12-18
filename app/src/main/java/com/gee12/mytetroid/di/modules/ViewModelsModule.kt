@@ -28,7 +28,7 @@ object ViewModelsModule {
                     dataNameProvider = get(),
 
                     storagesRepo = get(),
-                    storageCrypter = /*getScope(scopeId).*/get(),
+                    storageCrypter = get(),
 
                     passInteractor = get(),
                     favoritesManager = get(),

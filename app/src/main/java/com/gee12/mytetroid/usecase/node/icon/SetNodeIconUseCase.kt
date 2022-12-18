@@ -10,7 +10,7 @@ import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
 
 class SetNodeIconUseCase(
     private val logger: ITetroidLogger,
-    private val crypter: IStorageCrypter,
+    private val storageCrypter: IStorageCrypter,
     private val loadNodeIconUseCase: LoadNodeIconUseCase,
     private val saveStorageUseCase: SaveStorageUseCase,
 ) : UseCase<UseCase.None, SetNodeIconUseCase.Params>() {
@@ -18,25 +18,20 @@ class SetNodeIconUseCase(
     data class Params(
         val node: TetroidNode,
         val iconFileName: String?,
-//        val storageProvider: IStorageProvider,
-//        val storageCrypter: IStorageEncrypter,
     )
 
     override suspend fun run(params: Params): Either<Failure, None> {
         val node = params.node
         val iconFileName = params.iconFileName
 
-//        if (iconFileName != null && iconFileName.isEmpty()) {
-//            return Failure.ArgumentIsEmpty()
-//        }
         logger.logOperStart(LogObj.NODE_FIELDS, LogOper.CHANGE, node)
         val oldIconName = node.getIconName(true)
         // обновляем поля
-        val crypted = node.isCrypted
-        if (crypted && !iconFileName.isNullOrEmpty()) {
-            node.iconName = crypter.encryptTextBase64(iconFileName)
+        val isCrypted = node.isCrypted
+        if (isCrypted && !iconFileName.isNullOrEmpty()) {
+            node.iconName = storageCrypter.encryptTextBase64(iconFileName)
         }
-        if (crypted) {
+        if (isCrypted) {
             node.setDecryptedIconName(iconFileName)
         }
         // перезаписываем структуру хранилища в файл
@@ -49,8 +44,8 @@ class SetNodeIconUseCase(
                 logger.logOperCancel(LogObj.NODE_FIELDS, LogOper.CHANGE)
                 // возвращаем изменения
                 node.iconName = oldIconName
-                if (crypted) {
-                    node.setDecryptedIconName(crypter.decryptTextBase64(oldIconName))
+                if (isCrypted) {
+                    node.setDecryptedIconName(storageCrypter.decryptTextBase64(oldIconName))
                 }
             }
     }

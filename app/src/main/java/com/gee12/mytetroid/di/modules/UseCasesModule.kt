@@ -93,7 +93,7 @@ object UseCasesModule {
             scoped {
                 PasswordInteractor(
                     storageProvider = get(),
-                    crypter = get(),
+                    storageCrypter = get(),
                     sensitiveDataProvider = get(),
                 )
             }
@@ -204,7 +204,7 @@ object UseCasesModule {
             scoped {
                 CheckStoragePasswordAndAskUseCase(
                     logger = get(),
-                    crypter = get(),
+                    storageCrypter = get(),
                     passInteractor = get(),
                     sensitiveDataProvider = get(),
                 )
@@ -213,7 +213,7 @@ object UseCasesModule {
             scoped {
                 ChangePasswordUseCase(
                     storageProvider = get(),
-                    crypter = get(),
+                    storageCrypter = get(),
                     saveStorageUseCase = get(),
                     decryptStorageUseCase = get(),
                     initPasswordUseCase = get(),
@@ -231,7 +231,7 @@ object UseCasesModule {
             scoped {
                 InitPasswordUseCase(
                     storagesRepo = get(),
-                    crypter = get(),
+                    storageCrypter = get(),
                     sensitiveDataProvider = get(),
                 )
             }
@@ -243,7 +243,7 @@ object UseCasesModule {
             scoped {
                 DecryptStorageUseCase(
                     logger = get(),
-                    crypter = get(),
+                    storageCrypter = get(),
                     storageDataProcessor = get(),
                     loadNodeIconUseCase = get(),
                 )
@@ -254,7 +254,7 @@ object UseCasesModule {
                     logger = get(),
                     sensitiveDataProvider = get(),
                     commonSettingsProvider = get(),
-                    crypter = get(),
+                    storageCrypter = get(),
                     passInteractor = get(),
                 )
             }
@@ -278,7 +278,7 @@ object UseCasesModule {
                     logger = get(),
                     dataNameProvider = get(),
                     storageProvider = get(),
-                    crypter = get(),
+                    storageCrypter = get(),
                     saveStorageUseCase = get(),
                 )
             }
@@ -288,7 +288,7 @@ object UseCasesModule {
                     logger = get(),
                     dataNameProvider = get(),
                     loadNodeIconUseCase = get(),
-                    crypter = get(),
+                    storageCrypter = get(),
                     saveStorageUseCase = get(),
                     cloneRecordToNodeUseCase = get(),
                 )
@@ -304,7 +304,7 @@ object UseCasesModule {
             scoped {
                 SetNodeIconUseCase(
                     logger = get(),
-                    crypter = get(),
+                    storageCrypter = get(),
                     loadNodeIconUseCase = get(),
                     saveStorageUseCase = get(),
                 )
@@ -324,7 +324,7 @@ object UseCasesModule {
             scoped {
                 EditNodeFieldsUseCase(
                     logger = get(),
-                    crypter = get(),
+                    storageCrypter = get(),
                     saveStorageUseCase = get(),
                 )
             }
@@ -395,7 +395,7 @@ object UseCasesModule {
                     dataNameProvider = get(),
                     recordPathProvider = get(),
                     storagePathProvider = get(),
-                    crypter = get(),
+                    storageCrypter = get(),
                     checkRecordFolderUseCase = get(),
                     cloneAttachesToRecordUseCase = get(),
                     parseRecordTagsUseCase = get(),
@@ -419,7 +419,7 @@ object UseCasesModule {
                     storagePathProvider = get(),
                     recordPathProvider = get(),
                     dataNameProvider = get(),
-                    crypter = get(),
+                    storageCrypter = get(),
                     favoritesManager = get(),
                     checkRecordFolderUseCase = get(),
                     cloneAttachesToRecordUseCase = get(),
@@ -436,7 +436,7 @@ object UseCasesModule {
                     logger = get(),
                     dataNameProvider = get(),
                     recordPathProvider = get(),
-                    crypter = get(),
+                    storageCrypter = get(),
                     favoritesManager = get(),
                     checkRecordFolderUseCase = get(),
                     parseRecordTagsUseCase = get(),
@@ -471,7 +471,7 @@ object UseCasesModule {
             scoped {
                 SaveRecordHtmlTextUseCase(
                     recordPathProvider = get(),
-                    crypter = get(),
+                    storageCrypter = get(),
                     checkRecordFolderUseCase = get(),
                 )
             }
@@ -492,7 +492,7 @@ object UseCasesModule {
                     storagePathProvider = get(),
                     recordPathProvider = get(),
                     favoritesManager = get(),
-                    crypter = get(),
+                    storageCrypter = get(),
                     moveFileUseCase = get(),
                     deleteRecordTagsUseCase = get(),
                     parseRecordTagsUseCase = get(),
@@ -511,7 +511,7 @@ object UseCasesModule {
                     logger = get(),
                     dataNameProvider = get(),
                     recordPathProvider = get(),
-                    crypter = get(),
+                    storageCrypter = get(),
                     checkRecordFolderUseCase = get(),
                     saveStorageUseCase = get(),
                 )
@@ -522,14 +522,14 @@ object UseCasesModule {
                     resourcesProvider = get(),
                     logger = get(),
                     recordPathProvider = get(),
-                    crypter = get(),
+                    storageCrypter = get(),
                 )
             }
 
             scoped {
                 CloneAttachesToRecordUseCase(
                     dataNameProvider = get(),
-                    crypter = get(),
+                    storageCrypter = get(),
                 )
             }
 
@@ -538,7 +538,7 @@ object UseCasesModule {
                     resourcesProvider = get(),
                     logger = get(),
                     recordPathProvider = get(),
-                    crypter = get(),
+                    storageCrypter = get(),
                     checkRecordFolderUseCase = get(),
                     saveStorageUseCase = get(),
                 )
@@ -565,7 +565,7 @@ object UseCasesModule {
                 GetFileFromAttachUseCase(
                     resourcesProvider = get(),
                     logger = get(),
-                    crypter = get(),
+                    storageCrypter = get(),
                     recordPathProvider = get(),
                     storageSettingsProvider = get(),
                 )

@@ -14,15 +14,13 @@ import java.io.IOException
  */
 class SaveRecordHtmlTextUseCase(
     private val recordPathProvider: IRecordPathProvider,
-    private val crypter: IStorageCrypter,
+    private val storageCrypter: IStorageCrypter,
     private val checkRecordFolderUseCase: CheckRecordFolderUseCase,
 ) : UseCase<UseCase.None, SaveRecordHtmlTextUseCase.Params>() {
 
     data class Params(
         val record: TetroidRecord,
-//        val pathToRecordFolder: String,
         val html: String,
-//        val storageCrypter: IStorageCrypter,
     )
 
     override suspend fun run(params: Params): Either<Failure, None> {
@@ -51,7 +49,7 @@ class SaveRecordHtmlTextUseCase(
         // запись файла с шифрованием при необходимости
         try {
             if (record.isCrypted) {
-                val res = crypter.encryptTextBytes(html)
+                val res = storageCrypter.encryptTextBytes(html)
                 FileUtils.writeFile(uri, res)
             } else {
                 FileUtils.writeFile(uri, html)

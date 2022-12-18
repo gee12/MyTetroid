@@ -12,7 +12,7 @@ import com.gee12.mytetroid.repo.StoragesRepo
  */
 class InitPasswordUseCase(
     private val storagesRepo: StoragesRepo,
-    private val crypter: IStorageCrypter,
+    private val storageCrypter: IStorageCrypter,
     private val sensitiveDataProvider: ISensitiveDataProvider,
 ) : UseCase<UseCase.None, InitPasswordUseCase.Params>() {
 
@@ -33,7 +33,7 @@ class InitPasswordUseCase(
         val password = params.password
         val databaseConfig = params.databaseConfig
 
-        val passHash = crypter.passToHash(password)
+        val passHash = storageCrypter.passToHash(password)
         if (storage.isSavePassLocal) {
             // сохраняем хэш пароля
             storage.middlePassHash = passHash
@@ -44,7 +44,7 @@ class InitPasswordUseCase(
             sensitiveDataProvider.saveMiddlePassHash(passHash)
         }
 //        cryptInteractor.initCryptPass(passHash, isMiddleHash = true)
-        crypter.setKeyFromMiddleHash(passHash)
+        storageCrypter.setKeyFromMiddleHash(passHash)
 
         return None.toRight()
     }
@@ -56,7 +56,7 @@ class InitPasswordUseCase(
         passHash: String,
         databaseConfig: DatabaseConfig,
     ): Boolean {
-        val checkData = crypter.createMiddlePassHashCheckData(passHash)
+        val checkData = storageCrypter.createMiddlePassHashCheckData(passHash)
         return databaseConfig.saveCheckData(checkData)
     }
 

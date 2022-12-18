@@ -29,7 +29,7 @@ class CloneRecordToNodeUseCase(
     private val dataNameProvider: IDataNameProvider,
     private val recordPathProvider: IRecordPathProvider,
     private val storagePathProvider: IStoragePathProvider,
-    private val crypter: IStorageCrypter,
+    private val storageCrypter: IStorageCrypter,
     private val checkRecordFolderUseCase: CheckRecordFolderUseCase,
     private val cloneAttachesToRecordUseCase: CloneAttachesToRecordUseCase,
     private val renameRecordAttachesUseCase: RenameRecordAttachesUseCase,
@@ -43,7 +43,6 @@ class CloneRecordToNodeUseCase(
         val node: TetroidNode,
         val isCutted: Boolean,
         val breakOnFSErrors: Boolean,
-//        val tagsMap: HashMap<String, TetroidTag>,
     )
 
     override suspend fun run(params: Params): Either<Failure, None> {
@@ -63,16 +62,20 @@ class CloneRecordToNodeUseCase(
         val url = srcRecord.url
 
         // создаем копию записи
-        val crypted = node.isCrypted
+        val isCrypted = node.isCrypted
         val record = TetroidRecord(
-            crypted, id,
-            encryptField(crypted, name),
-            encryptField(crypted, tagsString),
-            encryptField(crypted, author),
-            encryptField(crypted, url),
-            srcRecord.created, dirName, srcRecord.fileName, node
+            isCrypted,
+            id,
+            encryptFieldIfNeed(name, isCrypted),
+            encryptFieldIfNeed(tagsString, isCrypted),
+            encryptFieldIfNeed(author, isCrypted),
+            encryptFieldIfNeed(url, isCrypted),
+            srcRecord.created,
+            dirName,
+            srcRecord.fileName,
+            node,
         )
-        if (crypted) {
+        if (isCrypted) {
             record.setDecryptedValues(name, tagsString, author, url)
             record.setIsDecrypted(true)
         }
@@ -140,7 +143,6 @@ class CloneRecordToNodeUseCase(
                 if (res) {
                     logger.logDebug(resourcesProvider.getString(R.string.log_copy_record_dir_mask, destFolderPath))
                     // переименовываем прикрепленные файлы
-//                    recordsInteractor.renameRecordAttaches(srcRecord, record)
                     renameRecordAttachesUseCase.run(
                         RenameRecordAttachesUseCase.Params(
                             srcRecord = srcRecord,
@@ -164,7 +166,7 @@ class CloneRecordToNodeUseCase(
             CryptRecordFilesUseCase.Params(
                 record = record,
                 isCrypted = srcRecord.isCrypted,
-                isEncrypt = crypted
+                isEncrypt = isCrypted
             )
         ).flatMap {
             None.toRight()
@@ -173,12 +175,8 @@ class CloneRecordToNodeUseCase(
         }
     }
 
-    private fun encryptField(isCrypted: Boolean, field: String): String? {
-        return if (isCrypted) {
-            crypter.encryptTextBase64(field)
-        } else {
-            field
-        }
+    private fun encryptFieldIfNeed(fieldValue: String, isEncrypt: Boolean): String? {
+        return if (isEncrypt) storageCrypter.encryptTextBase64(fieldValue) else fieldValue
     }
 
     private suspend fun cloneAttachesToRecord(
@@ -198,13 +196,11 @@ class CloneRecordToNodeUseCase(
     private suspend fun parseRecordTags(
         record: TetroidRecord,
         tagsString: String,
-//        tagsMap: HashMap<String, TetroidTag>
     ) {
         parseRecordTagsUseCase.run(
             ParseRecordTagsUseCase.Params(
                 record = record,
                 tagsString = tagsString,
-//                tagsMap = tagsMap,
             )
         ).onFailure {
             logger.logFailure(it, show = false)

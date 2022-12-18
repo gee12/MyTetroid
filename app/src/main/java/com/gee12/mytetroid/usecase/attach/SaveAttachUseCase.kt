@@ -21,7 +21,7 @@ class SaveAttachUseCase(
     private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
     private val recordPathProvider: IRecordPathProvider,
-    private val crypter: IStorageCrypter,
+    private val storageCrypter: IStorageCrypter,
 ) : UseCase<UseCase.None, SaveAttachUseCase.Params>() {
 
     data class Params(
@@ -40,23 +40,17 @@ class SaveAttachUseCase(
         val fileIdName = attach.idName
         val recordPath: String = recordPathProvider.getPathToRecordFolder(attach.record)
         val srcFile = File(recordPath, fileIdName)
-//        try {
-            if (!srcFile.exists()) {
+        if (!srcFile.exists()) {
 //                logger.logError(resourcesProvider.getString(R.string.log_file_is_absent) + fileIdName)
-                return Failure.File.NotExist(path = srcFile.path).toLeft()
-            }
-//        } catch (ex: Exception) {
-//            logger.logError(resourcesProvider.getString(R.string.log_file_checking_error) + fileIdName, ex)
-//            return false
-//        }
+            return Failure.File.NotExist(path = srcFile.path).toLeft()
+        }
         // копирование файла в указанный каталог, расшифровуя при необходимости
         val destFile = File(destPath, attach.name)
 //        val fromTo: String = resourcesProvider.getStringFromTo(srcFile.absolutePath, destFile.absolutePath)
-//        try {
         if (attach.isCrypted) {
             logger.logOperStart(LogObj.FILE, LogOper.DECRYPT)
             try {
-                if (!crypter.encryptDecryptFile(srcFile, destFile, false)) {
+                if (!storageCrypter.encryptDecryptFile(srcFile, destFile, false)) {
 //                        logger.logOperError(LogObj.FILE, LogOper.DECRYPT, fromTo, false, false)
                     return Failure.Decrypt.File(fileName = srcFile.path).toLeft()
                 }
@@ -74,12 +68,6 @@ class SaveAttachUseCase(
                 return Failure.File.Copy(filePath = srcFile.path, newPath = destFile.path).toLeft()
             }
         }
-//        } catch (ex: IOException) {
-//            logger.logOperError(
-//                LogObj.FILE, if (attach.isCrypted) LogOper.DECRYPT else LogOper.COPY,
-//                fromTo, false, false)
-//            return false
-//        }
         return None.toRight()
     }
 
