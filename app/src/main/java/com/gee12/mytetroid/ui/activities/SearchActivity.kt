@@ -13,6 +13,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.lifecycle.lifecycleScope
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.extensions.buildIntent
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.viewmodels.StorageViewModel
@@ -233,8 +234,9 @@ class SearchActivity : TetroidStorageActivity<StorageViewModel>() {
         // сохраняем параметры поиск
         saveSearchPrefs()
         // запускаем поиск и выводим результат
-        val intent = Intent()
-        intent.putExtra(Constants.EXTRA_SEARCH_PROFILE, buildSearchProfile())
+        val intent = buildIntent {
+            putExtra(Constants.EXTRA_SEARCH_PROFILE, buildSearchProfile())
+        }
         setResult(RESULT_OK, intent)
         finish()
     }

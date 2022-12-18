@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.text.TextUtils
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.common.extensions.buildIntent
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.common.utils.Utils
@@ -131,7 +132,7 @@ class SyncInteractor(
      * https://github.com/termux/termux-app/blob/master/app/src/main/java/com/termux/app/RunCommandService.java
      */
     private fun sendTermuxCommand(activity: Activity, command: String, args: Array<String>?, workDir: String?, bg: Boolean): Boolean {
-        val intent = Intent().apply {
+        val intent = buildIntent {
             setClassName("com.termux", "com.termux.app.RunCommandService")
             action = "com.termux.RUN_COMMAND"
             putExtra("com.termux.RUN_COMMAND_PATH", command)
@@ -214,7 +215,7 @@ class SyncInteractor(
      * Создание Intent для отправки в Autosync.
      */
     private fun createIntentToAutosync(extras: Array<Pair<String, String>>?): Intent {
-        return Intent().apply {
+        return buildIntent {
             setClassName("com.ttxapps.autosync", "com.ttxapps.autosync.Automation")
             action = "syncNow"
             extras?.forEach {

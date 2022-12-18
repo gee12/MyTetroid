@@ -9,6 +9,7 @@ import android.view.Menu
 import androidx.lifecycle.lifecycleScope
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.extensions.buildIntent
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.providers.IStorageProvider
@@ -198,7 +199,7 @@ class StorageSettingsActivity : TetroidSettingsActivity() {
     private fun checkSettingsChanges() {
         // если настройки хранилища были изменены, добавляем пометку в результат активити
         if (viewModel.isFieldsChanged) {
-            val intent = Intent().apply {
+            val intent = buildIntent {
                 if (viewModel.isStoragePathChanged) {
                     putExtra(Constants.EXTRA_IS_LOAD_STORAGE, true)
                     putExtra(Constants.EXTRA_STORAGE_ID, getStorageId())

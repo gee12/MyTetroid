@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.gee12.htmlwysiwygeditor.Dialogs
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.extensions.buildIntent
 import com.gee12.mytetroid.viewmodels.BaseEvent
 import com.gee12.mytetroid.common.extensions.toApplyCancelResult
 import com.gee12.mytetroid.model.TetroidStorage
@@ -128,7 +129,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
     }
 
     private fun finishWithResult(storage: TetroidStorage) {
-        val intent = Intent().apply {
+        val intent = buildIntent {
             putExtra(Constants.EXTRA_IS_LOAD_STORAGE, true)
             putExtra(Constants.EXTRA_STORAGE_ID, storage.id)
         }

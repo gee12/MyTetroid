@@ -9,6 +9,7 @@ import android.widget.*
 import androidx.annotation.RequiresApi
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.extensions.buildIntent
 import com.gee12.mytetroid.model.TetroidIcon
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.viewmodels.IconsViewModel
@@ -173,10 +174,11 @@ class IconsActivity : TetroidStorageActivity<IconsViewModel>() {
     }
 
     private fun setResult(icon: TetroidIcon?) {
-        val intent = Intent()
-        intent.putExtra(Constants.EXTRA_NODE_ID, viewModel.nodeId)
-        intent.putExtra(Constants.EXTRA_NODE_ICON_PATH, icon?.path)
-        intent.putExtra(Constants.EXTRA_IS_DROP, icon == null)
+        val intent = buildIntent {
+            putExtra(Constants.EXTRA_NODE_ID, viewModel.nodeId)
+            putExtra(Constants.EXTRA_NODE_ICON_PATH, icon?.path)
+            putExtra(Constants.EXTRA_IS_DROP, icon == null)
+        }
         setResult(RESULT_OK, intent)
         finish()
     }

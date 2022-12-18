@@ -11,6 +11,7 @@ import androidx.annotation.UiThread
 import androidx.lifecycle.MutableLiveData
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
+import com.gee12.mytetroid.common.extensions.buildIntent
 import com.gee12.mytetroid.helpers.NetworkHelper.IWebImageResult
 import com.gee12.mytetroid.helpers.NetworkHelper.IWebPageContentResult
 import com.gee12.mytetroid.logs.LogObj
@@ -1084,8 +1085,9 @@ class RecordViewModel(
                     launchOnMain {
                         // закрываем активность, возвращая результат:
                         // указываем родительской активности, что нужно обновить список записей
-                        val intent = Intent()
-                        intent.putExtra(Constants.EXTRA_IS_FIELDS_EDITED, true)
+                        val intent = buildIntent {
+                            putExtra(Constants.EXTRA_IS_FIELDS_EDITED, true)
+                        }
                         sendEvent(
                             BaseEvent.SetActivityResult(
                                 code = Activity.RESULT_OK,
