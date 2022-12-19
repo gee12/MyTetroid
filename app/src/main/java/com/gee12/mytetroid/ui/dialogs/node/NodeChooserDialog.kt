@@ -10,8 +10,8 @@ import com.gee12.mytetroid.data.ScanManager
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StorageViewModel
-import com.gee12.mytetroid.ui.adapters.NodesListAdapter
-import com.gee12.mytetroid.ui.adapters.NodesListAdapter.OnNodeHeaderClickListener
+import com.gee12.mytetroid.ui.node.NodesListAdapter
+import com.gee12.mytetroid.ui.node.NodesListAdapter.OnNodeHeaderClickListener
 import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import pl.openrnd.multilevellistview.MultiLevelListView
 

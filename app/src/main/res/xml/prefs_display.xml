@@ -34,7 +34,7 @@
         android:key="@string/pref_key_highlight_attach_color"
         android:title="@string/pref_highlight_attach_color" />
 
-    <com.gee12.mytetroid.ui.views.prefs.DateTimeFormatPreference
+    <com.gee12.mytetroid.ui.base.views.prefs.DateTimeFormatPreference
         android:defaultValue="@string/def_date_format_string"
         android:dialogTitle="@string/pref_date_format_string"
         android:inputType="text"

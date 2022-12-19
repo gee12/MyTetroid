@@ -1,6 +1,6 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <com.gee12.mytetroid.ui.views.prefs.DisabledPreference
+    <com.gee12.mytetroid.ui.base.views.prefs.DisabledPreference
         android:key="@string/pref_key_change_pass"
         android:summary="@string/pref_change_pass_summ"
         android:title="@string/pref_change_pass" />

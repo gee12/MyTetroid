@@ -11,7 +11,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <com.gee12.mytetroid.ui.views.TextViewHtml
+        <com.gee12.mytetroid.ui.base.views.TextViewHtml
             android:id="@+id/text_view_header"
             android:text="@string/text_pass_input_html"
             android_ex:isHtml="true"

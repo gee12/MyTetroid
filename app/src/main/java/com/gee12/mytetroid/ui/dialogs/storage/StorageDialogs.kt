@@ -6,7 +6,7 @@ import android.widget.AdapterView
 import android.widget.ListView
 import com.gee12.htmlwysiwygeditor.Dialogs.AskDialogBuilder
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.ui.adapters.StorageChooserAdapter
+import com.gee12.mytetroid.ui.storages.StorageChooserAdapter
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
 
 object StorageDialogs {

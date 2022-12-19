@@ -6,7 +6,7 @@
     android:id="@+id/layout_coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.activities.StorageInfoActivity">
+    tools:context=".ui.storage.info.StorageInfoActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"

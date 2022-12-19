@@ -6,7 +6,7 @@ import android.widget.ListView
 import androidx.appcompat.app.AlertDialog
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.model.ReceivedData
-import com.gee12.mytetroid.ui.adapters.IntentsAdapter
+import com.gee12.mytetroid.ui.IntentsAdapter
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 
 /**

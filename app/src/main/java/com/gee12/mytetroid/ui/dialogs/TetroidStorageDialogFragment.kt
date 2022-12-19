@@ -4,9 +4,9 @@ import com.gee12.mytetroid.common.extensions.ifTrueOrNull
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.providers.IStorageProvider
-import com.gee12.mytetroid.viewmodels.BaseEvent
-import com.gee12.mytetroid.viewmodels.BaseStorageViewModel
-import com.gee12.mytetroid.viewmodels.StorageViewModel.StorageEvent
+import com.gee12.mytetroid.ui.base.BaseEvent
+import com.gee12.mytetroid.ui.base.BaseStorageViewModel
+import com.gee12.mytetroid.ui.storage.StorageEvent
 
 abstract class TetroidStorageDialogFragment<VM : BaseStorageViewModel> : TetroidDialogFragment<VM>() {
 

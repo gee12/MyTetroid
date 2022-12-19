@@ -13,13 +13,13 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
 import com.gee12.htmlwysiwygeditor.Dialogs
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.viewmodels.BaseEvent
+import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.common.extensions.focusAndShowKeyboard
 import com.gee12.mytetroid.common.extensions.hideKeyboard
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.logs.Message
-import com.gee12.mytetroid.viewmodels.BaseViewModel
-import com.gee12.mytetroid.ui.IViewEventListener
+import com.gee12.mytetroid.ui.base.BaseViewModel
+import com.gee12.mytetroid.ui.base.IViewEventListener
 import com.gee12.mytetroid.ui.TetroidMessage
 import kotlinx.coroutines.launch
 import org.koin.core.scope.Scope

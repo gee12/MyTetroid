@@ -1,6 +1,12 @@
 package com.gee12.mytetroid.di.modules
 
 import com.gee12.mytetroid.di.ScopeSource
+import com.gee12.mytetroid.ui.logs.LogsViewModel
+import com.gee12.mytetroid.ui.node.icon.IconsViewModel
+import com.gee12.mytetroid.ui.settings.CommonSettingsViewModel
+import com.gee12.mytetroid.ui.settings.storage.StorageSettingsViewModel
+import com.gee12.mytetroid.ui.storage.info.StorageInfoViewModel
+import com.gee12.mytetroid.ui.storages.StoragesViewModel
 import com.gee12.mytetroid.viewmodels.*
 import org.koin.android.ext.koin.androidApplication
 import org.koin.androidx.viewmodel.dsl.viewModel

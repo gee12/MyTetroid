@@ -9,7 +9,7 @@ import androidx.multidex.MultiDexApplication
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.di.modules.*
-import com.gee12.mytetroid.ui.activities.MainActivity
+//import com.gee12.mytetroid.ui.main.MainActivity
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
@@ -51,27 +51,5 @@ object App {
     fun isFullVersion() = BuildConfig.FLAVOR == "pro"
 
     fun isFreeVersion() = BuildConfig.FLAVOR == "free"
-
-    // TODO: вынести в какой-нибудь EnvironmentHelper ?
-    /**
-     * Переключатель блокировки выключения экрана.
-     * @param activity
-     */
-    @JvmStatic
-    fun checkKeepScreenOn(activity: Activity?) {
-        ViewUtils.setKeepScreenOn(activity, CommonSettings.isKeepScreenOn(activity))
-    }
-
-    @JvmStatic
-    fun restartApp(activity: Activity) {
-        val intent = Intent(activity, MainActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-        activity.startActivity(intent)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            activity.finishAffinity()
-        } else {
-            activity.finish()
-        }
-    }
 
 }

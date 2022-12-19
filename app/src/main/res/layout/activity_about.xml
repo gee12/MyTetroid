@@ -7,7 +7,7 @@
     android:id="@+id/layout_coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.activities.AboutActivity">
+    tools:context=".ui.about.AboutActivity">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -74,7 +74,7 @@
             android:paddingLeft="5dp"
             android:text="1.0" />
 
-        <com.gee12.mytetroid.ui.views.TextViewHtml
+        <com.gee12.mytetroid.ui.base.views.TextViewHtml
             android:id="@+id/text_view_app_summ"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -95,7 +95,7 @@
             android:paddingTop="10dp"
             android:text="@string/title_license_gnu_gpl_v3_0" />
 
-        <com.gee12.mytetroid.ui.views.TextViewHtml
+        <com.gee12.mytetroid.ui.base.views.TextViewHtml
             android:id="@+id/text_view_url"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -107,7 +107,7 @@
             android:textColorLink="@color/colorBlueDark"
             android:focusable="true" />
 
-        <com.gee12.mytetroid.ui.views.TextViewHtml
+        <com.gee12.mytetroid.ui.base.views.TextViewHtml
             android:id="@+id/text_view_policy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

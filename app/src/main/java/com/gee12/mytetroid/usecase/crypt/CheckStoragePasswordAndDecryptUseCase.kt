@@ -9,7 +9,7 @@ import com.gee12.mytetroid.providers.ISensitiveDataProvider
 import com.gee12.mytetroid.interactors.PasswordInteractor
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidStorage
-import com.gee12.mytetroid.viewmodels.StorageParams
+import com.gee12.mytetroid.ui.storage.StorageParams
 
 class CheckStoragePasswordAndDecryptUseCase(
     private val logger: ITetroidLogger,
