@@ -3,21 +3,22 @@ package com.gee12.mytetroid.usecase.node.icon
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.model.TetroidIcon
+import com.gee12.mytetroid.providers.IStoragePathProvider
 import java.io.File
 
 /**
  * Получение списка иконок (файлов .svg) в подкаталоге каталога "icons/".
  */
 class GetIconsFromFolderUseCase(
+    private val storagePathProvider: IStoragePathProvider,
 ) : UseCase<List<TetroidIcon>, GetIconsFromFolderUseCase.Params>() {
 
     data class Params(
-        val pathToIcons: String,
         val folderName: String,
     )
 
     override suspend fun run(params: Params): Either<Failure, List<TetroidIcon>> {
-        val pathToIcons = params.pathToIcons
+        val pathToIcons = storagePathProvider.getPathToIcons()
         val folderName = params.folderName
 
         val iconsFolderFullName = makePath(pathToIcons, folderName)

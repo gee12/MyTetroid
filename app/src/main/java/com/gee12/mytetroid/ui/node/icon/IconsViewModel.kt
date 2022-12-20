@@ -42,9 +42,6 @@ class IconsViewModel(
 
     lateinit var nodeId: String
 
-    private val pathToIcons: String
-        get() = storagePathProvider.getPathToIcons()
-
     override fun startInitStorageFromBase(storageId: Int) {}
 
     override fun isStorageCrypted() = storageProvider.isExistCryptedNodes()
@@ -61,9 +58,7 @@ class IconsViewModel(
     private suspend fun getIconsFolders() {
         withIo {
             getIconsFoldersUseCase.run(
-                GetIconsFoldersUseCase.Params(
-                    pathToIconsFolder = pathToIcons,
-                )
+                GetIconsFoldersUseCase.Params
             )
         }.onFailure {
             logFailure(it)
@@ -93,10 +88,7 @@ class IconsViewModel(
         launchOnMain {
             withIo {
                 getIconsFromFolderUseCase.run(
-                    GetIconsFromFolderUseCase.Params(
-                        pathToIcons = pathToIcons,
-                        folderName = folderName,
-                    )
+                    GetIconsFromFolderUseCase.Params(folderName)
                 )
             }.onFailure {
                 logFailure(it)
@@ -110,6 +102,7 @@ class IconsViewModel(
     fun loadIconIfNeed(icon: TetroidIcon) {
         if (icon.icon == null) {
             try {
+                val pathToIcons = storagePathProvider.getPathToIcons()
                 val fullFileName = makePath(pathToIcons, icon.folder, icon.name)
                 icon.icon = FileUtils.loadSVGFromFile(fullFileName)
             } catch (ex: Exception) {

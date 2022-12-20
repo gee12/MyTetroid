@@ -18,7 +18,7 @@ import com.gee12.mytetroid.R
 
 class StoragesAdapter(
     context: Context,
-    private val currentStorageId: Int?
+    private val currentStorageId: Int?,
 ) : ListAdapter<TetroidStorage, StorageViewHolder>(DIFF_CALLBACK) {
 
     interface IItemMenuClickListener {
@@ -53,9 +53,6 @@ class StoragesAdapter(
         return super.getItem(position)
     }
 
-    /**
-     *
-     */
     class StorageViewHolder internal constructor(
         view: View?,
         private val currentStorageId: Int?

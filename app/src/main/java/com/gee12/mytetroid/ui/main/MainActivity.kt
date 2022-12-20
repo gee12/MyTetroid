@@ -45,7 +45,6 @@ import com.gee12.mytetroid.ui.storage.info.StorageInfoActivity.Companion.start
 import com.gee12.mytetroid.ui.base.TetroidStorageActivity
 import com.gee12.mytetroid.ui.base.VMEvent
 import com.gee12.mytetroid.ui.node.NodesListAdapter
-import com.gee12.mytetroid.ui.node.NodesListAdapter.OnNodeHeaderClickListener
 import com.gee12.mytetroid.ui.tag.TagsListAdapter
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
 import com.gee12.mytetroid.ui.dialogs.IntentDialog
@@ -535,7 +534,30 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
     private fun initNodesTagsListAdapters() {
         // список веток
-        listAdapterNodes = NodesListAdapter(this, onNodeHeaderClickListener)
+        listAdapterNodes = NodesListAdapter(
+            context = this,
+            isHighlightCryptedNodes = viewModel.commonSettingsProvider.isHighlightCryptedNodes(),
+            highlightColor = viewModel.commonSettingsProvider.highlightAttachColor(),
+            onClick = { node, pos ->
+                if (node.isExpandable && CommonSettings.isExpandEmptyNode(this@MainActivity)) {
+                    // если у ветки есть подветки и установлена опция
+                    if (node.recordsCount > 0) {
+                        // и в ветке есть записи - открываем список записей
+                        viewModel.showNode(node)
+                    } else {
+                        // иначе - разворачиваем/сворачиваем ветку
+                        listAdapterNodes.toggleNodeExpand(pos)
+                    }
+                } else {
+                    // сразу открываем список записей (даже если он пуст)
+                    viewModel.showNode(node)
+                }
+            },
+            onLongClick = { view, node, pos ->
+                showNodePopupMenu(view, node, pos)
+                true
+            },
+        )
         lvNodes.setAdapter(listAdapterNodes)
         // список меток
         listAdapterTags = TagsListAdapter(this)
@@ -849,32 +871,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      */
     fun updateNodes() {
         listAdapterNodes.notifyDataSetChanged()
-    }
-
-    /**
-     * Обработчик клика на заголовке ветки с подветками.
-     */
-    var onNodeHeaderClickListener: OnNodeHeaderClickListener = object : OnNodeHeaderClickListener {
-        override fun onClick(node: TetroidNode, pos: Int) {
-            if (node.isExpandable && CommonSettings.isExpandEmptyNode(this@MainActivity)) {
-                // если у ветки есть подветки и установлена опция
-                if (node.recordsCount > 0) {
-                    // и в ветке есть записи - открываем список записей
-                    viewModel.showNode(node)
-                } else {
-                    // иначе - разворачиваем/сворачиваем ветку
-                    listAdapterNodes.toggleNodeExpand(pos)
-                }
-            } else {
-                // сразу открываем список записей (даже если он пуст)
-                viewModel.showNode(node)
-            }
-        }
-
-        override fun onLongClick(view: View, node: TetroidNode, pos: Int): Boolean {
-            showNodePopupMenu(view, node, pos)
-            return true
-        }
     }
 
     /**
@@ -1597,7 +1593,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             viewModel.onRecordFieldsUpdated(null, false)
         } else {
             // обновляем список записей, чтобы обновить дату изменения
-            if (App.RecordFieldsInList.checkIsEditedDate()) {
+            if (viewModel.commonSettingsProvider.getRecordFieldsSelector().checkIsEditedDate()) {
                 mainPage.updateRecordList()
             }
         }

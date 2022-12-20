@@ -5,13 +5,10 @@ import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import com.gee12.mytetroid.*
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.common.extensions.getAppExternalFilesDir
-import com.gee12.mytetroid.common.extensions.getExternalPublicDocsOrAppDir
-import com.gee12.mytetroid.common.extensions.makePath
+import com.gee12.mytetroid.common.extensions.*
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.logs.ITetroidLogger
-import java.io.File
 
 class CommonSettingsProvider(
     private val context: Context,
@@ -52,11 +49,6 @@ class CommonSettingsProvider(
             // удаляем значение старой опции
             removePref(R.string.pref_key_is_show_tags_in_records)
         }
-        App.IsHighlightAttach = CommonSettings.isHighlightRecordWithAttach(context)
-        App.IsHighlightCryptedNodes = CommonSettings.isHighlightEncryptedNodes(context)
-        App.HighlightAttachColor = CommonSettings.getHighlightColor(context)
-        App.DateFormatString = CommonSettings.getDateFormatString(context)
-        App.RecordFieldsInList = RecordFieldsSelector(context, buildInfoProvider, CommonSettings.getRecordFieldsInList(context))
     }
 
     private fun getPrefs(): SharedPreferences? {
@@ -177,7 +169,7 @@ class CommonSettingsProvider(
 
     fun getLastFolderPathOrDefault(forWrite: Boolean): String? {
         val lastFolder = CommonSettings.getLastChoosedFolderPath(context)
-        return if (lastFolder.isNotBlank() && File(lastFolder).exists()) {
+        return if (!lastFolder.isNullOrEmpty() && lastFolder.isFileExist()) {
             lastFolder
         } else {
             context.getExternalPublicDocsOrAppDir(forWrite)
@@ -233,6 +225,22 @@ class CommonSettingsProvider(
             logger.logWarning(resourcesProvider.getString(R.string.log_incorrect_dateformat_in_settings), show = false)
             resourcesProvider.getString(R.string.def_date_format_string)
         }
+    }
+
+    fun isHighlightRecordWithAttach(): Boolean {
+        return CommonSettings.isHighlightRecordWithAttach(context)
+    }
+
+    fun isHighlightCryptedNodes(): Boolean {
+        return CommonSettings.isHighlightEncryptedNodes(context)
+    }
+
+    fun highlightAttachColor(): Int {
+        return CommonSettings.getHighlightColor(context)
+    }
+
+    fun getRecordFieldsSelector(): RecordFieldsSelector {
+        return RecordFieldsSelector(context, buildInfoProvider, CommonSettings.getRecordFieldsInList(context))
     }
 
 }

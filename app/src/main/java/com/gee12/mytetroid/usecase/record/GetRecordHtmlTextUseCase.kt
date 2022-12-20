@@ -9,6 +9,7 @@ import com.gee12.mytetroid.data.crypt.IStorageCrypter
 import com.gee12.mytetroid.providers.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.providers.IRecordPathProvider
 import java.io.File
 
 /**
@@ -17,19 +18,19 @@ import java.io.File
 class GetRecordHtmlTextUseCase(
     private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
+    private val recordPathProvider: IRecordPathProvider,
+    private val storageCrypter: IStorageCrypter,
     private val checkRecordFolderUseCase: CheckRecordFolderUseCase,
 ) : UseCase<String, GetRecordHtmlTextUseCase.Params>() {
 
     data class Params(
         val record: TetroidRecord,
-        val pathToRecordFolder: String,
         val showMessage: Boolean,
-        val crypter: IStorageCrypter,
     )
 
     override suspend fun run(params: Params): Either<Failure, String> {
         val record = params.record
-        val folderPath = params.pathToRecordFolder
+        val folderPath = recordPathProvider.getPathToRecordFolder(record)
         val showMessage = params.showMessage
 
         logger.logDebug(resourcesProvider.getString(R.string.start_record_file_reading_mask, record.id))
@@ -58,10 +59,7 @@ class GetRecordHtmlTextUseCase(
         }
         return if (record.isCrypted) {
             if (record.isDecrypted) {
-                readAndDecryptRecordFile(
-                    uri = uri,
-                    crypter = params.crypter
-                )
+                readAndDecryptRecordFile(uri)
             } else {
                 Failure.Record.Read.NotDecrypted().toLeft()
             }
@@ -74,7 +72,7 @@ class GetRecordHtmlTextUseCase(
         }
     }
 
-    private fun readAndDecryptRecordFile(uri: Uri, crypter: IStorageCrypter): Either<Failure, String> {
+    private fun readAndDecryptRecordFile(uri: Uri): Either<Failure, String> {
         val bytes: ByteArray? = try {
             FileUtils.readFile(uri)
         } catch (ex: Exception) {
@@ -89,7 +87,7 @@ class GetRecordHtmlTextUseCase(
         }
         // расшифровываем содержимое файла
         logger.logDebug(resourcesProvider.getString(R.string.log_start_record_text_decrypting))
-        val res = crypter.decryptText(bytes)
+        val res = storageCrypter.decryptText(bytes)
         if (res == null) {
 //                    logger.logError(resourcesProvider.getString(R.string.log_error_decrypt_record_file) + filePath)
             return Failure.Decrypt.File(fileName = uri.toString()).toLeft()

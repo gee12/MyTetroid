@@ -752,11 +752,14 @@ class MainViewModel(
 
     fun showNode(nodeId: String) {
         launchOnMain {
-            val node = getNode(nodeId)
-            if (node != null) {
+            withIo {
+                getNodeByIdUseCase.run(
+                    GetNodeByIdUseCase.Params(nodeId)
+                )
+            }.onFailure {
+                logFailure(it)
+            }.onSuccess { node ->
                 showNode(node)
-            } else {
-                logError(getString(R.string.error_node_not_found_with_id_mask) + nodeId, true)
             }
         }
     }
@@ -766,7 +769,6 @@ class MainViewModel(
      * @param node
      */
     fun showNode(node: TetroidNode) {
-//        if (node != null) {
         // проверка нужно ли расшифровать ветку перед отображением
         if (checkAndDecryptNode(node)) return
 
@@ -777,11 +779,8 @@ class MainViewModel(
             showRecords(node.records, Constants.MAIN_VIEW_NODE_RECORDS)
 
             // сохраняем выбранную ветку
-            saveLastSelectedNode()
+            saveLastSelectedNode(nodeId = node.id)
         }
-//        } else {
-//            logError(R.string.log_node_is_null, true)
-//        }
     }
 
     /**
@@ -799,10 +798,9 @@ class MainViewModel(
     /**
      * Сохранение последней выбранной ветки.
      */
-    private fun saveLastSelectedNode() {
+    private fun saveLastSelectedNode(nodeId: String) {
         if (isKeepLastNode()) {
-            val curNode = if (curMainViewId == Constants.MAIN_VIEW_FAVORITES) FavoritesManager.FAVORITES_NODE else curNode
-            setLastNodeId(curNode?.id)
+            setLastNodeId(nodeId)
             updateStorageAsync()
         }
     }
@@ -966,11 +964,6 @@ class MainViewModel(
                         node = node,
                         movePath = storagePathProvider.getPathToTrash(),
                         isCutting = isCutting,
-                        rootNodes = storageProvider.getRootNodes(),
-                        tagsMap = storageProvider.getTagsMap(),
-                        getRecordFolderCallback = { record ->
-                            recordPathProvider.getPathToRecordFolder(record)
-                        }
                     )
                 )
             }.onFailure {
@@ -1592,14 +1585,15 @@ class MainViewModel(
      */
     fun showFavorites() {
         launchOnMain {
+            val node = FavoritesManager.FAVORITES_NODE
             // выделяем ветку Избранное, только если загружено не одно Избранное
             if (!isLoadedFavoritesOnly()) {
-                sendEvent(MainEvent.SetCurrentNode(node = FavoritesManager.FAVORITES_NODE))
+                sendEvent(MainEvent.SetCurrentNode(node))
             }
             showRecords(getFavoriteRecords(), Constants.MAIN_VIEW_FAVORITES, dropSearch = true)
 
             // сохраняем выбранную ветку
-            saveLastSelectedNode()
+            saveLastSelectedNode(nodeId = node.id)
         }
     }
 
@@ -1683,14 +1677,7 @@ class MainViewModel(
             sendEvent(BaseEvent.TaskStarted(R.string.global_searching))
             withIo {
                 globalSearchUseCase.run(
-                    GlobalSearchUseCase.Params(
-                        profile = profile,
-                        rootNodes = storageProvider.getRootNodes(),
-                        storageCrypter = storageCrypter,
-                        getPathToRecordFolderCallback = { record ->
-                            recordPathProvider.getPathToRecordFolder(record)
-                        },
-                    )
+                    GlobalSearchUseCase.Params(profile)
                 )
             }.onComplete {
                 sendEvent(BaseEvent.TaskFinished/*, Gravity.NO_GRAVITY*/)
@@ -1711,23 +1698,6 @@ class MainViewModel(
 
                 sendEvent(MainEvent.GlobalSearchFinished(result.foundObjects, profile))
             }
-
-//            if (found == null) {
-//                log(getString(R.string.log_global_search_return_null), true)
-//                return@launchOnMain
-//            } else if (profile.isSearchInNode) {
-//                profile.node?.let { node ->
-//                    log(getString(R.string.global_search_by_node_result, node.name), true)
-//                }
-//            }
-
-//            // уведомляем, если не смогли поискать в зашифрованных ветках
-//            if (searchInteractor.isExistCryptedNodes) {
-//                log(R.string.log_found_crypted_nodes, true)
-//            }
-//            log(getString(R.string.global_search_end, found.size))
-//
-//            sendEvent(MainEvent.GlobalSearchFinished(found, profile))
         }
     }
 

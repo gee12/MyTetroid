@@ -11,7 +11,6 @@ import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.viewmodels.StorageViewModel
 import com.gee12.mytetroid.ui.node.NodesListAdapter
-import com.gee12.mytetroid.ui.node.NodesListAdapter.OnNodeHeaderClickListener
 import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import pl.openrnd.multilevellistview.MultiLevelListView
 
@@ -35,6 +34,7 @@ class NodeChooserDialog(
 
     private lateinit var adapter: NodesListAdapter
     private lateinit var searchView: SearchView
+    private lateinit var tvNoticeBottom: TextView
 
 
     override fun getRequiredTag() = TAG
@@ -62,62 +62,25 @@ class NodeChooserDialog(
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
         dialog.setTitle(R.string.title_choose_node)
 
-        adapter = NodesListAdapter(context, null)
-        // обработчик результата
-        setPositiveButton(R.string.answer_ok) { _, _ -> onApply(adapter.curNode) }
-        setNegativeButton(R.string.answer_cancel)
-    }
-
-    override fun onStorageInited(storage: TetroidStorage) {
-        // проверяем уже после загрузки хранилища
-        if (!isStorageLoaded()) {
-            dismiss()
-            return
-        }
-        // уведомление
-        val tvNoticeBottom = dialogView.findViewById<TextView>(R.id.text_view_notice_bottom)
+        adapter = NodesListAdapter(
+            context = requireContext(),
+            isHighlightCryptedNodes = viewModel.commonSettingsProvider.isHighlightCryptedNodes(),
+            highlightColor = viewModel.commonSettingsProvider.highlightAttachColor(),
+            onClick = { node, _ ->
+                onSelectNode(node)
+            },
+            onLongClick = { _, node, _ ->
+                onSelectNode(node)
+                true
+            },
+        )
 
         // список веток
         val listView = dialogView.findViewById<MultiLevelListView>(R.id.list_view_nodes)
-        adapter.curNode = node
-        adapter.setNodeHeaderClickListener(object : OnNodeHeaderClickListener {
-            private fun onSelectNode(node: TetroidNode) {
-                val okButton = getPositiveButton()
-                val isCryptedWarning = !canCrypted && node.isCrypted && !node.isDecrypted
-                val isDecryptedWarning = !canDecrypted && node.isCrypted && node.isDecrypted
-                val isNotRootWarning = rootOnly && node.level > 0
+        listView.setAdapter(adapter)
 
-                if (isCryptedWarning || isDecryptedWarning || isNotRootWarning) {
-                    var mes = when {
-                        isCryptedWarning -> getString(R.string.mes_select_non_encrypted_node)
-                        isDecryptedWarning -> getString(R.string.mes_select_decrypted_node)
-                        else -> null
-                    }
-                    if (isNotRootWarning) {
-                        mes = (mes?.plus("\n") ?: "") + getString(R.string.mes_select_first_level_node)
-                    }
-                    tvNoticeBottom?.text = mes
-                    tvNoticeBottom?.visibility = View.VISIBLE
-                    okButton?.isEnabled = false
-                } else {
-                    tvNoticeBottom?.visibility = View.GONE
-                    okButton?.isEnabled = true
-                }
-                adapter.curNode = node
-                adapter.notifyDataSetChanged()
-                hideKeyboard(dialogView)
-            }
-
-            override fun onClick(node: TetroidNode, pos: Int) {
-                onSelectNode(node)
-            }
-
-            override fun onLongClick(view: View, node: TetroidNode, pos: Int): Boolean {
-                onSelectNode(node)
-                return true
-            }
-        })
-        listView?.setAdapter(adapter)
+        // уведомление
+        tvNoticeBottom = dialogView.findViewById(R.id.text_view_notice_bottom)
 
         // строка поиска
         val tvEmpty = dialogView.findViewById<TextView>(R.id.nodes_text_view_empty)
@@ -127,15 +90,15 @@ class NodeChooserDialog(
             private fun searchNodes(query: String) {
                 if (TextUtils.isEmpty(query)) {
                     adapter.setDataItems(viewModel.getRootNodes())
-                    tvEmpty?.visibility = View.GONE
+                    tvEmpty.visibility = View.GONE
                 } else {
                     val found = ScanManager.searchInNodesNames(viewModel.getRootNodes(), query)
                     adapter.setDataItems(found)
                     if (found.isEmpty()) {
-                        tvEmpty?.visibility = View.VISIBLE
-                        tvEmpty?.text = getString(R.string.search_nodes_not_found_mask, query)
+                        tvEmpty.visibility = View.VISIBLE
+                        tvEmpty.text = getString(R.string.search_nodes_not_found_mask, query)
                     } else {
-                        tvEmpty?.visibility = View.GONE
+                        tvEmpty.visibility = View.GONE
                     }
                 }
             }
@@ -158,10 +121,49 @@ class NodeChooserDialog(
         val closeButton = searchView.findViewById<View>(androidx.appcompat.R.id.search_close_btn)
         closeButton?.setOnClickListener { searchView.setQuery("", true) }
 
-        // загружаем список веток
+        // обработчик результата
+        setPositiveButton(R.string.answer_ok) { _, _ -> onApply(adapter.curNode) }
+        setNegativeButton(R.string.answer_cancel)
+    }
+
+    override fun onStorageInited(storage: TetroidStorage) {
+        // проверяем уже после загрузки хранилища
+        if (!isStorageLoaded()) {
+            dismiss()
+            return
+        }
+
+        adapter.curNode = node
         adapter.setDataItems(viewModel.getRootNodes())
 
         showKeyboard(searchView)
+    }
+
+    private fun onSelectNode(node: TetroidNode) {
+        val okButton = getPositiveButton()
+        val isCryptedWarning = !canCrypted && node.isCrypted && !node.isDecrypted
+        val isDecryptedWarning = !canDecrypted && node.isCrypted && node.isDecrypted
+        val isNotRootWarning = rootOnly && node.level > 0
+
+        if (isCryptedWarning || isDecryptedWarning || isNotRootWarning) {
+            var mes = when {
+                isCryptedWarning -> getString(R.string.mes_select_non_encrypted_node)
+                isDecryptedWarning -> getString(R.string.mes_select_decrypted_node)
+                else -> null
+            }
+            if (isNotRootWarning) {
+                mes = (mes?.plus("\n") ?: "") + getString(R.string.mes_select_first_level_node)
+            }
+            tvNoticeBottom.text = mes
+            tvNoticeBottom.visibility = View.VISIBLE
+            okButton?.isEnabled = false
+        } else {
+            tvNoticeBottom.visibility = View.GONE
+            okButton?.isEnabled = true
+        }
+        adapter.curNode = node
+        adapter.notifyDataSetChanged()
+        hideKeyboard(dialogView)
     }
 
     override fun onDialogShowed(dialog: AlertDialog, view: View) {

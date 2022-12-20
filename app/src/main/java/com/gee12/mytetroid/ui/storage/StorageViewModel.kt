@@ -862,10 +862,7 @@ open class StorageViewModel(
     suspend fun getNode(nodeId: String): TetroidNode? {
         return withIo {
             getNodeByIdUseCase.run(
-                GetNodeByIdUseCase.Params(
-                    nodeId = nodeId,
-                    storageProvider.getRootNodes(),
-                )
+                GetNodeByIdUseCase.Params(nodeId)
             )
         }.foldResult(
             onLeft = {

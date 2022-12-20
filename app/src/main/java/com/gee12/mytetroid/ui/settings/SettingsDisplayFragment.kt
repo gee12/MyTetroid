@@ -41,27 +41,27 @@ class SettingsDisplayFragment : TetroidSettingsFragment() {
         when (key) {
             getString(R.string.pref_key_is_highlight_attach) -> {
                 // включаем/выключаем выделение записей с файлами
-                App.IsHighlightAttach = CommonSettings.isHighlightRecordWithAttach(context)
+                // TODO
                 setHighlightPrefAvailability()
             }
             getString(R.string.pref_key_is_highlight_crypted_nodes) -> {
                 // включаем/выключаем выделение зашифрованных веток
-                App.IsHighlightCryptedNodes = CommonSettings.isHighlightEncryptedNodes(context)
+                // TODO
                 setHighlightPrefAvailability()
             }
             getString(R.string.pref_key_highlight_attach_color) -> {
-                // меняем цвет выделения записей с файлами
-                App.HighlightAttachColor = CommonSettings.getHighlightColor(context)
+                // TODO
+            //                App.HighlightAttachColor = CommonSettings.getHighlightColor(context)
             }
             getString(R.string.pref_key_date_format_string) -> {
                 // меняем формат даты
-                App.DateFormatString = CommonSettings.getDateFormatString(context)
+                // TODO
             }
             getString(R.string.pref_key_show_record_fields) -> {
                 updateSummary(R.string.pref_key_show_record_fields, CommonSettings.getShowRecordFields(context))
             }
             getString(R.string.pref_key_record_fields_in_list) -> {
-                App.RecordFieldsInList = RecordFieldsSelector(context!!, baseViewModel.buildInfoProvider, CommonSettings.getRecordFieldsInList(context))
+                // TODO
                 updateSummary(
                     R.string.pref_key_record_fields_in_list, getRecordFieldsValuesString(),
                     getString(R.string.pref_record_fields_in_list_summ)
@@ -72,7 +72,8 @@ class SettingsDisplayFragment : TetroidSettingsFragment() {
 
     private fun getRecordFieldsValuesString(): String {
         val arrayId = if (baseViewModel.buildInfoProvider.isFullVersion()) R.array.record_fields_in_list_entries_pro else R.array.record_fields_in_list_entries
-        return App.RecordFieldsInList.joinToString(resources.getStringArray(arrayId), 0)
+        val recordFieldsInList = baseViewModel.commonSettingsProvider.getRecordFieldsSelector()
+        return recordFieldsInList.joinToString(resources.getStringArray(arrayId), 0)
     }
 
     private fun setHighlightPrefAvailability() {

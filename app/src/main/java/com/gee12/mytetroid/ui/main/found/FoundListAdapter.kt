@@ -6,26 +6,32 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.RecordFieldsSelector
 import com.gee12.mytetroid.providers.IResourcesProvider
 import com.gee12.mytetroid.model.FoundType
 import com.gee12.mytetroid.model.ITetroidObject
 import com.gee12.mytetroid.model.TetroidRecord
-import com.gee12.mytetroid.ui.main.RecordsBaseListAdapter
+import com.gee12.mytetroid.ui.main.records.RecordsBaseListAdapter
 import java.util.*
 
 class FoundListAdapter(
     context: Context,
     resourcesProvider: IResourcesProvider,
     dateTimeFormat: String,
+    isHighlightAttach: Boolean,
+    highlightAttachColor: Int,
+    fieldsSelector: RecordFieldsSelector,
     getEditedDateCallback: (record: TetroidRecord) -> Date?,
     onClick: (record: TetroidRecord) -> Unit,
-    /*, List<ITetroidObject> dataSet*/
 ) : RecordsBaseListAdapter(
-    context,
-    resourcesProvider,
-    dateTimeFormat,
-    getEditedDateCallback,
-    onClick,
+    context = context,
+    resourcesProvider = resourcesProvider,
+    dateTimeFormat = dateTimeFormat,
+    isHighlightAttach = isHighlightAttach,
+    highlightAttachColor = highlightAttachColor,
+    fieldsSelector = fieldsSelector,
+    getEditedDateCallback = getEditedDateCallback,
+    onClick = onClick,
 ) {
 
     private class FoundViewHolder : RecordViewHolder() {
@@ -33,11 +39,10 @@ class FoundListAdapter(
         lateinit var typeView: TextView
     }
 
-    private val dataSet: MutableList<ITetroidObject>
+    private val dataSet: MutableList<ITetroidObject> = ArrayList()
     private var hashMap: Map<ITetroidObject, FoundType>? = null
 
     init {
-        dataSet = ArrayList()
         isShowNodeName = true
     }
 
@@ -66,9 +71,9 @@ class FoundListAdapter(
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        var view = convertView
+        val view: View
         val viewHolder: FoundViewHolder
-        if (view == null) {
+        if (convertView == null) {
             viewHolder = FoundViewHolder()
             view = inflater.inflate(R.layout.list_item_found, null)
             viewHolder.lineNumView = view.findViewById(R.id.record_view_line_num)
@@ -84,12 +89,13 @@ class FoundListAdapter(
             viewHolder.typeView = view.findViewById(R.id.found_view_type)
             view.tag = viewHolder
         } else {
+            view = convertView
             viewHolder = view.tag as FoundViewHolder
         }
         val foundObject = dataSet[position]
         if (foundObject is TetroidRecord) {
             // если найденный объект - запись, то выводим его в списке как обычную запись
-            prepareView(position, viewHolder, view!!, foundObject)
+            prepareView(position, viewHolder, view, foundObject)
         } else {
             // номер строки
             viewHolder.lineNumView.text = (position + 1).toString()
@@ -103,7 +109,7 @@ class FoundListAdapter(
         val typeName = getTetroidObjectTypeString(resourcesProvider, foundObject)
         viewHolder.typeView.text = typeName.uppercase(Locale.getDefault())
 
-        return view!!
+        return view
     }
 
     companion object {

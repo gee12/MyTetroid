@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.ui.main
+package com.gee12.mytetroid.ui.main.records
 
 import android.content.Context
 import android.graphics.Color
@@ -10,9 +10,9 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import com.gee12.mytetroid.App
 import com.gee12.mytetroid.App.isFullVersion
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.RecordFieldsSelector
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.providers.IResourcesProvider
 import com.gee12.mytetroid.model.TetroidRecord
@@ -22,6 +22,9 @@ abstract class RecordsBaseListAdapter(
     protected val context: Context,
     protected val resourcesProvider: IResourcesProvider,
     protected val dateTimeFormat: String,
+    protected val isHighlightAttach: Boolean,
+    protected val highlightAttachColor: Int,
+    protected val fieldsSelector: RecordFieldsSelector,
     protected val getEditedDateCallback: (record: TetroidRecord) -> Date?,
     protected val onClick: (record: TetroidRecord) -> Unit,
 ) : BaseAdapter() {
@@ -38,18 +41,10 @@ abstract class RecordsBaseListAdapter(
         lateinit var attachedView: ImageView
     }
 
-    protected val inflater: LayoutInflater
+    protected val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
     protected var isShowNodeName = false
 
-    init {
-        inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-//        dateTimeFormat = settingsProvider.checkDateFormatString()
-    }
-
-    fun prepareView(position: Int, viewHolder: RecordViewHolder?, convertView: View, record: TetroidRecord?) {
-        if (viewHolder == null || record == null) {
-            return
-        }
+    fun prepareView(position: Int, viewHolder: RecordViewHolder, convertView: View, record: TetroidRecord) {
         val nonCryptedOrDecrypted = record.isNonCryptedOrDecrypted
         // иконка
         if (!nonCryptedOrDecrypted) {
@@ -80,7 +75,6 @@ abstract class RecordsBaseListAdapter(
         } else {
             viewHolder.nodeNameView.visibility = View.GONE
         }
-        val fieldsSelector = App.RecordFieldsInList
         // автор
         val author = record.author
         if (nonCryptedOrDecrypted && fieldsSelector.checkIsAuthor() && !TextUtils.isEmpty(author)) {
@@ -118,8 +112,8 @@ abstract class RecordsBaseListAdapter(
         val nameParams = viewHolder.nameView.layoutParams as RelativeLayout.LayoutParams
         if (record.attachedFilesCount > 0 && nonCryptedOrDecrypted) {
             // если установлено в настройках, меняем фон
-            if (App.IsHighlightAttach) {
-                convertView.setBackgroundColor(App.HighlightAttachColor)
+            if (isHighlightAttach) {
+                convertView.setBackgroundColor(highlightAttachColor)
             }
             viewHolder.attachedView.visibility = View.VISIBLE
             viewHolder.attachedView.setOnClickListener {

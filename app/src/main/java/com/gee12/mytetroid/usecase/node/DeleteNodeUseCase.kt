@@ -6,8 +6,8 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.model.TetroidRecord
-import com.gee12.mytetroid.model.TetroidTag
+import com.gee12.mytetroid.providers.IRecordPathProvider
+import com.gee12.mytetroid.providers.IStorageProvider
 import com.gee12.mytetroid.usecase.record.CheckRecordFolderUseCase
 import com.gee12.mytetroid.usecase.record.MoveOrDeleteRecordFolderUseCase
 import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
@@ -18,6 +18,8 @@ import com.gee12.mytetroid.usecase.tag.DeleteRecordTagsUseCase
  */
 class DeleteNodeUseCase(
     private val logger: ITetroidLogger,
+    private val storageProvider: IStorageProvider,
+    private val recordPathProvider: IRecordPathProvider,
     private val favoritesManager: FavoritesManager,
     private val deleteRecordTagsUseCase: DeleteRecordTagsUseCase,
     private val checkRecordFolderUseCase: CheckRecordFolderUseCase,
@@ -29,9 +31,6 @@ class DeleteNodeUseCase(
         val node: TetroidNode,
         val movePath: String,
         val isCutting: Boolean,
-        val rootNodes: List<TetroidNode>,
-        val tagsMap: HashMap<String, TetroidTag>,
-        val getRecordFolderCallback: (TetroidRecord) -> String,
     )
 
     override suspend fun run(params: Params): Either<Failure, None> {
@@ -44,7 +43,7 @@ class DeleteNodeUseCase(
         val parentNodes = (if (node.parentNode != null) {
             node.parentNode.subNodes
         } else {
-            params.rootNodes
+            storageProvider.getRootNodes()
         }) as MutableList<TetroidNode>
         if (!parentNodes.remove(node)) {
 //            logger.logError(resourcesProvider.getString(R.string.error_node_not_found_with_id_mask) + node.id)
@@ -70,14 +69,14 @@ class DeleteNodeUseCase(
 
         if (node.recordsCount > 0) {
             for (record in node.records) {
-                val recordFolderPath = params.getRecordFolderCallback(record)
+                val recordFolderPath = recordPathProvider.getPathToRecordFolder(record)
 
                 // удаляем из избранного
                 if (record.isFavorite) {
                     favoritesManager.remove(record, false)
                 }
                 deleteRecordTagsUseCase.run(
-                    DeleteRecordTagsUseCase.Params(record/*, params.tagsMap*/)
+                    DeleteRecordTagsUseCase.Params(record)
                 ).onFailure {
                     logger.logFailure(it, show = false)
                 }

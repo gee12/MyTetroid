@@ -4,30 +4,27 @@ import com.gee12.mytetroid.common.Either
 import com.gee12.mytetroid.common.Failure
 import com.gee12.mytetroid.common.UseCase
 import com.gee12.mytetroid.common.toRight
-import com.gee12.mytetroid.data.crypt.IStorageCrypter
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.*
+import com.gee12.mytetroid.providers.IStorageProvider
 import com.gee12.mytetroid.usecase.node.GetNodeByIdUseCase
 import com.gee12.mytetroid.usecase.record.GetRecordParsedTextUseCase
 import java.util.regex.Pattern
 
 class GlobalSearchUseCase(
     private val logger: ITetroidLogger,
+    private val storageProvider: IStorageProvider,
     private val getNodeByIdUseCase: GetNodeByIdUseCase,
     private val getRecordParsedTextUseCase: GetRecordParsedTextUseCase,
 ) : UseCase<GlobalSearchUseCase.Result, GlobalSearchUseCase.Params>() {
 
-    // TODO: вернуть зависимости в конструктор
     data class Params(
         val profile: SearchProfile,
-        val rootNodes: List<TetroidNode>,
-        val storageCrypter: IStorageCrypter,
-        val getPathToRecordFolderCallback: (TetroidRecord) -> String,
     )
 
     data class Result(
         val foundObjects: Map<ITetroidObject, FoundType>,
-        var isExistCryptedNodes: Boolean,
+        val isExistCryptedNodes: Boolean,
     )
 
     private val QUERY_SEPAR = " "
@@ -38,7 +35,7 @@ class GlobalSearchUseCase(
         val profile = params.profile
 
         profile.node = profile.nodeId?.let { nodeId ->
-            getNodeById(nodeId, params)
+            getNodeById(nodeId)
         }
 
         return buildMap {
@@ -71,11 +68,10 @@ class GlobalSearchUseCase(
         }.toRight()
     }
 
-    private suspend fun getNodeById(nodeId: String, params: Params): TetroidNode? {
+    private suspend fun getNodeById(nodeId: String): TetroidNode? {
         return getNodeByIdUseCase.run(
             GetNodeByIdUseCase.Params(
                 nodeId = nodeId,
-                rootNodes = params.rootNodes,
             )
         ).foldResult(
             onLeft = { null },
@@ -100,7 +96,7 @@ class GlobalSearchUseCase(
                 return foundObjects
             }
         } else {
-            srcNodes = params.rootNodes
+            srcNodes = storageProvider.getRootNodes()
         }
         val regex = buildRegex(query, profile.isOnlyWholeWords)
         // поиск по веткам, записям, реквизитам записей, файлам
@@ -197,8 +193,6 @@ class GlobalSearchUseCase(
                 val text = getRecordParsedTextUseCase.run(
                     GetRecordParsedTextUseCase.Params(
                         record = record,
-                        pathToRecordFolder = params.getPathToRecordFolderCallback(record),
-                        crypter = params.storageCrypter,
                         showMessage = false,
                     )
                 ).foldResult(

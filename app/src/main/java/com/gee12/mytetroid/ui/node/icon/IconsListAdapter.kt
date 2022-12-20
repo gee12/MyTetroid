@@ -21,15 +21,10 @@ class IconsListAdapter(
         lateinit var nameView: TextView
     }
 
-    private val inflater: LayoutInflater
-    private var dataSet: List<TetroidIcon>
+    private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    private var dataSet: List<TetroidIcon> = ArrayList()
     var selectedIcon: TetroidIcon? = null
     private var selectedView: View? = null
-
-    init {
-        inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        dataSet = ArrayList()
-    }
 
     fun setData(data: List<TetroidIcon>) {
         dataSet = data
@@ -38,11 +33,15 @@ class IconsListAdapter(
 
     fun setSelectedView(view: View?) {
         // сбрасываем выделение у прошлого view
-        if (selectedView != null && selectedView !== view) {
-            setSelected(selectedView, isSelected = false)
+        selectedView?.let {
+            if (it != view) {
+                setSelected(it, isSelected = false)
+            }
         }
         selectedView = view
-        setSelected(selectedView, isSelected = true)
+        selectedView?.let {
+            setSelected(it, isSelected = true)
+        }
     }
 
     override fun getCount(): Int {
@@ -58,15 +57,16 @@ class IconsListAdapter(
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        var view = convertView
+        val view: View
         val viewHolder: IconViewHolder
-        if (view == null) {
+        if (convertView == null) {
             viewHolder = IconViewHolder()
             view = inflater.inflate(R.layout.list_item_icon, null)
             viewHolder.iconView = view.findViewById(R.id.icon_view_image)
             viewHolder.nameView = view.findViewById(R.id.icon_view_name)
             view.tag = viewHolder
         } else {
+            view = convertView
             viewHolder = view.tag as IconViewHolder
         }
         val icon = dataSet[position]
@@ -83,11 +83,10 @@ class IconsListAdapter(
             // получаем выделенный view в первый раз, т.к. listView.getChildAt(pos) позвращает null на старте
             selectedView = view
         }
-        return view!!
+        return view
     }
 
-    private fun setSelected(view: View?, isSelected: Boolean) {
-        if (view == null) return
+    private fun setSelected(view: View, isSelected: Boolean) {
         val color = if (isSelected) context.getColor(R.color.colorCurNode) else Color.TRANSPARENT
         view.setBackgroundColor(color)
     }

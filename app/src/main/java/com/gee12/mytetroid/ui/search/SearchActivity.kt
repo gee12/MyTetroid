@@ -160,7 +160,7 @@ class SearchActivity : TetroidStorageActivity<StorageViewModel>() {
                     nodeId = null
                     etNodeName.setText(R.string.title_select_node)
                     // не отображаем сообщение, т.к. ветка могла быть из другого хранилища
-                    viewModel.logWarning(getString(R.string.error_node_not_found_with_id_mask) + it, false)
+                    viewModel.logWarning(getString(R.string.error_node_not_found_with_id_mask, it), false)
                     null
                 }
             }

@@ -1,9 +1,10 @@
-package com.gee12.mytetroid.ui.main
+package com.gee12.mytetroid.ui.main.records
 
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.RecordFieldsSelector
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.providers.IResourcesProvider
 import com.gee12.mytetroid.model.TetroidRecord
@@ -14,14 +15,20 @@ class RecordsListAdapter(
     context: Context,
     resourcesProvider: IResourcesProvider,
     dateTimeFormat: String,
+    isHighlightAttach: Boolean,
+    highlightAttachColor: Int,
+    fieldsSelector: RecordFieldsSelector,
     getEditedDateCallback: (record: TetroidRecord) -> Date?,
     onClick: (record: TetroidRecord) -> Unit,
 ) : RecordsBaseListAdapter(
-    context,
-    resourcesProvider,
-    dateTimeFormat,
-    getEditedDateCallback,
-    onClick
+    context = context,
+    resourcesProvider = resourcesProvider,
+    dateTimeFormat = dateTimeFormat,
+    isHighlightAttach = isHighlightAttach,
+    highlightAttachColor = highlightAttachColor,
+    fieldsSelector = fieldsSelector,
+    getEditedDateCallback = getEditedDateCallback,
+    onClick = onClick,
 ) {
     var dataSet: List<TetroidRecord>
         private set
@@ -59,9 +66,9 @@ class RecordsListAdapter(
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        var view = convertView
+        val view: View
         val viewHolder: RecordViewHolder
-        if (view == null) {
+        if (convertView == null) {
             viewHolder = RecordViewHolder()
             view = inflater.inflate(R.layout.list_item_record, null)
             viewHolder.lineNumView = view.findViewById(R.id.record_view_line_num)
@@ -75,9 +82,10 @@ class RecordsListAdapter(
             viewHolder.attachedView = view.findViewById(R.id.record_view_attached)
             view.tag = viewHolder
         } else {
+            view = convertView
             viewHolder = view.tag as RecordViewHolder
         }
-        prepareView(position, viewHolder, view!!, dataSet[position])
+        prepareView(position, viewHolder, view, dataSet[position])
 
         return view
     }

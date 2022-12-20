@@ -14,7 +14,6 @@ class GetRecordByIdUseCase(
 
     data class Params(
         val recordId: String,
-//        val rootNodes: List<TetroidNode>,
     )
 
     private val comparator = TetroidRecordComparator(TetroidRecord.FIELD_ID)
@@ -27,16 +26,16 @@ class GetRecordByIdUseCase(
         return findRecordInHierarchy(params.recordId)
     }
 
-    private fun findRecordInHierarchy(recordId: String):Either<Failure, TetroidRecord> {
+    private fun findRecordInHierarchy(recordId: String): Either<Failure, TetroidRecord> {
         findRecord(storageProvider.getRootNode().records, recordId)?.let { record ->
             return record.toRight()
         }
-        return if (storageProvider.isLoadedFavoritesOnly()) {
-            findRecord(favoritesManager.getFavoriteRecords(), recordId)?.toRight()
-                ?: Failure.Record.NotFound(recordId).toLeft()
+        val record = if (storageProvider.isLoadedFavoritesOnly()) {
+            findRecord(favoritesManager.getFavoriteRecords(), recordId)
         } else {
             findRecordInHierarchy(storageProvider.getRootNodes(), recordId)
         }
+        return record?.toRight() ?: Failure.Record.NotFound(recordId).toLeft()
     }
 
     private fun findRecord(records: List<TetroidRecord?>, recordId: String?): TetroidRecord? {
@@ -48,19 +47,19 @@ class GetRecordByIdUseCase(
         return null
     }
 
-    private fun findRecordInHierarchy(nodes: List<TetroidNode>, recordId: String): Either<Failure, TetroidRecord> {
+    private fun findRecordInHierarchy(nodes: List<TetroidNode>, recordId: String): TetroidRecord? {
         for (node in nodes) {
             findRecord(node.records, recordId)?.let { record ->
-                return record.toRight()
+                return record
             }
             if (node.isExpandable) {
-                findRecordInHierarchy(node.subNodes, recordId)
-                    .onSuccess {
-                        return it.toRight()
-                    }
+                val found = findRecordInHierarchy(node.subNodes, recordId)
+                if (found != null) {
+                    return found
+                }
             }
         }
-        return Failure.Record.NotFound(recordId).toLeft()
+        return null
     }
 
 }

@@ -311,7 +311,7 @@ class RecordViewModel(
                             if (node != null) {
                                 openAnotherNode(ResultObj(node), true)
                             } else {
-                                logWarning(getString(R.string.error_node_not_found_with_id_mask) + obj.id)
+                                logWarning(getString(R.string.error_node_not_found_with_id_mask, obj.id))
                             }
                         }
                     }
@@ -450,8 +450,6 @@ class RecordViewModel(
                     getRecordHtmlTextDecryptedUseCase.run(
                         GetRecordHtmlTextUseCase.Params(
                             record = record,
-                            pathToRecordFolder = recordPathProvider.getPathToRecordFolder(record),
-                            crypter = storageCrypter,
                             showMessage = true,
                         )
                     ).foldResult(

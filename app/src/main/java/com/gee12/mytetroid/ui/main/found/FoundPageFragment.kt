@@ -76,10 +76,14 @@ class FoundPageFragment : TetroidFragment<MainViewModel> {
     }
 
     fun setFounds(found: Map<ITetroidObject, FoundType>, profile: SearchProfile) {
+        val settingsProvider = viewModel.commonSettingsProvider
         listAdapterFound = FoundListAdapter(
             context = requireContext(),
             resourcesProvider = viewModel.resourcesProvider,
-            dateTimeFormat = viewModel.commonSettingsProvider.checkDateFormatString(),
+            dateTimeFormat = settingsProvider.checkDateFormatString(),
+            isHighlightAttach = settingsProvider.isHighlightRecordWithAttach(),
+            highlightAttachColor = settingsProvider.highlightAttachColor(),
+            fieldsSelector = settingsProvider.getRecordFieldsSelector(),
             getEditedDateCallback = { record ->
                 // FIXME
                 runBlocking {

@@ -22,6 +22,7 @@ import com.gee12.mytetroid.ui.dialogs.attach.AttachInfoDialog
 import com.gee12.mytetroid.ui.dialogs.record.RecordFieldsDialog
 import com.gee12.mytetroid.ui.dialogs.record.RecordInfoDialog
 import com.gee12.mytetroid.ui.base.TetroidFragment
+import com.gee12.mytetroid.ui.main.records.RecordsListAdapter
 import com.gee12.mytetroid.viewmodels.MainViewModel
 import com.github.clans.fab.FloatingActionMenu
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -144,10 +145,14 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
 
     private fun initListAdapters() {
         // список записей
+        val settingsProvider = viewModel.commonSettingsProvider
         listAdapterRecords = RecordsListAdapter(
             requireContext(),
             resourcesProvider = viewModel.resourcesProvider,
-            dateTimeFormat = viewModel.commonSettingsProvider.checkDateFormatString(),
+            dateTimeFormat = settingsProvider.checkDateFormatString(),
+            isHighlightAttach = settingsProvider.isHighlightRecordWithAttach(),
+            highlightAttachColor = settingsProvider.highlightAttachColor(),
+            fieldsSelector = settingsProvider.getRecordFieldsSelector(),
             getEditedDateCallback = { record ->
                 // FIXME
                 runBlocking {

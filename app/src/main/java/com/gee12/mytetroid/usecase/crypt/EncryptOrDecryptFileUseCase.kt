@@ -16,7 +16,6 @@ class EncryptOrDecryptFileUseCase(
         val file: File,
         val isCrypted: Boolean,
         val isEncrypt: Boolean,
-//        val crypter: IStorageCrypter,
     )
 
     sealed class Result {

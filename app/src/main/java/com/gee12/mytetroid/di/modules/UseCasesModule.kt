@@ -114,6 +114,7 @@ object UseCasesModule {
             scoped {
                 GlobalSearchUseCase(
                     logger = get(),
+                    storageProvider = get(),
                     getNodeByIdUseCase = get(),
                     getRecordParsedTextUseCase = get(),
                 )
@@ -270,7 +271,9 @@ object UseCasesModule {
             //region Node
 
             scoped {
-                GetNodeByIdUseCase()
+                GetNodeByIdUseCase(
+                    storageProvider = get(),
+                )
             }
 
             scoped {
@@ -313,6 +316,8 @@ object UseCasesModule {
             scoped {
                 DeleteNodeUseCase(
                     logger = get(),
+                    storageProvider = get(),
+                    recordPathProvider = get(),
                     favoritesManager = get(),
                     deleteRecordTagsUseCase = get(),
                     checkRecordFolderUseCase = get(),
@@ -329,16 +334,24 @@ object UseCasesModule {
                 )
             }
 
+            scoped {
+                GetNodesAndRecordsCountUseCase()
+            }
+
             //endregion Node
 
             //region Node icon
 
             scoped {
-                GetIconsFoldersUseCase()
+                GetIconsFoldersUseCase(
+                    storagePathProvider = get(),
+                )
             }
 
             scoped {
-                GetIconsFromFolderUseCase()
+                GetIconsFromFolderUseCase(
+                    storagePathProvider = get(),
+                )
             }
 
             //endregion Node icon
@@ -458,6 +471,8 @@ object UseCasesModule {
                 GetRecordHtmlTextUseCase(
                     resourcesProvider = get(),
                     logger = get(),
+                    recordPathProvider = get(),
+                    storageCrypter = get(),
                     checkRecordFolderUseCase = get(),
                 )
             }

@@ -15,14 +15,12 @@ class DeleteRecordTagsUseCase(
 ) : UseCase<UseCase.None, DeleteRecordTagsUseCase.Params>() {
 
     data class Params(
-        val record: TetroidRecord?,
-//        val tagsMap: HashMap<String, TetroidTag>,
+        val record: TetroidRecord,
     )
 
     override suspend fun run(params: Params): Either<Failure, None> {
+        val record = params.record
         val tagsMap = storageProvider.getTagsMap()
-        // TODO: new failure
-        val record = params.record ?: return Failure.ArgumentIsEmpty().toLeft()
 
         for (tag in record.tags) {
             val foundedTag = tagsInteractor.getTag(tag.name)
