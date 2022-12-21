@@ -3,7 +3,7 @@ package com.gee12.mytetroid.ui.dialogs.attach
 import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
-import com.gee12.mytetroid.viewmodels.StorageViewModel
+import com.gee12.mytetroid.ui.storage.StorageViewModel
 import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import com.lumyjuwon.richwysiwygeditor.R
 

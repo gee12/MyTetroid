@@ -1,7 +1,7 @@
 package com.gee12.mytetroid.logs
 
 import com.gee12.mytetroid.common.Failure
-import com.gee12.mytetroid.helpers.IFailureHandler
+import com.gee12.mytetroid.domain.IFailureHandler
 
 abstract class BaseTetroidLogger(
     val failureHandler: IFailureHandler,

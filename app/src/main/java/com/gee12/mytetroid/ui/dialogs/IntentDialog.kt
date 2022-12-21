@@ -7,7 +7,7 @@ import androidx.appcompat.app.AlertDialog
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.model.ReceivedData
 import com.gee12.mytetroid.ui.IntentsAdapter
-import com.gee12.mytetroid.viewmodels.StorageViewModel
+import com.gee12.mytetroid.ui.storage.StorageViewModel
 
 /**
  * Диалог со списком вариантов обработки переданного объекта.

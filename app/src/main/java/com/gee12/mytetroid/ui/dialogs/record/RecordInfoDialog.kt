@@ -11,7 +11,7 @@ import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
-import com.gee12.mytetroid.viewmodels.StorageViewModel
+import com.gee12.mytetroid.ui.storage.StorageViewModel
 import kotlinx.coroutines.launch
 
 /**

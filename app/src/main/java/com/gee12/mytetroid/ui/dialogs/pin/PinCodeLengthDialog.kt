@@ -8,7 +8,7 @@ import com.gee12.htmlwysiwygeditor.ViewUtils.TextChangedListener
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.extensions.setSelectionAtEnd
 import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
-import com.gee12.mytetroid.viewmodels.StorageViewModel
+import com.gee12.mytetroid.ui.storage.StorageViewModel
 import com.lumyjuwon.richwysiwygeditor.RichEditor.Utils
 import java.util.*
 

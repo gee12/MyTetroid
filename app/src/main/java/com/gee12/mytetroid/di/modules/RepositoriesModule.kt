@@ -1,8 +1,8 @@
 package com.gee12.mytetroid.di.modules
 
-import com.gee12.mytetroid.repo.CommonSettingsRepo
-import com.gee12.mytetroid.repo.FavoritesRepo
-import com.gee12.mytetroid.repo.StoragesRepo
+import com.gee12.mytetroid.domain.repo.CommonSettingsRepo
+import com.gee12.mytetroid.domain.repo.FavoritesRepo
+import com.gee12.mytetroid.domain.repo.StoragesRepo
 import org.koin.android.ext.koin.androidApplication
 import org.koin.dsl.module
 

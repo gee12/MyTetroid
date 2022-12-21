@@ -19,20 +19,19 @@ import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.viewpager.widget.PagerTabStrip
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
-import com.gee12.mytetroid.App
 import com.gee12.mytetroid.BuildConfig
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.common.utils.ViewUtils
-import com.gee12.mytetroid.data.ICallback
-import com.gee12.mytetroid.data.ScanManager
-import com.gee12.mytetroid.data.TetroidClipboard
+import com.gee12.mytetroid.common.ICallback
+import com.gee12.mytetroid.domain.ScanManager
+import com.gee12.mytetroid.domain.ClipboardManager
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.di.ScopeSource
-import com.gee12.mytetroid.helpers.SortHelper
-import com.gee12.mytetroid.interactors.FavoritesManager.Companion.FAVORITES_NODE
+import com.gee12.mytetroid.domain.SortHelper
+import com.gee12.mytetroid.domain.FavoritesManager.Companion.FAVORITES_NODE
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.LogType
@@ -60,7 +59,6 @@ import com.gee12.mytetroid.ui.main.found.FoundPageFragment
 import com.gee12.mytetroid.ui.node.icon.IconsActivity
 import com.gee12.mytetroid.ui.record.RecordActivity
 import com.gee12.mytetroid.viewmodels.*
-import com.gee12.mytetroid.viewmodels.MainViewModel
 import com.gee12.mytetroid.ui.storage.StorageEvent
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
@@ -1067,7 +1065,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             return
         }
         // добавляем в "буфер обмена"
-        TetroidClipboard.copy(node)
+        ClipboardManager.copy(node)
         viewModel.logOperRes(LogObj.NODE, LogOper.COPY)
     }
 
@@ -1290,7 +1288,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         val nodesCount = (if (parentNode != null) parentNode.subNodes else viewModel.getRootNodes()).size
         visibleMenuItem(menu.findItem(R.id.action_move_up), nodesCount > 0)
         visibleMenuItem(menu.findItem(R.id.action_move_down), nodesCount > 0)
-        val canInsert = TetroidClipboard.hasObject(FoundType.TYPE_NODE)
+        val canInsert = ClipboardManager.hasObject(FoundType.TYPE_NODE)
         visibleMenuItem(menu.findItem(R.id.action_insert), canInsert)
         visibleMenuItem(menu.findItem(R.id.action_insert_subnode), canInsert && isNonCrypted)
         visibleMenuItem(menu.findItem(R.id.action_copy), isNonCrypted)

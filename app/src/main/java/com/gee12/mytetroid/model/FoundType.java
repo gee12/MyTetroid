@@ -1,8 +1,8 @@
 package com.gee12.mytetroid.model;
 
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.StringsIntMask;
-import com.gee12.mytetroid.providers.IResourcesProvider;
+import com.gee12.mytetroid.data.StringsIntMask;
+import com.gee12.mytetroid.domain.provider.IResourcesProvider;
 
 public class FoundType extends StringsIntMask {
 

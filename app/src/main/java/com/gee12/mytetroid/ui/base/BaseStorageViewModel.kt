@@ -2,15 +2,15 @@ package com.gee12.mytetroid.ui.base
 
 import android.app.Application
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.helpers.IFailureHandler
-import com.gee12.mytetroid.helpers.INotificator
+import com.gee12.mytetroid.domain.IFailureHandler
+import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.model.TetroidTag
-import com.gee12.mytetroid.providers.CommonSettingsProvider
-import com.gee12.mytetroid.providers.IResourcesProvider
-import com.gee12.mytetroid.providers.IStorageProvider
+import com.gee12.mytetroid.domain.provider.CommonSettingsProvider
+import com.gee12.mytetroid.domain.provider.IResourcesProvider
+import com.gee12.mytetroid.domain.provider.IStorageProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob

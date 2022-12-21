@@ -16,7 +16,7 @@ import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.extensions.buildIntent
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.logs.LogType
-import com.gee12.mytetroid.viewmodels.StorageViewModel
+import com.gee12.mytetroid.ui.storage.StorageViewModel
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.ui.dialogs.node.NodeChooserDialog
 import com.gee12.mytetroid.model.SearchProfile

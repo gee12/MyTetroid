@@ -1,7 +1,7 @@
 package com.gee12.mytetroid.common.extensions
 
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.providers.IResourcesProvider
+import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.model.TetroidObject
 
 

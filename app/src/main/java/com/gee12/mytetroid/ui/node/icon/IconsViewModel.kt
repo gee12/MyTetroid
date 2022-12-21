@@ -7,15 +7,16 @@ import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.common.onFailure
 import com.gee12.mytetroid.common.onSuccess
 import com.gee12.mytetroid.common.utils.FileUtils
-import com.gee12.mytetroid.helpers.*
+import com.gee12.mytetroid.domain.IFailureHandler
+import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidIcon
-import com.gee12.mytetroid.providers.CommonSettingsProvider
-import com.gee12.mytetroid.providers.IResourcesProvider
-import com.gee12.mytetroid.providers.IStoragePathProvider
-import com.gee12.mytetroid.providers.IStorageProvider
-import com.gee12.mytetroid.usecase.node.icon.GetIconsFoldersUseCase
-import com.gee12.mytetroid.usecase.node.icon.GetIconsFromFolderUseCase
+import com.gee12.mytetroid.domain.provider.CommonSettingsProvider
+import com.gee12.mytetroid.domain.provider.IResourcesProvider
+import com.gee12.mytetroid.domain.provider.IStoragePathProvider
+import com.gee12.mytetroid.domain.provider.IStorageProvider
+import com.gee12.mytetroid.domain.usecase.node.icon.GetIconsFoldersUseCase
+import com.gee12.mytetroid.domain.usecase.node.icon.GetIconsFromFolderUseCase
 import com.gee12.mytetroid.ui.base.BaseStorageViewModel
 import java.io.File
 

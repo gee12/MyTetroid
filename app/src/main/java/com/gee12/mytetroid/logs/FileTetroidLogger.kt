@@ -2,7 +2,7 @@ package com.gee12.mytetroid.logs
 
 import android.text.format.DateFormat
 import android.util.Log
-import com.gee12.mytetroid.helpers.IFailureHandler
+import com.gee12.mytetroid.domain.IFailureHandler
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter

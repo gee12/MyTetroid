@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.viewmodels
+package com.gee12.mytetroid.ui.main
 
 import android.app.Activity
 import android.app.Application
@@ -11,41 +11,42 @@ import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.getIdString
 import com.gee12.mytetroid.common.extensions.isFileExist
 import com.gee12.mytetroid.common.extensions.orZero
-import com.gee12.mytetroid.usecase.InitAppUseCase
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.data.settings.CommonSettings
-import com.gee12.mytetroid.interactors.*
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.TaskStage
 import com.gee12.mytetroid.logs.TaskStage.Stages
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.common.utils.Utils
-import com.gee12.mytetroid.data.crypt.IStorageCrypter
+import com.gee12.mytetroid.domain.IStorageCrypter
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
-import com.gee12.mytetroid.helpers.*
+import com.gee12.mytetroid.domain.*
 import com.gee12.mytetroid.logs.ITetroidLogger
-import com.gee12.mytetroid.providers.*
-import com.gee12.mytetroid.repo.StoragesRepo
+import com.gee12.mytetroid.domain.repo.StoragesRepo
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.TetroidActivity
-import com.gee12.mytetroid.ui.main.ClipboardParams
-import com.gee12.mytetroid.ui.main.MainEvent
 import com.gee12.mytetroid.ui.storage.StorageEvent
-import com.gee12.mytetroid.usecase.storage.CheckStorageFilesExistingUseCase
-import com.gee12.mytetroid.usecase.storage.InitOrCreateStorageUseCase
-import com.gee12.mytetroid.usecase.storage.ReadStorageUseCase
-import com.gee12.mytetroid.usecase.storage.SaveStorageUseCase
-import com.gee12.mytetroid.usecase.GlobalSearchUseCase
-import com.gee12.mytetroid.usecase.attach.*
-import com.gee12.mytetroid.usecase.crypt.*
-import com.gee12.mytetroid.usecase.file.GetFileModifiedDateUseCase
-import com.gee12.mytetroid.usecase.file.GetFolderSizeUseCase
-import com.gee12.mytetroid.usecase.node.*
-import com.gee12.mytetroid.usecase.node.icon.LoadNodeIconUseCase
-import com.gee12.mytetroid.usecase.node.icon.SetNodeIconUseCase
-import com.gee12.mytetroid.usecase.record.*
-import com.gee12.mytetroid.usecase.tag.ParseRecordTagsUseCase
+import com.gee12.mytetroid.domain.usecase.storage.CheckStorageFilesExistingUseCase
+import com.gee12.mytetroid.domain.usecase.storage.InitOrCreateStorageUseCase
+import com.gee12.mytetroid.domain.usecase.storage.ReadStorageUseCase
+import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
+import com.gee12.mytetroid.domain.interactor.*
+import com.gee12.mytetroid.domain.provider.*
+import com.gee12.mytetroid.domain.usecase.GlobalSearchUseCase
+import com.gee12.mytetroid.domain.usecase.InitAppUseCase
+import com.gee12.mytetroid.domain.usecase.crypt.*
+import com.gee12.mytetroid.domain.usecase.file.GetFileModifiedDateUseCase
+import com.gee12.mytetroid.domain.usecase.file.GetFolderSizeUseCase
+import com.gee12.mytetroid.domain.usecase.node.CreateNodeUseCase
+import com.gee12.mytetroid.domain.usecase.node.GetNodeByIdUseCase
+import com.gee12.mytetroid.domain.usecase.attach.*
+import com.gee12.mytetroid.domain.usecase.node.*
+import com.gee12.mytetroid.domain.usecase.node.icon.LoadNodeIconUseCase
+import com.gee12.mytetroid.domain.usecase.node.icon.SetNodeIconUseCase
+import com.gee12.mytetroid.domain.usecase.record.*
+import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
+import com.gee12.mytetroid.ui.storage.StorageViewModel
 import kotlinx.coroutines.*
 import java.io.File
 import java.lang.Exception
@@ -303,10 +304,10 @@ class MainViewModel(
      */
     fun insertRecord() {
         // на всякий случай проверяем тип
-        if (!TetroidClipboard.hasObject(FoundType.TYPE_RECORD))
+        if (!ClipboardManager.hasObject(FoundType.TYPE_RECORD))
             return
         // достаем объект из "буфера обмена"
-        val clipboard = TetroidClipboard.getInstance()
+        val clipboard = ClipboardManager.getInstance()
         // вставляем с попыткой восстановить каталог записи
         val record = clipboard.getObject() as TetroidRecord
         val isCutted = clipboard.isCutted
@@ -352,7 +353,7 @@ class MainViewModel(
                 updateTags()
                 if (isCutting) {
                     // очищаем "буфер обмена"
-                    TetroidClipboard.clear()
+                    ClipboardManager.clear()
                     // обновляем избранное
                     updateFavoritesTitle(record)
                 }
@@ -542,7 +543,7 @@ class MainViewModel(
      */
     fun copyRecord(record: TetroidRecord) {
         // добавляем в "буфер обмена"
-        TetroidClipboard.copy(record)
+        ClipboardManager.copy(record)
         logOperRes(LogObj.RECORD, LogOper.COPY)
     }
 
@@ -586,7 +587,7 @@ class MainViewModel(
      */
     fun cutRecord(record: TetroidRecord) {
         // добавляем в "буфер обмена"
-        TetroidClipboard.cut(record)
+        ClipboardManager.cut(record)
         // удаляем запись из текущей ветки и каталог перемещаем в корзину
         cutOrDeleteRecord(record, isCutting = true, withoutDir = false)
     }
@@ -884,9 +885,9 @@ class MainViewModel(
      */
     fun insertNode(parentNode: TetroidNode, isSubNode: Boolean) {
         // на всякий случай проверяем тип
-        if (!TetroidClipboard.hasObject(FoundType.TYPE_NODE)) return
+        if (!ClipboardManager.hasObject(FoundType.TYPE_NODE)) return
         // достаем объект из "буфера обмена"
-        val clipboard = TetroidClipboard.getInstance()
+        val clipboard = ClipboardManager.getInstance()
         // вставляем с попыткой восстановить каталог записи
         val node = clipboard.getObject() as TetroidNode
         val isCut = clipboard.isCutted
@@ -929,7 +930,7 @@ class MainViewModel(
             return
         }
         // добавляем в "буфер обмена"
-        TetroidClipboard.cut(node)
+        ClipboardManager.cut(node)
         // удаляем ветку из родительской ветки вместе с записями
         deleteOrCutNode(node, isCutting = true)
     }

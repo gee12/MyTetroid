@@ -8,7 +8,7 @@ import android.widget.BaseAdapter
 import android.widget.TextView
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.model.TetroidTag
-import com.gee12.mytetroid.helpers.SortHelper
+import com.gee12.mytetroid.domain.SortHelper
 import java.util.*
 
 class TagsListAdapter(context: Context) : BaseAdapter() {

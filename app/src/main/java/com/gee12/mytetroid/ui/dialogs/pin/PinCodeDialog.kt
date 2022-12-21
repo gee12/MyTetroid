@@ -8,7 +8,7 @@ import com.andrognito.pinlockview.PinLockListener
 import com.andrognito.pinlockview.PinLockView
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
-import com.gee12.mytetroid.viewmodels.StorageViewModel
+import com.gee12.mytetroid.ui.storage.StorageViewModel
 
 class PinCodeDialog(
     private val length: Int,

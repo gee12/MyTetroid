@@ -7,7 +7,7 @@ import androidx.appcompat.app.AlertDialog
 import com.gee12.htmlwysiwygeditor.ViewUtils.TextChangedListener
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
-import com.gee12.mytetroid.viewmodels.StorageViewModel
+import com.gee12.mytetroid.ui.storage.StorageViewModel
 
 class PassEnterDialog(
     private val callback: PassDialogs.IPassInputResult

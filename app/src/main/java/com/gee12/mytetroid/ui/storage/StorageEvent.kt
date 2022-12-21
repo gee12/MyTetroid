@@ -1,6 +1,6 @@
 package com.gee12.mytetroid.ui.storage
 
-import com.gee12.mytetroid.data.ICallback
+import com.gee12.mytetroid.common.ICallback
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.VMEvent

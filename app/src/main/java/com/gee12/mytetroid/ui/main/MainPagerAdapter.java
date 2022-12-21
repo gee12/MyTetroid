@@ -6,9 +6,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
-import com.gee12.mytetroid.viewmodels.MainViewModel;
 import com.gee12.mytetroid.ui.main.found.FoundPageFragment;
-import com.gee12.mytetroid.ui.main.MainPageFragment;
 import com.gee12.mytetroid.ui.base.TetroidFragment;
 
 // TODO: переписать на новый лад

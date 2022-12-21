@@ -4,9 +4,9 @@ import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.RecordFieldsSelector
+import com.gee12.mytetroid.domain.RecordFieldsSelector
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.providers.IResourcesProvider
+import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.model.TetroidRecord
 import java.util.*
 import kotlin.collections.ArrayList

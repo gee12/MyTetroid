@@ -12,9 +12,9 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.gee12.mytetroid.App.isFullVersion
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.RecordFieldsSelector
+import com.gee12.mytetroid.domain.RecordFieldsSelector
 import com.gee12.mytetroid.common.utils.Utils
-import com.gee12.mytetroid.providers.IResourcesProvider
+import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.model.TetroidRecord
 import java.util.*
 

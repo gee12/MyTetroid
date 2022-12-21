@@ -222,7 +222,7 @@ public class Crypter {
     /**
      * Установка пароля в виде ключа шифрования.
      */
-    protected int[] passToKey(String pass) {
+    public int[] passToKey(String pass) {
         int[] res = null;
         try {
             // добавляем соль

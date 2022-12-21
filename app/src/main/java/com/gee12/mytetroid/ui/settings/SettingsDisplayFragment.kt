@@ -5,9 +5,7 @@ import android.os.Bundle
 import androidx.fragment.app.DialogFragment
 import androidx.preference.MultiSelectListPreference
 import androidx.preference.Preference
-import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.RecordFieldsSelector
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.ui.base.views.prefs.DateTimeFormatPreference
 import com.gee12.mytetroid.ui.base.views.DateTimeFormatDialog

@@ -9,7 +9,7 @@ import androidx.core.view.isVisible
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.utils.ViewUtils
-import com.gee12.mytetroid.data.TetroidClipboard
+import com.gee12.mytetroid.domain.ClipboardManager
 import com.gee12.mytetroid.model.FoundType
 import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.model.TetroidNode
@@ -23,7 +23,6 @@ import com.gee12.mytetroid.ui.dialogs.record.RecordFieldsDialog
 import com.gee12.mytetroid.ui.dialogs.record.RecordInfoDialog
 import com.gee12.mytetroid.ui.base.TetroidFragment
 import com.gee12.mytetroid.ui.main.records.RecordsListAdapter
-import com.gee12.mytetroid.viewmodels.MainViewModel
 import com.github.clans.fab.FloatingActionMenu
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.runBlocking
@@ -466,7 +465,7 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
         activateMenuItem(menu.findItem(R.id.action_cur_record_folder), isRecordFilesView)
         activateMenuItem(
             menu.findItem(R.id.action_insert),
-            !isFavoritesView && TetroidClipboard.hasObject(FoundType.TYPE_RECORD)
+            !isFavoritesView && ClipboardManager.hasObject(FoundType.TYPE_RECORD)
         )
     }
 
@@ -554,7 +553,7 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
         )
         activateMenuItem(
             menu.findItem(R.id.action_insert),
-            !isFavoritesView && TetroidClipboard.hasObject(FoundType.TYPE_RECORD)
+            !isFavoritesView && ClipboardManager.hasObject(FoundType.TYPE_RECORD)
         )
         val recordsCount = listAdapterRecords.count
         activateMenuItem(menu.findItem(R.id.action_move_up), recordsCount > 0)

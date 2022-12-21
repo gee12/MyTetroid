@@ -5,7 +5,7 @@ import android.view.*
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.di.ScopeSource
-import com.gee12.mytetroid.providers.IStorageProvider
+import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.ui.settings.storage.StorageSettingsActivity.Companion.newIntent
 import com.gee12.mytetroid.ui.storages.StoragesActivity.Companion.start

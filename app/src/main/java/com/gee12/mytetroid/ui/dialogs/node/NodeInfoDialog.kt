@@ -9,8 +9,8 @@ import com.gee12.mytetroid.common.onFailure
 import com.gee12.mytetroid.common.onSuccess
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
-import com.gee12.mytetroid.usecase.node.GetNodesAndRecordsCountUseCase
-import com.gee12.mytetroid.viewmodels.StorageViewModel
+import com.gee12.mytetroid.domain.usecase.node.GetNodesAndRecordsCountUseCase
+import com.gee12.mytetroid.ui.storage.StorageViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

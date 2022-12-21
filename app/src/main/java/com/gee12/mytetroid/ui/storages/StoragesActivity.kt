@@ -21,7 +21,7 @@ import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.ui.storage.info.StorageInfoActivity
 import com.gee12.mytetroid.ui.settings.storage.StorageSettingsActivity
-import com.gee12.mytetroid.viewmodels.StorageViewModel
+import com.gee12.mytetroid.ui.storage.StorageViewModel
 import com.gee12.mytetroid.ui.storage.StorageEvent
 import com.gee12.mytetroid.ui.base.TetroidActivity
 import com.gee12.mytetroid.ui.dialogs.AskDialogs

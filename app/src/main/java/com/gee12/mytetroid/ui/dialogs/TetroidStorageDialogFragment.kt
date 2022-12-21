@@ -3,7 +3,7 @@ package com.gee12.mytetroid.ui.dialogs
 import com.gee12.mytetroid.common.extensions.ifTrueOrNull
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.model.TetroidStorage
-import com.gee12.mytetroid.providers.IStorageProvider
+import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.BaseStorageViewModel
 import com.gee12.mytetroid.ui.storage.StorageEvent

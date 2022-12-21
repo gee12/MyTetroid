@@ -4,11 +4,12 @@ import android.text.TextUtils
 import androidx.annotation.StringRes
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.helpers.*
+import com.gee12.mytetroid.domain.IFailureHandler
+import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.logs.TaskStage.Stages
 import com.gee12.mytetroid.model.TetroidObject
-import com.gee12.mytetroid.providers.ILocaleProvider
-import com.gee12.mytetroid.providers.IResourcesProvider
+import com.gee12.mytetroid.domain.provider.ILocaleProvider
+import com.gee12.mytetroid.domain.provider.IResourcesProvider
 
 
 class TetroidLogger(

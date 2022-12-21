@@ -5,10 +5,10 @@ import android.net.Uri
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.common.utils.FileUtils
-import com.gee12.mytetroid.providers.CommonSettingsProvider
-import com.gee12.mytetroid.helpers.IFailureHandler
-import com.gee12.mytetroid.helpers.INotificator
-import com.gee12.mytetroid.providers.IResourcesProvider
+import com.gee12.mytetroid.domain.provider.CommonSettingsProvider
+import com.gee12.mytetroid.domain.IFailureHandler
+import com.gee12.mytetroid.domain.INotificator
+import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.ui.base.BaseViewModel
 import kotlinx.coroutines.*

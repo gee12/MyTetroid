@@ -6,8 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.RecordFieldsSelector
-import com.gee12.mytetroid.providers.IResourcesProvider
+import com.gee12.mytetroid.domain.RecordFieldsSelector
+import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.model.FoundType
 import com.gee12.mytetroid.model.ITetroidObject
 import com.gee12.mytetroid.model.TetroidRecord

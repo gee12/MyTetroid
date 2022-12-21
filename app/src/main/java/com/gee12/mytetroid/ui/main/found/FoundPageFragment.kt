@@ -15,7 +15,7 @@ import com.gee12.mytetroid.model.FoundType
 import com.gee12.mytetroid.model.ITetroidObject
 import com.gee12.mytetroid.model.SearchProfile
 import com.gee12.mytetroid.model.TetroidRecord
-import com.gee12.mytetroid.viewmodels.MainViewModel
+import com.gee12.mytetroid.ui.main.MainViewModel
 import com.gee12.mytetroid.ui.base.TetroidFragment
 import kotlinx.coroutines.runBlocking
 import org.koin.java.KoinJavaComponent.get
