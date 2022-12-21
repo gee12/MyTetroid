@@ -197,6 +197,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="title_storage_error">Storage error</string>
     <string name="title_need_load_storage">Need to load storage…</string>
     <string name="title_need_decrypt_storage">Need to decrypt storage…</string>
+    <string name="title_empty_tag"><![CDATA[<no tags>]]></string>
 
     <string name="progress_loading">Loading…</string>
     <string name="progress_copy_record">Record copying…</string>

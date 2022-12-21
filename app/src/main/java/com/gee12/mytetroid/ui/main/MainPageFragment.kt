@@ -118,17 +118,18 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
         fabAddAttach = view.findViewById(R.id.fab_add_attach)
         fabAddAttach.setClosedOnTouchOutside(true)
         val fabAddLocalFile = view.findViewById<com.github.clans.fab.FloatingActionButton>(R.id.fab_attach_local_file)
-        fabAddLocalFile.setOnClickListener { v: View? ->
+        fabAddLocalFile.setOnClickListener {
             fabAddAttach.close(true)
             viewModel.pickAndAttachFile()
         }
         val fabAttachFileByLink = view.findViewById<com.github.clans.fab.FloatingActionButton>(R.id.fab_attach_file_by_link)
         fabAttachFileByLink.setOnClickListener {
             fabAddAttach.close(true)
-            AttachFileByURLDialog() { url: String? ->
-                viewModel.downloadAndAttachFile(url!!)
-            }
-                .showIfPossible(parentFragmentManager)
+            AttachFileByURLDialog(
+                onApply = { url: String ->
+                    viewModel.downloadAndAttachFile(url)
+                }
+            ).showIfPossible(parentFragmentManager)
         }
 
         initListAdapters()

@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
 import android.view.*
 import android.widget.*
 import androidx.annotation.StringRes
@@ -22,29 +24,24 @@ import androidx.viewpager.widget.ViewPager.OnPageChangeListener
 import com.gee12.mytetroid.BuildConfig
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.ICallback
 import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.common.utils.ViewUtils
-import com.gee12.mytetroid.common.ICallback
-import com.gee12.mytetroid.domain.ScanManager
-import com.gee12.mytetroid.domain.ClipboardManager
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.di.ScopeSource
-import com.gee12.mytetroid.domain.SortHelper
+import com.gee12.mytetroid.domain.ClipboardManager
 import com.gee12.mytetroid.domain.FavoritesManager.Companion.FAVORITES_NODE
+import com.gee12.mytetroid.domain.ScanManager
+import com.gee12.mytetroid.domain.SortHelper
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.ui.base.BaseEvent
-import com.gee12.mytetroid.ui.base.views.SearchViewXListener
-import com.gee12.mytetroid.ui.search.SearchActivity.Companion.start
-import com.gee12.mytetroid.ui.settings.SettingsActivity
-import com.gee12.mytetroid.ui.storage.info.StorageInfoActivity.Companion.start
 import com.gee12.mytetroid.ui.base.TetroidStorageActivity
 import com.gee12.mytetroid.ui.base.VMEvent
-import com.gee12.mytetroid.ui.node.NodesListAdapter
-import com.gee12.mytetroid.ui.tag.TagsListAdapter
+import com.gee12.mytetroid.ui.base.views.SearchViewXListener
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
 import com.gee12.mytetroid.ui.dialogs.IntentDialog
 import com.gee12.mytetroid.ui.dialogs.node.NodeFieldsDialog
@@ -56,10 +53,15 @@ import com.gee12.mytetroid.ui.dialogs.pin.PinCodeDialog.IPinInputResult
 import com.gee12.mytetroid.ui.dialogs.storage.StorageDialogs
 import com.gee12.mytetroid.ui.dialogs.tag.TagFieldsDialog
 import com.gee12.mytetroid.ui.main.found.FoundPageFragment
+import com.gee12.mytetroid.ui.node.NodesListAdapter
 import com.gee12.mytetroid.ui.node.icon.IconsActivity
 import com.gee12.mytetroid.ui.record.RecordActivity
-import com.gee12.mytetroid.viewmodels.*
+import com.gee12.mytetroid.ui.search.SearchActivity.Companion.start
+import com.gee12.mytetroid.ui.settings.SettingsActivity
 import com.gee12.mytetroid.ui.storage.StorageEvent
+import com.gee12.mytetroid.ui.storage.info.StorageInfoActivity.Companion.start
+import com.gee12.mytetroid.ui.tag.TagsListAdapter
+import com.gee12.mytetroid.viewmodels.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.runBlocking
@@ -558,7 +560,10 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         )
         lvNodes.setAdapter(listAdapterNodes)
         // список меток
-        listAdapterTags = TagsListAdapter(this)
+        listAdapterTags = TagsListAdapter(
+            context = this,
+            resourcesProvider = resourcesProvider,
+        )
         lvTags.adapter = listAdapterTags
     }
 
@@ -1409,29 +1414,56 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     private fun showTagsSortPopupMenu(v: View) {
         val popupMenu = PopupMenu(this, v)
         popupMenu.inflate(R.menu.tags_sort)
+
+        // выделяем цветом текущую сортировку
+        val tagsSortMode = SortHelper(CommonSettings.getTagsSortMode(this, SortHelper.byNameAsc()))
+        val isByName = tagsSortMode.isByName
+        val isAscent = tagsSortMode.isAscent
+        val menuItem = when {
+            isByName && isAscent -> {
+                popupMenu.menu.findItem(R.id.action_sort_tags_name_asc)
+            }
+            isByName && !isAscent -> {
+                popupMenu.menu.findItem(R.id.action_sort_tags_name_desc)
+            }
+            !isByName && isAscent -> {
+                popupMenu.menu.findItem(R.id.action_sort_tags_count_asc)
+            }
+            !isByName && !isAscent -> {
+                popupMenu.menu.findItem(R.id.action_sort_tags_count_desc)
+            }
+            else -> null
+        }
+        menuItem?.let {
+            val title = SpannableString(it.title)
+            title.setSpan(ForegroundColorSpan(ContextCompat.getColor(this, R.color.colorLightText)), 0, title.length, 0)
+            it.setTitle(title)
+        }
+
+        // выводим меню
         popupMenu.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
                 R.id.action_sort_tags_name_asc -> {
                     listAdapterTags.sort(true, true)
                     CommonSettings.setTagsSortMode(this, SortHelper.byNameAsc())
-                    return@setOnMenuItemClickListener true
+                    true
                 }
                 R.id.action_sort_tags_name_desc -> {
                     listAdapterTags.sort(true, false)
                     CommonSettings.setTagsSortMode(this, SortHelper.byNameDesc())
-                    return@setOnMenuItemClickListener true
+                    true
                 }
                 R.id.action_sort_tags_count_asc -> {
                     listAdapterTags.sort(false, true)
                     CommonSettings.setTagsSortMode(this, SortHelper.byCountAsc())
-                    return@setOnMenuItemClickListener true
+                    true
                 }
                 R.id.action_sort_tags_count_desc -> {
                     listAdapterTags.sort(false, false)
                     CommonSettings.setTagsSortMode(this, SortHelper.byCountDesc())
-                    return@setOnMenuItemClickListener true
+                    true
                 }
-                else -> return@setOnMenuItemClickListener false
+                else -> false
             }
         }
         setForceShowMenuIcons(v, popupMenu.menu as MenuBuilder)

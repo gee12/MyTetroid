@@ -1,17 +1,23 @@
 package com.gee12.mytetroid.ui.tag
 
 import android.content.Context
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.model.TetroidTag
 import com.gee12.mytetroid.domain.SortHelper
+import com.gee12.mytetroid.domain.provider.IResourcesProvider
+import com.gee12.mytetroid.model.TetroidTag
 import java.util.*
 
-class TagsListAdapter(context: Context) : BaseAdapter() {
+class TagsListAdapter(
+    private val context: Context,
+    private val resourcesProvider: IResourcesProvider,
+) : BaseAdapter() {
 
     private inner class TagsViewHolder {
         lateinit var nameView: TextView
@@ -58,8 +64,15 @@ class TagsListAdapter(context: Context) : BaseAdapter() {
             viewHolder = convertView.tag as TagsViewHolder
         }
         val (key, value) = getItem(position)
-        // название метки
-        viewHolder.nameView.text = key
+        if (value.isEmpty) {
+            viewHolder.nameView.text = resourcesProvider.getString(R.string.title_empty_tag)
+            viewHolder.nameView.setTextColor(ContextCompat.getColor(context, R.color.colorLightText))
+            viewHolder.recordsCountView.setTextColor(ContextCompat.getColor(context, R.color.colorLightText))
+        } else {
+            viewHolder.nameView.text = key
+            viewHolder.nameView.setTextColor(ContextCompat.getColor(context, R.color.colorBaseText))
+            viewHolder.recordsCountView.setTextColor(ContextCompat.getColor(context, R.color.colorBase2Text))
+        }
         // количество записей
         val records = value.records
         viewHolder.recordsCountView.text = String.format(Locale.getDefault(), "[%d]", records.size)

@@ -6,7 +6,6 @@ import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.model.TetroidTag
 import java.util.*
-import kotlin.collections.ArrayList
 
 /**
  * Разбираем строку с метками записи и добавляем метки в запись и в дерево.
@@ -20,16 +19,16 @@ class ParseRecordTagsUseCase(
     data class Params(
         val record: TetroidRecord,
         val tagsString: String,
-//        val tagsMap: HashMap<String, TetroidTag>,
     )
 
     override suspend fun run(params: Params): Either<Failure, None> {
         val record = params.record
         val tagsString = params.tagsString
-//        val tagsMap = params.tagsMap
         val tagsMap = storageProvider.getTagsMap()
+        val isEmpty = tagsString.isBlank()
 
-        for (tagName in tagsString.split(StorageDataXmlProcessor.TAGS_SEPAR.toRegex()).toTypedArray()) {
+        val tagNames = tagsString.split(StorageDataXmlProcessor.TAGS_SEPAR.toRegex())
+        for (tagName in tagNames) {
             val lowerCaseTagName = tagName.lowercase(Locale.getDefault())
             var tag: TetroidTag
             if (tagsMap.containsKey(lowerCaseTagName)) {
@@ -41,9 +40,9 @@ class ParseRecordTagsUseCase(
                     tag.addRecord(record)
                 }
             } else {
-                val tagRecords: MutableList<TetroidRecord> = ArrayList()
+                val tagRecords = mutableListOf<TetroidRecord>()
                 tagRecords.add(record)
-                tag = TetroidTag(lowerCaseTagName, tagRecords)
+                tag = TetroidTag(lowerCaseTagName, tagRecords, isEmpty)
                 tagsMap.put(lowerCaseTagName, tag)
             }
             record.addTag(tag)

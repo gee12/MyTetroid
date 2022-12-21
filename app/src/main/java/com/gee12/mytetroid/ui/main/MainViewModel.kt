@@ -813,7 +813,6 @@ class MainViewModel(
                     CreateNodeUseCase.Params(
                         name = name,
                         parentNode = trueParentNode,
-//                        rootNodes = storageProvider.getRootNodes(),
                     )
                 )
             }.onFailure { failure ->
@@ -863,7 +862,6 @@ class MainViewModel(
                         SetNodeIconUseCase.Params(
                             node = node,
                             iconFileName = if (isDrop) iconPath else null,
-//                            storageProvider = storageProvider,
                         )
                     )
                 }
@@ -920,7 +918,7 @@ class MainViewModel(
      */
     fun cutNode(node: TetroidNode, pos: Int) {
         // нельзя вырезать нерасшифрованную ветку
-        if (!node.isNonCryptedOrDecrypted()) {
+        if (!node.isNonCryptedOrDecrypted) {
             log(R.string.log_cannot_delete_undecrypted_node, true)
             return
         }
@@ -1116,13 +1114,6 @@ class MainViewModel(
         )
     }
 
-//    /**
-//     * Зашифровка (незашифрованной) ветки с подветками.
-//     */
-//    private suspend fun encryptNode(node: TetroidNode): Boolean {
-//        return crypter.encryptNode(node, false)
-//    }
-
     override fun afterStorageDecrypted(node: TetroidNode?) {
         launchOnMain {
             sendEvent(StorageEvent.Decrypted)
@@ -1181,7 +1172,11 @@ class MainViewModel(
 
     //region Tags
 
-    fun getCurTagName() = curTag?.name ?: ""
+    fun getCurTagName(): String {
+        return curTag?.name?.ifBlank {
+            resourcesProvider.getString(R.string.title_empty_tag)
+        }.orEmpty()
+    }
 
     fun showTag(tagName: String) {
         val tag = tagsInteractor.getTag(tagName)
@@ -1414,40 +1409,12 @@ class MainViewModel(
         }
     }
 
-//    /**
-//     * Обработка результата удаления файла.
-//     * @param file
-//     * @param res
-//     */
-//    private fun onDeleteAttachResult(file: TetroidFile, res: Int) {
-//        if (res > 0) {
-//            launchOnMain {
-//                sendEvent(MainEvent.AttachDeleted(attach = file))
-//            }
-//            // обновляем список записей для удаления иконки о наличии прикрепляемых файлов у записи,
-//            // если был удален единственный файл
-//            if ((curRecord?.attachedFilesCount ?: 0) <= 0) {
-//                updateRecords()
-//            }
-//            logOperRes(LogObj.FILE, LogOper.DELETE)
-//        } else {
-//            logOperErrorMore(LogObj.FILE, LogOper.DELETE)
-//        }
-//    }
-
     /**
      * Переименование прикрепленного файла.
      * @param attach
      */
     fun renameAttach(attach: TetroidFile, name: String) {
-//        launchOnMain {
-//            when (val res = attachesInteractor.editAttachedFileFields(attach, name)) {
-//                -2 -> sendEvent(MainEvent.AskForOperationWithoutFile(ClipboardParams(LogOper.RENAME, attach)))
-//                // TODO: добавить вариант Создать каталог записи
-//                -1 -> sendEvent(MainEvent.AskForOperationWithoutFolder(ClipboardParams(LogOper.RENAME, attach)))
-//                else -> onRenameAttachResult(res)
-//            }
-//        }
+
         launchOnMain {
             withIo {
                 editAttachFieldsUseCase.run(
@@ -1476,19 +1443,6 @@ class MainViewModel(
             }
         }
     }
-
-//    /**
-//     * Обработка результата переименования файла.
-//     * @param res
-//     */
-//    private fun onRenameAttachResult(res: Int) {
-//        if (res > 0) {
-//            logOperRes(LogObj.FILE, LogOper.RENAME)
-//            updateAttaches()
-//        } else {
-//            logOperErrorMore(LogObj.FILE, LogOper.RENAME)
-//        }
-//    }
 
     /**
      * Операции с объектами хранилища, когда файл отсутствует.

@@ -193,6 +193,7 @@
     <string name="title_storage_error">Ошибка хранилища</string>
     <string name="title_need_load_storage">Загрузите хранилище…</string>
     <string name="title_need_decrypt_storage">Нужна расшифровка хранилища</string>
+    <string name="title_empty_tag"><![CDATA[<без меток>]]></string>
 
     <string name="progress_loading">Загрузка…</string>
     <string name="progress_copy_record">Копирование записи…</string>

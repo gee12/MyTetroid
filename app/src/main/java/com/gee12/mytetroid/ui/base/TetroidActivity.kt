@@ -22,6 +22,7 @@ import com.gee12.mytetroid.common.extensions.hideKeyboard
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.di.ScopeSource
+import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.Message
 import com.gee12.mytetroid.ui.TetroidMessage
 import com.gee12.mytetroid.ui.about.AboutActivity
@@ -30,6 +31,7 @@ import com.gee12.mytetroid.ui.dialogs.AskDialogs
 import com.gee12.mytetroid.ui.record.RecordActivity
 import com.gee12.mytetroid.viewmodels.*
 import kotlinx.coroutines.launch
+import org.koin.core.component.get
 import org.koin.core.scope.Scope
 import org.koin.core.scope.get
 
@@ -44,6 +46,8 @@ abstract class TetroidActivity<VM : BaseViewModel>
     protected lateinit var scopeSource: ScopeSource
     protected val koinScope: Scope
         get() = scopeSource.scope
+
+    lateinit var resourcesProvider: IResourcesProvider
 
     protected var receivedIntent: Intent? = null
     protected var optionsMenu: Menu? = null
@@ -90,12 +94,17 @@ abstract class TetroidActivity<VM : BaseViewModel>
         isGUICreated = false
 
         createDependencyScope()
+        afterCreateDependencyScope()
         createViewModel()
         initViewModel()
     }
 
     protected open fun createDependencyScope() {
         scopeSource = ScopeSource.createNew()
+    }
+
+    protected open fun afterCreateDependencyScope() {
+        resourcesProvider = scopeSource.get()
     }
 
     protected open fun createViewModel() {
