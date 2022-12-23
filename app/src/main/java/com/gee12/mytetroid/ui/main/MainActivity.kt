@@ -6,8 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.text.SpannableString
-import android.text.style.ForegroundColorSpan
 import android.view.*
 import android.widget.*
 import androidx.annotation.StringRes
@@ -19,6 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.commit
 import androidx.viewpager.widget.PagerTabStrip
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
 import com.gee12.mytetroid.BuildConfig
@@ -33,7 +32,6 @@ import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.ClipboardManager
 import com.gee12.mytetroid.domain.FavoritesManager.Companion.FAVORITES_NODE
 import com.gee12.mytetroid.domain.ScanManager
-import com.gee12.mytetroid.domain.SortHelper
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.LogType
@@ -53,6 +51,7 @@ import com.gee12.mytetroid.ui.dialogs.pin.PinCodeDialog.IPinInputResult
 import com.gee12.mytetroid.ui.dialogs.storage.StorageDialogs
 import com.gee12.mytetroid.ui.dialogs.tag.TagFieldsDialog
 import com.gee12.mytetroid.ui.main.found.FoundPageFragment
+import com.gee12.mytetroid.ui.main.nodes.TagsFragment
 import com.gee12.mytetroid.ui.node.NodesListAdapter
 import com.gee12.mytetroid.ui.node.icon.IconsActivity
 import com.gee12.mytetroid.ui.record.RecordActivity
@@ -60,7 +59,6 @@ import com.gee12.mytetroid.ui.search.SearchActivity.Companion.start
 import com.gee12.mytetroid.ui.settings.SettingsActivity
 import com.gee12.mytetroid.ui.storage.StorageEvent
 import com.gee12.mytetroid.ui.storage.info.StorageInfoActivity.Companion.start
-import com.gee12.mytetroid.ui.tag.TagsListAdapter
 import com.gee12.mytetroid.viewmodels.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
@@ -75,12 +73,10 @@ import java.util.*
 class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
     private lateinit var drawerLayout: DrawerLayout
+    private lateinit var fragmentTags: TagsFragment
     private lateinit var lvNodes: MultiLevelListView
     private lateinit var listAdapterNodes: NodesListAdapter
-    private lateinit var lvTags: ListView
-    private lateinit var listAdapterTags: TagsListAdapter
     private lateinit var tvNodesEmpty: TextView
-    private lateinit var tvTagsEmpty: TextView
     private lateinit var searchViewNodes: SearchView
     private lateinit var searchViewTags: SearchView
     private lateinit var searchViewRecords: SearchView
@@ -89,7 +85,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     private lateinit var titleStrip: PagerTabStrip
     private lateinit var favoritesNode: View
     private lateinit var btnLoadStorageNodes: Button
-    private lateinit var btnLoadStorageTags: Button
     private lateinit var btnTagsSort: View
     private lateinit var fabCreateNode: FloatingActionButton
 
@@ -170,24 +165,14 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         initNodesSearchView(searchViewNodes, nodesHeader)
 
         // метки
-        lvTags = findViewById(R.id.tags_list_view)
-        lvTags.onItemClickListener = AdapterView.OnItemClickListener { _: AdapterView<*>, _: View, position: Int, _: Long ->
-            showTagRecords(
-                position
-            )
-        }
-        lvTags.onItemLongClickListener = AdapterView.OnItemLongClickListener { _: AdapterView<*>, view: View, position: Int, _: Long ->
-            val tagEntry = listAdapterTags.getItem(position)
-            if (tagEntry != null) {
-                showTagPopupMenu(view, tagEntry.value)
+        fragmentTags = TagsFragment(viewModel)
+        if (savedInstanceState == null) {
+            supportFragmentManager.commit {
+                replace(R.id.fragment_container, fragmentTags)
+                setReorderingAllowed(true)
             }
-            true
         }
-        tvTagsEmpty = findViewById(R.id.tags_text_view_empty)
-        lvTags.emptyView = tvTagsEmpty
-        val tagsFooter = (getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater)
-            .inflate(R.layout.list_view_empty_footer, null, false)
-        lvTags.addFooterView(tagsFooter, null, false)
+
         val tagsNavView = drawerLayout.findViewById<NavigationView>(R.id.nav_view_right)
         val vTagsHeader = tagsNavView.getHeaderView(0)
         searchViewTags = vTagsHeader.findViewById(R.id.search_view_tags)
@@ -195,16 +180,14 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         initTagsSearchView(searchViewTags, vTagsHeader)
         btnTagsSort = vTagsHeader.findViewById(R.id.button_tags_sort)
         btnTagsSort.setOnClickListener { view: View ->
-            showTagsSortPopupMenu(view)
+            fragmentTags.showTagsSortPopupMenu(view)
         }
 
         // избранное
         favoritesNode = findViewById(R.id.node_favorites)
         btnLoadStorageNodes = findViewById(R.id.button_load)
-        btnLoadStorageTags = findViewById(R.id.button_load_2)
         favoritesNode.visibility = View.GONE
         btnLoadStorageNodes.visibility = View.GONE
-        btnLoadStorageTags.visibility = View.GONE
         if (viewModel.buildInfoProvider.isFullVersion()) {
             favoritesNode.setOnClickListener { 
                 viewModel.showFavorites() 
@@ -213,14 +196,17 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 viewModel.loadAllNodes(false) 
             }
             btnLoadStorageNodes.setOnClickListener(listener)
-            btnLoadStorageTags.setOnClickListener(listener)
         }
 
-        initNodesTagsListAdapters()
+        initNodesListAdapters()
     }
 
     override fun createDependencyScope() {
         scopeSource = ScopeSource.current
+    }
+
+    override fun createViewModel() {
+        super.createViewModel()
     }
 
     override fun initViewModel() {
@@ -432,13 +418,13 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         val isEmpty = rootNodes.isEmpty()
 
         // избранные записи
-        val loadButtonsVis = if (isLoaded && isOnlyFavorites) View.VISIBLE else View.GONE
-        btnLoadStorageNodes.visibility = loadButtonsVis
-        btnLoadStorageTags.visibility = loadButtonsVis
+        val isVisibleLoadButtons = isLoaded && isOnlyFavorites
+        btnLoadStorageNodes.isVisible = isVisibleLoadButtons
+        fragmentTags.setVisibleLoadStorageTags(isVisibleLoadButtons)
         ViewUtils.setFabVisibility(fabCreateNode, isLoaded && !isOnlyFavorites)
-        lvNodes.visibility = if (isOnlyFavorites) View.GONE else View.VISIBLE
-        favoritesNode.visibility = if (isLoaded && viewModel.buildInfoProvider.isFullVersion()) View.VISIBLE else View.GONE
-        tvNodesEmpty.visibility = View.GONE
+        lvNodes.isVisible = !isOnlyFavorites
+        favoritesNode.isVisible = isLoaded && viewModel.buildInfoProvider.isFullVersion()
+        tvNodesEmpty.isVisible = false
         if (isLoaded && viewModel.buildInfoProvider.isFullVersion()) {
             updateFavoritesTitle()
         }
@@ -457,7 +443,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 mainPage.resetListAdapters()
                 viewModel.showFavorites()
                 // список меток
-                tvTagsEmpty.setText(R.string.title_load_all_nodes)
+                fragmentTags.setTagsEmptyText(R.string.title_load_all_nodes)
                 setListEmptyViewState(tvNodesEmpty, true, R.string.title_load_all_nodes)
             } else {
                 setEmptyTextViews(R.string.title_storage_not_loaded)
@@ -472,8 +458,8 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 // списки записей, файлов
                 mainPage.resetListAdapters()
                 // список меток
-                setTagsDataItems(viewModel.getTagsMap())
-                tvTagsEmpty.setText(R.string.log_tags_is_missing)
+                fragmentTags.setTagsDataItems(viewModel.getTagsMap())
+                fragmentTags.setTagsEmptyText(R.string.log_tags_is_missing)
             } else {
                 setEmptyTextViews(R.string.title_storage_not_loaded)
             }
@@ -520,8 +506,8 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                     }
 
                     // список меток
-                    setTagsDataItems(viewModel.getTagsMap())
-                    tvTagsEmpty.setText(R.string.log_tags_is_missing)
+                    fragmentTags.setTagsDataItems(viewModel.getTagsMap())
+                    fragmentTags.setTagsEmptyText(R.string.log_tags_is_missing)
                 }
                 setListEmptyViewState(tvNodesEmpty, isEmpty, R.string.title_nodes_is_missing)
             } else {
@@ -532,7 +518,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         updateOptionsMenu()
     }
 
-    private fun initNodesTagsListAdapters() {
+    private fun initNodesListAdapters() {
         // список веток
         listAdapterNodes = NodesListAdapter(
             context = this,
@@ -559,17 +545,11 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             },
         )
         lvNodes.setAdapter(listAdapterNodes)
-        // список меток
-        listAdapterTags = TagsListAdapter(
-            context = this,
-            resourcesProvider = resourcesProvider,
-        )
-        lvTags.adapter = listAdapterTags
     }
 
     private fun resetNodesTagsListAdapters() {
         listAdapterNodes.reset()
-        listAdapterTags.reset()
+        fragmentTags.resetListAdapter()
     }
 
     /**
@@ -594,8 +574,8 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
     private fun setEmptyTextViews(@StringRes mesId: Int) {
         mainPage.setRecordsEmptyViewText(getString(mesId))
-        setListEmptyViewState(tvNodesEmpty, true, mesId)
-        setListEmptyViewState(tvTagsEmpty, true, mesId)
+        setListEmptyViewState(tvNodesEmpty, isVisible = true, mesId)
+        fragmentTags.setListEmptyViewState(isVisible = true, mesId)
         drawerLayout.closeDrawers()
     }
 
@@ -740,7 +720,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         )
     }
 
-    override fun afterStorageDecrypted( /*TetroidNode node*/) {
+    override fun afterStorageDecrypted() {
         updateNodes()
         updateTags()
         // обновляем и записи, т.к. расшифровка могла быть вызвана из Favorites
@@ -869,11 +849,12 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         )
     }
 
-    /**
-     * Обновление списка веток.
-     */
     fun updateNodes() {
         listAdapterNodes.notifyDataSetChanged()
+    }
+
+    fun updateTags() {
+        fragmentTags.updateTags()
     }
 
     /**
@@ -1173,34 +1154,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
     // endregion Favorites
 
-    // region Tags
-    
-    private fun setTagsDataItems(tags: Map<String, TetroidTag>) {
-        listAdapterTags.setDataItems(
-            tags, SortHelper(
-                CommonSettings.getTagsSortMode(this, SortHelper.byNameAsc())
-            )
-        )
-    }
-
-    /**
-     * Обновление списка меток.
-     */
-    private fun updateTags() {
-        setTagsDataItems(viewModel.getTagsMap())
-    }
-
-    // endregion Tags
-
     // region Tag
-    
-    /**
-     * Отображение записей по метке.
-     */
-    private fun showTagRecords(position: Int) {
-        val tag = listAdapterTags.getItem(position).value
-        viewModel.showTag(tag)
-    }
 
     /**
      * Переименование метки в записях.
@@ -1378,95 +1332,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             }
         }
         setForceShowMenuIcons(v, menu as MenuBuilder)
-    }
-
-    /**
-     * Отображение всплывающего (контексного) меню метки.
-     * FIXME: Заменить на использование AlertDialog ? (чтобы посередине экрана)
-     */
-    @SuppressLint("RestrictedApi", "NonConstantResourceId")
-    private fun showTagPopupMenu(v: View, tag: TetroidTag) {
-        val popupMenu = PopupMenu(this, v)
-        popupMenu.inflate(R.menu.tag_context)
-        val menu = popupMenu.menu
-        visibleMenuItem(menu.findItem(R.id.action_rename), viewModel.buildInfoProvider.isFullVersion())
-        popupMenu.setOnMenuItemClickListener { item: MenuItem ->
-            when (item.itemId) {
-                R.id.action_open_tag -> {
-                    viewModel.showTag(tag)
-                    return@setOnMenuItemClickListener true
-                }
-                R.id.action_rename -> {
-                    renameTag(tag)
-                    return@setOnMenuItemClickListener true
-                }
-                R.id.action_copy_link -> {
-                    copyTagLink(tag)
-                    return@setOnMenuItemClickListener true
-                }
-                else -> return@setOnMenuItemClickListener false
-            }
-        }
-        setForceShowMenuIcons(v, popupMenu.menu as MenuBuilder)
-    }
-
-    @SuppressLint("NonConstantResourceId")
-    private fun showTagsSortPopupMenu(v: View) {
-        val popupMenu = PopupMenu(this, v)
-        popupMenu.inflate(R.menu.tags_sort)
-
-        // выделяем цветом текущую сортировку
-        val tagsSortMode = SortHelper(CommonSettings.getTagsSortMode(this, SortHelper.byNameAsc()))
-        val isByName = tagsSortMode.isByName
-        val isAscent = tagsSortMode.isAscent
-        val menuItem = when {
-            isByName && isAscent -> {
-                popupMenu.menu.findItem(R.id.action_sort_tags_name_asc)
-            }
-            isByName && !isAscent -> {
-                popupMenu.menu.findItem(R.id.action_sort_tags_name_desc)
-            }
-            !isByName && isAscent -> {
-                popupMenu.menu.findItem(R.id.action_sort_tags_count_asc)
-            }
-            !isByName && !isAscent -> {
-                popupMenu.menu.findItem(R.id.action_sort_tags_count_desc)
-            }
-            else -> null
-        }
-        menuItem?.let {
-            val title = SpannableString(it.title)
-            title.setSpan(ForegroundColorSpan(ContextCompat.getColor(this, R.color.colorLightText)), 0, title.length, 0)
-            it.setTitle(title)
-        }
-
-        // выводим меню
-        popupMenu.setOnMenuItemClickListener { item: MenuItem ->
-            when (item.itemId) {
-                R.id.action_sort_tags_name_asc -> {
-                    listAdapterTags.sort(true, true)
-                    CommonSettings.setTagsSortMode(this, SortHelper.byNameAsc())
-                    true
-                }
-                R.id.action_sort_tags_name_desc -> {
-                    listAdapterTags.sort(true, false)
-                    CommonSettings.setTagsSortMode(this, SortHelper.byNameDesc())
-                    true
-                }
-                R.id.action_sort_tags_count_asc -> {
-                    listAdapterTags.sort(false, true)
-                    CommonSettings.setTagsSortMode(this, SortHelper.byCountAsc())
-                    true
-                }
-                R.id.action_sort_tags_count_desc -> {
-                    listAdapterTags.sort(false, false)
-                    CommonSettings.setTagsSortMode(this, SortHelper.byCountDesc())
-                    true
-                }
-                else -> false
-            }
-        }
-        setForceShowMenuIcons(v, popupMenu.menu as MenuBuilder)
     }
 
     // endregion ContextMenus
@@ -1844,23 +1709,20 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      * @param isSearch Если false, то происходит сброс фильтра.
      */
     private fun searchInTags(query: String?, isSearch: Boolean) {
-        // FIXME: старый fix, чтобы не падало после долгого простоя
-        if (!viewModel.isStorageLoaded()) {
-            onUICreated(true)
-            return
-        }
         val tags = if (isSearch) {
             ScanManager.searchInTags(viewModel.getTagsMap(), query)
         } else {
             viewModel.getTagsMap()
         }
-        setTagsDataItems(tags)
+        fragmentTags.setTagsDataItems(tags)
         if (tags.isEmpty()) {
-            tvTagsEmpty.text = if (isSearch) {
-                getString(R.string.search_tags_not_found_mask, query)
-            } else {
-                getString(R.string.log_tags_is_missing)
-            }
+            fragmentTags.setTagsEmptyText(
+                if (isSearch) {
+                    getString(R.string.search_tags_not_found_mask, query)
+                } else {
+                    getString(R.string.log_tags_is_missing)
+                }
+            )
         }
     }
 
@@ -2030,8 +1892,8 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         val curViewId = if (viewPagerAdapter != null) viewModel.curMainViewId else 0
         val canSearchRecords = viewPager != null && viewPager.currentItem == Constants.PAGE_MAIN && (curViewId == Constants.MAIN_VIEW_NODE_RECORDS
                 || curViewId == Constants.MAIN_VIEW_TAG_RECORDS)
-        visibleMenuItem(menu.findItem(R.id.action_search_records), canSearchRecords)
-        visibleMenuItem(menu.findItem(R.id.action_storage_sync), viewModel.isStorageSyncEnabled())
+        menu.findItem(R.id.action_search_records)?.isVisible = canSearchRecords
+        menu.findItem(R.id.action_storage_sync)?.isVisible = viewModel.isStorageSyncEnabled()
         val isStorageLoaded = viewModel.isStorageLoaded()
         enableMenuItem(menu.findItem(R.id.action_search_records), isStorageLoaded)
         enableMenuItem(menu.findItem(R.id.action_global_search), isStorageLoaded)

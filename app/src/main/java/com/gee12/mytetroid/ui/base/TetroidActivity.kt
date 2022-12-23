@@ -104,11 +104,11 @@ abstract class TetroidActivity<VM : BaseViewModel>
     }
 
     protected open fun afterCreateDependencyScope() {
-        resourcesProvider = scopeSource.get()
+        resourcesProvider = koinScope.get()
     }
 
     protected open fun createViewModel() {
-        this.viewModel = koinScope.get(getViewModelClazz())
+        viewModel = koinScope.get(getViewModelClazz())
     }
 
     protected open fun initViewModel() {
@@ -451,12 +451,10 @@ abstract class TetroidActivity<VM : BaseViewModel>
 
     /**
      * Принудительное отображение иконок у пунктов меню.
-     * @param v
-     * @param menu
      */
     @SuppressLint("RestrictedApi")
-    protected fun setForceShowMenuIcons(v: View?, menu: MenuBuilder?) {
-        val menuHelper = MenuPopupHelper(this, menu!!, v!!)
+    protected fun setForceShowMenuIcons(v: View, menu: MenuBuilder) {
+        val menuHelper = MenuPopupHelper(this, menu, v)
         menuHelper.setForceShowIcon(true)
         menuHelper.show()
     }

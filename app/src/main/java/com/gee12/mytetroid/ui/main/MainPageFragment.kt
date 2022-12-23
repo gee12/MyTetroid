@@ -9,6 +9,7 @@ import androidx.core.view.isVisible
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.utils.ViewUtils
+import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.ClipboardManager
 import com.gee12.mytetroid.model.FoundType
 import com.gee12.mytetroid.model.TetroidFile
@@ -26,7 +27,6 @@ import com.gee12.mytetroid.ui.main.records.RecordsListAdapter
 import com.github.clans.fab.FloatingActionMenu
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.runBlocking
-import org.koin.java.KoinJavaComponent.get
 
 class MainPageFragment : TetroidFragment<MainViewModel> {
     
@@ -47,13 +47,17 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
 
     constructor() : super() {}
 
-    override fun createViewModel() {
-        if (viewModel == null) {
-            viewModel = get(MainViewModel::class.java)
-        }
+    override fun getLayoutResourceId() = R.layout.fragment_main
+
+    override fun getViewModelClazz() = MainViewModel::class.java
+
+    override fun createDependencyScope() {
+        scopeSource = ScopeSource.current
     }
 
-    override fun getTitle(): String {
+    override fun createViewModel() {}
+
+    fun getTitle(): String {
         return viewModel.getString(R.string.title_main_fragment)
     }
 
@@ -62,7 +66,7 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val view = super.onCreateView(inflater, container, R.layout.fragment_main)!!
+        val view = super.onCreateView(inflater, container)
         
         viewFlipperMain = view.findViewById(R.id.view_flipper_main)
         // обработка нажатия на пустом месте экрана, когда записей в ветке нет
@@ -510,7 +514,7 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
     override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
         super.onCreateContextMenu(menu, v, menuInfo)
         val viewId = v.id
-        val inflater = activity!!.menuInflater
+        val inflater = requireActivity().menuInflater
         val adapterMenuInfo = menuInfo as? AdapterView.AdapterContextMenuInfo
         if (viewId == R.id.list_view_records) {
             inflater.inflate(R.menu.record_context, menu)

@@ -11,6 +11,7 @@ import android.widget.TextView
 import androidx.core.view.GestureDetectorCompat
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.model.FoundType
 import com.gee12.mytetroid.model.ITetroidObject
 import com.gee12.mytetroid.model.SearchProfile
@@ -18,7 +19,6 @@ import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.ui.main.MainViewModel
 import com.gee12.mytetroid.ui.base.TetroidFragment
 import kotlinx.coroutines.runBlocking
-import org.koin.java.KoinJavaComponent.get
 
 class FoundPageFragment : TetroidFragment<MainViewModel> {
     
@@ -33,18 +33,22 @@ class FoundPageFragment : TetroidFragment<MainViewModel> {
 
     constructor() : super() {}
 
-    override fun createViewModel() {
-        if (viewModel == null) {
-            viewModel = get(MainViewModel::class.java)
-        }
+    override fun getLayoutResourceId() = R.layout.fragment_found
+
+    override fun getViewModelClazz() = MainViewModel::class.java
+
+    override fun createDependencyScope() {
+        scopeSource = ScopeSource.current
     }
 
-    override fun getTitle(): String {
+    override fun createViewModel() {}
+
+    fun getTitle(): String {
         return viewModel.getString(R.string.search_found_mask, foundCount)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val view = super.onCreateView(inflater, container, R.layout.fragment_found)!!
+        val view = super.onCreateView(inflater, container)
 
         // ?
 //        view.setOnTouchListener(this);

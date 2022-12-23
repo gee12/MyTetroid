@@ -1,46 +1,42 @@
-package com.gee12.mytetroid.ui.main;
+package com.gee12.mytetroid.ui.main
 
-import androidx.annotation.NonNull;
-import androidx.core.view.GestureDetectorCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
-
-import com.gee12.mytetroid.ui.main.found.FoundPageFragment;
-import com.gee12.mytetroid.ui.base.TetroidFragment;
+import androidx.core.view.GestureDetectorCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
+import com.gee12.mytetroid.ui.main.found.FoundPageFragment
 
 // TODO: переписать на новый лад
-public class MainPagerAdapter extends FragmentPagerAdapter {
+class MainPagerAdapter(
+    viewModel: MainViewModel,
+    fragmentManager: FragmentManager,
+    detector: GestureDetectorCompat,
+) : FragmentPagerAdapter(
+    fragmentManager
+) {
 
-    private final TetroidFragment[] fragments = new TetroidFragment[2];
+    val mainFragment = MainPageFragment(viewModel, detector)
+    val foundFragment = FoundPageFragment(viewModel, detector)
 
-    public MainPagerAdapter(MainViewModel viewModel, FragmentManager fm, GestureDetectorCompat detector) {
-        super(fm);
-        fragments[0] = new MainPageFragment(viewModel, detector);
-        fragments[1] = new FoundPageFragment(viewModel, detector);
+    private val fragments = arrayOf(
+        mainFragment,
+        foundFragment,
+    )
+
+    override fun getItem(position: Int): Fragment {
+        return fragments[position]
     }
 
-    @NonNull
-    @Override
-    public Fragment getItem(int position) {
-        return fragments[position];
+    override fun getCount(): Int {
+        return fragments.size
     }
 
-    @Override
-    public int getCount() {
-        return fragments.length;
+    override fun getPageTitle(position: Int): CharSequence? {
+        return when (val fragment = getItem(position)) {
+            is MainPageFragment -> fragment.getTitle()
+            is FoundPageFragment -> fragment.getTitle()
+            else -> null
+        }
     }
 
-    @Override
-    public CharSequence getPageTitle(int position) {
-        return fragments[position].getTitle();
-    }
-
-    public MainPageFragment getMainFragment() {
-        return (MainPageFragment)fragments[0];
-    }
-
-    public FoundPageFragment getFoundFragment() {
-        return (FoundPageFragment)fragments[1];
-    }
 }
