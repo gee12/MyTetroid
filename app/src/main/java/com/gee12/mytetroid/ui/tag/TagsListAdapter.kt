@@ -1,7 +1,10 @@
 package com.gee12.mytetroid.ui.tag
 
 import android.content.Context
-import android.graphics.Color
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.AbsoluteSizeSpan
+import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,11 +20,12 @@ import java.util.*
 class TagsListAdapter(
     private val context: Context,
     private val resourcesProvider: IResourcesProvider,
+    private val onClick: (View, TetroidTag) -> Unit,
+    private val onLongClick: (View, TetroidTag) -> Unit,
 ) : BaseAdapter() {
 
     private inner class TagsViewHolder {
-        lateinit var nameView: TextView
-        lateinit var recordsCountView: TextView
+        lateinit var nameCountView: TextView
     }
 
     private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -56,26 +60,50 @@ class TagsListAdapter(
         if (convertView == null) {
             viewHolder = TagsViewHolder()
             view = inflater.inflate(R.layout.list_item_tag, null)
-            viewHolder.nameView = view.findViewById(R.id.tag_view_name)
-            viewHolder.recordsCountView = view.findViewById(R.id.tag_view_records_count)
+            viewHolder.nameCountView = view.findViewById(R.id.tag_view_name_count)
             view.tag = viewHolder
         } else {
             view = convertView
             viewHolder = convertView.tag as TagsViewHolder
         }
-        val (key, value) = getItem(position)
-        if (value.isEmpty) {
-            viewHolder.nameView.text = resourcesProvider.getString(R.string.title_empty_tag)
-            viewHolder.nameView.setTextColor(ContextCompat.getColor(context, R.color.colorLightText))
-            viewHolder.recordsCountView.setTextColor(ContextCompat.getColor(context, R.color.colorLightText))
+        val (key, tag) = getItem(position)
+
+        val recordsCount = "[%d]".format(tag.records.size)
+
+        if (tag.isEmpty) {
+            val emptyTag = resourcesProvider.getString(R.string.title_empty_tag)
+            val nameCount = SpannableString("$emptyTag $recordsCount")
+            nameCount.setSpan(
+                AbsoluteSizeSpan(context.resources.getDimension(R.dimen.font_small).toInt()),
+                emptyTag.length + 1, nameCount.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            viewHolder.nameCountView.text = nameCount
+            viewHolder.nameCountView.setTextColor(ContextCompat.getColor(context, R.color.colorLightText))
         } else {
-            viewHolder.nameView.text = key
-            viewHolder.nameView.setTextColor(ContextCompat.getColor(context, R.color.colorBaseText))
-            viewHolder.recordsCountView.setTextColor(ContextCompat.getColor(context, R.color.colorBase2Text))
+            val nameCount = SpannableString("$key $recordsCount")
+            nameCount.setSpan(
+                ForegroundColorSpan(ContextCompat.getColor(context, R.color.colorBase2Text)),
+                key.length + 1, nameCount.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            nameCount.setSpan(
+                AbsoluteSizeSpan(context.resources.getDimension(R.dimen.font_small).toInt()),
+                key.length + 1, nameCount.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            viewHolder.nameCountView.text = nameCount
+            viewHolder.nameCountView.setTextColor(ContextCompat.getColor(context, R.color.colorBaseText))
         }
-        // количество записей
-        val records = value.records
-        viewHolder.recordsCountView.text = String.format(Locale.getDefault(), "[%d]", records.size)
+
+        view.setOnClickListener {
+            onClick(view, tag)
+        }
+
+        view.setOnLongClickListener {
+            onLongClick(view, tag)
+            true
+        }
         return view
     }
 

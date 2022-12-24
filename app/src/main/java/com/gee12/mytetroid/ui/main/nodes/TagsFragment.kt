@@ -57,18 +57,6 @@ class TagsFragment : TetroidFragment<MainViewModel> {
         val view = super.onCreateView(inflater, container)
 
         lvTags = view.findViewById(R.id.tags_list_view)
-        lvTags.onItemClickListener = AdapterView.OnItemClickListener { _: AdapterView<*>, _: View, position: Int, _: Long ->
-            showTagRecords(
-                position
-            )
-        }
-        lvTags.onItemLongClickListener = AdapterView.OnItemLongClickListener { _: AdapterView<*>, view: View, position: Int, _: Long ->
-            val tagEntry = listAdapterTags.getItem(position)
-            if (tagEntry != null) {
-                showTagPopupMenu(view, tagEntry.value)
-            }
-            true
-        }
         tvTagsEmpty = view.findViewById(R.id.tags_text_view_empty)
         lvTags.emptyView = tvTagsEmpty
         val tagsFooter = (requireActivity().getSystemService(AppCompatActivity.LAYOUT_INFLATER_SERVICE) as LayoutInflater)
@@ -93,10 +81,16 @@ class TagsFragment : TetroidFragment<MainViewModel> {
         createListAdapter()
     }
 
-    fun createListAdapter() {
+    private fun createListAdapter() {
         listAdapterTags = TagsListAdapter(
             context = requireContext(),
             resourcesProvider = resourcesProvider,
+            onClick = { _, tag ->
+                showTagRecords(tag)
+            },
+            onLongClick = { view, tag ->
+                showTagPopupMenu(view, tag)
+            }
         )
         lvTags.adapter = listAdapterTags
     }
@@ -107,8 +101,8 @@ class TagsFragment : TetroidFragment<MainViewModel> {
 
     fun setTagsDataItems(tags: Map<String, TetroidTag>) {
         listAdapterTags.setDataItems(
-            tags,
-            SortHelper(
+            data = tags,
+            sortHelper = SortHelper(
                 CommonSettings.getTagsSortMode(requireContext(), SortHelper.byNameAsc())
             )
         )
@@ -118,8 +112,7 @@ class TagsFragment : TetroidFragment<MainViewModel> {
         setTagsDataItems(viewModel.getTagsMap())
     }
 
-    private fun showTagRecords(position: Int) {
-        val tag = listAdapterTags.getItem(position).value
+    private fun showTagRecords(tag: TetroidTag) {
         viewModel.showTag(tag)
     }
 
@@ -128,11 +121,11 @@ class TagsFragment : TetroidFragment<MainViewModel> {
      */
     private fun renameTag(tag: TetroidTag) {
         TagFieldsDialog(
-            tag = tag
-        ) { name: String ->
-            viewModel.renameTag(tag, name)
-        }
-            .showIfPossible(parentFragmentManager)
+            tag = tag,
+            onApply = { name ->
+                viewModel.renameTag(tag, name)
+            }
+        ).showIfPossible(parentFragmentManager)
     }
 
     /**
@@ -184,17 +177,17 @@ class TagsFragment : TetroidFragment<MainViewModel> {
             when (item.itemId) {
                 R.id.action_open_tag -> {
                     viewModel.showTag(tag)
-                    return@setOnMenuItemClickListener true
+                    true
                 }
                 R.id.action_rename -> {
                     renameTag(tag)
-                    return@setOnMenuItemClickListener true
+                    true
                 }
                 R.id.action_copy_link -> {
                     copyTagLink(tag)
-                    return@setOnMenuItemClickListener true
+                    true
                 }
-                else -> return@setOnMenuItemClickListener false
+                else -> false
             }
         }
         setForceShowMenuIcons(v, popupMenu.menu as MenuBuilder)
@@ -236,22 +229,22 @@ class TagsFragment : TetroidFragment<MainViewModel> {
         popupMenu.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
                 R.id.action_sort_tags_name_asc -> {
-                    listAdapterTags.sort(true, true)
+                    listAdapterTags.sort(byName = true, isAscent = true)
                     CommonSettings.setTagsSortMode(context, SortHelper.byNameAsc())
                     true
                 }
                 R.id.action_sort_tags_name_desc -> {
-                    listAdapterTags.sort(true, false)
+                    listAdapterTags.sort(byName = true, isAscent = false)
                     CommonSettings.setTagsSortMode(context, SortHelper.byNameDesc())
                     true
                 }
                 R.id.action_sort_tags_count_asc -> {
-                    listAdapterTags.sort(false, true)
+                    listAdapterTags.sort(byName = false, isAscent = true)
                     CommonSettings.setTagsSortMode(context, SortHelper.byCountAsc())
                     true
                 }
                 R.id.action_sort_tags_count_desc -> {
-                    listAdapterTags.sort(false, false)
+                    listAdapterTags.sort(byName = false, isAscent = false)
                     CommonSettings.setTagsSortMode(context, SortHelper.byCountDesc())
                     true
                 }
