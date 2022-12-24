@@ -3,6 +3,10 @@ package com.gee12.mytetroid.ui.node
 import android.content.Context
 import android.graphics.Color
 import android.os.Build
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.AbsoluteSizeSpan
+import android.text.style.ForegroundColorSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
@@ -26,8 +30,7 @@ class NodesListAdapter(
 
     private inner class NodeViewHolder {
         lateinit var iconView: ImageView
-        lateinit var nameView: TextView
-        lateinit var recordsCountView: TextView
+        lateinit var nameCountView: TextView
         lateinit var arrowView: ImageView
         lateinit var headerView: ConstraintLayout
     }
@@ -60,8 +63,7 @@ class NodesListAdapter(
             viewHolder = NodeViewHolder()
             view = inflater.inflate(R.layout.list_item_node, null)
             viewHolder.iconView = view.findViewById(R.id.node_view_icon)
-            viewHolder.nameView = view.findViewById(R.id.node_view_name)
-            viewHolder.recordsCountView = view.findViewById(R.id.node_view_records_count)
+            viewHolder.nameCountView = view.findViewById(R.id.node_view_name_count)
             viewHolder.arrowView = view.findViewById(R.id.node_view_arrow)
             viewHolder.headerView = view.findViewById(R.id.node_view_header)
             view.tag = viewHolder
@@ -85,16 +87,28 @@ class NodesListAdapter(
             viewHolder.iconView.visibility = View.GONE
         }
         // название
-        val cryptedName = context.getString(R.string.title_crypted_node_name)
-        viewHolder.nameView.text = node.getCryptedName(cryptedName)
+        val nameWhenEncrypted = context.getString(R.string.title_crypted_node_name)
+        val name = node.getCryptedName(nameWhenEncrypted)
+
         // количество записей в ветке
         if (node.recordsCount > 0 && node.isNonCryptedOrDecrypted) {
-            viewHolder.recordsCountView.visibility = View.VISIBLE
-            viewHolder.recordsCountView.text = String.format(Locale.getDefault(), "[%d]", node.recordsCount)
-            viewHolder.nameView.setTextColor(ContextCompat.getColor(context, R.color.colorBaseText))
+            val recordsCount = "[%d]".format(node.recordsCount)
+            val nameCount = SpannableString("$name $recordsCount")
+            nameCount.setSpan(
+                ForegroundColorSpan(ContextCompat.getColor(context, R.color.colorBase2Text)),
+                name.length + 1, nameCount.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            nameCount.setSpan(
+                AbsoluteSizeSpan(context.resources.getDimension(R.dimen.font_small).toInt()),
+                name.length + 1, nameCount.length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            viewHolder.nameCountView.text = nameCount
+            viewHolder.nameCountView.setTextColor(ContextCompat.getColor(context, R.color.colorBaseText))
         } else {
-            viewHolder.recordsCountView.visibility = View.GONE
-            viewHolder.nameView.setTextColor(ContextCompat.getColor(context, R.color.colorLightText))
+            viewHolder.nameCountView.text = name
+            viewHolder.nameCountView.setTextColor(ContextCompat.getColor(context, R.color.colorLightText))
         }
         // вьюшка всего заголовка ветки (с иконкой и именем)
 //        ((RelativeLayout.LayoutParams)viewHolder.headerView.getLayoutParams()).setMargins(20 * node.getLevel(),0,50,0);
