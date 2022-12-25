@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.ui.tag
 
 import android.content.Context
+import android.graphics.Color
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.AbsoluteSizeSpan
@@ -20,6 +21,7 @@ import java.util.*
 class TagsListAdapter(
     private val context: Context,
     private val resourcesProvider: IResourcesProvider,
+    private val checkIsSelected: (TetroidTag) -> Boolean,
     private val onClick: (View, TetroidTag) -> Unit,
     private val onLongClick: (View, TetroidTag) -> Unit,
 ) : BaseAdapter() {
@@ -67,6 +69,13 @@ class TagsListAdapter(
             viewHolder = convertView.tag as TagsViewHolder
         }
         val (key, tag) = getItem(position)
+
+        val backgroundColor = if (checkIsSelected(tag)) {
+            ContextCompat.getColor(context, R.color.colorSelectedTag)
+        } else {
+            Color.TRANSPARENT
+        }
+        view.setBackgroundColor(backgroundColor)
 
         val recordsCount = "[%d]".format(tag.records.size)
 

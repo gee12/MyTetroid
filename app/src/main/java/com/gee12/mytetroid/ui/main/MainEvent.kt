@@ -48,7 +48,14 @@ sealed class MainEvent : StorageEvent() {
     object UpdateRecords : MainEvent()
 
     // tags
-    object UpdateTags : MainEvent()
+    sealed class Tags : MainEvent() {
+        object UpdateTags : Tags()
+        data class ReloadTags(val tagsMap: Map<String, TetroidTag>) : Tags()
+        data class UpdateSelectedTags(
+            val selectedTags: List<TetroidTag>,
+            val isMultiTagsMode: Boolean,
+        ) : Tags()
+    }
 
     // attaches
     data class ShowAttaches(

@@ -379,7 +379,18 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 )
             }
             MainEvent.UpdateRecords -> mainPage.updateRecordList()
-            MainEvent.UpdateTags -> updateTags()
+            is MainEvent.Tags.UpdateTags -> {
+                updateTags()
+            }
+            is MainEvent.Tags.ReloadTags -> {
+                fragmentTags.setTagsDataItems(event.tagsMap)
+            }
+            is MainEvent.Tags.UpdateSelectedTags -> {
+                fragmentTags.updateSelectedTags(
+                    selectedTags = event.selectedTags,
+                    isMultiTagsMode = event.isMultiTagsMode,
+                )
+            }
             is MainEvent.ShowAttaches -> {
                 mainPage.showAttaches(event.attaches)
             }
@@ -458,7 +469,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 // списки записей, файлов
                 mainPage.resetListAdapters()
                 // список меток
-                fragmentTags.setTagsDataItems(viewModel.getTagsMap())
+                reloadTags()
                 fragmentTags.setTagsEmptyText(R.string.log_tags_is_missing)
             } else {
                 setEmptyTextViews(R.string.title_storage_not_loaded)
@@ -506,7 +517,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                     }
 
                     // список меток
-                    fragmentTags.setTagsDataItems(viewModel.getTagsMap())
+                    reloadTags()
                     fragmentTags.setTagsEmptyText(R.string.log_tags_is_missing)
                 }
                 setListEmptyViewState(tvNodesEmpty, isEmpty, R.string.title_nodes_is_missing)
@@ -549,7 +560,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
     private fun resetNodesTagsListAdapters() {
         listAdapterNodes.reset()
-        fragmentTags.resetListAdapter()
+        fragmentTags.resetListAdapters()
     }
 
     /**
@@ -607,7 +618,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             Constants.MAIN_VIEW_GLOBAL_FOUND -> getString(R.string.title_global_search)
             Constants.MAIN_VIEW_NONE -> null
             Constants.MAIN_VIEW_NODE_RECORDS -> viewModel.getCurNodeName()
-            Constants.MAIN_VIEW_TAG_RECORDS -> viewModel.getCurTagName()
+            Constants.MAIN_VIEW_TAG_RECORDS -> viewModel.getSelectedTagsNames()
             Constants.MAIN_VIEW_FAVORITES -> getString(R.string.title_favorites)
             Constants.MAIN_VIEW_RECORD_FILES -> title
             else -> title
@@ -626,16 +637,21 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             // преобразуем идентификатор view в индекс заголовка
             val titleId = viewId - 1
             if (titleId >= 0 && titleId < titles.size) {
-                tvSubtitle!!.visibility = View.VISIBLE
-                tvSubtitle!!.textSize = 12f
-                tvSubtitle!!.text = titles[titleId]
+                tvSubtitle.visibility = View.VISIBLE
+                tvSubtitle.textSize = 12f
+                tvSubtitle.text = if (viewId == Constants.MAIN_VIEW_TAG_RECORDS && viewModel.isMultiTagsMode) {
+                    val tagsSearchMode = commonSettingsProvider.getTagsSearchMode().getStringValue(resourcesProvider)
+                    "${resourcesProvider.getString(R.string.title_multiple_tags)} (${tagsSearchMode})"
+                } else {
+                    titles[titleId]
+                }
             } else  /*if (titleId < 0)*/ {
-                tvSubtitle!!.visibility = View.GONE
+                tvSubtitle.visibility = View.GONE
             }
         } else if (viewModel.lastSearchProfile != null) {
             setSubtitle("\"" + viewModel.lastSearchProfile!!.query + "\"")
         } else {
-            tvSubtitle!!.visibility = View.GONE
+            tvSubtitle.visibility = View.GONE
         }
     }
 
@@ -855,6 +871,10 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
     fun updateTags() {
         fragmentTags.updateTags()
+    }
+
+    fun reloadTags() {
+        fragmentTags.setTagsDataItems(viewModel.getTagsMap())
     }
 
     /**
@@ -1529,7 +1549,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             Constants.RESULT_SHOW_TAG -> {
                 if (checkIsNeedLoadAllNodes(data)) return
                 data.getStringExtra(Constants.EXTRA_TAG_NAME)?.let { tagName ->
-                    viewModel.showTag(tagName)
+                    viewModel.showTagRecords(tagName)
                 }
             }
             Constants.RESULT_DELETE_RECORD -> {

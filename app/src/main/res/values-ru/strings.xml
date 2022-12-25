@@ -194,6 +194,8 @@
     <string name="title_need_load_storage">Загрузите хранилище…</string>
     <string name="title_need_decrypt_storage">Нужна расшифровка хранилища</string>
     <string name="title_empty_tag"><![CDATA[<без меток>]]></string>
+    <string name="title_multiple_tags">МЕТКИ</string>
+    <string name="title_tags_search_mode_subtitle">Искать по меткам:</string>
 
     <string name="progress_loading">Загрузка…</string>
     <string name="progress_copy_record">Копирование записи…</string>
@@ -448,10 +450,16 @@
     <string name="stats_unique_tags_count">Из них уникальных:</string>
     <string name="stats_authors_count">Авторов:</string>
 
+    <string name="action_cancel">Отмена</string>
+    <string name="action_select">Выбрать</string>
     <string name="action_sync">Синхронизировать</string>
     <string name="action_exit">Выйти</string>
     <string name="action_load_storage">Загрузить хранилище</string>
     <string name="action_load_all_nodes">Загрузить все ветки</string>
+    <string name="action_select_tags_mode">Выбрать режим поиска меток</string>
+    <string name="action_search">Поиск</string>
+    <string name="action_tags_search_mode_or">ИЛИ</string>
+    <string name="action_tags_search_mode_and">И</string>
 
     <string name="ask_exit_from_app">Выйти из приложения?</string>
     <string name="ask_node_delete_mask">Удалить ветку «%s» ?</string>

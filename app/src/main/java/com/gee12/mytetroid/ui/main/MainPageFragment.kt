@@ -258,7 +258,7 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
             val emptyText = if (viewId == Constants.MAIN_VIEW_NODE_RECORDS) {
                 getString(R.string.search_records_in_node_not_found_mask, query, viewModel.getCurNodeName())
             } else {
-                getString(R.string.search_records_in_tag_not_found_mask, query, viewModel.getCurTagName())
+                getString(R.string.search_records_in_tag_not_found_mask, query, viewModel.getSelectedTagsNames())
             }
             setRecordsEmptyViewText(emptyText)
             showGlobalSearchButton(true)

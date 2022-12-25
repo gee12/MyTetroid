@@ -3,14 +3,20 @@ package com.gee12.mytetroid.domain.provider
 import android.content.Context
 import android.content.SharedPreferences
 import android.preference.PreferenceManager
-import com.gee12.mytetroid.*
+import com.gee12.mytetroid.BuildConfig
+import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.common.extensions.*
+import com.gee12.mytetroid.common.extensions.getAppExternalFilesDir
+import com.gee12.mytetroid.common.extensions.getExternalPublicDocsOrAppDir
+import com.gee12.mytetroid.common.extensions.isFileExist
+import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.data.StringList
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.domain.RecordFieldsSelector
+import com.gee12.mytetroid.domain.SortHelper
 import com.gee12.mytetroid.logs.ITetroidLogger
+import com.gee12.mytetroid.model.enums.TagsSearchMode
 
 // TODO: CommonSettingsManager
 class CommonSettingsProvider(
@@ -152,17 +158,6 @@ class CommonSettingsProvider(
         return settings?.contains(resourcesProvider.getString(prefKeyStringRes)) == true
     }
 
-    /**
-     * Получение настроек.
-     * @return
-     */
-    fun getSettings(): SharedPreferences {
-        if (CommonSettings.settings == null) {
-            CommonSettings.settings = getPrefs()
-        }
-        return CommonSettings.settings
-    }
-
     fun getDefaultTrashPath(): String {
         return makePath(context.getAppExternalFilesDir().orEmpty(), Constants.TRASH_DIR_NAME)
     }
@@ -246,5 +241,49 @@ class CommonSettingsProvider(
     fun getRecordFieldsSelector(): RecordFieldsSelector {
         return RecordFieldsSelector(context, buildInfoProvider, CommonSettings.getRecordFieldsInList(context))
     }
+
+    fun getTagsSortOrder(): String {
+        return getString(R.string.pref_key_tags_sort_mode) ?: SortHelper.byNameAsc()
+    }
+
+    fun setTagsSortOrder(value: String) {
+        setString(R.string.pref_key_tags_sort_mode, value)
+    }
+
+    fun getTagsSearchMode(): TagsSearchMode {
+        return TagsSearchMode.getById(getInt(R.string.pref_key_tags_search_mode, TagsSearchMode.AND.id)) ?: TagsSearchMode.AND
+    }
+
+    fun setTagsSearchMode(value: TagsSearchMode) {
+        setInt(R.string.pref_key_tags_search_mode, value.id)
+    }
+
+    //region Getters
+
+    private fun getInt(id: Int, default: Int = 0): Int {
+        return settings?.getInt(resourcesProvider.getString(id), default) ?: default
+    }
+
+    private fun getString(id: Int, default: String? = null): String? {
+        return settings?.getString(resourcesProvider.getString(id), default) ?: default
+    }
+
+    //endregion Getters
+
+    //region Setters
+
+    private fun setInt(id: Int, value: Int) {
+        val editor = settings?.edit()
+        editor?.putInt(resourcesProvider.getString(id), value)
+        editor?.apply()
+    }
+
+    private fun setString(id: Int, value: String) {
+        val editor = settings?.edit()
+        editor?.putString(resourcesProvider.getString(id), value)
+        editor?.apply()
+    }
+
+    //endregion Setters
 
 }

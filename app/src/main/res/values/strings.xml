@@ -198,6 +198,8 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="title_need_load_storage">Need to load storage…</string>
     <string name="title_need_decrypt_storage">Need to decrypt storage…</string>
     <string name="title_empty_tag"><![CDATA[<no tags>]]></string>
+    <string name="title_multiple_tags">TAGS</string>
+    <string name="title_tags_search_mode_subtitle">Search by tags:</string>
 
     <string name="progress_loading">Loading…</string>
     <string name="progress_copy_record">Record copying…</string>
@@ -396,6 +398,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="pref_record_fields_in_list">Record fields to show</string>
     <string name="pref_record_fields_in_list_summ">Record fields to show in list</string>
     <string name="pref_key_tags_sort_mode" translatable="false">pref_key_tags_sort_mode</string>
+    <string name="pref_key_tags_search_mode" translatable="false">pref_key_tags_search_mode</string>
     <string name="pref_key_app_for_sync" translatable="false">pref_key_app_for_sync</string>
     <string name="pref_app_for_sync">Application</string>
     <string name="pref_app_for_sync_summ">Application used to start sync \n(used as default value for new storages)</string>
@@ -543,10 +546,16 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="subtitle_record_edit">EDITOR</string>
     <string name="subtitle_record_html">HTML</string>
 
+    <string name="action_cancel">Sync</string>
+    <string name="action_select">Select</string>
     <string name="action_sync">Sync</string>
     <string name="action_exit">Exit</string>
     <string name="action_load_storage">Load storage</string>
     <string name="action_load_all_nodes">Load all nodes</string>
+    <string name="action_select_tags_mode">Select tags mode</string>
+    <string name="action_search">Apply</string>
+    <string name="action_tags_search_mode_or">OR</string>
+    <string name="action_tags_search_mode_and">AND</string>
 
     <string name="ask_oper_without_record_dir_mask">Record directory is missing. %s anyway ?</string>
     <string name="ask_attach_delete_without_file">File is missing on the disk. Delete anyway ?</string>

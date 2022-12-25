@@ -8,33 +8,39 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.MenuBuilder
+import androidx.appcompat.widget.AppCompatImageButton
 import androidx.appcompat.widget.PopupMenu
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.utils.Utils
-import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.SortHelper
 import com.gee12.mytetroid.model.TetroidTag
+import com.gee12.mytetroid.model.enums.TagsSearchMode
 import com.gee12.mytetroid.ui.base.TetroidFragment
 import com.gee12.mytetroid.ui.dialogs.tag.TagFieldsDialog
 import com.gee12.mytetroid.ui.main.MainViewModel
+import com.gee12.mytetroid.ui.tag.SelectedTagsListAdapter
 import com.gee12.mytetroid.ui.tag.TagsListAdapter
 
 class TagsFragment : TetroidFragment<MainViewModel> {
 
     private lateinit var lvTags: ListView
-    private lateinit var listAdapterTags: TagsListAdapter
+    private lateinit var adapterTags: TagsListAdapter
     private lateinit var tvTagsEmpty: TextView
     private lateinit var btnLoadStorageTags: Button
+    private lateinit var layoutSelectedTags: View
+    private lateinit var lvSelectedTags: ListView
+    private lateinit var adapterSelectedTags: SelectedTagsListAdapter
+    private lateinit var btnApplySelectedTags: Button
 
     constructor(viewModel: MainViewModel) : super() {
         this.viewModel = viewModel
@@ -72,48 +78,99 @@ class TagsFragment : TetroidFragment<MainViewModel> {
             btnLoadStorageTags.setOnClickListener(listener)
         }
 
+        layoutSelectedTags = view.findViewById(R.id.layout_selected_tags) as ConstraintLayout
+        lvSelectedTags = view.findViewById(R.id.selected_tags_list_view)
+
+        btnApplySelectedTags  = view.findViewById<Button>(R.id.button_apply_selected_tags)
+        btnApplySelectedTags.setOnClickListener {
+            selectRecordsBySearchMode()
+        }
+        updateTagsSearchModeTitle(commonSettingsProvider.getTagsSearchMode())
+        val btnChangeTagsSearchMode  = view.findViewById<AppCompatImageButton>(R.id.button_change_tags_search_mode)
+        btnChangeTagsSearchMode.setOnClickListener { view ->
+            showSelectTagsSearchModePopupMenu(view)
+        }
+        val btnCancelSelectedTags  = view.findViewById<AppCompatImageButton>(R.id.button_cancel_selected_tags)
+        btnCancelSelectedTags.setOnClickListener {
+            viewModel.unselectAllTags()
+        }
+
         return view
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        createListAdapter()
+        createListAdapters()
     }
 
-    private fun createListAdapter() {
-        listAdapterTags = TagsListAdapter(
+    private fun createListAdapters() {
+        adapterTags = TagsListAdapter(
             context = requireContext(),
             resourcesProvider = resourcesProvider,
+            checkIsSelected = { tag ->
+                viewModel.isTagSelected(tag)
+            },
             onClick = { _, tag ->
-                showTagRecords(tag)
+                viewModel.onTagClick(tag)
             },
             onLongClick = { view, tag ->
                 showTagPopupMenu(view, tag)
             }
         )
-        lvTags.adapter = listAdapterTags
+        lvTags.adapter = adapterTags
+
+        adapterSelectedTags = SelectedTagsListAdapter(
+            context = requireContext(),
+            resourcesProvider = resourcesProvider,
+            onCancelTag = { tag ->
+                viewModel.unselectTag(tag)
+            }
+        )
+        lvSelectedTags.adapter = adapterSelectedTags
     }
 
-    fun resetListAdapter() {
-        listAdapterTags.reset()
+    fun resetListAdapters() {
+        adapterTags.reset()
+        adapterSelectedTags.reset()
     }
 
     fun setTagsDataItems(tags: Map<String, TetroidTag>) {
-        listAdapterTags.setDataItems(
+        adapterTags.setDataItems(
             data = tags,
-            sortHelper = SortHelper(
-                CommonSettings.getTagsSortMode(requireContext(), SortHelper.byNameAsc())
-            )
+            sortHelper = SortHelper(commonSettingsProvider.getTagsSortOrder())
         )
     }
 
     fun updateTags() {
-        setTagsDataItems(viewModel.getTagsMap())
+        adapterTags.notifyDataSetChanged()
+        adapterSelectedTags.notifyDataSetChanged()
     }
 
-    private fun showTagRecords(tag: TetroidTag) {
-        viewModel.showTag(tag)
+    private fun selectRecordsBySearchMode() {
+        setTagsSearchMode(searchMode = commonSettingsProvider.getTagsSearchMode())
+        viewModel.showTagsRecordsFromSelected()
+    }
+
+    private fun setTagsSearchMode(searchMode: TagsSearchMode) {
+        updateTagsSearchModeTitle(searchMode)
+        commonSettingsProvider.setTagsSearchMode(searchMode)
+    }
+
+    private fun updateTagsSearchModeTitle(searchMode: TagsSearchMode) {
+        val stringModeString = searchMode.getStringValue(resourcesProvider)
+        btnApplySelectedTags.text = "${resourcesProvider.getString(R.string.action_search)} ($stringModeString)"
+    }
+
+    fun updateSelectedTags(selectedTags: List<TetroidTag>, isMultiTagsMode: Boolean) {
+        if (isMultiTagsMode) {
+            adapterSelectedTags.setDataItems(selectedTags)
+        } else {
+            adapterSelectedTags.reset()
+        }
+        layoutSelectedTags.isVisible = isMultiTagsMode
+
+        adapterTags.notifyDataSetChanged()
     }
 
     /**
@@ -171,12 +228,13 @@ class TagsFragment : TetroidFragment<MainViewModel> {
         val popupMenu = PopupMenu(requireContext(), v)
         popupMenu.inflate(R.menu.tag_context)
         val menu = popupMenu.menu
-//        visibleMenuItem(menu.findItem(R.id.action_rename), viewModel.buildInfoProvider.isFullVersion())
-        menu.findItem(R.id.action_rename)?.isVisible = viewModel.buildInfoProvider.isFullVersion()
+        val isFullVersion = viewModel.buildInfoProvider.isFullVersion()
+        menu.findItem(R.id.action_rename)?.isVisible = isFullVersion
+        menu.findItem(R.id.action_select)?.isVisible = isFullVersion
         popupMenu.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
                 R.id.action_open_tag -> {
-                    viewModel.showTag(tag)
+                    viewModel.showTagRecords(tag)
                     true
                 }
                 R.id.action_rename -> {
@@ -185,6 +243,10 @@ class TagsFragment : TetroidFragment<MainViewModel> {
                 }
                 R.id.action_copy_link -> {
                     copyTagLink(tag)
+                    true
+                }
+                R.id.action_select -> {
+                    viewModel.selectTag(tag)
                     true
                 }
                 else -> false
@@ -200,7 +262,7 @@ class TagsFragment : TetroidFragment<MainViewModel> {
         popupMenu.inflate(R.menu.tags_sort)
 
         // выделяем цветом текущую сортировку
-        val tagsSortMode = SortHelper(CommonSettings.getTagsSortMode(context, SortHelper.byNameAsc()))
+        val tagsSortMode = SortHelper(commonSettingsProvider.getTagsSortOrder())
         val isByName = tagsSortMode.isByName
         val isAscent = tagsSortMode.isAscent
         val menuItem = when {
@@ -229,23 +291,45 @@ class TagsFragment : TetroidFragment<MainViewModel> {
         popupMenu.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
                 R.id.action_sort_tags_name_asc -> {
-                    listAdapterTags.sort(byName = true, isAscent = true)
-                    CommonSettings.setTagsSortMode(context, SortHelper.byNameAsc())
+                    adapterTags.sort(byName = true, isAscent = true)
+                    commonSettingsProvider.setTagsSortOrder(SortHelper.byNameAsc())
                     true
                 }
                 R.id.action_sort_tags_name_desc -> {
-                    listAdapterTags.sort(byName = true, isAscent = false)
-                    CommonSettings.setTagsSortMode(context, SortHelper.byNameDesc())
+                    adapterTags.sort(byName = true, isAscent = false)
+                    commonSettingsProvider.setTagsSortOrder(SortHelper.byNameDesc())
                     true
                 }
                 R.id.action_sort_tags_count_asc -> {
-                    listAdapterTags.sort(byName = false, isAscent = true)
-                    CommonSettings.setTagsSortMode(context, SortHelper.byCountAsc())
+                    adapterTags.sort(byName = false, isAscent = true)
+                    commonSettingsProvider.setTagsSortOrder(SortHelper.byCountAsc())
                     true
                 }
                 R.id.action_sort_tags_count_desc -> {
-                    listAdapterTags.sort(byName = false, isAscent = false)
-                    CommonSettings.setTagsSortMode(context, SortHelper.byCountDesc())
+                    adapterTags.sort(byName = false, isAscent = false)
+                    commonSettingsProvider.setTagsSortOrder(SortHelper.byCountDesc())
+                    true
+                }
+                else -> false
+            }
+        }
+        setForceShowMenuIcons(v, popupMenu.menu as MenuBuilder)
+    }
+
+    private fun showSelectTagsSearchModePopupMenu(v: View) {
+        val context = requireContext()
+        val popupMenu = PopupMenu(context, v)
+        popupMenu.inflate(R.menu.tags_search_mode)
+
+        // выводим меню
+        popupMenu.setOnMenuItemClickListener { item: MenuItem ->
+            when (item.itemId) {
+                R.id.action_tags_search_mode_or -> {
+                    setTagsSearchMode(TagsSearchMode.OR)
+                    true
+                }
+                R.id.action_tags_search_mode_and -> {
+                    setTagsSearchMode(TagsSearchMode.AND)
                     true
                 }
                 else -> false

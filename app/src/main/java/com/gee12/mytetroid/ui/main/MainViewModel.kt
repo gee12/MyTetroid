@@ -46,6 +46,7 @@ import com.gee12.mytetroid.domain.usecase.node.icon.LoadNodeIconUseCase
 import com.gee12.mytetroid.domain.usecase.node.icon.SetNodeIconUseCase
 import com.gee12.mytetroid.domain.usecase.record.*
 import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
+import com.gee12.mytetroid.model.enums.TagsSearchMode
 import com.gee12.mytetroid.ui.storage.StorageViewModel
 import kotlinx.coroutines.*
 import java.io.File
@@ -173,7 +174,7 @@ class MainViewModel(
 
     var curNode: TetroidNode? = null
     var curRecord: TetroidRecord? = null
-    var curTag: TetroidTag? = null
+    var selectedTags: MutableList<TetroidTag> = mutableListOf()
     var curFile: TetroidFile? = null
 
     var tempAttachToOpen: TetroidFile? = null
@@ -182,6 +183,8 @@ class MainViewModel(
     var lastFilterQuery: String? = null
     var isFromRecordActivity = false
     private var isStorageTreeChangingHandled = false
+    var isMultiTagsMode = false
+        private set
 
     init {
         // FIXME: koin: из-за циклической зависимости вместо инжекта storageDataProcessor в конструкторе,
@@ -350,7 +353,7 @@ class MainViewModel(
                 logOperRes(LogObj.RECORD, LogOper.INSERT)
                 updateRecords()
                 updateNodes()
-                updateTags()
+                reloadTags()
                 if (isCutting) {
                     // очищаем "буфер обмена"
                     ClipboardManager.clear()
@@ -383,7 +386,7 @@ class MainViewModel(
 //                logOperErrorMore(LogObj.RECORD, LogOper.CREATE)
             }.onSuccess { record ->
                 logOperRes(LogObj.RECORD, LogOper.CREATE, record, false)
-                updateTags()
+                reloadTags()
                 updateNodes()
                 if (!updateFavoritesTitle(record)) {
                     updateRecords()
@@ -532,7 +535,7 @@ class MainViewModel(
             } else {
                 updateRecords()
             }
-            updateTags()
+            reloadTags()
             updateFavoritesTitle()
         }
     }
@@ -624,7 +627,7 @@ class MainViewModel(
                 }
             }.onSuccess {
                 sendEvent(MainEvent.Record.Deleted(record))
-                updateTags()
+                reloadTags()
                 updateNodes()
                 // обновляем избранное
                 if (!updateFavoritesTitle(record)) {
@@ -1172,16 +1175,67 @@ class MainViewModel(
 
     //region Tags
 
-    fun getCurTagName(): String {
-        return curTag?.name?.ifBlank {
-            resourcesProvider.getString(R.string.title_empty_tag)
-        }.orEmpty()
+    fun isTagSelected(tag: TetroidTag): Boolean {
+        return selectedTags.any { it.name == tag.name }
     }
 
-    fun showTag(tagName: String) {
+    fun onTagClick(tag: TetroidTag) {
+        if (isMultiTagsMode) {
+            if (isTagSelected(tag)) {
+                unselectTag(tag)
+            } else {
+                selectTag(tag)
+            }
+        } else {
+            showTagRecords(tag)
+        }
+    }
+
+    fun selectTag(tag: TetroidTag) {
+        launchOnMain {
+            isMultiTagsMode = true
+            if (!selectedTags.contains(tag)) {
+                selectedTags.add(tag)
+                sendEvent(MainEvent.Tags.UpdateSelectedTags(selectedTags, isMultiTagsMode))
+            }
+        }
+    }
+
+    fun unselectTag(tag: TetroidTag) {
+        launchOnMain {
+            if (selectedTags.contains(tag)) {
+                selectedTags.remove(tag)
+                isMultiTagsMode = selectedTags.isNotEmpty()
+                sendEvent(MainEvent.Tags.UpdateSelectedTags(selectedTags, isMultiTagsMode))
+            }
+        }
+    }
+
+    fun unselectAllTags() {
+        launchOnMain {
+            selectedTags.clear()
+            isMultiTagsMode = false
+            sendEvent(MainEvent.Tags.UpdateSelectedTags(selectedTags, isMultiTagsMode))
+        }
+    }
+
+    fun getSelectedTagsNames(): String {
+        return selectedTags.joinToString(separator = ", ") {
+            if (it.isEmpty) {
+                resourcesProvider.getString(R.string.title_empty_tag)
+            } else {
+                it.name
+            }
+        }
+    }
+
+    /**
+     * Отображение записей по имени метки.
+     */
+    fun showTagRecords(tagName: String) {
         val tag = tagsInteractor.getTag(tagName)
         if (tag != null) {
-            showTag(tag)
+            showTagRecords(tag)
         } else {
             logWarning(getString(R.string.search_tag_not_found_mask, tagName), true)
         }
@@ -1189,19 +1243,56 @@ class MainViewModel(
 
     /**
      * Отображение записей по метке.
-     * @param tag
      */
-    fun showTag(tag: TetroidTag) {
+    fun showTagRecords(tag: TetroidTag) {
         launchOnMain {
-//            if (tag != null) {
-            curTag = tag
+            isMultiTagsMode = false
+            selectedTags.clear()
+            selectedTags.add(tag)
+            sendEvent(MainEvent.Tags.UpdateSelectedTags(selectedTags, isMultiTagsMode))
             // сбрасываем текущую ветку
             sendEvent(MainEvent.SetCurrentNode(node = null))
             log(getString(R.string.log_open_tag_records_mask, tag.name))
             showRecords(tag.records, Constants.MAIN_VIEW_TAG_RECORDS)
-//            } else {
-//                logError(R.string.log_tag_is_null, true)
-//            }
+        }
+    }
+
+    /**
+     * Отображение записей по меткам.
+     */
+    fun showTagsRecords(tags: List<TetroidTag>) {
+        launchOnMain {
+            selectedTags.clear()
+            selectedTags.addAll(tags)
+            sendEvent(MainEvent.Tags.UpdateSelectedTags(selectedTags, isMultiTagsMode))
+            showTagsRecordsFromSelected()
+        }
+    }
+
+    fun showTagsRecordsFromSelected() {
+        launchOnMain {
+            // сбрасываем текущую ветку
+            sendEvent(MainEvent.SetCurrentNode(node = null))
+            log(getString(R.string.log_open_tag_records_mask, getSelectedTagsNames()))
+            val tagsRecords = getTagsRecords(selectedTags)
+            showRecords(tagsRecords, Constants.MAIN_VIEW_TAG_RECORDS)
+        }
+    }
+
+    private fun getTagsRecords(tags: List<TetroidTag>): List<TetroidRecord> {
+        val allTagsRecords = tags.map { it.records }.flatten().distinct()
+
+        return when (commonSettingsProvider.getTagsSearchMode()) {
+            TagsSearchMode.OR -> {
+                allTagsRecords
+            }
+            TagsSearchMode.AND -> {
+                allTagsRecords.filter { record ->
+                    tags.all { tag ->
+                        record.tags.any { it.name == tag.name }
+                    }
+                }
+            }
         }
     }
 
@@ -1210,7 +1301,7 @@ class MainViewModel(
         launchOnMain {
             if (tagsInteractor.renameTag(tag, name)) {
                 logOperRes(LogObj.TAG, LogOper.RENAME)
-                updateTags()
+                reloadTags()
                 updateRecords()
             } else {
                 logOperErrorMore(LogObj.TAG, LogOper.RENAME)
@@ -1220,7 +1311,13 @@ class MainViewModel(
 
     fun updateTags() {
         launchOnMain {
-            sendEvent(MainEvent.UpdateTags)
+            sendEvent(MainEvent.Tags.UpdateTags)
+        }
+    }
+
+    fun reloadTags() {
+        launchOnMain {
+            sendEvent(MainEvent.Tags.ReloadTags(tagsMap = getTagsMap()))
         }
     }
 
@@ -1607,7 +1704,7 @@ class MainViewModel(
                 FoundType.TYPE_RECORD -> (found as? TetroidRecord)?.let { openRecord(it) }
                 FoundType.TYPE_FILE -> (found as? TetroidFile)?.let { showRecordAttaches(it.record, false) }
                 FoundType.TYPE_NODE -> (found as? TetroidNode)?.let { showNode(it) }
-                FoundType.TYPE_TAG -> (found as? TetroidTag)?.let { showTag(it) }
+                FoundType.TYPE_TAG -> (found as? TetroidTag)?.let { showTagRecords(it) }
             }
             if (type != FoundType.TYPE_RECORD) {
                 openPage(Constants.PAGE_MAIN)
@@ -1694,8 +1791,9 @@ class MainViewModel(
     }
 
     private fun filterTagRecords(query: String) {
-        if (curTag != null) {
-            filterRecords(query, curTag!!.records, Constants.MAIN_VIEW_TAG_RECORDS)
+        if (selectedTags.isEmpty()) {
+            val tagsRecords = getTagsRecords(selectedTags)
+            filterRecords(query, tagsRecords, Constants.MAIN_VIEW_TAG_RECORDS)
         } else {
             log(R.string.search_records_select_tag, true)
         }
@@ -1705,7 +1803,7 @@ class MainViewModel(
         launchOnMain {
             val message = if (viewId == Constants.MAIN_VIEW_NODE_RECORDS)
                 getString(R.string.filter_records_in_node_by_query, getCurNodeName(), query)
-            else getString(R.string.filter_records_in_tag_by_query, getCurTagName(), query)
+            else getString(R.string.filter_records_in_tag_by_query, getSelectedTagsNames(), query)
             log(message)
             val found = ScanManager.searchInRecordsNames(records, query)
             showRecords(found, viewId, dropSearch = false)
@@ -1749,8 +1847,9 @@ class MainViewModel(
                     Constants.MAIN_VIEW_NODE_RECORDS -> if (curNode != null) {
                         showRecords(curNode!!.records, Constants.MAIN_VIEW_NODE_RECORDS, false)
                     }
-                    Constants.MAIN_VIEW_TAG_RECORDS -> if (curTag != null) {
-                        showRecords(curTag!!.records, Constants.MAIN_VIEW_TAG_RECORDS, false)
+                    Constants.MAIN_VIEW_TAG_RECORDS -> if (selectedTags.isNotEmpty()) {
+                        val tagsRecords = getTagsRecords(selectedTags)
+                        showRecords(tagsRecords, Constants.MAIN_VIEW_TAG_RECORDS, false)
                     }
                 }
             }
