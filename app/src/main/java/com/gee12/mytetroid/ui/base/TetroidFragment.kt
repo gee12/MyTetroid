@@ -12,8 +12,10 @@ import androidx.core.view.GestureDetectorCompat
 import androidx.fragment.app.Fragment
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.di.ScopeSource
+import com.gee12.mytetroid.domain.provider.CommonSettingsProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.ui.TetroidMessage
+import org.koin.android.ext.android.inject
 import org.koin.core.scope.Scope
 import org.koin.core.scope.get
 
@@ -23,7 +25,8 @@ abstract class TetroidFragment<VM : BaseStorageViewModel> : Fragment, View.OnTou
     protected val koinScope: Scope
         get() = scopeSource.scope
 
-    lateinit var resourcesProvider: IResourcesProvider
+    val resourcesProvider: IResourcesProvider by inject()
+    val commonSettingsProvider: CommonSettingsProvider by inject()
 
     protected var gestureDetector: GestureDetectorCompat? = null
 
@@ -57,7 +60,6 @@ abstract class TetroidFragment<VM : BaseStorageViewModel> : Fragment, View.OnTou
     }
 
     protected open fun afterCreateDependencyScope() {
-        resourcesProvider = koinScope.get()
     }
 
     protected open fun createViewModel() {

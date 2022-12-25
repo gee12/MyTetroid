@@ -22,6 +22,7 @@ import com.gee12.mytetroid.common.extensions.hideKeyboard
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.di.ScopeSource
+import com.gee12.mytetroid.domain.provider.CommonSettingsProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.Message
 import com.gee12.mytetroid.ui.TetroidMessage
@@ -31,7 +32,7 @@ import com.gee12.mytetroid.ui.dialogs.AskDialogs
 import com.gee12.mytetroid.ui.record.RecordActivity
 import com.gee12.mytetroid.viewmodels.*
 import kotlinx.coroutines.launch
-import org.koin.core.component.get
+import org.koin.android.ext.android.inject
 import org.koin.core.scope.Scope
 import org.koin.core.scope.get
 
@@ -47,20 +48,21 @@ abstract class TetroidActivity<VM : BaseViewModel>
     protected val koinScope: Scope
         get() = scopeSource.scope
 
-    lateinit var resourcesProvider: IResourcesProvider
+    val resourcesProvider: IResourcesProvider by inject()
+    val commonSettingsProvider: CommonSettingsProvider by inject()
 
     protected var receivedIntent: Intent? = null
     protected var optionsMenu: Menu? = null
-    protected var tvTitle: TextView? = null
-    protected var tvSubtitle: TextView? = null
-    protected var toolbar: Toolbar? = null
-    protected var layoutProgress: LinearLayout? = null
-    protected var tvProgress: TextView? = null
+    protected lateinit var tvTitle: TextView
+    protected lateinit var tvSubtitle: TextView
+    protected lateinit var toolbar: Toolbar
+    protected lateinit var layoutProgress: LinearLayout
+    protected lateinit var tvProgress: TextView
 
     protected lateinit var gestureDetector: GestureDetectorCompat
     protected var isFullScreen = false
     protected var isOnCreateProcessed = false
-    protected var isGUICreated = false
+    protected var isUICreated = false
 
     protected lateinit var viewModel: VM
 
@@ -85,13 +87,13 @@ abstract class TetroidActivity<VM : BaseViewModel>
             ActivityDoubleTapListener {
                 toggleFullscreen(true)
             })
-        tvTitle = toolbar?.findViewById(R.id.text_view_title)
-        tvSubtitle = toolbar?.findViewById(R.id.text_view_subtitle)
+        tvTitle = toolbar.findViewById(R.id.text_view_title)
+        tvSubtitle = toolbar.findViewById(R.id.text_view_subtitle)
         layoutProgress = findViewById(R.id.layout_progress_bar)
         tvProgress = findViewById(R.id.progress_text)
 
         isOnCreateProcessed = false
-        isGUICreated = false
+        isUICreated = false
 
         createDependencyScope()
         afterCreateDependencyScope()
@@ -104,7 +106,6 @@ abstract class TetroidActivity<VM : BaseViewModel>
     }
 
     protected open fun afterCreateDependencyScope() {
-        resourcesProvider = koinScope.get()
     }
 
     protected open fun createViewModel() {
@@ -202,7 +203,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
      * @param title
      */
     override fun setTitle(title: CharSequence?) {
-        tvTitle?.text = title
+        tvTitle.text = title
     }
 
     /**
@@ -210,7 +211,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
      * @param title
      */
     fun setSubtitle(title: CharSequence?) {
-        tvSubtitle?.text = title
+        tvSubtitle.text = title
     }
 
     //    /**
@@ -269,15 +270,15 @@ abstract class TetroidActivity<VM : BaseViewModel>
     @SuppressLint("RestrictedApi")
     fun onAfterCreateOptionsMenu(menu: Menu?): Boolean {
         // запускаем только 1 раз
-        if (!isGUICreated) {
+        if (!isUICreated) {
             // для отображения иконок
             if (menu is MenuBuilder) {
                 menu.setOptionalIconsVisible(true)
             }
         }
         // устанавливаем флаг, что стандартные элементы активности созданы
-        onUICreated(!isGUICreated)
-        isGUICreated = true
+        onUICreated(!isUICreated)
+        isUICreated = true
         return true
     }
 
@@ -414,12 +415,12 @@ abstract class TetroidActivity<VM : BaseViewModel>
 
     override fun setProgressVisibility(isVisible: Boolean, text: String?) {
         if (isVisible) {
-            tvProgress?.text = text
-            layoutProgress?.visibility = View.VISIBLE
+            tvProgress.text = text
+            layoutProgress.visibility = View.VISIBLE
         } else {
-            layoutProgress?.visibility = View.GONE
+            layoutProgress.visibility = View.GONE
         }
-        layoutProgress?.isVisible = isVisible
+        layoutProgress.isVisible = isVisible
     }
 
     override fun setProgressText(progressTextResId: Int) {
@@ -427,8 +428,8 @@ abstract class TetroidActivity<VM : BaseViewModel>
     }
 
     override fun setProgressText(progressText: String?) {
-        layoutProgress?.visibility = View.VISIBLE
-        tvProgress?.text = progressText
+        layoutProgress.visibility = View.VISIBLE
+        tvProgress.text = progressText
     }
 
     /**
@@ -464,9 +465,9 @@ abstract class TetroidActivity<VM : BaseViewModel>
      * @param subtitle
      */
     protected fun setSubtitle(subtitle: String?) {
-        tvSubtitle?.visibility = View.VISIBLE
-        tvSubtitle?.textSize = 16f
-        tvSubtitle?.text = subtitle
+        tvSubtitle.visibility = View.VISIBLE
+        tvSubtitle.textSize = 16f
+        tvSubtitle.text = subtitle
     }
 
     open fun showActivityForResult(cls: Class<*>?, requestCode: Int) {

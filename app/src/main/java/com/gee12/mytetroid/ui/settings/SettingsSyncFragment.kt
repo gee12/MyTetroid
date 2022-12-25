@@ -17,7 +17,7 @@ class SettingsSyncFragment : TetroidSettingsFragment() {
         updateCommandSummary()
     }
 
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String) {
         if (key == getString(R.string.pref_key_app_for_sync)) {
             updateSyncAppSummary()
             updateCommandSummary()

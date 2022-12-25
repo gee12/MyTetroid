@@ -53,7 +53,7 @@ class SettingsEncryptionFragment : TetroidSettingsFragment() {
      * @param sharedPreferences
      * @param key
      */
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String) {
         if (key == getString(R.string.pref_key_when_ask_password)) {
             updateSummary(
                 R.string.pref_key_when_ask_password,

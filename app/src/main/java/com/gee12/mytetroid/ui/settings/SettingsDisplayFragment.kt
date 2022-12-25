@@ -35,7 +35,7 @@ class SettingsDisplayFragment : TetroidSettingsFragment() {
         updateSummaryIfContains(R.string.pref_key_record_fields_in_list, getRecordFieldsValuesString())
     }
 
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String) {
         when (key) {
             getString(R.string.pref_key_is_highlight_attach) -> {
                 // включаем/выключаем выделение записей с файлами

@@ -12,6 +12,7 @@ import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.domain.RecordFieldsSelector
 import com.gee12.mytetroid.logs.ITetroidLogger
 
+// TODO: CommonSettingsManager
 class CommonSettingsProvider(
     private val context: Context,
     private val resourcesProvider: IResourcesProvider,
@@ -19,6 +20,12 @@ class CommonSettingsProvider(
     private val buildInfoProvider: BuildInfoProvider,
 ) {
     private var isCopiedFromFree = false
+
+    val settings: SharedPreferences?
+        get() = CommonSettings.settings
+            ?: getPrefs().also {
+                CommonSettings.settings = it
+            }
 
     //region Загрузка настроек
 
@@ -129,11 +136,10 @@ class CommonSettingsProvider(
      * @param prefKeyStringRes
      */
     private fun removePref(prefKeyStringRes: Int) {
-        if (CommonSettings.settings == null) return
-        if (CommonSettings.settings.contains(resourcesProvider.getString(prefKeyStringRes))) {
-            val editor = CommonSettings.settings.edit()
-            editor.remove(resourcesProvider.getString(prefKeyStringRes))
-            editor.apply()
+        if (settings?.contains(resourcesProvider.getString(prefKeyStringRes)) == true) {
+            val editor = settings?.edit()
+            editor?.remove(resourcesProvider.getString(prefKeyStringRes))
+            editor?.apply()
         }
     }
 
@@ -143,11 +149,7 @@ class CommonSettingsProvider(
      * @return
      */
     fun isContains(prefKeyStringRes: Int): Boolean {
-        return if (CommonSettings.settings == null) {
-            false
-        } else {
-            CommonSettings.settings.contains(resourcesProvider.getString(prefKeyStringRes))
-        }
+        return settings?.contains(resourcesProvider.getString(prefKeyStringRes)) == true
     }
 
     /**

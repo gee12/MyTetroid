@@ -43,7 +43,7 @@ class SettingsOtherFragment : TetroidSettingsFragment() {
         updateSummary(R.string.pref_key_log_path, CommonSettings.getLogPath(context))
     }
 
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String) {
         if (key == getString(R.string.pref_key_is_write_log)) {
             // меняем флаг
             baseViewModel.logger.init(
