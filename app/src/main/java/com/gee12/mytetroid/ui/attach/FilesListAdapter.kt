@@ -23,22 +23,12 @@ class FilesListAdapter(
         lateinit var sizeView: TextView
     }
 
-    private val inflater: LayoutInflater
-    var dataSet: List<TetroidFile>
+    private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    var dataSet: List<TetroidFile> = emptyList()
         private set
 
-    init {
-        inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        dataSet = ArrayList()
-    }
-
-    fun reset(data: List<TetroidFile> = ArrayList()) {
+    fun reset(data: List<TetroidFile> = emptyList()) {
         dataSet = data
-        notifyDataSetChanged()
-    }
-
-    fun delete(attach: TetroidFile) {
-        (dataSet as MutableSet<*>).remove(attach)
         notifyDataSetChanged()
     }
 

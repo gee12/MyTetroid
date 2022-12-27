@@ -9,7 +9,6 @@ import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.model.TetroidRecord
 import java.util.*
-import kotlin.collections.ArrayList
 
 class RecordsListAdapter(
     context: Context,
@@ -30,26 +29,16 @@ class RecordsListAdapter(
     getEditedDateCallback = getEditedDateCallback,
     onClick = onClick,
 ) {
-    var dataSet: List<TetroidRecord>
-        private set
-
-    init {
-        dataSet = ArrayList()
-    }
+    private var dataSet: List<TetroidRecord> = emptyList()
 
     fun reset() {
-        dataSet = ArrayList()
+        dataSet = emptyList()
         notifyDataSetChanged()
     }
 
     fun setDataItems(dataSet: List<TetroidRecord>, viewId: Int) {
         this.dataSet = dataSet
         isShowNodeName = viewId in arrayOf(Constants.MAIN_VIEW_TAG_RECORDS, Constants.MAIN_VIEW_FAVORITES)
-        notifyDataSetChanged()
-    }
-
-    fun delete(record: TetroidRecord) {
-        (dataSet as MutableSet<*>).remove(record)
         notifyDataSetChanged()
     }
 

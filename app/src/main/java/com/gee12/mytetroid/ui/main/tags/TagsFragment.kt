@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.ui.main.nodes
+package com.gee12.mytetroid.ui.main.tags
 
 import android.annotation.SuppressLint
 import android.os.Bundle

@@ -45,7 +45,10 @@ sealed class MainEvent : StorageEvent() {
         val records: List<TetroidRecord>,
         val viewId: Int,
     ) : MainEvent()
-    object UpdateRecords : MainEvent()
+    data class UpdateRecordsList(
+        val records: List<TetroidRecord>,
+        val curMainViewId: Int,
+    ) : MainEvent()
 
     // tags
     sealed class Tags : MainEvent() {
@@ -67,6 +70,9 @@ sealed class MainEvent : StorageEvent() {
         val viewId: Int,
     ) : MainEvent()
     object UpdateAttaches : MainEvent()
+    data class ReloadAttaches(
+        val attaches: List<TetroidFile>,
+    ) : MainEvent()
     data class AttachDeleted(
         val attach: TetroidFile,
     ) : MainEvent()

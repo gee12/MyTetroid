@@ -51,7 +51,7 @@ import com.gee12.mytetroid.ui.dialogs.pin.PinCodeDialog.IPinInputResult
 import com.gee12.mytetroid.ui.dialogs.storage.StorageDialogs
 import com.gee12.mytetroid.ui.dialogs.tag.TagFieldsDialog
 import com.gee12.mytetroid.ui.main.found.FoundPageFragment
-import com.gee12.mytetroid.ui.main.nodes.TagsFragment
+import com.gee12.mytetroid.ui.main.tags.TagsFragment
 import com.gee12.mytetroid.ui.node.NodesListAdapter
 import com.gee12.mytetroid.ui.node.icon.IconsActivity
 import com.gee12.mytetroid.ui.record.RecordActivity
@@ -378,7 +378,12 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                     viewId = event.viewId
                 )
             }
-            MainEvent.UpdateRecords -> mainPage.updateRecordList()
+            is MainEvent.UpdateRecordsList -> {
+                mainPage.updateRecordList(
+                    records = event.records,
+                    curMainViewId = event.curMainViewId
+                )
+            }
             is MainEvent.Tags.UpdateTags -> {
                 updateTags()
             }
@@ -399,6 +404,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             }
             is MainEvent.AttachDeleted -> mainPage.onDeleteAttachResult(event.attach)
             MainEvent.UpdateAttaches -> mainPage.updateAttachesList()
+            is MainEvent.ReloadAttaches -> mainPage.setAttachesList(event.attaches)
             MainEvent.UpdateFavoritesTitle -> updateFavoritesTitle()
             is MainEvent.GlobalSearchStart -> showGlobalSearchActivity(event.query)
             MainEvent.GlobalResearch -> research()
@@ -568,9 +574,15 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      */
     private fun showMigrationDialog() {
         if (BuildConfig.VERSION_CODE == Constants.SETTINGS_VERSION_CURRENT) {
-            AskDialogs.showOkDialog(this, R.string.mes_migration_50, R.string.answer_ok, false) {
-                viewModel.startInitStorage()
-            }
+            AskDialogs.showOkDialog(
+                context = this,
+                messageRes = R.string.mes_migration_50,
+                applyResId = R.string.answer_ok,
+                isCancelable = false,
+                onApply = {
+                    viewModel.startInitStorage()
+                }
+            )
         }
     }
 
@@ -649,7 +661,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 tvSubtitle.visibility = View.GONE
             }
         } else if (viewModel.lastSearchProfile != null) {
-            setSubtitle("\"" + viewModel.lastSearchProfile!!.query + "\"")
+            setSubtitle("\"${viewModel.lastSearchProfile!!.query}\"")
         } else {
             tvSubtitle.visibility = View.GONE
         }
@@ -740,7 +752,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         updateNodes()
         updateTags()
         // обновляем и записи, т.к. расшифровка могла быть вызвана из Favorites
-        mainPage.updateRecordList()
+        viewModel.updateRecordsList()
         checkReceivedIntent(receivedIntent)
     }
 
@@ -845,7 +857,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      * Установка и выделение текущей ветки.
      */
     private fun setCurNode(node: TetroidNode?) {
-        viewModel.curNode = node
         listAdapterNodes.curNode = node
         listAdapterNodes.notifyDataSetChanged()
         if (viewModel.buildInfoProvider.isFullVersion()) {
@@ -908,7 +919,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      */
     private val onNodeLongClickListener = OnItemLongClickListener { 
             parent: MultiLevelListView, view: View, item: Any?, _: ItemInfo?, pos: Int ->
-        if (parent !== lvNodes) return@OnItemLongClickListener
+        if (parent != lvNodes) return@OnItemLongClickListener
         val node = item as TetroidNode?
         if (node == null) {
             viewModel.logError(getString(R.string.log_get_item_is_null), true)
@@ -931,12 +942,12 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         NodeFieldsDialog(
             node = null,
             chooseParent = false,
-            storageId = viewModel.getStorageId()
-        ) { name: String, _: TetroidNode ->
-            val trueParentNode = if (isSubNode) parentNode else parentNode.parentNode
-            viewModel.createNode(name, trueParentNode)
-        }
-            .showIfPossible(supportFragmentManager)
+            storageId = viewModel.getStorageId(),
+            onApply = { name: String, _: TetroidNode ->
+                val trueParentNode = if (isSubNode) parentNode else parentNode.parentNode
+                viewModel.createNode(name, trueParentNode)
+            }
+        ).showIfPossible(supportFragmentManager)
     }
 
     /**
@@ -946,11 +957,11 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         NodeFieldsDialog(
             node = null,
             chooseParent = true,
-            storageId = viewModel.getStorageId()
-        ) { name: String, parentNode: TetroidNode ->
-            viewModel.createNode(name, parentNode)
-        }
-            .showIfPossible(supportFragmentManager)
+            storageId = viewModel.getStorageId(),
+            onApply = { name: String, parentNode: TetroidNode ->
+                viewModel.createNode(name, parentNode)
+            }
+        ).showIfPossible(supportFragmentManager)
     }
 
     private fun onNodeCreated(node: TetroidNode) {
@@ -988,15 +999,15 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         NodeFieldsDialog(
             node = node,
             chooseParent = false,
-            storageId = viewModel.getStorageId()
-        ) { name: String, _: TetroidNode ->
-            viewModel.renameNode(node, name)
-        }
-            .showIfPossible(supportFragmentManager)
+            storageId = viewModel.getStorageId(),
+            onApply = { name: String, _: TetroidNode ->
+                viewModel.renameNode(node, name)
+            }
+        ).showIfPossible(supportFragmentManager)
     }
 
     private fun onNodeRenamed(node: TetroidNode) {
-        if (viewModel.curNode === node) {
+        if (viewModel.curNode == node) {
             title = node.name
         }
     }
@@ -1033,17 +1044,26 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      * Перемещение ветки вверх/вниз по списку.
      */
     // TODO: ReorderNodeUseCase in VM
-    private fun reorderNode(node: TetroidNode?, pos: Int, isUp: Boolean) {
-        if (node == null) return
+    private fun reorderNode(node: TetroidNode, pos: Int, isUp: Boolean) {
         val parentNode = node.parentNode
         val subNodes = if (parentNode != null) parentNode.subNodes else viewModel.getRootNodes()
-        if (subNodes.size > 0) {
+        if (subNodes.isNotEmpty()) {
             val posInNode = subNodes.indexOf(node)
             val res = viewModel.swapNodes(subNodes, posInNode, isUp)
             if (res > 0) {
                 // меняем местами элементы внутри списка
                 val newPosInNode =
-                    if (isUp) if (posInNode == 0) subNodes.size - 1 else posInNode - 1 else if (posInNode == subNodes.size - 1) 0 else posInNode + 1
+                    when {
+                        isUp -> {
+                            if (posInNode == 0) subNodes.size - 1 else posInNode - 1
+                        }
+                        posInNode == subNodes.size - 1 -> {
+                            0
+                        }
+                        else -> {
+                            posInNode + 1
+                        }
+                    }
                 if (listAdapterNodes.swapItems(pos, posInNode, newPosInNode)) {
                     viewModel.logOperRes(LogObj.NODE, LogOper.REORDER)
                 } else {
@@ -1204,7 +1224,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     // endregion Tag
 
     // region Records
-    
+
     /**
      * Отображение списка записей.
      */
@@ -1428,7 +1448,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         // скрываем пункт меню Синхронизация, если отключили
         updateOptionsMenu()
         // обновляем списки, могли измениться настройки отображения
-        mainPage.updateRecordList()
+        viewModel.updateRecordsList()
         updateNodes()
         onStorageChangedIntent(data)
     }
@@ -1450,7 +1470,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      */
     private fun onCommonSettingsActivityResult(data: Intent) {
         // обновляем списки, могли измениться настройки отображения
-        mainPage.updateRecordList()
+        viewModel.updateRecordsList()
         updateNodes()
     }
 
@@ -1509,7 +1529,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         } else {
             // обновляем список записей, чтобы обновить дату изменения
             if (viewModel.commonSettingsProvider.getRecordFieldsSelector().checkIsEditedDate()) {
-                mainPage.updateRecordList()
+                viewModel.updateRecordsList()
             }
         }
         when (resCode) {

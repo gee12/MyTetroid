@@ -22,9 +22,6 @@ import java.util.concurrent.Future;
 
 public class TextAdapter extends RecyclerView.Adapter<TextAdapter.TextViewHolder> {
 
-    /**
-     *
-     */
     class TextViewHolder extends RecyclerView.ViewHolder {
 
         private AppCompatTextView textView;

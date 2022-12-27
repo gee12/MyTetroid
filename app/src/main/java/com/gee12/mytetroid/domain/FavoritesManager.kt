@@ -36,7 +36,7 @@ class FavoritesManager(
     }
 
     fun getFavoriteRecords(): List<TetroidRecord> {
-        return favorites.mapNotNull { it.obj as? TetroidRecord }
+        return favorites.sortedBy { it.order }.mapNotNull { it.obj as? TetroidRecord }
     }
 
     private suspend fun addFavorite(favorite: TetroidFavorite): Boolean {
@@ -134,7 +134,7 @@ class FavoritesManager(
     suspend fun swap(pos: Int, isUp: Boolean, through: Boolean): Int {
         return swap(
             favoritesRepo = favoritesRepo,
-            favorites = favorites,
+            favorites = favorites.sortedBy { it.order }.filter { it.obj != null }.toMutableList(),
             storageId = storageId,
             pos = pos,
             isUp = isUp,

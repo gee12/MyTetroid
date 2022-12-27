@@ -10,7 +10,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.model.TetroidIcon
-import java.util.ArrayList
 
 class IconsListAdapter(
     private val context: Context,
@@ -22,7 +21,7 @@ class IconsListAdapter(
     }
 
     private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-    private var dataSet: List<TetroidIcon> = ArrayList()
+    private var dataSet: List<TetroidIcon> = emptyList()
     var selectedIcon: TetroidIcon? = null
     private var selectedView: View? = null
 

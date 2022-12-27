@@ -243,14 +243,8 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
     /**
      * Обновление списка записей.
      */
-    fun updateRecordList() {
-        if (viewModel.curMainViewId == Constants.MAIN_VIEW_FAVORITES) {
-            listAdapterRecords.setDataItems(viewModel.getFavoriteRecords(), viewModel.curMainViewId)
-        } else {
-            listAdapterRecords.notifyDataSetInvalidated()
-            // FIXME?
-//            listAdapterRecords.notifyDataSetChanged();
-        }
+    fun updateRecordList(records: List<TetroidRecord>, curMainViewId: Int) {
+        listAdapterRecords.setDataItems(records, curMainViewId)
     }
 
     fun onRecordsFiltered(query: String?, found: List<TetroidRecord>, viewId: Int) {
@@ -324,7 +318,6 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
      * @param record
      */
     fun onDeleteRecordResult(record: TetroidRecord) {
-        listAdapterRecords.delete(record)
         lvAttaches.adapter = null
     }
 
@@ -335,7 +328,6 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
      */
     private fun reorderRecord(pos: Int, isUp: Boolean) {
         viewModel.reorderRecords(
-            records = listAdapterRecords.dataSet,
             pos = pos,
             isUp = isUp
         )
@@ -377,7 +369,7 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
 
     fun showAttaches(files: List<TetroidFile>) {
         viewModel.showMainView(Constants.MAIN_VIEW_RECORD_FILES)
-        listAdapterAttaches.reset(files)
+        setAttachesList(files)
         lvAttaches.adapter = listAdapterAttaches
     }
 
@@ -403,7 +395,6 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
      */
     private fun reorderAttach(pos: Int, isUp: Boolean) {
         viewModel.reorderAttaches(
-            files = listAdapterAttaches.dataSet,
             pos = pos,
             isUp = isUp
         )
@@ -428,7 +419,7 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
      * @param attach
      */
     fun onDeleteAttachResult(attach: TetroidFile) {
-        listAdapterAttaches.delete(attach)
+        listAdapterAttaches.notifyDataSetChanged()
     }
 
     /**
@@ -453,6 +444,10 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
 
     fun updateAttachesList() {
         listAdapterAttaches.notifyDataSetChanged()
+    }
+
+    fun setAttachesList(data: List<TetroidFile>) {
+        listAdapterAttaches.reset(data)
     }
 
     // endregion Attach

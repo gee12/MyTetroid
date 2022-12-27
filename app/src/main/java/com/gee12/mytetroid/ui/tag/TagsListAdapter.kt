@@ -31,7 +31,7 @@ class TagsListAdapter(
     }
 
     private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-    private var dataSet: MutableList<Map.Entry<String, TetroidTag>> = mutableListOf()
+    private var dataSet: List<Map.Entry<String, TetroidTag>> = emptyList()
 
     fun reset() {
         dataSet = mutableListOf()
