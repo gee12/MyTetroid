@@ -17,7 +17,6 @@ import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.common.utils.UriUtils
-import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.domain.IStorageCrypter
 import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.domain.interactor.*
@@ -1017,35 +1016,6 @@ open class StorageViewModel(
 
     //region Other
 
-    // TODO SwapTetroidObjectsUseCase
-    suspend fun swapTetroidObjects(list: List<Any>, pos: Int, isUp: Boolean, through: Boolean): Int {
-        return if (swapTetroidObjectsDirectly(list, pos, isUp, through)) {
-            if (saveStorage()) 1 else -1
-        } else 0
-    }
-
-    /**
-     * Замена местами 2 объекта хранилища в списке.
-     * @param list
-     * @param pos
-     * @param isUp
-     * @return 1 - успешно
-     * 0 - перемещение невозможно (пограничный элемент)
-     * -1 - ошибка
-     */
-    protected fun swapTetroidObjectsDirectly(
-        list: List<*>?,
-        pos: Int, isUp: Boolean,
-        through: Boolean
-    ): Boolean {
-        return try {
-            Utils.swapListItems(list, pos, isUp, through)
-        } catch (ex: Exception) {
-            logger.logError(ex, false)
-            false
-        }
-    }
-
     fun getExternalCacheDir() = getContext().externalCacheDir.toString()
 
     fun checkStorageFilesExistingError(): String? {
@@ -1583,7 +1553,7 @@ open class StorageViewModel(
 
     suspend fun saveStorage(): Boolean {
         return withIo {
-            saveStorageUseCase.run(/*storageProvider*/)
+            saveStorageUseCase.run()
         }.foldResult(
             onLeft = {
                 logFailure(it)

@@ -109,6 +109,7 @@ object ViewModelsModule {
                     getFolderSizeUseCase = get(),
                     getNodeByIdUseCase = get(),
                     getRecordByIdUseCase = get(),
+                    swapTetroidObjectsUseCase = get(),
 
                     globalSearchUseCase = get(),
                     createNodeUseCase = get(),

@@ -67,6 +67,12 @@ object UseCasesModule {
             )
         }
 
+        single {
+            SwapFavoriteRecordsUseCase(
+                favoritesRepo = get(),
+            )
+        }
+
         scope<ScopeSource> {
 
             //region Interactors
@@ -117,6 +123,12 @@ object UseCasesModule {
                     storageProvider = get(),
                     getNodeByIdUseCase = get(),
                     getRecordParsedTextUseCase = get(),
+                )
+            }
+
+            scoped {
+                SwapTetroidObjectsUseCase(
+                    saveStorageUseCase = get(),
                 )
             }
 

@@ -3,15 +3,9 @@ package com.gee12.mytetroid.common.utils;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.text.Spanned;
 import android.text.TextUtils;
-
 import androidx.core.text.HtmlCompat;
-
-import com.gee12.mytetroid.logs.ITetroidLogger;
-
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
@@ -20,7 +14,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -338,31 +331,4 @@ public class Utils {
         return res;
     }
 
-    /**
-     *
-     * @param list
-     * @param pos
-     * @param isUp
-     * @return
-     */
-    public static boolean swapListItems(List list, int pos, boolean isUp, boolean through)
-            throws IndexOutOfBoundsException {
-        if (list == null)
-            return false;
-        int size = list.size();
-        if (isUp) {
-            if (pos > 0 || through && pos == 0) {
-                int newPos = (through && pos == 0) ? size - 1 : pos - 1;
-                Collections.swap(list, pos, newPos);
-                return true;
-            }
-        } else {
-            if (pos < size - 1 || through && pos == size - 1) {
-                int newPos = (through && pos == size - 1) ? 0 : pos + 1;
-                Collections.swap(list, pos, newPos);
-                return true;
-            }
-        }
-        return false;
-    }
 }

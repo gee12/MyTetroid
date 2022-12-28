@@ -35,6 +35,7 @@ import com.gee12.mytetroid.domain.interactor.*
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.domain.usecase.GlobalSearchUseCase
 import com.gee12.mytetroid.domain.usecase.InitAppUseCase
+import com.gee12.mytetroid.domain.usecase.SwapTetroidObjectsUseCase
 import com.gee12.mytetroid.domain.usecase.crypt.*
 import com.gee12.mytetroid.domain.usecase.file.GetFileModifiedDateUseCase
 import com.gee12.mytetroid.domain.usecase.file.GetFolderSizeUseCase
@@ -73,7 +74,6 @@ class MainViewModel(
     storageCrypter: IStorageCrypter,
     storageDataProcessor: IStorageDataProcessor,
 
-//    cryptInteractor: EncryptionInteractor,
     passInteractor: PasswordInteractor,
     tagsInteractor: TagsInteractor,
     interactionInteractor: InteractionInteractor,
@@ -86,6 +86,7 @@ class MainViewModel(
     private val globalSearchUseCase: GlobalSearchUseCase,
     getFileModifiedDateUseCase: GetFileModifiedDateUseCase,
     getFolderSizeUseCase: GetFolderSizeUseCase,
+    protected val swapTetroidObjectsUseCase: SwapTetroidObjectsUseCase,
 
     initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
     readStorageUseCase: ReadStorageUseCase,
@@ -569,33 +570,51 @@ class MainViewModel(
      * @param isUp
      */
     fun reorderRecords(pos: Int, isUp: Boolean) {
+        if (curMainViewId == Constants.MAIN_VIEW_FAVORITES) {
+            reorderFavorites(pos, isUp)
+        } else {
+            reorderNodeRecords(pos, isUp)
+        }
+    }
+
+    private fun reorderFavorites(pos: Int, isUp: Boolean) {
         launchOnMain {
-            val res = if (curMainViewId == Constants.MAIN_VIEW_FAVORITES) {
-                reorderFavorites(pos, isUp)
-            } else {
-                reorderNodeRecords(pos, isUp)
-            }
-            if (res > 0) {
-                updateRecordsList()
-                logOperRes(LogObj.RECORD, LogOper.REORDER)
-            } else if (res < 0) {
+            withIo {
+                favoritesManager.swap(pos, isUp, through = true).also {
+                    setCurrentRecords(getFavoriteRecords())
+                }
+            }.onFailure {
+                logFailure(it)
                 logOperErrorMore(LogObj.RECORD, LogOper.REORDER)
+            }.onSuccess { result ->
+                if (result) {
+                    logOperRes(LogObj.RECORD, LogOper.REORDER)
+                    setCurrentRecords(getFavoriteRecords())
+                    updateRecordsList()
+                }
             }
         }
     }
 
-    private suspend fun reorderFavorites(pos: Int, isUp: Boolean): Int {
-        return favoritesManager.swap(pos, isUp, true).also {
-            setCurrentRecords(getFavoriteRecords())
-        }
-    }
-
-    private suspend fun reorderNodeRecords(pos: Int, isUp: Boolean): Int {
-        return curNode?.records?.let { records ->
-            swapTetroidObjects(records, pos, isUp, through = true).also {
-                setCurrentRecords(records)
+    private fun reorderNodeRecords(pos: Int, isUp: Boolean) {
+        curNode?.records?.let { records ->
+            launchOnMain {
+                withMain {
+                    swapTetroidObjects(records, pos, isUp, through = true).also {
+                        setCurrentRecords(records)
+                    }
+                }.onFailure {
+                    logFailure(it)
+                    logOperErrorMore(LogObj.RECORD, LogOper.REORDER)
+                }.onSuccess {result ->
+                    if (result) {
+                        logOperRes(LogObj.RECORD, LogOper.REORDER)
+                        setCurrentRecords(records)
+                        updateRecordsList()
+                    }
+                }
             }
-        } ?: 0
+        }
     }
 
     /**
@@ -1183,9 +1202,52 @@ class MainViewModel(
         }
     }
 
-    fun swapNodes(nodes: List<TetroidNode>, pos: Int, isUp: Boolean): Int {
-        return runBlocking {
-            swapTetroidObjects(nodes, pos, isUp, true)
+    /**
+     * Перемещение ветки вверх/вниз по списку.
+     */
+    fun reorderNode(
+        node: TetroidNode,
+        position: Int,
+        isUp: Boolean,
+    ) {
+        launchOnMain {
+            val subNodes = node.parentNode.subNodes ?: getRootNodes()
+
+            if (subNodes.isNotEmpty()) {
+                val positionInNode = subNodes.indexOf(node)
+                withIo {
+                    swapTetroidObjects(
+                        list = subNodes,
+                        pos = positionInNode,
+                        isUp = isUp,
+                        through = true
+                    )
+                }.onFailure {
+                    logFailure(it)
+                    logOperErrorMore(LogObj.NODE, LogOper.REORDER)
+                }.onSuccess { result ->
+                    if (result) {
+                        // меняем местами элементы внутри списка
+                        val newPositionInNode = when {
+                            isUp -> {
+                                if (positionInNode == 0) subNodes.size - 1 else positionInNode - 1
+                            }
+                            positionInNode == subNodes.size - 1 -> {
+                                0
+                            }
+                            else -> {
+                                positionInNode + 1
+                            }
+                        }
+                        sendEvent(MainEvent.Node.Reordered(
+                            node = node,
+                            flatPosition = position,
+                            positionInNode = positionInNode,
+                            newPositionInNode = newPositionInNode
+                        ))
+                    }
+                }
+            }
         }
     }
 
@@ -1616,13 +1678,15 @@ class MainViewModel(
     fun reorderAttaches(pos: Int, isUp: Boolean) {
         launchOnMain {
             curRecord?.attachedFiles?.let { attaches ->
-                val res = swapTetroidObjects(attaches, pos, isUp, through = true)
-                if (res > 0) {
+                withMain {
+                    swapTetroidObjects(attaches, pos, isUp, through = true)
+                }.onFailure {
+                    logFailure(it)
+                    logOperErrorMore(LogObj.FILE, LogOper.REORDER)
+                }.onSuccess {
+                    logOperRes(LogObj.FILE, LogOper.REORDER)
                     setCurrentAttaches(attaches)
                     reloadAttaches()
-                    logOperRes(LogObj.FILE, LogOper.REORDER)
-                } else if (res < 0) {
-                    logOperErrorMore(LogObj.FILE, LogOper.REORDER)
                 }
             }
         }
@@ -2120,5 +2184,16 @@ class MainViewModel(
     }
 
     //endregion Main view
+
+    private suspend fun swapTetroidObjects(list: List<Any>, pos: Int, isUp: Boolean, through: Boolean): Either<Failure, Boolean> {
+        return swapTetroidObjectsUseCase.run(
+            SwapTetroidObjectsUseCase.Params(
+                list = list,
+                position = pos,
+                isUp = isUp,
+                through = through,
+            )
+        )
+    }
 
 }

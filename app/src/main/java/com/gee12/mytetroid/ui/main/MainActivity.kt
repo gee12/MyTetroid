@@ -363,6 +363,11 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             is MainEvent.Node.AskForDelete -> showDeleteNodeDialog(event.node)
             is MainEvent.Node.Cutted -> onNodeDeleted(event.node, true)
             is MainEvent.Node.Deleted -> onNodeDeleted(event.node, false)
+            is MainEvent.Node.Reordered -> onNodeReordered(
+                flatPosition = event.flatPosition,
+                positionInNode = event.positionInNode,
+                newPositionInNode = event.newPositionInNode,
+            )
             is MainEvent.SetCurrentNode -> setCurNode(event.node)
             MainEvent.UpdateNodes -> updateNodes()
             is MainEvent.Record.Open -> openRecord(event.bundle)
@@ -1044,38 +1049,11 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         }
     }
 
-    /**
-     * Перемещение ветки вверх/вниз по списку.
-     */
-    // TODO: ReorderNodeUseCase in VM
-    private fun reorderNode(node: TetroidNode, pos: Int, isUp: Boolean) {
-        val parentNode = node.parentNode
-        val subNodes = if (parentNode != null) parentNode.subNodes else viewModel.getRootNodes()
-        if (subNodes.isNotEmpty()) {
-            val posInNode = subNodes.indexOf(node)
-            val res = viewModel.swapNodes(subNodes, posInNode, isUp)
-            if (res > 0) {
-                // меняем местами элементы внутри списка
-                val newPosInNode =
-                    when {
-                        isUp -> {
-                            if (posInNode == 0) subNodes.size - 1 else posInNode - 1
-                        }
-                        posInNode == subNodes.size - 1 -> {
-                            0
-                        }
-                        else -> {
-                            posInNode + 1
-                        }
-                    }
-                if (listAdapterNodes.swapItems(pos, posInNode, newPosInNode)) {
-                    viewModel.logOperRes(LogObj.NODE, LogOper.REORDER)
-                } else {
-                    viewModel.logError(getString(R.string.log_node_move_list_error), true)
-                }
-            } else if (res < 0) {
-                viewModel.logOperErrorMore(LogObj.NODE, LogOper.REORDER)
-            }
+    private fun onNodeReordered(flatPosition: Int, positionInNode: Int, newPositionInNode: Int) {
+        if (listAdapterNodes.swapItems(flatPosition, positionInNode, newPositionInNode)) {
+            viewModel.logOperRes(LogObj.NODE, LogOper.REORDER)
+        } else {
+            viewModel.logError(getString(R.string.log_node_move_list_error), show = true)
         }
     }
 
@@ -1306,73 +1284,73 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             when (item.itemId) {
                 R.id.action_open_node -> {
                     viewModel.showNode(node)
-                    return@setOnMenuItemClickListener true
+                    true
                 }
                 R.id.action_create_subnode -> {
-                    createNode(node, pos, true)
-                    return@setOnMenuItemClickListener true
+                    createNode(node, pos, isSubNode = true)
+                    true
                 }
                 R.id.action_create_node -> {
-                    createNode(node, pos, false)
-                    return@setOnMenuItemClickListener true
+                    createNode(node, pos, isSubNode = false)
+                    true
                 }
                 R.id.action_rename -> {
                     renameNode(node)
-                    return@setOnMenuItemClickListener true
+                    true
                 }
                 R.id.action_node_icon -> {
                     setNodeIcon(node)
-                    return@setOnMenuItemClickListener true
+                    true
                 }
                 R.id.action_copy_link -> {
                     copyNodeLink(node)
-                    return@setOnMenuItemClickListener true
+                    true
                 }
                 R.id.action_encrypt_node -> {
                     viewModel.startEncryptNode(node)
-                    return@setOnMenuItemClickListener true
+                    true
                 }
                 R.id.action_drop_encrypt_node -> {
                     viewModel.startDropEncryptNode(node)
-                    return@setOnMenuItemClickListener true
+                    true
                 }
                 R.id.action_expand_node -> {
                     expandSubNodes(pos)
-                    return@setOnMenuItemClickListener true
+                    true
                 }
                 R.id.action_move_up -> {
-                    reorderNode(node, pos, true)
-                    return@setOnMenuItemClickListener true
+                    viewModel.reorderNode(node, pos, isUp = true)
+                    true
                 }
                 R.id.action_move_down -> {
-                    reorderNode(node, pos, false)
-                    return@setOnMenuItemClickListener true
+                    viewModel.reorderNode(node, pos, isUp = false)
+                    true
                 }
                 R.id.action_copy -> {
                     copyNode(node)
-                    return@setOnMenuItemClickListener true
+                    true
                 }
                 R.id.action_cut -> {
                     viewModel.cutNode(node, pos)
-                    return@setOnMenuItemClickListener true
+                    true
                 }
                 R.id.action_insert -> {
-                    viewModel.insertNode(node, false)
-                    return@setOnMenuItemClickListener true
+                    viewModel.insertNode(node, isSubNode = false)
+                    true
                 }
                 R.id.action_insert_subnode -> {
-                    viewModel.insertNode(node, true)
-                    return@setOnMenuItemClickListener true
+                    viewModel.insertNode(node, isSubNode = true)
+                    true
                 }
                 R.id.action_info -> {
                     showNodeInfoDialog(node)
-                    return@setOnMenuItemClickListener true
+                    true
                 }
                 R.id.action_delete -> {
                     viewModel.startDeleteNode(node)
-                    return@setOnMenuItemClickListener true
+                    true
                 }
-                else -> return@setOnMenuItemClickListener false
+                else -> false
             }
         }
         setForceShowMenuIcons(v, menu as MenuBuilder)

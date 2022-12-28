@@ -18,6 +18,12 @@ sealed class MainEvent : StorageEvent() {
         class AskForDelete(node: TetroidNode) : Node(node)
         class Cutted(node: TetroidNode) : Node(node)
         class Deleted(node: TetroidNode) : Node(node)
+        class Reordered(
+            node: TetroidNode,
+            val flatPosition: Int,
+            val positionInNode: Int,
+            val newPositionInNode: Int
+        ) : Node(node)
     }
     data class SetCurrentNode(
         val node: TetroidNode?

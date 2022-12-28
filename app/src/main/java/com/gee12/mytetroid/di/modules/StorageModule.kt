@@ -70,6 +70,7 @@ object StorageModule {
                 FavoritesManager(
                     favoritesRepo = get(),
                     storageProvider = get(),
+                    swapFavoriteRecordsUseCase = get(),
                 )
             }
 

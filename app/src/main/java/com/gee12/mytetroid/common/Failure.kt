@@ -71,6 +71,10 @@ sealed class Failure(val ex: Throwable? = null) {
     sealed class Tags(ex: Throwable? = null) : Failure(ex) {
     }
 
+    sealed class Favorites(ex: Throwable? = null) : Failure(ex) {
+        class UnknownError(ex: Exception) : Favorites(ex)
+    }
+
     sealed class Image(ex: Throwable? = null) : Failure(ex) {
         class SaveFile(val fileName: String, ex: Throwable? = null) : Image(ex)
     }

@@ -51,6 +51,9 @@ class FailureHandler(
             is Failure.Tags -> {
                 getTagsFailureMessage(failure)
             }
+            is Failure.Favorites -> {
+                getFavoritesFailureMessage(failure)
+            }
             is Failure.Image -> {
                 getImageFailureMessage(failure)
             }
@@ -233,6 +236,14 @@ class FailureHandler(
     private fun getTagsFailureMessage(failure: Failure.Tags): NotificationData {
         return when (failure) {
             else -> NotificationData.Empty()
+        }
+    }
+
+    private fun getFavoritesFailureMessage(failure: Failure.Favorites): NotificationData {
+        return when (failure) {
+            is Failure.Favorites.UnknownError -> {
+                NotificationData.Error(title = "Unknown error")
+            }
         }
     }
 
