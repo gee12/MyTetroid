@@ -53,6 +53,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
 
     protected var receivedIntent: Intent? = null
     protected var optionsMenu: Menu? = null
+    protected lateinit var tvSingleTitle: TextView
     protected lateinit var tvTitle: TextView
     protected lateinit var tvSubtitle: TextView
     protected lateinit var toolbar: Toolbar
@@ -71,6 +72,8 @@ abstract class TetroidActivity<VM : BaseViewModel>
 
     protected abstract fun getViewModelClazz(): Class<VM>
 
+    protected open fun isSingleTitle() = true
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,10 +90,13 @@ abstract class TetroidActivity<VM : BaseViewModel>
             ActivityDoubleTapListener {
                 toggleFullscreen(true)
             })
+        tvSingleTitle = toolbar.findViewById(R.id.text_view_single_title)
         tvTitle = toolbar.findViewById(R.id.text_view_title)
         tvSubtitle = toolbar.findViewById(R.id.text_view_subtitle)
         layoutProgress = findViewById(R.id.layout_progress_bar)
         tvProgress = findViewById(R.id.progress_text)
+
+        setTitle(title)
 
         isOnCreateProcessed = false
         isUICreated = false
@@ -203,7 +209,15 @@ abstract class TetroidActivity<VM : BaseViewModel>
      * @param title
      */
     override fun setTitle(title: CharSequence?) {
-        tvTitle.text = title
+        val isSingleTitle = isSingleTitle()
+        tvTitle.isVisible = !isSingleTitle
+        tvSubtitle.isVisible = !isSingleTitle
+        tvSingleTitle.isVisible = isSingleTitle
+        if (isSingleTitle) {
+            tvSingleTitle.text = title
+        } else {
+            tvTitle.text = title
+        }
     }
 
     /**

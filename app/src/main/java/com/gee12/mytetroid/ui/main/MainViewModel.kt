@@ -1237,8 +1237,8 @@ class MainViewModel(
             isMultiTagsMode = true
             if (!selectedTags.contains(tag)) {
                 selectedTags.add(tag)
-                sendEvent(MainEvent.Tags.UpdateSelectedTags(selectedTags, isMultiTagsMode))
             }
+            sendEvent(MainEvent.Tags.UpdateSelectedTags(selectedTags, isMultiTagsMode))
         }
     }
 

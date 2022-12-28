@@ -50,13 +50,13 @@ class LogsActivity : TetroidActivity<LogsViewModel>() {
         when (event) {
             LogsEvent.Loading.InProcess -> {
                 window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-                setProgressVisible(true)
+                setProgressVisibility(true)
             }
 
             is LogsEvent.Loading.Success,
             is LogsEvent.Loading.Failed -> {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-                setProgressVisible(false)
+                setProgressVisibility(false)
 
                 when (event) {
                     is LogsEvent.Loading.Success -> {
@@ -116,10 +116,6 @@ class LogsActivity : TetroidActivity<LogsViewModel>() {
             { recycleView.scrollToPosition(textAdapter.itemCount - 1) },
             100
         )
-    }
-
-    private fun setProgressVisible(isVisible: Boolean) {
-        findViewById<View>(R.id.progress_bar).isVisible = isVisible
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

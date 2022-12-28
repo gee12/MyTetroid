@@ -1,6 +1,7 @@
 <com.google.android.material.appbar.AppBarLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/app_bar_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -15,33 +16,55 @@
         app:popupTheme="@style/AppTheme.PopupOverlay">
 <!--    android:background="?attr/colorPrimary"-->
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <LinearLayout
+                android:id="@+id/double_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/text_view_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:textColor="@color/colorMoreLightText"
+                    android:textSize="@dimen/font_app_title"
+                    tools:text="Заголовок"/>
+
+                <TextView
+                    android:id="@+id/text_view_subtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:textColor="@color/colorLightText"
+                    android:textSize="@dimen/font_small_small"
+                    android:textStyle="italic"
+                    tools:text="Подзаголовок" />
+
+            </LinearLayout>
+
             <TextView
-                android:id="@+id/text_view_title"
+                android:id="@+id/text_view_single_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:singleLine="true"
                 android:textColor="@color/colorMoreLightText"
-                android:textSize="@dimen/font_app_title" />
+                android:textSize="@dimen/font_app_title"
+                tools:text="Одинарный заголовок" />
 
-            <TextView
-                android:id="@+id/text_view_subtitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:textColor="@color/colorLightText"
-                android:textSize="@dimen/font_small_small"
-                android:textStyle="italic" />
-
-        </LinearLayout>
+        </RelativeLayout>
 
     </androidx.appcompat.widget.Toolbar>
 

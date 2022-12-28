@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.ui.main.tags
+package com.gee12.mytetroid.ui.tag
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -28,8 +28,6 @@ import com.gee12.mytetroid.model.enums.TagsSearchMode
 import com.gee12.mytetroid.ui.base.TetroidFragment
 import com.gee12.mytetroid.ui.dialogs.tag.TagFieldsDialog
 import com.gee12.mytetroid.ui.main.MainViewModel
-import com.gee12.mytetroid.ui.tag.SelectedTagsListAdapter
-import com.gee12.mytetroid.ui.tag.TagsListAdapter
 
 class TagsFragment : TetroidFragment<MainViewModel> {
 

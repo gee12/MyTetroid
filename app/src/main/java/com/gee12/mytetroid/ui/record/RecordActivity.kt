@@ -94,13 +94,20 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     private lateinit var mButtonFindPrev: FloatingActionButton
     private lateinit var mFindListener: TextFindListener
     private lateinit var mSearchView: SearchView
-    private val imagePicker = TetroidImagePicker(this) { uris: List<Uri>, isCameraMode: Boolean ->
-        saveSelectedImages(uris, isCameraMode)
-    }
+
+    private val imagePicker = TetroidImagePicker(
+        activity = this,
+        callback = { uris: List<Uri>, isCameraMode: Boolean ->
+            saveSelectedImages(uris, isCameraMode)
+        }
+    )
 
     override fun getLayoutResourceId() = R.layout.activity_record
 
     override fun getViewModelClazz() = RecordViewModel::class.java
+
+    override fun isSingleTitle() = false
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

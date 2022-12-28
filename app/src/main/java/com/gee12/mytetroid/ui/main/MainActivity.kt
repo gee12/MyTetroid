@@ -51,7 +51,7 @@ import com.gee12.mytetroid.ui.dialogs.pin.PinCodeDialog.IPinInputResult
 import com.gee12.mytetroid.ui.dialogs.storage.StorageDialogs
 import com.gee12.mytetroid.ui.dialogs.tag.TagFieldsDialog
 import com.gee12.mytetroid.ui.main.found.FoundPageFragment
-import com.gee12.mytetroid.ui.main.tags.TagsFragment
+import com.gee12.mytetroid.ui.tag.TagsFragment
 import com.gee12.mytetroid.ui.node.NodesListAdapter
 import com.gee12.mytetroid.ui.node.icon.IconsActivity
 import com.gee12.mytetroid.ui.record.RecordActivity
@@ -101,9 +101,13 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
     override fun getViewModelClazz() = MainViewModel::class.java
 
+    override fun isSingleTitle() = false
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        setTitle(null)
 
         // выдвигающиеся панели
         drawerLayout = findViewById(R.id.drawer_layout)

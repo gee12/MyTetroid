@@ -8,19 +8,10 @@
     android:layout_height="match_parent"
     tools:context=".ui.search.SearchActivity">
 
-    <com.google.android.material.appbar.AppBarLayout
+    <include
+        layout="@layout/layout_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
-
-    </com.google.android.material.appbar.AppBarLayout>
+        android:layout_height="wrap_content" />
 
     <ScrollView
         android:layout_height="wrap_content"
@@ -216,5 +207,12 @@
         </RelativeLayout>
 
     </ScrollView>
+
+    <include
+        android:id="@+id/layout_progress_bar"
+        layout="@layout/layout_progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
