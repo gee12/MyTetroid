@@ -28,12 +28,13 @@ abstract class TetroidStorageDialogFragment<VM : BaseStorageViewModel> : Tetroid
     override fun initViewModel() {
         super.initViewModel()
 
-        storageId
+        val storageId = storageId
             ?: isInitCurrentStorage.ifTrueOrNull {
                 viewModel.getStorageId()
-            }?.let {
-                viewModel.startInitStorageFromBase(storageId = it)
             }
+        storageId?.let {
+            viewModel.startInitStorageFromBase(storageId = it)
+        }
     }
 
     override fun onBaseEvent(event: BaseEvent) {

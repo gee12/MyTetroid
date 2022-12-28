@@ -1,11 +1,8 @@
 package com.gee12.mytetroid.ui.node.icon
 
 import android.app.Application
-import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.makePath
-import com.gee12.mytetroid.common.onFailure
-import com.gee12.mytetroid.common.onSuccess
 import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
@@ -52,35 +49,31 @@ class IconsViewModel(
 
         launchOnMain {
             getIconsFolders()
-            selectCurrentIcon(currentIconPath)
+                .map { selectCurrentIcon(currentIconPath) }
         }
     }
 
-    private suspend fun getIconsFolders() {
-        withIo {
+    private suspend fun getIconsFolders(): Either<Failure, Unit> {
+        return withIo {
             getIconsFoldersUseCase.run(
                 GetIconsFoldersUseCase.Params
             )
         }.onFailure {
             logFailure(it)
         }.onSuccess { folders ->
-            if (folders.isEmpty()) {
-                logWarning(getString(R.string.log_icons_dir_absent_mask, Constants.ICONS_DIR_NAME), show = true)
-            } else {
-                sendEvent(IconsEvent.IconsFolders(folders))
-            }
-        }
+            sendEvent(IconsEvent.IconsFolders(folders))
+        }.map { Unit }
     }
 
-    private suspend fun selectCurrentIcon(iconPath: String) {
-        withIo {
+    private fun selectCurrentIcon(iconPath: String) {
+        launchOnIo {
             val pathParts = iconPath.split(File.separator).toTypedArray()
             if (pathParts.size >= 2) {
                 val name = pathParts[pathParts.size - 1]
                 val folder = pathParts[pathParts.size - 2]
-                sendEvent(
-                    IconsEvent.CurrentIcon(icon = TetroidIcon(folder, name))
-                )
+                withMain {
+                    sendEvent(IconsEvent.CurrentIcon(icon = TetroidIcon(folder, name)))
+                }
             }
         }
     }

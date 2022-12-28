@@ -94,16 +94,17 @@ class IconsActivity : TetroidStorageActivity<IconsViewModel>() {
     }
 
     private fun loadIconsFolders(folders: List<String>) {
+        foldersAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_item,
+            folders
+        )
+        foldersAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spFolders.adapter = foldersAdapter
+
         if (folders.isEmpty()) {
+//            viewModel.logWarning(getString(R.string.log_icons_dir_absent_mask, Constants.ICONS_DIR_NAME), show = true)
             viewModel.logWarning(R.string.log_icons_dirs_absent)
-        } else {
-            foldersAdapter = ArrayAdapter(
-                this,
-                android.R.layout.simple_spinner_item,
-                folders
-            )
-            foldersAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            spFolders.adapter = foldersAdapter
         }
     }
 

@@ -18,16 +18,15 @@ class GetNodesAndRecordsCountUseCase(
         val recordsCount: Int,
     )
 
-    fun run(node: TetroidNode): Either<Failure, Result> {
-        return getNodesAndRecordsCount(Params(node))
+    suspend fun run(node: TetroidNode): Either<Failure, Result> {
+        return run(Params(node))
     }
 
     override suspend fun run(params: Params): Either<Failure, Result> {
-        return getNodesAndRecordsCount(params)
+        return getNodesAndRecordsCount(node = params.node)
     }
 
-    private fun getNodesAndRecordsCount(params: Params): Either<Failure, Result> {
-        val node = params.node
+    private fun getNodesAndRecordsCount(node: TetroidNode): Either<Failure, Result> {
         val subNodesCount = node.subNodesCount
 
         var nodesCount = subNodesCount
@@ -35,7 +34,7 @@ class GetNodesAndRecordsCountUseCase(
 
         if (subNodesCount > 0) {
             for (subNode in node.subNodes) {
-                getNodesAndRecordsCount(params)
+                getNodesAndRecordsCount(node = subNode)
                     .onSuccess {
                         nodesCount += it.nodesCount
                         recordsCount += it.recordsCount
