@@ -8,6 +8,9 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.method.LinkMovementMethod
@@ -26,10 +29,11 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
+import com.gee12.htmlwysiwygeditor.ActionState
 import com.gee12.htmlwysiwygeditor.IImagePicker
 import com.gee12.htmlwysiwygeditor.INetworkWorker
+import com.gee12.htmlwysiwygeditor.IVoiceInputListener
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.domain.provider.TetroidSuggestionProvider
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.extensions.focusAndShowKeyboard
 import com.gee12.mytetroid.common.extensions.hideKeyboard
@@ -39,32 +43,36 @@ import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.HtmlHelper
 import com.gee12.mytetroid.domain.TetroidClipboardListener
+import com.gee12.mytetroid.domain.provider.TetroidSuggestionProvider
 import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
-import com.gee12.mytetroid.ui.base.views.SearchViewXListener
-import com.gee12.mytetroid.ui.main.MainActivity
-import com.gee12.mytetroid.ui.settings.SettingsActivity
-import com.gee12.mytetroid.ui.storage.info.StorageInfoActivity.Companion.start
+import com.gee12.mytetroid.model.enums.TetroidPermission
+import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.TetroidStorageActivity
+import com.gee12.mytetroid.ui.base.views.SearchViewXListener
+import com.gee12.mytetroid.ui.base.views.TetroidEditText
+import com.gee12.mytetroid.ui.base.views.TetroidEditText.ITetroidEditTextListener
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
 import com.gee12.mytetroid.ui.dialogs.record.RecordFieldsDialog
 import com.gee12.mytetroid.ui.dialogs.record.RecordInfoDialog
 import com.gee12.mytetroid.ui.dialogs.storage.StorageDialogs
-import com.gee12.mytetroid.ui.base.views.TetroidEditText
-import com.gee12.mytetroid.ui.base.views.TetroidEditText.ITetroidEditTextListener
+import com.gee12.mytetroid.ui.main.MainActivity
 import com.gee12.mytetroid.ui.record.TetroidEditor.IEditorListener
-import com.gee12.mytetroid.ui.base.BaseEvent
-import com.gee12.mytetroid.viewmodels.RecordViewModel
+import com.gee12.mytetroid.ui.settings.SettingsActivity
 import com.gee12.mytetroid.ui.storage.StorageEvent
+import com.gee12.mytetroid.ui.storage.info.StorageInfoActivity.Companion.start
+import com.gee12.mytetroid.viewmodels.RecordViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import com.lumyjuwon.richwysiwygeditor.IColorPicker
 import com.lumyjuwon.richwysiwygeditor.RichEditor.EditableWebView.*
 import com.lumyjuwon.richwysiwygeditor.WysiwygEditor
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.cachapa.expandablelayout.ExpandableLayout
+import java.util.*
 
 /**
  * Активность просмотра и редактирования содержимого записи.
@@ -76,7 +84,8 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     IYoutubeLinkLoadListener, 
     IImagePicker,
     IColorPicker, 
-    INetworkWorker, 
+    INetworkWorker,
+    IVoiceInputListener,
     ColorPickerDialogListener, 
     IEditorListener {
 
@@ -102,6 +111,8 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         }
     )
 
+    private var speechRecognizer: SpeechRecognizer? = null
+
     override fun getLayoutResourceId() = R.layout.activity_record
 
     override fun getViewModelClazz() = RecordViewModel::class.java
@@ -121,8 +132,9 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         editor.setColorPickerListener(this)
         editor.setImagePickerListener(this)
         editor.setNetworkWorkerListener(this)
+        editor.setVoiceInputListener(this)
         editor.setToolBarVisibility(false)
-        //        mEditor.setOnTouchListener(this);
+        //mEditor.setOnTouchListener(this)
         editor.setOnPageLoadListener(this)
         editor.setEditorListener(this)
         val webView = editor.getWebView()
@@ -173,6 +185,8 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         mEditTextHtml.initSearcher(mScrollViewHtml)
         mHtmlProgressBar = findViewById(R.id.progress_bar)
 
+        initVoiceInput()
+
         // не гасим экран, если установлена опция
         checkKeepScreenOn(this)
         afterOnCreate()
@@ -192,6 +206,8 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
     override fun onDestroy() {
         super.onDestroy()
+
+        speechRecognizer?.destroy()
 
         // TODO: если открывали активити из виджета, то закрываем главный scope
         //ScopeContainer.current.scope.close()
@@ -535,7 +551,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         if (defColor == 0) {
             // если не передали цвет, то достаем последний из сохраненных
             val savedColors = CommonSettings.getPickedColors(this)
-            defColor = if (savedColors != null && savedColors.size > 0) savedColors[savedColors.size - 1] else Color.BLACK
+            defColor = if (savedColors != null && savedColors.isNotEmpty()) savedColors[savedColors.size - 1] else Color.BLACK
         }
         ColorPickerDialog.newBuilder()
             .setColor(defColor)
@@ -547,7 +563,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         editor.setPickedColor(color)
     }
 
-    override fun getSavedColors(): IntArray {
+    override fun getSavedColors(): IntArray? {
         return CommonSettings.getPickedColors(this)
     }
 
@@ -1091,6 +1107,94 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     }
 
     // endregion Record fields
+
+    //region Voice input
+
+    private fun initVoiceInput() {
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
+        speechRecognizer?.setRecognitionListener(object : RecognitionListener {
+            override fun onReadyForSpeech(bundle: Bundle?) {
+                onReadyForVoiceSpeech()
+            }
+            override fun onBeginningOfSpeech() {
+                onBeginningOfVoiceSpeech()
+            }
+            override fun onRmsChanged(v: Float) {}
+            override fun onBufferReceived(bytes: ByteArray?) {}
+            override fun onEndOfSpeech() {
+                onEndOfVoiceSpeech()
+            }
+            override fun onError(error: Int) {
+                onVoiceInputError(error)
+            }
+            override fun onResults(bundle: Bundle) {
+                bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.let { data ->
+                    onVoiceInputResult(data)
+                }
+            }
+            override fun onPartialResults(bundle: Bundle?) {}
+            override fun onEvent(i: Int, bundle: Bundle?) {}
+        })
+    }
+
+    override fun startVoiceInput() {
+        viewModel.startVoiceInput()
+    }
+
+    private fun startVoiceInputDirectly() {
+        val speechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+//            putExtra(RecognizerIntent.EXTRA_PROMPT, "Need to speak")
+//            putExtra(RecognizerIntent.ACTION_RECOGNIZE_SPEECH, RecognizerIntent.EXTRA_PREFER_OFFLINE)
+
+//            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1500)
+//            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 1500)
+//            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 15000)
+//            putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+        }
+        speechRecognizer?.startListening(speechRecognizerIntent)
+    }
+
+    private fun onReadyForVoiceSpeech() {
+        lifecycleScope.launch {
+            editor.setVoiceInputState(ActionState.IN_PROGRESS)
+            delay(500)
+            editor.setVoiceInputState(ActionState.CHECKED)
+            showMessage(R.string.title_voice_input_started)
+        }
+    }
+
+    private fun onBeginningOfVoiceSpeech() {
+        showProgress(R.string.state_voice_input_recognition)
+    }
+
+    private fun onEndOfVoiceSpeech() {
+        hideProgress()
+        editor.setVoiceInputState(ActionState.USUAL)
+        showMessage(R.string.title_voice_input_finished)
+    }
+
+    private fun onVoiceInputError(errorCode: Int) {
+        hideProgress()
+        editor.setVoiceInputState(ActionState.USUAL)
+        viewModel.onVoiceInputError(errorCode)
+    }
+
+    private fun onVoiceInputResult(data: List<String>) {
+        hideProgress()
+        val text = data.joinToString(separator = " ")
+        editor.webView.insertTextWithPreparation(text)
+    }
+
+    override fun stopVoiceInput() {
+        hideProgress()
+        speechRecognizer?.stopListening()
+        editor.setVoiceInputState(ActionState.USUAL)
+        showMessage(R.string.title_voice_input_finished)
+    }
+
+    //endregion Voice input
 
     override fun toggleFullscreen(fromDoubleTap: Boolean): Int {
         val res = super.toggleFullscreen(fromDoubleTap)

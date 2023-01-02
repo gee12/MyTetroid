@@ -573,6 +573,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="ask_request_read_ext_storage">Permission to read to external memory is required to work with storage files. Provide ?</string>
     <string name="ask_request_write_ext_storage">Permission to write to external memory is required to work with storage files. Provide ?</string>
     <string name="ask_request_camera">Permission required to turn on the camera to capture an image. Provide ?</string>
+    <string name="ask_request_record_audio">Permission required to record audio to enable voice input. Provide ?</string>
     <string name="ask_show_cur_session_logs">Show logs of the current application session that could not write to the log file ?</string>
     <string name="ask_change_image_dimens">Resize images before inserting?</string>
     <string name="ask_clear_trash">Clear trash folder?</string>
@@ -878,4 +879,8 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="file_name_mask">file %s</string>
     <string name="title_main_fragment">Main</string>
     <string name="log_pass_hash_saved_local">Password hash is saved locally</string>
+    <string name="error_recognize_text">Failed to recognize text</string>
+    <string name="title_voice_input_started">Voice input is started</string>
+    <string name="title_voice_input_finished">Voice input is finished</string>
+    <string name="state_voice_input_recognition">Voice input recognition…</string>
 </resources>

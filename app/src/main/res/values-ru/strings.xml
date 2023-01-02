@@ -475,6 +475,7 @@
     <string name="ask_request_read_ext_storage">Необходимо разрешение на чтение из внешней памяти для выбора каталога хранилища. Предоставить ?</string>
     <string name="ask_request_write_ext_storage">Необходимо разрешение на запись во внешнюю память для работы с файлами хранилища. Предоставить ?</string>
     <string name="ask_request_camera">Необходимо разрешение на использование камеры для захвата изображения. Предоставить ?</string>
+    <string name="ask_request_record_audio">Необходимо разрешение на запись аудио, чтобы включить голосовой ввод. Предоставить ?</string>
     <string name="ask_show_cur_session_logs">Показать логи текущего сеанса приложения, которые не смогли записаться в лог-файл ?</string>
     <string name="ask_save_record">Сохранить запись?</string>
     <string name="ask_no_set_default_storage">Не задано хранилище по-умолчанию. Перейти к списку хранилищ ?</string>
@@ -780,4 +781,8 @@
     <string name="file_name_mask">файл %s</string>
     <string name="title_main_fragment">Главная</string>
     <string name="log_pass_hash_saved_local">Хэш пароля сохранен локально</string>
+    <string name="error_recognize_text">Не удалось распознать текст</string>
+    <string name="title_voice_input_started">Запущен голосовой ввод</string>
+    <string name="title_voice_input_finished">Голосовой ввод закончен</string>
+    <string name="state_voice_input_recognition">Распознавание текста…</string>
 </resources>

@@ -6,6 +6,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
+import android.speech.SpeechRecognizer
 import android.text.TextUtils
 import androidx.annotation.UiThread
 import androidx.lifecycle.MutableLiveData
@@ -50,6 +51,7 @@ import com.gee12.mytetroid.domain.usecase.storage.CheckStorageFilesExistingUseCa
 import com.gee12.mytetroid.domain.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.domain.usecase.storage.ReadStorageUseCase
 import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
+import com.gee12.mytetroid.model.enums.TetroidPermission
 import java.io.File
 
 
@@ -1086,8 +1088,6 @@ class RecordViewModel(
         }
     }
 
-    //endregion SaveRecord
-
     //region Interaction
 
     /**
@@ -1120,6 +1120,36 @@ class RecordViewModel(
     }
 
     //endregion Interaction
+
+    //region Voice input
+
+    fun startVoiceInput() {
+        launchOnMain {
+            sendEvent(BaseEvent.Permission.Check(permission = TetroidPermission.RecordAudio))
+        }
+    }
+
+    fun onVoiceInputError(errorCode: Int) {
+        val message = when (errorCode) {
+            SpeechRecognizer.ERROR_AUDIO -> "Audio recording error"
+            SpeechRecognizer.ERROR_CLIENT -> "Client side error"
+            SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Insufficient permissions"
+            SpeechRecognizer.ERROR_NETWORK -> "Network error"
+            SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "Network timeout"
+            SpeechRecognizer.ERROR_NO_MATCH -> "No recognition result matched"
+            SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "RecognitionService busy"
+            SpeechRecognizer.ERROR_SERVER -> "Error from server"
+            SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "No speech input"
+            else -> "unknown error"
+        }
+        if (errorCode in arrayOf(SpeechRecognizer.ERROR_SPEECH_TIMEOUT, SpeechRecognizer.ERROR_NO_MATCH)) {
+            showMessage(getString(R.string.error_recognize_text))
+        } else /*if (viewModel.buildInfoProvider.isDebug)*/ {
+            logError(message, show = true)
+        }
+    }
+
+    //endregion Voice input
 
     /**
      * Сохранение записи при любом скрытии активности.
