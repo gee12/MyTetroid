@@ -4,12 +4,13 @@ import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.domain.IStorageCrypter
+import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.data.settings.TetroidPreferenceDataStore
-import com.gee12.mytetroid.domain.FavoritesManager
+import com.gee12.mytetroid.domain.manager.FavoritesManager
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.domain.interactor.*
+import com.gee12.mytetroid.domain.manager.PasswordManager
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.domain.repo.StoragesRepo
@@ -41,10 +42,10 @@ class StorageSettingsViewModel(
     dataNameProvider: IDataNameProvider,
 
     storagesRepo: StoragesRepo,
-    storageCrypter: IStorageCrypter,
+    cryptManager: IStorageCryptManager,
 
     favoritesManager: FavoritesManager,
-    passInteractor: PasswordInteractor,
+    passwordManager: PasswordManager,
     interactionInteractor: InteractionInteractor,
     syncInteractor: SyncInteractor,
     trashInteractor: TrashInteractor,
@@ -82,11 +83,11 @@ class StorageSettingsViewModel(
     dataNameProvider = dataNameProvider,
 
     storagesRepo = storagesRepo,
-    storageCrypter = storageCrypter,
+    cryptManager = cryptManager,
 
     favoritesManager = favoritesManager,
     interactionInteractor = interactionInteractor,
-    passInteractor = passInteractor,
+    passwordManager = passwordManager,
     syncInteractor = syncInteractor,
     trashInteractor = trashInteractor,
 

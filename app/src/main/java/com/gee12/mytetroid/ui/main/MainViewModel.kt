@@ -19,7 +19,7 @@ import com.gee12.mytetroid.logs.TaskStage
 import com.gee12.mytetroid.logs.TaskStage.Stages
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.common.utils.Utils
-import com.gee12.mytetroid.domain.IStorageCrypter
+import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.domain.*
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -32,6 +32,10 @@ import com.gee12.mytetroid.domain.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.domain.usecase.storage.ReadStorageUseCase
 import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
 import com.gee12.mytetroid.domain.interactor.*
+import com.gee12.mytetroid.domain.manager.ClipboardManager
+import com.gee12.mytetroid.domain.manager.FavoritesManager
+import com.gee12.mytetroid.domain.manager.PasswordManager
+import com.gee12.mytetroid.domain.manager.ScanManager
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.domain.usecase.GlobalSearchUseCase
 import com.gee12.mytetroid.domain.usecase.InitAppUseCase
@@ -73,10 +77,10 @@ class MainViewModel(
     dataNameProvider: IDataNameProvider,
 
     storagesRepo: StoragesRepo,
-    storageCrypter: IStorageCrypter,
+    cryptManager: IStorageCryptManager,
     storageDataProcessor: IStorageDataProcessor,
 
-    passInteractor: PasswordInteractor,
+    passwordManager: PasswordManager,
     interactionInteractor: InteractionInteractor,
     syncInteractor: SyncInteractor,
     trashInteractor: TrashInteractor,
@@ -142,11 +146,11 @@ class MainViewModel(
     dataNameProvider = dataNameProvider,
 
     storagesRepo = storagesRepo,
-    storageCrypter = storageCrypter,
+    cryptManager = cryptManager,
 
     favoritesManager = favoritesManager,
     interactionInteractor = interactionInteractor,
-    passInteractor = passInteractor,
+    passwordManager = passwordManager,
     syncInteractor = syncInteractor,
     trashInteractor = trashInteractor,
 
@@ -202,7 +206,7 @@ class MainViewModel(
         // FIXME: koin: из-за циклической зависимости вместо инжекта storageDataProcessor в конструкторе,
         //  задаем его вручную позже
         storageProvider.init(storageDataProcessor)
-        storageCrypter.init(
+        cryptManager.init(
             cryptRecordFilesUseCase,
             parseRecordTagsUseCase,
         )
@@ -1138,7 +1142,7 @@ class MainViewModel(
                 return@withIo if (isStorageNonEncryptedOrDecrypted()) {
                     setStage(LogObj.NODE, operation, Stages.START)
 
-                    val result = if (isEncrypt) storageCrypter.encryptNode(node, isReencrypt = false)
+                    val result = if (isEncrypt) cryptManager.encryptNode(node, isReencrypt = false)
                     else dropCryptNode(node)
 
                     if (result && saveStorage()) 1 else -1
@@ -1164,7 +1168,7 @@ class MainViewModel(
      * Расшифровка ветки с подветками (постоянная).
      */
     private suspend fun dropCryptNode(node: TetroidNode): Boolean {
-        return storageCrypter.decryptNode(
+        return cryptManager.decryptNode(
             node = node,
             isDecryptSubNodes = true,
             isDecryptRecords = true,

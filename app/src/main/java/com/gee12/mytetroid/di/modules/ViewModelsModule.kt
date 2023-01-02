@@ -36,9 +36,9 @@ object ViewModelsModule {
                     dataNameProvider = get(),
 
                     storagesRepo = get(),
-                    storageCrypter = get(),
+                    cryptManager = get(),
 
-                    passInteractor = get(),
+                    passwordManager = get(),
                     favoritesManager = get(),
                     interactionInteractor = get(),
                     syncInteractor = get(),
@@ -80,11 +80,11 @@ object ViewModelsModule {
                     dataNameProvider = get(),
 
                     storagesRepo = get(),
-                    storageCrypter = get(),
+                    cryptManager = get(),
                     storageDataProcessor = get(),
 
                     favoritesManager = get(),
-                    passInteractor = get(),
+                    passwordManager = get(),
                     interactionInteractor = get(),
                     syncInteractor = get(),
                     trashInteractor = get(),
@@ -154,9 +154,9 @@ object ViewModelsModule {
                     dataNameProvider = get(),
 
                     storagesRepo = get(),
-                    storageCrypter = get(),
+                    cryptManager = get(),
 
-                    passInteractor = get(),
+                    passwordManager = get(),
                     favoritesManager = get(),
                     interactionInteractor = get(),
                     syncInteractor = get(),
@@ -206,10 +206,10 @@ object ViewModelsModule {
                     dataNameProvider = get(),
 
                     storagesRepo = get(),
-                    storageCrypter = get(),
+                    cryptManager = get(),
                     storageDataProcessor = get(),
 
-                    passInteractor = get(),
+                    passwordManager = get(),
                     favoritesManager = get(),
                     interactionInteractor = get(),
                     syncInteractor = get(),
@@ -254,9 +254,9 @@ object ViewModelsModule {
                     dataNameProvider = get(),
 
                     storagesRepo = get(),
-                    storageCrypter = get(),
+                    cryptManager = get(),
 
-                    passInteractor = get(),
+                    passwordManager = get(),
                     favoritesManager = get(),
                     interactionInteractor = get(),
                     syncInteractor = get(),

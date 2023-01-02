@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.domain;
+package com.gee12.mytetroid.domain.provider;
 import android.content.Context;
 import android.content.SearchRecentSuggestionsProvider;
 import android.provider.SearchRecentSuggestions;

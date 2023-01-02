@@ -2,17 +2,17 @@ package com.gee12.mytetroid.domain.usecase.crypt
 
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.domain.IStorageCrypter
+import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.domain.provider.ISensitiveDataProvider
-import com.gee12.mytetroid.domain.interactor.PasswordInteractor
+import com.gee12.mytetroid.domain.manager.PasswordManager
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidStorage
 
 class CheckStoragePasswordAndAskUseCase(
     private val logger: ITetroidLogger,
-    private val storageCrypter: IStorageCrypter,
-    private val passInteractor: PasswordInteractor,
+    private val cryptManager: IStorageCryptManager,
+    private val passwordManager: PasswordManager,
     private val sensitiveDataProvider: ISensitiveDataProvider,
 ) : UseCase<CheckStoragePasswordAndAskUseCase.Result, CheckStoragePasswordAndAskUseCase.Params>() {
 
@@ -42,7 +42,7 @@ class CheckStoragePasswordAndAskUseCase(
             sensitiveDataProvider.getMiddlePassHashOrNull()?.also { middlePassHash = it } != null -> {
                 // хэш пароля сохранен в оперативной памяти (вводили до этого и проверяли)
 //                cryptInteractor.initCryptPass(middlePassHash!!, true)
-                storageCrypter.setKeyFromMiddleHash(middlePassHash!!)
+                cryptManager.setKeyFromMiddleHash(middlePassHash!!)
                 // запрос ПИН-кода
                 Result.AskPin(
                     specialFlag = true,
@@ -51,9 +51,9 @@ class CheckStoragePasswordAndAskUseCase(
             isSaveMiddlePassLocal && storage?.middlePassHash.also { middlePassHash = it } != null -> {
                 // хэш пароля сохранен локально, проверяем
                 try {
-                    if (passInteractor.checkMiddlePassHash(middlePassHash)) {
+                    if (passwordManager.checkMiddlePassHash(middlePassHash)) {
 //                        cryptInteractor.initCryptPass(middlePassHash!!, true)
-                        storageCrypter.setKeyFromMiddleHash(middlePassHash!!)
+                        cryptManager.setKeyFromMiddleHash(middlePassHash!!)
                         // запрос ПИН-кода
                         Result.AskPin(
                             specialFlag = true,
@@ -76,7 +76,7 @@ class CheckStoragePasswordAndAskUseCase(
                     } else {
                         // если нет зашифрованных веток, но пароль сохранен
 //                        cryptInteractor.initCryptPass(middlePassHash!!, true)
-                        storageCrypter.setKeyFromMiddleHash(middlePassHash!!)
+                        cryptManager.setKeyFromMiddleHash(middlePassHash!!)
                         Result.AskPin(
                             specialFlag = true,
                         ).toRight()

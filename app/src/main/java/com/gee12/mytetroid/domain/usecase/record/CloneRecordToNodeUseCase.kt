@@ -3,8 +3,8 @@ package com.gee12.mytetroid.domain.usecase.record
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.utils.FileUtils
-import com.gee12.mytetroid.domain.IStorageCrypter
-import com.gee12.mytetroid.domain.FavoritesManager
+import com.gee12.mytetroid.domain.manager.IStorageCryptManager
+import com.gee12.mytetroid.domain.manager.FavoritesManager
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
@@ -29,7 +29,7 @@ class CloneRecordToNodeUseCase(
     private val dataNameProvider: IDataNameProvider,
     private val recordPathProvider: IRecordPathProvider,
     private val storagePathProvider: IStoragePathProvider,
-    private val storageCrypter: IStorageCrypter,
+    private val cryptManager: IStorageCryptManager,
     private val checkRecordFolderUseCase: CheckRecordFolderUseCase,
     private val cloneAttachesToRecordUseCase: CloneAttachesToRecordUseCase,
     private val renameRecordAttachesUseCase: RenameRecordAttachesUseCase,
@@ -176,7 +176,7 @@ class CloneRecordToNodeUseCase(
     }
 
     private fun encryptFieldIfNeed(fieldValue: String, isEncrypt: Boolean): String? {
-        return if (isEncrypt) storageCrypter.encryptTextBase64(fieldValue) else fieldValue
+        return if (isEncrypt) cryptManager.encryptTextBase64(fieldValue) else fieldValue
     }
 
     private suspend fun cloneAttachesToRecord(

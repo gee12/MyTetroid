@@ -5,7 +5,7 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.common.utils.FileUtils
-import com.gee12.mytetroid.domain.IStorageCrypter
+import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidRecord
@@ -19,7 +19,7 @@ class GetRecordHtmlTextUseCase(
     private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
     private val recordPathProvider: IRecordPathProvider,
-    private val storageCrypter: IStorageCrypter,
+    private val cryptManager: IStorageCryptManager,
     private val checkRecordFolderUseCase: CheckRecordFolderUseCase,
 ) : UseCase<String, GetRecordHtmlTextUseCase.Params>() {
 
@@ -87,7 +87,7 @@ class GetRecordHtmlTextUseCase(
         }
         // расшифровываем содержимое файла
         logger.logDebug(resourcesProvider.getString(R.string.log_start_record_text_decrypting))
-        val res = storageCrypter.decryptText(bytes)
+        val res = cryptManager.decryptText(bytes)
         if (res == null) {
 //                    logger.logError(resourcesProvider.getString(R.string.log_error_decrypt_record_file) + filePath)
             return Failure.Decrypt.File(fileName = uri.toString()).toLeft()

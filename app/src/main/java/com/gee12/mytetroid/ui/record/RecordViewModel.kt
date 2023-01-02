@@ -25,6 +25,9 @@ import java.util.*
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.domain.*
 import com.gee12.mytetroid.domain.interactor.*
+import com.gee12.mytetroid.domain.manager.FavoritesManager
+import com.gee12.mytetroid.domain.manager.IStorageCryptManager
+import com.gee12.mytetroid.domain.manager.PasswordManager
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.domain.repo.StoragesRepo
 import com.gee12.mytetroid.logs.LogType
@@ -66,9 +69,9 @@ class RecordViewModel(
     dataNameProvider: IDataNameProvider,
 
     storagesRepo: StoragesRepo,
-    storageCrypter: IStorageCrypter,
+    cryptManager: IStorageCryptManager,
 
-    passInteractor: PasswordInteractor,
+    passwordManager: PasswordManager,
     favoritesManager: FavoritesManager,
     interactionInteractor: InteractionInteractor,
     syncInteractor: SyncInteractor,
@@ -115,11 +118,11 @@ class RecordViewModel(
     dataNameProvider = dataNameProvider,
 
     storagesRepo = storagesRepo,
-    storageCrypter = storageCrypter,
+    cryptManager = cryptManager,
 
     favoritesManager = favoritesManager,
     interactionInteractor = interactionInteractor,
-    passInteractor = passInteractor,
+    passwordManager = passwordManager,
     syncInteractor = syncInteractor,
     trashInteractor = trashInteractor,
 
@@ -459,7 +462,7 @@ class RecordViewModel(
                     )
                 }
                 if (text == null) {
-                    if (record.isCrypted && storageCrypter.getErrorCode() > 0) {
+                    if (record.isCrypted && cryptManager.getErrorCode() > 0) {
                         logError(R.string.log_error_record_file_decrypting)
                         sendEvent(BaseEvent.ShowMoreInLogs)
                     }
@@ -952,9 +955,7 @@ class RecordViewModel(
                 saveRecordHtmlTextUseCase.run(
                     SaveRecordHtmlTextUseCase.Params(
                         record = record,
-//                        pathToRecordFolder = recordPathProvider.getPathToRecordFolder(record),
                         html = htmlText,
-//                        storageCrypter = storageCrypter,
                     )
                 ).onFailure {
                     logFailure(it)

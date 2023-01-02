@@ -4,7 +4,7 @@ import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.getIdString
 import com.gee12.mytetroid.common.extensions.getStringTo
 import com.gee12.mytetroid.common.utils.FileUtils
-import com.gee12.mytetroid.domain.IStorageCrypter
+import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.domain.provider.IRecordPathProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -21,7 +21,7 @@ class SaveAttachUseCase(
     private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
     private val recordPathProvider: IRecordPathProvider,
-    private val storageCrypter: IStorageCrypter,
+    private val cryptManager: IStorageCryptManager,
 ) : UseCase<UseCase.None, SaveAttachUseCase.Params>() {
 
     data class Params(
@@ -50,7 +50,7 @@ class SaveAttachUseCase(
         if (attach.isCrypted) {
             logger.logOperStart(LogObj.FILE, LogOper.DECRYPT)
             try {
-                if (!storageCrypter.encryptDecryptFile(srcFile, destFile, false)) {
+                if (!cryptManager.encryptDecryptFile(srcFile, destFile, false)) {
 //                        logger.logOperError(LogObj.FILE, LogOper.DECRYPT, fromTo, false, false)
                     return Failure.Decrypt.File(fileName = srcFile.path).toLeft()
                 }

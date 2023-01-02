@@ -1,6 +1,6 @@
 package com.gee12.mytetroid.domain.interactor
 
-import com.gee12.mytetroid.domain.ClipboardManager
+import com.gee12.mytetroid.domain.manager.ClipboardManager
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.domain.repo.StoragesRepo

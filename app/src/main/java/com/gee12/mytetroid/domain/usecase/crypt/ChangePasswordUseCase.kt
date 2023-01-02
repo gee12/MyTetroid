@@ -2,7 +2,7 @@ package com.gee12.mytetroid.domain.usecase.crypt
 
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.ITaskProgress
-import com.gee12.mytetroid.domain.IStorageCrypter
+import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
@@ -13,7 +13,7 @@ import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
 
 class ChangePasswordUseCase(
     private val storageProvider: IStorageProvider,
-    private val storageCrypter: IStorageCrypter,
+    private val cryptManager: IStorageCryptManager,
     private val saveStorageUseCase: SaveStorageUseCase,
     private val decryptStorageUseCase: DecryptStorageUseCase,
     private val initPasswordUseCase: InitPasswordUseCase,
@@ -82,7 +82,7 @@ class ChangePasswordUseCase(
      */
     private suspend fun reEncryptStorage(params: Params) : Either<Failure, Boolean> {
         return params.taskProgress.nextStage(LogObj.STORAGE, LogOper.REENCRYPT) {
-            storageCrypter.encryptNodes(
+            cryptManager.encryptNodes(
                 nodes = storageProvider.getRootNodes(),
                 isReencrypt = true
             ).toRight()

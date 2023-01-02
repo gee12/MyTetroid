@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.domain;
+package com.gee12.mytetroid.domain.manager;
 
 import java.util.ArrayList;
 import java.util.List;

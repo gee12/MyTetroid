@@ -1,12 +1,12 @@
 package com.gee12.mytetroid.domain.usecase.record
 
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.domain.IStorageCrypter
+import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 import com.gee12.mytetroid.domain.provider.IRecordPathProvider
 import com.gee12.mytetroid.domain.provider.IStoragePathProvider
 import com.gee12.mytetroid.domain.provider.DataNameProvider
-import com.gee12.mytetroid.domain.FavoritesManager
+import com.gee12.mytetroid.domain.manager.FavoritesManager
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
@@ -27,7 +27,7 @@ class EditRecordFieldsUseCase(
     private val storagePathProvider: IStoragePathProvider,
     private val recordPathProvider: IRecordPathProvider,
     private val favoritesManager: FavoritesManager,
-    private val storageCrypter: IStorageCrypter,
+    private val cryptManager: IStorageCryptManager,
     private val moveFileUseCase: MoveFileUseCase,
     private val deleteRecordTagsUseCase: DeleteRecordTagsUseCase,
     private val parseRecordTagsUseCase: ParseRecordTagsUseCase,
@@ -157,10 +157,10 @@ class EditRecordFieldsUseCase(
                     record.url = oldUrl
                     if (isCrypted) {
                         record.setDecryptedValues(
-                            storageCrypter.decryptTextBase64(oldName),
-                            storageCrypter.decryptTextBase64(oldTagsString),
-                            storageCrypter.decryptTextBase64(oldAuthor),
-                            storageCrypter.decryptTextBase64(url)
+                            cryptManager.decryptTextBase64(oldName),
+                            cryptManager.decryptTextBase64(oldTagsString),
+                            cryptManager.decryptTextBase64(oldAuthor),
+                            cryptManager.decryptTextBase64(url)
                         )
                     }
                     node.deleteRecord(record)
@@ -186,7 +186,7 @@ class EditRecordFieldsUseCase(
     }
 
     private fun encryptFieldIfNeed(fieldValue: String, isEncrypt: Boolean): String? {
-        return if (isEncrypt) storageCrypter.encryptTextBase64(fieldValue) else fieldValue
+        return if (isEncrypt) cryptManager.encryptTextBase64(fieldValue) else fieldValue
     }
 
 }

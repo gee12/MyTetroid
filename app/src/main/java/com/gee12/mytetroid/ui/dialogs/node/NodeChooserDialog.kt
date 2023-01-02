@@ -6,7 +6,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.domain.ScanManager
+import com.gee12.mytetroid.domain.manager.ScanManager
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.ui.storage.StorageViewModel

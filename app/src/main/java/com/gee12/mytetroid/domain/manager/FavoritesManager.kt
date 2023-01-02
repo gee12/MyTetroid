@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.domain
+package com.gee12.mytetroid.domain.manager
 
 import com.gee12.mytetroid.common.Either
 import com.gee12.mytetroid.common.Failure
@@ -10,7 +10,7 @@ import com.gee12.mytetroid.domain.repo.FavoritesRepo
 import com.gee12.mytetroid.domain.usecase.SwapFavoriteRecordsUseCase
 
 /**
- * Создается для конкретного хранилища.
+ * Работа с избранными записями.
  */
 class FavoritesManager(
     private val favoritesRepo: FavoritesRepo,

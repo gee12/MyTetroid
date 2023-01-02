@@ -3,7 +3,7 @@ package com.gee12.mytetroid.domain.usecase.attach
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.utils.FileUtils
-import com.gee12.mytetroid.domain.IStorageCrypter
+import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.domain.provider.IRecordPathProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -19,7 +19,7 @@ import kotlin.Exception
 class GetFileFromAttachUseCase(
     private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
-    private val storageCrypter: IStorageCrypter,
+    private val cryptManager: IStorageCryptManager,
     private val recordPathProvider: IRecordPathProvider,
     private val storageSettingsProvider: IStorageSettingsProvider,
 ) : UseCase<File, GetFileFromAttachUseCase.Params>() {
@@ -77,7 +77,7 @@ class GetFileFromAttachUseCase(
             }
 
             try {
-                if (existOrCreated && storageCrypter.encryptDecryptFile(
+                if (existOrCreated && cryptManager.encryptDecryptFile(
                         srcFile = srcFile,
                         destFile = tempFile,
                         encrypt = false

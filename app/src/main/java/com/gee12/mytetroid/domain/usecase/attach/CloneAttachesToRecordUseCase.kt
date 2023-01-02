@@ -4,7 +4,7 @@ import com.gee12.mytetroid.common.Either
 import com.gee12.mytetroid.common.Failure
 import com.gee12.mytetroid.common.UseCase
 import com.gee12.mytetroid.common.toRight
-import com.gee12.mytetroid.domain.IStorageCrypter
+import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.domain.provider.IDataNameProvider
 import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.model.TetroidRecord
@@ -14,7 +14,7 @@ import com.gee12.mytetroid.model.TetroidRecord
  */
 class CloneAttachesToRecordUseCase(
     private val dataNameProvider: IDataNameProvider,
-    private val storageCrypter: IStorageCrypter,
+    private val cryptManager: IStorageCryptManager,
 ) : UseCase<UseCase.None, CloneAttachesToRecordUseCase.Params>() {
 
     data class Params(
@@ -56,7 +56,7 @@ class CloneAttachesToRecordUseCase(
     }
 
     private fun encryptFieldIfNeed(fieldValue: String, isEncrypt: Boolean): String? {
-        return if (isEncrypt) storageCrypter.encryptTextBase64(fieldValue) else fieldValue
+        return if (isEncrypt) cryptManager.encryptTextBase64(fieldValue) else fieldValue
     }
 
 }

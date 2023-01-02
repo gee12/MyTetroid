@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.domain
+package com.gee12.mytetroid.domain.manager
 
 import com.gee12.mytetroid.common.onFailure
 import com.gee12.mytetroid.data.crypt.Crypter
@@ -11,7 +11,7 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 import org.jsoup.internal.StringUtil
 import java.io.File
 
-interface IStorageCrypter {
+interface IStorageCryptManager {
 
     fun init(
         cryptRecordFilesUseCase: CryptRecordFilesUseCase,
@@ -170,10 +170,10 @@ interface IStorageCrypter {
     fun getErrorCode(): Int
 }
 
-class StorageCrypter(
+class StorageCryptManager(
     private val logger: ITetroidLogger,
     private val crypter: Crypter,
-) : IStorageCrypter {
+) : IStorageCryptManager {
 
 
     private lateinit var cryptRecordFilesUseCase: CryptRecordFilesUseCase

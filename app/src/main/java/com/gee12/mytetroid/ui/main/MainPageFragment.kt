@@ -10,7 +10,7 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.di.ScopeSource
-import com.gee12.mytetroid.domain.ClipboardManager
+import com.gee12.mytetroid.domain.manager.ClipboardManager
 import com.gee12.mytetroid.model.FoundType
 import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.model.TetroidNode

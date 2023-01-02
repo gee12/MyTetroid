@@ -29,9 +29,9 @@ import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.di.ScopeSource
-import com.gee12.mytetroid.domain.ClipboardManager
-import com.gee12.mytetroid.domain.FavoritesManager.Companion.FAVORITES_NODE
-import com.gee12.mytetroid.domain.ScanManager
+import com.gee12.mytetroid.domain.manager.ClipboardManager
+import com.gee12.mytetroid.domain.manager.FavoritesManager.Companion.FAVORITES_NODE
+import com.gee12.mytetroid.domain.manager.ScanManager
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.LogType

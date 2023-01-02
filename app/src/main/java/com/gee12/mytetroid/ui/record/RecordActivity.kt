@@ -29,7 +29,7 @@ import androidx.lifecycle.lifecycleScope
 import com.gee12.htmlwysiwygeditor.IImagePicker
 import com.gee12.htmlwysiwygeditor.INetworkWorker
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.domain.TetroidSuggestionProvider
+import com.gee12.mytetroid.domain.provider.TetroidSuggestionProvider
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.extensions.focusAndShowKeyboard
 import com.gee12.mytetroid.common.extensions.hideKeyboard

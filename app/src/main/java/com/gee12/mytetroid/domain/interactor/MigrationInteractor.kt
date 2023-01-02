@@ -4,7 +4,7 @@ import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.flatMap
 import com.gee12.mytetroid.common.map
 import com.gee12.mytetroid.common.toRight
-import com.gee12.mytetroid.domain.FavoritesManager
+import com.gee12.mytetroid.domain.manager.FavoritesManager
 import com.gee12.mytetroid.domain.usecase.storage.InitStorageFromDefaultSettingsUseCase
 import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 import com.gee12.mytetroid.domain.provider.CommonSettingsProvider

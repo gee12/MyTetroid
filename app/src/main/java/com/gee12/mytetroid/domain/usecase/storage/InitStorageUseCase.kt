@@ -3,7 +3,7 @@ package com.gee12.mytetroid.domain.usecase.storage
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.data.ini.DatabaseConfig
-import com.gee12.mytetroid.domain.FavoritesManager
+import com.gee12.mytetroid.domain.manager.FavoritesManager
 import com.gee12.mytetroid.model.TetroidStorage
 
 /**

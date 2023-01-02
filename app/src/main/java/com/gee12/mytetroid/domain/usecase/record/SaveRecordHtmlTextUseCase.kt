@@ -4,7 +4,7 @@ import android.net.Uri
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.common.utils.FileUtils
-import com.gee12.mytetroid.domain.IStorageCrypter
+import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.domain.provider.IRecordPathProvider
 import com.gee12.mytetroid.model.TetroidRecord
 import java.io.IOException
@@ -14,7 +14,7 @@ import java.io.IOException
  */
 class SaveRecordHtmlTextUseCase(
     private val recordPathProvider: IRecordPathProvider,
-    private val storageCrypter: IStorageCrypter,
+    private val cryptManager: IStorageCryptManager,
     private val checkRecordFolderUseCase: CheckRecordFolderUseCase,
 ) : UseCase<UseCase.None, SaveRecordHtmlTextUseCase.Params>() {
 
@@ -49,7 +49,7 @@ class SaveRecordHtmlTextUseCase(
         // запись файла с шифрованием при необходимости
         try {
             if (record.isCrypted) {
-                val res = storageCrypter.encryptTextBytes(html)
+                val res = cryptManager.encryptTextBytes(html)
                 FileUtils.writeFile(uri, res)
             } else {
                 FileUtils.writeFile(uri, html)

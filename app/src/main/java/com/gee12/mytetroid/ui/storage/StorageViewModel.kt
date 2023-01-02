@@ -17,13 +17,14 @@ import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.common.utils.UriUtils
-import com.gee12.mytetroid.domain.IStorageCrypter
+import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.domain.interactor.*
-import com.gee12.mytetroid.domain.FavoritesManager
+import com.gee12.mytetroid.domain.manager.FavoritesManager
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.domain.NetworkHelper
+import com.gee12.mytetroid.domain.manager.PasswordManager
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.domain.usecase.InitAppUseCase
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -62,12 +63,12 @@ open class StorageViewModel(
     val recordPathProvider: IRecordPathProvider,
     val dataNameProvider: IDataNameProvider,
 
-    val storageCrypter: IStorageCrypter,
+    val cryptManager: IStorageCryptManager,
 
     val interactionInteractor: InteractionInteractor,
     val syncInteractor: SyncInteractor,
     val favoritesManager: FavoritesManager,
-    val passInteractor: PasswordInteractor,
+    val passwordManager: PasswordManager,
     val trashInteractor: TrashInteractor,
 
     protected val initAppUseCase: InitAppUseCase,
@@ -668,7 +669,8 @@ open class StorageViewModel(
 
     fun clearSavedPass() {
         storage?.let {
-            passInteractor.clearSavedPass(it)
+            sensitiveDataProvider.resetMiddlePassHash()
+            passwordManager.clearSavedPass(it)
             updateStorageAsync(it)
         }
     }
@@ -1119,7 +1121,7 @@ open class StorageViewModel(
 
     fun confirmEmptyPassCheckingFieldDialog(passHash: String, callbackEvent: VMEvent) {
 //        cryptInteractor.initCryptPass(passHash, true)
-        storageCrypter.setKeyFromMiddleHash(passHash)
+        cryptManager.setKeyFromMiddleHash(passHash)
         askPinCode(true, callbackEvent)
     }
 
@@ -1233,7 +1235,7 @@ open class StorageViewModel(
 
     private fun checkPassOnDecrypt(password: String, callbackEvent: VMEvent) {
         try {
-            if (passInteractor.checkPass(password)) {
+            if (passwordManager.checkPass(password)) {
                 launchOnMain {
                     initPassword(password)
                     sendEventFromCallbackParam(callbackEvent)
@@ -1261,7 +1263,7 @@ open class StorageViewModel(
 
     fun checkPassAndChange(curPass: String, newPass: String): Boolean {
         try {
-            if (passInteractor.checkPass(curPass)) {
+            if (passwordManager.checkPass(curPass)) {
                 startChangePass(curPass, newPass)
             } else {
                 logger.logError(R.string.log_cur_pass_is_incorrect, show = true)
@@ -1368,7 +1370,7 @@ open class StorageViewModel(
 
     fun checkPinCode(pin: String): Boolean {
         // сравниваем хеши
-        val pinHash = storageCrypter.passToHash(pin)
+        val pinHash = cryptManager.passToHash(pin)
         return (pinHash == CommonSettings.getPINCodeHash(getContext()))
     }
 

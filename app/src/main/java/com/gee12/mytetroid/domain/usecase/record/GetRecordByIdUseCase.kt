@@ -3,7 +3,7 @@ package com.gee12.mytetroid.domain.usecase.record
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.domain.TetroidRecordComparator
 import com.gee12.mytetroid.domain.provider.IStorageProvider
-import com.gee12.mytetroid.domain.FavoritesManager
+import com.gee12.mytetroid.domain.manager.FavoritesManager
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
 

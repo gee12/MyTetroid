@@ -4,12 +4,13 @@ import android.app.Application
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.utils.Utils
-import com.gee12.mytetroid.domain.IStorageCrypter
+import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
-import com.gee12.mytetroid.domain.FavoritesManager
+import com.gee12.mytetroid.domain.manager.FavoritesManager
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.domain.interactor.*
+import com.gee12.mytetroid.domain.manager.PasswordManager
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.domain.repo.StoragesRepo
@@ -44,12 +45,12 @@ class StorageInfoViewModel(
     storagePathProvider: IStoragePathProvider,
     recordPathProvider: IRecordPathProvider,
 
-    storageCrypter: IStorageCrypter,
+    cryptManager: IStorageCryptManager,
     storagesRepo: StoragesRepo,
     private val storageDataProcessor: IStorageDataProcessor,
 
     favoritesManager: FavoritesManager,
-    passInteractor: PasswordInteractor,
+    passwordManager: PasswordManager,
     interactionInteractor: InteractionInteractor,
     syncInteractor: SyncInteractor,
     trashInteractor: TrashInteractor,
@@ -90,11 +91,11 @@ class StorageInfoViewModel(
     dataNameProvider = dataNameProvider,
 
     storagesRepo = storagesRepo,
-    storageCrypter = storageCrypter,
+    cryptManager = cryptManager,
 
     favoritesManager = favoritesManager,
     interactionInteractor = interactionInteractor,
-    passInteractor = passInteractor,
+    passwordManager = passwordManager,
     syncInteractor = syncInteractor,
     trashInteractor = trashInteractor,
 
@@ -157,7 +158,7 @@ class StorageInfoViewModel(
         //  задаем его вручную позже
         storageProvider.init(storageDataProcessor)
         // TODO: нужно ли ?
-        storageCrypter.init(
+        cryptManager.init(
             cryptRecordFilesUseCase,
             parseRecordTagsUseCase,
         )

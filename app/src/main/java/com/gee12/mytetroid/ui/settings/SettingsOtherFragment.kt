@@ -7,7 +7,7 @@ import android.os.Bundle
 import androidx.preference.Preference
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.domain.TetroidSuggestionProvider
+import com.gee12.mytetroid.domain.provider.TetroidSuggestionProvider
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.ui.base.TetroidSettingsFragment

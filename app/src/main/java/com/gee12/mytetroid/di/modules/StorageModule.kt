@@ -1,12 +1,12 @@
 package com.gee12.mytetroid.di.modules
 
 import com.gee12.mytetroid.data.crypt.Crypter
-import com.gee12.mytetroid.domain.IStorageCrypter
-import com.gee12.mytetroid.domain.StorageCrypter
+import com.gee12.mytetroid.domain.manager.IStorageCryptManager
+import com.gee12.mytetroid.domain.manager.StorageCryptManager
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.data.xml.StorageDataXmlProcessor
 import com.gee12.mytetroid.di.ScopeSource
-import com.gee12.mytetroid.domain.FavoritesManager
+import com.gee12.mytetroid.domain.manager.FavoritesManager
 import com.gee12.mytetroid.domain.provider.*
 import org.koin.dsl.module
 
@@ -46,7 +46,7 @@ object StorageModule {
             scoped<IStorageDataProcessor> {
                 StorageDataXmlProcessor(
                     logger = get(),
-                    storageCrypter = get(),
+                    cryptManager = get(),
                     favoritesManager = get(),
                     parseRecordTagsUseCase = get(),
                     loadNodeIconUseCase = get(),
@@ -59,8 +59,8 @@ object StorageModule {
                 )
             }
 
-            scoped<IStorageCrypter> {
-                StorageCrypter(
+            scoped<IStorageCryptManager> {
+                StorageCryptManager(
                     logger = get(),
                     crypter = get(),
                 )

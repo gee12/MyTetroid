@@ -1,7 +1,7 @@
 package com.gee12.mytetroid.domain.usecase.crypt
 
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.domain.IStorageCrypter
+import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.domain.usecase.node.icon.LoadNodeIconUseCase
@@ -11,7 +11,7 @@ import com.gee12.mytetroid.domain.usecase.node.icon.LoadNodeIconUseCase
  */
 class DecryptStorageUseCase(
     private val logger: ITetroidLogger,
-    private val storageCrypter: IStorageCrypter,
+    private val cryptManager: IStorageCryptManager,
     private val storageDataProcessor: IStorageDataProcessor,
     private val loadNodeIconUseCase: LoadNodeIconUseCase,
 ) : UseCase<Boolean, DecryptStorageUseCase.Params>() {
@@ -21,7 +21,7 @@ class DecryptStorageUseCase(
     )
 
     override suspend fun run(params: Params): Either<Failure, Boolean> {
-        return storageCrypter.decryptNodes(
+        return cryptManager.decryptNodes(
             nodes = storageDataProcessor.getRootNodes(),
             isDecryptSubNodes = true,
             isDecryptRecords = true,

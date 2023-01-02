@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.domain;
+package com.gee12.mytetroid.domain.manager;
 
 import com.gee12.mytetroid.model.FoundType;
 import com.gee12.mytetroid.model.TetroidFile;

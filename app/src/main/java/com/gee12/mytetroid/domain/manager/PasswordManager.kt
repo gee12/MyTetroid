@@ -1,18 +1,15 @@
-package com.gee12.mytetroid.domain.interactor
+package com.gee12.mytetroid.domain.manager
 
-import com.gee12.mytetroid.domain.IStorageCrypter
 import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.model.TetroidStorage
-import com.gee12.mytetroid.domain.provider.ISensitiveDataProvider
 import com.gee12.mytetroid.domain.provider.IStorageProvider
 
 /**
- * Создается для конкретного хранилища.
+ * Работа с файлом database.ini.
  */
-class PasswordInteractor(
+class PasswordManager(
     private val storageProvider: IStorageProvider,
-    private val storageCrypter: IStorageCrypter,
-    private val sensitiveDataProvider: ISensitiveDataProvider,
+    private val cryptManager: IStorageCryptManager,
 ) {
 
     private val databaseConfig: DatabaseConfig
@@ -26,7 +23,7 @@ class PasswordInteractor(
     fun checkPass(pass: String?): Boolean {
         val salt = databaseConfig.cryptCheckSalt
         val checkHash = databaseConfig.cryptCheckHash
-        return storageCrypter.checkPass(pass, salt, checkHash)
+        return cryptManager.checkPass(pass, salt, checkHash)
     }
 
     /**
@@ -36,14 +33,13 @@ class PasswordInteractor(
     @Throws(DatabaseConfig.EmptyFieldException::class)
     fun checkMiddlePassHash(passHash: String?): Boolean {
         val checkData = databaseConfig.middleHashCheckData
-        return storageCrypter.checkMiddlePassHash(passHash, checkData)
+        return cryptManager.checkMiddlePassHash(passHash, checkData)
     }
 
     /**
      * Сброс сохраненного хэша пароля и его проверочных данных.
      */
     fun clearSavedPass(storage: TetroidStorage) {
-        sensitiveDataProvider.resetMiddlePassHash()
         clearPassCheckData(storage)
         clearMiddlePassCheckData()
     }

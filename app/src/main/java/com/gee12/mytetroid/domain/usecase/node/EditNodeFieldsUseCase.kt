@@ -1,7 +1,7 @@
 package com.gee12.mytetroid.domain.usecase.node
 
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.domain.IStorageCrypter
+import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
@@ -13,7 +13,7 @@ import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
  */
 class EditNodeFieldsUseCase(
     private val logger: ITetroidLogger,
-    private val storageCrypter: IStorageCrypter,
+    private val cryptManager: IStorageCryptManager,
     private val saveStorageUseCase: SaveStorageUseCase,
 ) : UseCase<UseCase.None, EditNodeFieldsUseCase.Params>() {
 
@@ -44,13 +44,13 @@ class EditNodeFieldsUseCase(
                 // возвращаем изменения
                 node.name = oldName
                 if (isCrypted) {
-                    node.setDecryptedName(storageCrypter.decryptTextBase64(oldName))
+                    node.setDecryptedName(cryptManager.decryptTextBase64(oldName))
                 }
             }
     }
 
     private fun encryptFieldIfNeed(fieldValue: String, isEncrypt: Boolean): String? {
-        return if (isEncrypt) storageCrypter.encryptTextBase64(fieldValue) else fieldValue
+        return if (isEncrypt) cryptManager.encryptTextBase64(fieldValue) else fieldValue
     }
 
 }

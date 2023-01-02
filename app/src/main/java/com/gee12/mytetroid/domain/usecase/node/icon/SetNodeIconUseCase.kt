@@ -1,7 +1,7 @@
 package com.gee12.mytetroid.domain.usecase.node.icon
 
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.domain.IStorageCrypter
+import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
@@ -10,7 +10,7 @@ import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
 
 class SetNodeIconUseCase(
     private val logger: ITetroidLogger,
-    private val storageCrypter: IStorageCrypter,
+    private val cryptManager: IStorageCryptManager,
     private val loadNodeIconUseCase: LoadNodeIconUseCase,
     private val saveStorageUseCase: SaveStorageUseCase,
 ) : UseCase<UseCase.None, SetNodeIconUseCase.Params>() {
@@ -29,7 +29,7 @@ class SetNodeIconUseCase(
         // обновляем поля
         val isCrypted = node.isCrypted
         if (isCrypted && !iconFileName.isNullOrEmpty()) {
-            node.iconName = storageCrypter.encryptTextBase64(iconFileName)
+            node.iconName = cryptManager.encryptTextBase64(iconFileName)
         }
         if (isCrypted) {
             node.setDecryptedIconName(iconFileName)
@@ -45,7 +45,7 @@ class SetNodeIconUseCase(
                 // возвращаем изменения
                 node.iconName = oldIconName
                 if (isCrypted) {
-                    node.setDecryptedIconName(storageCrypter.decryptTextBase64(oldIconName))
+                    node.setDecryptedIconName(cryptManager.decryptTextBase64(oldIconName))
                 }
             }
     }

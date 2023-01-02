@@ -5,7 +5,7 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.common.utils.FileUtils
-import com.gee12.mytetroid.domain.IStorageCrypter
+import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.domain.usecase.record.CheckRecordFolderUseCase
 import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
 import com.gee12.mytetroid.domain.provider.IRecordPathProvider
@@ -26,7 +26,7 @@ class CreateAttachToRecordUseCase(
     private val logger: ITetroidLogger,
     private val dataNameProvider: IDataNameProvider,
     private val recordPathProvider: IRecordPathProvider,
-    private val storageCrypter: IStorageCrypter,
+    private val cryptManager: IStorageCryptManager,
     private val checkRecordFolderUseCase: CheckRecordFolderUseCase,
     private val saveStorageUseCase: SaveStorageUseCase,
 ) : UseCase<TetroidFile, CreateAttachToRecordUseCase.Params>() {
@@ -93,7 +93,7 @@ class CreateAttachToRecordUseCase(
         if (record.isCrypted) {
             logger.logOperStart(LogObj.FILE, LogOper.ENCRYPT)
             try {
-                if (!storageCrypter.encryptDecryptFile(
+                if (!cryptManager.encryptDecryptFile(
                         srcFile = srcFile,
                         destFile = destFile,
                         encrypt = true
@@ -145,7 +145,7 @@ class CreateAttachToRecordUseCase(
     }
 
     private fun encryptFieldIfNeed(fieldValue: String, isEncrypt: Boolean): String? {
-        return if (isEncrypt) storageCrypter.encryptTextBase64(fieldValue) else fieldValue
+        return if (isEncrypt) cryptManager.encryptTextBase64(fieldValue) else fieldValue
     }
 
 }

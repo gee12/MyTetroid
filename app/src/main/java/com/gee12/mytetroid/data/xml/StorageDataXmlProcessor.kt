@@ -5,8 +5,8 @@ import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.onFailure
 import kotlin.Throws
 import com.gee12.mytetroid.common.utils.Utils
-import com.gee12.mytetroid.domain.IStorageCrypter
-import com.gee12.mytetroid.domain.FavoritesManager
+import com.gee12.mytetroid.domain.manager.IStorageCryptManager
+import com.gee12.mytetroid.domain.manager.FavoritesManager
 import com.gee12.mytetroid.domain.usecase.node.icon.LoadNodeIconUseCase
 import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -47,7 +47,7 @@ interface IStorageDataProcessor : IStorageInfoProvider {
  */
 open class StorageDataXmlProcessor(
     private val logger: ITetroidLogger,
-    private val storageCrypter: IStorageCrypter,
+    private val cryptManager: IStorageCryptManager,
     private val favoritesManager: FavoritesManager,
     private val parseRecordTagsUseCase: ParseRecordTagsUseCase,
     private val loadNodeIconUseCase: LoadNodeIconUseCase,
@@ -732,7 +732,7 @@ open class StorageDataXmlProcessor(
 
 
     private suspend fun decryptNode(node: TetroidNode): Boolean {
-        return storageCrypter.decryptNode(
+        return cryptManager.decryptNode(
             node = node,
             isDecryptSubNodes = false,
             isDecryptRecords = false,
@@ -753,7 +753,7 @@ open class StorageDataXmlProcessor(
     }
 
     private suspend fun decryptRecord(record: TetroidRecord): Boolean {
-        return storageCrypter.decryptRecordAndFiles(
+        return cryptManager.decryptRecordAndFiles(
             record = record,
             dropCrypt = false,
             decryptFiles = false

@@ -3,9 +3,9 @@ package com.gee12.mytetroid.domain.usecase.record
 import android.net.Uri
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.makePath
-import com.gee12.mytetroid.domain.IStorageCrypter
+import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.domain.provider.IRecordPathProvider
-import com.gee12.mytetroid.domain.FavoritesManager
+import com.gee12.mytetroid.domain.manager.FavoritesManager
 import com.gee12.mytetroid.domain.provider.IDataNameProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
@@ -28,7 +28,7 @@ class CreateRecordUseCase(
     private val logger: ITetroidLogger,
     private val dataNameProvider: IDataNameProvider,
     private val recordPathProvider: IRecordPathProvider,
-    private val storageCrypter: IStorageCrypter,
+    private val cryptManager: IStorageCryptManager,
     private val favoritesManager: FavoritesManager,
     private val checkRecordFolderUseCase: CheckRecordFolderUseCase,
     private val parseRecordTagsUseCase: ParseRecordTagsUseCase,
@@ -135,7 +135,7 @@ class CreateRecordUseCase(
     }
 
     private fun encryptFieldIfNeed(fieldValue: String, isEncrypt: Boolean): String? {
-        return if (isEncrypt) storageCrypter.encryptTextBase64(fieldValue) else fieldValue
+        return if (isEncrypt) cryptManager.encryptTextBase64(fieldValue) else fieldValue
     }
 
 }

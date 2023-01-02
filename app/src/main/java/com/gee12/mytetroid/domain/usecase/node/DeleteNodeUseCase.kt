@@ -1,7 +1,7 @@
 package com.gee12.mytetroid.domain.usecase.node
 
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.domain.FavoritesManager
+import com.gee12.mytetroid.domain.manager.FavoritesManager
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
