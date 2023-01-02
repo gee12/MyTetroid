@@ -19,6 +19,7 @@ import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.extensions.buildIntent
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.model.TetroidStorage
+import com.gee12.mytetroid.model.enums.TetroidPermission
 import com.gee12.mytetroid.ui.storage.info.StorageInfoActivity
 import com.gee12.mytetroid.ui.settings.storage.StorageSettingsActivity
 import com.gee12.mytetroid.ui.storage.StorageViewModel
@@ -94,7 +95,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
             is StoragesEvent -> {
                 onStoragesEvent(event)
             }
-            is BaseEvent.PermissionGranted -> {
+            is BaseEvent.Permission.Granted -> {
                 when (event.requestCode) {
                     Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE -> viewModel.addNewStorage(this)
                     Constants.REQUEST_CODE_PERMISSION_READ_STORAGE -> Unit // ничего не делаем
@@ -158,8 +159,16 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
                 when (event) {
                     is StorageEvent.FilesCreated -> onStorageFilesCreated(event.storage)
                     // проверка разрешения перед созданием файлов хранилища
-                    BaseEvent.PermissionCheck -> storageViewModel.checkWriteExtStoragePermission(this@StoragesActivity)
-                    is BaseEvent.PermissionGranted -> storageViewModel.initStorage()
+                    is BaseEvent.Permission.Check -> {
+                        if (event.permission == TetroidPermission.WriteStorage) {
+                            storageViewModel.checkWriteExtStoragePermission(activity = this@StoragesActivity)
+                        }
+                    }
+                    is BaseEvent.Permission.Granted -> {
+                        if (event.permission == TetroidPermission.WriteStorage) {
+                            storageViewModel.initStorage()
+                        }
+                    }
                     else -> Unit
                 }
             }

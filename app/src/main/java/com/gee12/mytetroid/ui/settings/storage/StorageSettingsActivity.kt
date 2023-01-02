@@ -13,6 +13,7 @@ import com.gee12.mytetroid.common.extensions.buildIntent
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.domain.provider.IStorageProvider
+import com.gee12.mytetroid.model.enums.TetroidPermission
 import com.gee12.mytetroid.ui.base.TetroidSettingsActivity
 import com.gee12.mytetroid.ui.storage.StorageEvent
 import com.gee12.mytetroid.ui.base.BaseEvent
@@ -86,8 +87,16 @@ class StorageSettingsActivity : TetroidSettingsActivity() {
             }
             BaseEvent.TaskFinished -> setProgressVisibility(false)
             BaseEvent.ShowMoreInLogs -> showSnackMoreInLogs()
-            BaseEvent.PermissionCheck -> viewModel.checkWriteExtStoragePermission(this)
-            is BaseEvent.PermissionGranted -> viewModel.initStorage()
+            is BaseEvent.Permission.Check -> {
+                if (event.permission == TetroidPermission.WriteStorage) {
+                    viewModel.checkWriteExtStoragePermission(activity = this)
+                }
+            }
+            is BaseEvent.Permission.Granted -> {
+                if (event.permission == TetroidPermission.WriteStorage) {
+                    viewModel.initStorage()
+                }
+            }
             else -> Unit
         }
     }

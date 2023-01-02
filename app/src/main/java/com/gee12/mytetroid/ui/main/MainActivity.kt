@@ -36,6 +36,7 @@ import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.model.*
+import com.gee12.mytetroid.model.enums.TetroidPermission
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.TetroidStorageActivity
 import com.gee12.mytetroid.ui.base.VMEvent
@@ -262,10 +263,20 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             is BaseEvent.UpdateToolbar -> {
                 updateMainToolbar(event.viewId, event.title)
             }
-            BaseEvent.HandleReceivedIntent -> checkReceivedIntent(receivedIntent)
-            BaseEvent.PermissionCheck -> viewModel.checkWriteExtStoragePermission(this)
-            is BaseEvent.PermissionGranted -> viewModel.syncAndInitStorage(this)
-            is BaseEvent.PermissionCanceled -> {}
+            BaseEvent.HandleReceivedIntent -> {
+                checkReceivedIntent(receivedIntent)
+            }
+            is BaseEvent.Permission.Check -> {
+                if (event.permission == TetroidPermission.WriteStorage) {
+                    viewModel.checkWriteExtStoragePermission(this)
+                }
+            }
+            is BaseEvent.Permission.Granted -> {
+                if (event.permission == TetroidPermission.WriteStorage) {
+                    viewModel.syncAndInitStorage(this)
+                }
+            }
+            is BaseEvent.Permission.Canceled -> {}
             is BaseEvent.OpenPage -> viewPager.setCurrent(event.pageId)
             is BaseEvent.ShowMainView -> mainPage.showView(event.viewId)
             BaseEvent.ClearMainView -> mainPage.clearView()

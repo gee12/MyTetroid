@@ -14,10 +14,11 @@ import com.gee12.mytetroid.domain.provider.CommonSettingsProvider
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
-import com.gee12.mytetroid.domain.interactor.PermissionInteractor
+import com.gee12.mytetroid.domain.interactor.PermissionManager
 import com.gee12.mytetroid.domain.interactor.PermissionRequestData
 import com.gee12.mytetroid.logs.*
 import com.gee12.mytetroid.model.TetroidObject
+import com.gee12.mytetroid.model.enums.TetroidPermission
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -43,7 +44,7 @@ open class BaseViewModel(
     var isBusy = false
 
     // TODO: inject
-    val permissionInteractor = PermissionInteractor(resourcesProvider, this.logger)
+    val permissionInteractor = PermissionManager(resourcesProvider, this.logger)
 
     private val _messageEventFlow = MutableSharedFlow<Message>(extraBufferCapacity = 0)
     val messageEventFlow = _messageEventFlow.asSharedFlow()
@@ -81,115 +82,166 @@ open class BaseViewModel(
 
     //region Permission
 
-    @JvmOverloads
     fun checkReadExtStoragePermission(
         activity: Activity,
         requestCode: Int = Constants.REQUEST_CODE_PERMISSION_READ_STORAGE,
         callback: (() -> Unit)? = null
     ): Boolean {
+        val permission = TetroidPermission.ReadStorage
+
         if (permissionInteractor.checkPermission(
                 PermissionRequestData(
-                    permission = Constants.TetroidPermission.ReadStorage,
+                    permission = permission,
                     activity = activity,
                     requestCode = requestCode,
                     onManualPermissionRequest = { requestCallback ->
                         showManualPermissionRequest(
-                            PermissionRequestParams(
-                                permission = Constants.TetroidPermission.ReadStorage,
-                                requestCallback = requestCallback
-                            )
+                            permission = permission,
+                            requestCallback = requestCallback
                         )
                     }
                 )
             )
         ) {
             if (callback != null) callback.invoke()
-            else onPermissionGranted(requestCode)
+            else onPermissionGranted(permission, requestCode)
             return true
         }
         return false
     }
 
-    @JvmOverloads
     fun checkWriteExtStoragePermission(
         activity: Activity,
         requestCode: Int = Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE,
         callback: (() -> Unit)? = null
     ): Boolean {
+        val permission = TetroidPermission.WriteStorage
+
         if (permissionInteractor.checkPermission(
                 PermissionRequestData(
-                    permission = Constants.TetroidPermission.WriteStorage,
+                    permission = permission,
                     activity = activity,
                     requestCode = requestCode,
                     onManualPermissionRequest = { requestCallback ->
                         showManualPermissionRequest(
-                            PermissionRequestParams(
-                                permission = Constants.TetroidPermission.WriteStorage,
-                                requestCallback = requestCallback
-                            )
+                            permission = permission,
+                            requestCallback = requestCallback
                         )
                     }
                 )
             )
         ) {
             if (callback != null) callback.invoke()
-            else onPermissionGranted(requestCode)
+            else onPermissionGranted(permission, requestCode)
             return true
         }
         return false
     }
 
     fun checkCameraPermission(activity: Activity): Boolean {
+        val permission = TetroidPermission.Camera
+
         return permissionInteractor.checkPermission(
             PermissionRequestData(
-                permission = Constants.TetroidPermission.Camera,
+                permission = permission,
                 activity = activity,
                 requestCode = Constants.REQUEST_CODE_PERMISSION_CAMERA,
                 onManualPermissionRequest = { requestCallback ->
                     showManualPermissionRequest(
-                        PermissionRequestParams(
-                            permission = Constants.TetroidPermission.Camera,
-                            requestCallback = requestCallback
-                        )
+                        permission = permission,
+                        requestCallback = requestCallback
                     )
                 }
             )
         )
     }
 
+    fun checkRecordAudioPermission(activity: Activity) {
+        val permission = TetroidPermission.RecordAudio
+
+        if (permissionInteractor.checkPermission(
+                PermissionRequestData(
+                    permission = permission,
+                    activity = activity,
+                    requestCode = Constants.REQUEST_CODE_PERMISSION_RECORD_AUDIO,
+                    onManualPermissionRequest = { requestCallback ->
+                        showManualPermissionRequest(
+                            permission = permission,
+                            requestCallback = requestCallback
+                        )
+                    }
+                )
+            )
+        ) {
+            launchOnMain {
+                sendEvent(BaseEvent.Permission.Granted(permission))
+            }
+        }
+    }
+
     fun checkTermuxPermission(activity: Activity): Boolean {
+        val permission = TetroidPermission.Termux
+
         return permissionInteractor.checkPermission(
             PermissionRequestData(
-                permission = Constants.TetroidPermission.Termux,
+                permission = permission,
                 activity = activity,
                 requestCode = Constants.REQUEST_CODE_PERMISSION_TERMUX,
                 onManualPermissionRequest = { requestCallback ->
                     showManualPermissionRequest(
-                        PermissionRequestParams(
-                            permission = Constants.TetroidPermission.Termux,
-                            requestCallback = requestCallback
-                        )
+                        permission = permission,
+                        requestCallback = requestCallback
                     )
                 }
             )
         )
     }
 
-    open fun onPermissionGranted(requestCode: Int) {
+    open fun onPermissionGranted(permission: TetroidPermission, requestCode: Int) {
         launchOnMain {
-            sendEvent(BaseEvent.PermissionGranted(requestCode))
+            sendEvent(BaseEvent.Permission.Granted(permission, requestCode))
+        }
+    }
+
+    open fun onPermissionGranted(requestCode: Int) {
+        requestCodeToPermission(requestCode)?.let { permission ->
+            launchOnMain {
+                sendEvent(BaseEvent.Permission.Granted(permission, requestCode))
+            }
+        }
+    }
+
+    open fun onPermissionCanceled(permission: TetroidPermission, requestCode: Int) {
+        launchOnMain {
+            sendEvent(BaseEvent.Permission.Canceled(permission, requestCode))
         }
     }
 
     open fun onPermissionCanceled(requestCode: Int) {
-        launchOnMain {
-            sendEvent(BaseEvent.PermissionCanceled(requestCode))
+        requestCodeToPermission(requestCode)?.let { permission ->
+            launchOnMain {
+                sendEvent(BaseEvent.Permission.Canceled(permission, requestCode))
+            }
         }
     }
 
-    open fun showManualPermissionRequest(request: PermissionRequestParams) {
+    open fun showManualPermissionRequest(
+        permission: TetroidPermission,
+        requestCallback: () -> Unit
+    ) {
         launchOnMain {
-            sendEvent(BaseEvent.ShowPermissionRequest(request))
+            sendEvent(BaseEvent.Permission.ShowRequest(permission, requestCallback))
+        }
+    }
+
+    fun requestCodeToPermission(requestCode: Int): TetroidPermission? {
+        return when (requestCode) {
+            Constants.REQUEST_CODE_PERMISSION_READ_STORAGE -> TetroidPermission.ReadStorage
+            Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE -> TetroidPermission.WriteStorage
+            Constants.REQUEST_CODE_PERMISSION_CAMERA -> TetroidPermission.Camera
+            Constants.REQUEST_CODE_PERMISSION_RECORD_AUDIO -> TetroidPermission.RecordAudio
+            Constants.REQUEST_CODE_PERMISSION_TERMUX -> TetroidPermission.Termux
+            else -> null
         }
     }
 

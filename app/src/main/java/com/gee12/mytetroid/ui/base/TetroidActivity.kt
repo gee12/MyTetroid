@@ -25,6 +25,7 @@ import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.provider.CommonSettingsProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.Message
+import com.gee12.mytetroid.model.enums.TetroidPermission
 import com.gee12.mytetroid.ui.TetroidMessage
 import com.gee12.mytetroid.ui.about.AboutActivity
 import com.gee12.mytetroid.ui.base.views.ActivityDoubleTapListener
@@ -161,14 +162,15 @@ abstract class TetroidActivity<VM : BaseViewModel>
 
     /**
      * Обработчик изменения состояния View.
-     * @param event
-     * @param data
      */
     protected open fun onBaseEvent(event: BaseEvent) {
         when (event) {
             is BaseEvent.ShowProgress -> setProgressVisibility(event.isVisible)
-            is BaseEvent.ShowProgressText -> setProgressText(event.message)
-            is BaseEvent.ShowPermissionRequest -> showPermissionRequest(event.request)
+            is BaseEvent.ShowProgressText -> showProgress(event.message)
+            is BaseEvent.Permission.ShowRequest -> showPermissionRequest(
+                permission = event.permission,
+                requestCallback = event.requestCallback,
+            )
             is BaseEvent.TaskStarted -> {
                 taskPreExecute(event.titleResId ?: R.string.progress_loading)
             }
@@ -178,18 +180,16 @@ abstract class TetroidActivity<VM : BaseViewModel>
         }
     }
 
-    private fun showPermissionRequest(params: PermissionRequestParams) {
+    private fun showPermissionRequest(
+        permission: TetroidPermission,
+        requestCallback: () -> Unit
+    ) {
         // диалог с объяснием зачем нужно разрешение
         AskDialogs.showYesDialog(
             context = this,
-            messageResId = when (params.permission) {
-                Constants.TetroidPermission.ReadStorage -> R.string.ask_request_read_ext_storage
-                Constants.TetroidPermission.WriteStorage -> R.string.ask_request_write_ext_storage
-                Constants.TetroidPermission.Camera -> R.string.ask_request_camera
-                Constants.TetroidPermission.Termux -> R.string.ask_permission_termux
-            },
+            message = permission.getPermissionRequestMessage(resourcesProvider),
             onApply = {
-                params.requestCallback.invoke()
+                requestCallback.invoke()
             },
         )
     }

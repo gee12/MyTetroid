@@ -37,7 +37,7 @@ object UseCasesModule {
         }
 
         single {
-            PermissionInteractor(
+            PermissionManager(
                 logger = get(),
                 resourcesProvider = get(),
             )

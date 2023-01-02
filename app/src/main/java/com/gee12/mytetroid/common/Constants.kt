@@ -56,7 +56,8 @@ object Constants {
     const val REQUEST_CODE_PERMISSION_WRITE_STORAGE = 101
     const val REQUEST_CODE_PERMISSION_WRITE_TEMP = 102
     const val REQUEST_CODE_PERMISSION_CAMERA = 103
-    const val REQUEST_CODE_PERMISSION_TERMUX = 104
+    const val REQUEST_CODE_PERMISSION_RECORD_AUDIO = 104
+    const val REQUEST_CODE_PERMISSION_TERMUX = 105
 
     // TODO: преобразовать в enum
     const val PAGE_MAIN = 0
@@ -112,13 +113,6 @@ object Constants {
     enum class TetroidView {
         Main,
         Settings
-    }
-
-    enum class TetroidPermission {
-        ReadStorage,
-        WriteStorage,
-        Camera,
-        Termux
     }
 
 }

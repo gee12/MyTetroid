@@ -114,8 +114,3 @@ abstract class BaseStorageViewModel(
     //endregion Getters
 
 }
-
-data class PermissionRequestParams(
-    val permission: Constants.TetroidPermission,
-    val requestCallback: () -> Unit
-)

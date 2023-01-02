@@ -43,6 +43,7 @@ import com.gee12.mytetroid.domain.usecase.file.GetFolderSizeUseCase
 import com.gee12.mytetroid.domain.usecase.node.GetNodeByIdUseCase
 import com.gee12.mytetroid.domain.usecase.record.GetRecordByIdUseCase
 import com.gee12.mytetroid.domain.usecase.storage.ReadStorageUseCase
+import com.gee12.mytetroid.model.enums.TetroidPermission
 import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.util.*
@@ -281,7 +282,7 @@ open class StorageViewModel(
 
         // сначала проверяем разрешение на запись во внешнюю память
         launchOnMain {
-            sendEvent(BaseEvent.PermissionCheck)
+            sendEvent(BaseEvent.Permission.Check(permission = TetroidPermission.WriteStorage))
         }
     }
 

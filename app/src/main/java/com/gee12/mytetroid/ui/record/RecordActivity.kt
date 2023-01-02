@@ -209,11 +209,30 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             is BaseEvent.SetActivityResult -> setResult(event.code, event.intent)
             BaseEvent.FinishActivity -> finish()
             is BaseEvent.FinishWithResult -> finishWithResult(event.code, event.bundle)
-            BaseEvent.PermissionCheck,
-            is BaseEvent.PermissionGranted ->
-                // загружаем параметры хранилища только после проверки разрешения на запись во внешнюю память
-                startInitStorage()
-            is BaseEvent.PermissionCanceled ->
+            is BaseEvent.Permission.Check -> {
+                when (event.permission) {
+                    TetroidPermission.WriteStorage -> {
+                        viewModel.checkWriteExtStoragePermission(activity = this)
+                    }
+                    TetroidPermission.RecordAudio -> {
+                        viewModel.checkRecordAudioPermission(activity = this)
+                    }
+                    else -> {}
+                }
+            }
+            is BaseEvent.Permission.Granted -> {
+                when (event.permission) {
+                    TetroidPermission.WriteStorage -> {
+                        // загружаем параметры хранилища только после проверки разрешения на запись во внешнюю память
+                        startInitStorage()
+                    }
+                    TetroidPermission.RecordAudio -> {
+                        startVoiceInputDirectly()
+                    }
+                    else -> {}
+                }
+            }
+            is BaseEvent.Permission.Canceled ->
                 // закрываем активити, если нет разрешения на запись во внешнюю память
                 // TODO: поведение потребуется изменить, если хранилище загружается только на чтение
                 finish()

@@ -12,6 +12,7 @@ import android.widget.TextView
 import androidx.core.view.isVisible
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.model.enums.TetroidPermission
 import com.gee12.mytetroid.ui.base.TetroidStorageActivity
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.storage.info.StorageInfoViewModel.StorageInfoEvent
@@ -53,8 +54,16 @@ class StorageInfoActivity : TetroidStorageActivity<StorageInfoViewModel>() {
             is StorageInfoEvent -> {
                 onStorageInfoEvent(event)
             }
-            BaseEvent.PermissionCheck -> viewModel.checkWriteExtStoragePermission(this)
-            is BaseEvent.PermissionGranted -> viewModel.initStorage()
+            is BaseEvent.Permission.Check -> {
+                if (event.permission == TetroidPermission.WriteStorage) {
+                    viewModel.checkWriteExtStoragePermission(activity = this)
+                }
+            }
+            is BaseEvent.Permission.Granted -> {
+                if (event.permission == TetroidPermission.WriteStorage) {
+                    viewModel.initStorage()
+                }
+            }
             else -> super.onBaseEvent(event)
         }
     }

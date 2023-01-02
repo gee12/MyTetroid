@@ -8,12 +8,12 @@ import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
+import com.gee12.mytetroid.model.enums.TetroidPermission
 
 
-class PermissionInteractor(
+class PermissionManager(
     private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
 ) {
@@ -75,21 +75,21 @@ class PermissionInteractor(
      */
     fun checkPermission(
         activity: Activity,
-        permission: String,
+        androidPermission: String,
         requestCode: Int,
         onManualPermissionRequest: (() -> Unit) -> Unit
     ): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // проверяем разрешение
-            if (ContextCompat.checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) {
+            if (ContextCompat.checkSelfPermission(activity, androidPermission) != PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.shouldShowRequestPermissionRationale(activity, androidPermission)) {
                     // спрашиваем у пользователя
                     onManualPermissionRequest {
-                        requestPermission(activity, permission, requestCode)
+                        requestPermission(activity, androidPermission, requestCode)
                     }
                 } else {
                     // отправляем запрос на разрешение
-                    requestPermission(activity, permission, requestCode)
+                    requestPermission(activity, androidPermission, requestCode)
                 }
                 return false
             }
@@ -106,26 +106,15 @@ class PermissionInteractor(
      * Универсальная проверка разрешения.
      */
     fun checkPermission(data: PermissionRequestData): Boolean {
-        return if (data.permission == Constants.TetroidPermission.WriteStorage) {
+        return if (data.permission == TetroidPermission.WriteStorage) {
             checkWriteExtStoragePermission(data)
         } else {
             checkPermission(
-                data.activity,
-                data.permission.toAndroidPermission(),
-                data.requestCode,
-                data.onManualPermissionRequest
+                activity = data.activity,
+                androidPermission = data.permission.toAndroidPermission(),
+                requestCode = data.requestCode,
+                onManualPermissionRequest = data.onManualPermissionRequest,
             )
-        }
-    }
-
-    private fun Constants.TetroidPermission.toAndroidPermission(): String {
-        return when (this) {
-            Constants.TetroidPermission.ReadStorage -> Manifest.permission.READ_EXTERNAL_STORAGE
-            // запуск камеры для захвата изображения
-            Constants.TetroidPermission.Camera -> Manifest.permission.CAMERA
-            // запуск команд Termux
-            Constants.TetroidPermission.Termux -> PERMISSION_TERMUX
-            else -> ""
         }
     }
 
@@ -134,9 +123,9 @@ class PermissionInteractor(
             true
         } else {
             requestWriteExtStoragePermissions(
-                data.activity,
-                data.requestCode,
-                data.onManualPermissionRequest
+                activity = data.activity,
+                requestCode = data.requestCode,
+                onManualPermissionRequest = data.onManualPermissionRequest,
             )
             false
         }
@@ -145,7 +134,7 @@ class PermissionInteractor(
 }
 
 data class PermissionRequestData(
-    val permission: Constants.TetroidPermission,
+    val permission: TetroidPermission,
     val activity: Activity,
     val requestCode: Int,
     val onManualPermissionRequest: (() -> Unit) -> Unit
