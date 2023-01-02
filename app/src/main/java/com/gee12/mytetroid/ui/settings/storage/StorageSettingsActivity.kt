@@ -74,14 +74,12 @@ class StorageSettingsActivity : TetroidSettingsActivity() {
     }
 
     private fun onBaseEvent(event: BaseEvent) {
-//        (getCurrentFragment() as? TetroidStorageSettingsFragment)?.onViewEvent(event, data)
-
         when (event) {
             is StorageEvent -> {
                 onStorageEvent(event)
             }
             is BaseEvent.ShowProgress -> setProgressVisibility(event.isVisible)
-            is BaseEvent.ShowProgressText -> setProgressText(event.message)
+            is BaseEvent.ShowProgressText -> showProgress(event.message)
             is BaseEvent.TaskStarted -> {
                 setProgressVisibility(true, event.titleResId?.let { getString(it) })
             }

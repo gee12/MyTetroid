@@ -113,7 +113,7 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
     protected open fun onBaseEvent(event: BaseEvent) {
         when (event) {
             is BaseEvent.ShowProgress -> viewEventListener?.setProgressVisibility(event.isVisible)
-            is BaseEvent.ShowProgressText -> viewEventListener?.setProgressText(event.message)
+            is BaseEvent.ShowProgressText -> viewEventListener?.showProgress(event.message)
             is BaseEvent.TaskStarted -> {
                 viewEventListener?.setProgressVisibility(true, event.titleResId?.let { getString(it) })
             }

@@ -52,7 +52,7 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
     open fun onViewEvent(event: BaseEvent) {
         when (event) {
             is BaseEvent.ShowProgress -> settingsActivity?.setProgressVisibility(event.isVisible)
-            is BaseEvent.ShowProgressText -> settingsActivity?.setProgressText(event.message)
+            is BaseEvent.ShowProgressText -> settingsActivity?.showProgress(event.message)
             is BaseEvent.TaskStarted -> {
                 settingsActivity?.setProgressVisibility(true, event.titleResId?.let { getString(it) })
             }

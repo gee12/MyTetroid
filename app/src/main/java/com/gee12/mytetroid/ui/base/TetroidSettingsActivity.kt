@@ -11,6 +11,7 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -58,20 +59,20 @@ abstract class TetroidSettingsActivity : AppCompatActivity(), IViewEventListener
     //region IViewEventListener
 
     override fun setProgressVisibility(isVisible: Boolean, text: String?) {
-        if (isVisible) {
-            tvProgress.text = text
-            lProgress.visibility = View.VISIBLE
-        } else {
-            lProgress.visibility = View.GONE
-        }
+        lProgress.isVisible = isVisible
+        tvProgress.text = text
     }
 
-    override fun setProgressText(progressTextResId: Int) {
-        tvProgress.setText(progressTextResId)
+    override fun showProgress(textResId: Int?) {
+        setProgressVisibility(isVisible = true, text = textResId?.let { getString(it) })
     }
 
-    override fun setProgressText(progressText: String?) {
-        tvProgress.text = progressText
+    override fun showProgress(text: String?) {
+        setProgressVisibility(isVisible = true, text)
+    }
+
+    override fun hideProgress() {
+        setProgressVisibility(isVisible = false)
     }
 
     //endregion IViewEventListener

@@ -24,6 +24,7 @@ import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.provider.CommonSettingsProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
+import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.logs.Message
 import com.gee12.mytetroid.model.enums.TetroidPermission
 import com.gee12.mytetroid.ui.TetroidMessage
@@ -393,7 +394,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
 
     fun taskPreExecute(progressTextResId: Int) {
         blockInterface()
-        setProgressText(progressTextResId)
+        showProgress(progressTextResId)
         window.decorView.hideKeyboard()
     }
 
@@ -428,28 +429,24 @@ abstract class TetroidActivity<VM : BaseViewModel>
     }
 
     override fun setProgressVisibility(isVisible: Boolean, text: String?) {
-        if (isVisible) {
-            tvProgress.text = text
-            layoutProgress.visibility = View.VISIBLE
-        } else {
-            layoutProgress.visibility = View.GONE
-        }
         layoutProgress.isVisible = isVisible
+        tvProgress.text = text
     }
 
-    override fun setProgressText(progressTextResId: Int) {
-        setProgressText(getString(progressTextResId))
+    override fun showProgress(textResId: Int?) {
+        showProgress(text = textResId?.let { getString(it) })
     }
 
-    override fun setProgressText(progressText: String?) {
-        layoutProgress.visibility = View.VISIBLE
-        tvProgress.text = progressText
+    override fun showProgress(text: String?) {
+        setProgressVisibility(isVisible = true, text)
+    }
+
+    override fun hideProgress() {
+        setProgressVisibility(isVisible = false)
     }
 
     /**
      * Установка видимости пункта меню.
-     * @param menuItem
-     * @param isVisible
      */
     protected fun visibleMenuItem(menuItem: MenuItem?, isVisible: Boolean) {
         ViewUtils.setVisibleIfNotNull(menuItem, isVisible)
@@ -491,10 +488,17 @@ abstract class TetroidActivity<VM : BaseViewModel>
 
     /**
      * Публикация сообщений.
-     * @param message
      */
-    protected fun showMessage(message: Message?) {
+    protected fun showMessage(message: Message) {
         TetroidMessage.show(this, message)
+    }
+
+    protected fun showMessage(messageResId: Int, type: LogType = LogType.INFO) {
+        showMessage(getString(messageResId), type)
+    }
+
+    protected fun showMessage(message: String, type: LogType = LogType.INFO) {
+        showMessage(Message(message, type))
     }
 
     /**
