@@ -1,7 +1,6 @@
 package com.gee12.mytetroid.domain.usecase.tag
 
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.domain.interactor.TagsInteractor
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.domain.provider.IStorageProvider
 import java.util.*
@@ -11,7 +10,7 @@ import java.util.*
  */
 class DeleteRecordTagsUseCase(
     private val storageProvider: IStorageProvider,
-    private val tagsInteractor: TagsInteractor,
+    private val getTagByNameUseCase: GetTagByNameUseCase,
 ) : UseCase<UseCase.None, DeleteRecordTagsUseCase.Params>() {
 
     data class Params(
@@ -23,15 +22,15 @@ class DeleteRecordTagsUseCase(
         val tagsMap = storageProvider.getTagsMap()
 
         for (tag in record.tags) {
-            val foundedTag = tagsInteractor.getTag(tag.name)
-            if (foundedTag != null) {
-                // удаляем запись из метки
-                foundedTag.records.remove(record)
-                if (foundedTag.records.isEmpty()) {
-                    // удаляем саму метку из списка
-                    tagsMap.remove(tag.name.lowercase(Locale.getDefault()))
+            getTagByNameUseCase.run(tag.name)
+                .onSuccess { foundedTag ->
+                    // удаляем запись из метки
+                    foundedTag.records.remove(record)
+                    if (foundedTag.records.isEmpty()) {
+                        // удаляем саму метку из списка
+                        tagsMap.remove(tag.name.lowercase(Locale.getDefault()))
+                    }
                 }
-            }
         }
         record.tags.clear()
 

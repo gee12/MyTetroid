@@ -123,25 +123,6 @@ public class TetroidRecord extends TetroidObject {
     }
 
     /**
-     * Сформировать заново строку со метками записи.
-     */
-    public void updateTagsString() {
-        if (mTags == null) {
-            return;
-        }
-        StringBuilder sb = new StringBuilder();
-        boolean isFirst = true;
-        for (TetroidTag tag : mTags) {
-            if (!isFirst) {
-                sb.append(", ");
-            }
-            sb.append(tag.getName());
-            isFirst = false;
-        }
-        this.mTagsString = sb.toString();
-    }
-
-    /**
      * Получение признака, что запись не зашифрована.
      * @return True, если не зашифровано, или уже расшифровано.
      */

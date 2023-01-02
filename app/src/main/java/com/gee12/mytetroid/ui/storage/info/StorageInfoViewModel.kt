@@ -48,7 +48,6 @@ class StorageInfoViewModel(
     storagesRepo: StoragesRepo,
     private val storageDataProcessor: IStorageDataProcessor,
 
-    tagsInteractor: TagsInteractor,
     favoritesManager: FavoritesManager,
     passInteractor: PasswordInteractor,
     interactionInteractor: InteractionInteractor,
@@ -98,7 +97,6 @@ class StorageInfoViewModel(
     passInteractor = passInteractor,
     syncInteractor = syncInteractor,
     trashInteractor = trashInteractor,
-    tagsInteractor = tagsInteractor,
 
     initAppUseCase = initAppUseCase,
     getFileModifiedDateUseCase = getFileModifiedDateUseCase,

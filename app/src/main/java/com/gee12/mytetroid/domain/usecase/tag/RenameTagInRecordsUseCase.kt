@@ -1,64 +1,46 @@
-package com.gee12.mytetroid.domain.interactor
+package com.gee12.mytetroid.domain.usecase.tag
 
-import android.text.TextUtils
-import com.gee12.mytetroid.R
-import com.gee12.mytetroid.data.xml.IStorageDataProcessor
+import com.gee12.mytetroid.common.*
+import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
-import com.gee12.mytetroid.logs.ITetroidLogger
+import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.model.TetroidTag
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.util.*
 
 /**
- * Создается для конкретного хранилища.
+ * Переименование метки в записях.
  */
-class TagsInteractor(
-    private val logger: ITetroidLogger,
-    private val storageDataProcessor: IStorageDataProcessor,
+class RenameTagInRecordsUseCase(
+    private val storageProvider: IStorageProvider,
     private val saveStorageUseCase: SaveStorageUseCase,
-) {
+) : UseCase<UseCase.None, RenameTagInRecordsUseCase.Params>() {
 
-    /**
-     * Поиск объекта TetroidTag в списке всех меток по ключу.
-     * @param tagName Имя метки
-     * @return
-     */
-    fun getTag(tagName: String?): TetroidTag? {
-        if (TextUtils.isEmpty(tagName)) return null
-        val lowerCaseTagName = tagName?.lowercase()
-        for ((key, value) in storageDataProcessor.getTagsMap().entries) {
-            if (key?.contentEquals(lowerCaseTagName) == true) {
-                return value
-            }
-        }
-        return null
-    }
+    data class Params(
+        val tag: TetroidTag,
+        val newName: String,
+    )
 
-    /**
-     * Переименование метки в записях.
-     * @param tag
-     * @param newName
-     */
-    suspend fun renameTag(tag: TetroidTag, newName: String): Boolean {
-        if (TextUtils.isEmpty(newName)) {
-            logger.logError(R.string.log_tag_is_null, true)
-            return false
+    override suspend fun run(params: Params): Either<Failure, None> {
+        val tag = params.tag
+        val newName = params.newName
+
+        if (newName.isEmpty()) {
+            return Failure.Tag.NameIsEmpty.toLeft()
         }
         // если новое имя метки совпадает со старым (в т.ч. и по регистру), ничего не делаем
-        if (newName.contentEquals(tag.name)) {
-            return true
+        if (newName.contentEquals(tag.name, ignoreCase = false)) {
+            return None.toRight()
         }
-        val tagsMap: HashMap<String, TetroidTag> = storageDataProcessor.getTagsMap()
+        val tagsMap = storageProvider.getTagsMap()
         val lowerCaseNewName = newName.lowercase(Locale.getDefault())
         val lowerCaseOldName = tag.name.lowercase(Locale.getDefault())
         // смотрим, если есть метка с таким же названием в списке после переименования
         if (tagsMap.containsKey(lowerCaseNewName)) {
-            val existsTag = tagsMap[lowerCaseNewName]
+            val existsTag = tagsMap[lowerCaseNewName]!!
             // если новая и существующая метки отличаются только регистром
             // (т.е. по сути, в глобальном списке меток это одна и та же запись),
             //  то обновляем название метки
-            if (tag === existsTag) {
+            if (tag == existsTag) {
                 existsTag.name = newName
             }
             // если есть, то сливаем 2 метки в одну уже имеющуюся в списке:
@@ -73,21 +55,19 @@ class TagsInteractor(
                     // добавляем записи из старой метки в существующую, только если записи еще нет
                     // (исправление дублирования записей по метке, если одна и та же метка
                     // добавлена в запись несколько раз)
-                    if (!existsTag!!.records.contains(record)) {
+                    if (!existsTag.records.contains(record)) {
                         existsTag.addRecord(record)
                         // вставляем на ту же позицию, где была старая метка
                         record.tags.add(index, existsTag)
                     }
                 }
                 // формируем заново tagsString у записей метки
-                record.updateTagsString()
+                updateTagsString(record)
             }
             // удаляем старую метку-дубликат из общего списка,
             //  но только, если это полностью разные метки, а не отличающиеся только регистром
             if (tag !== existsTag) {
                 tagsMap.remove(lowerCaseOldName)
-                // FIXME: нужно ли обнулять ?
-//                tag = null
             }
         } else {
             // если название новой метки - уникально, то
@@ -100,22 +80,17 @@ class TagsInteractor(
             tag.name = newName
             // сформируем заново tagsString у записей метки
             for (record in tag.records) {
-                record.updateTagsString()
+                updateTagsString(record)
             }
         }
-        return saveStorage()
+        return saveStorageUseCase.run()
     }
 
-    private suspend fun saveStorage(): Boolean {
-        return withContext(Dispatchers.IO) {
-            saveStorageUseCase.run()
-        }.foldResult(
-            onLeft = {
-                logger.logFailure(it, show = false)
-                false
-            },
-            onRight = { true }
-        )
+    /**
+     * Сформировать заново строку со метками записи.
+     */
+    fun updateTagsString(record: TetroidRecord) {
+        record.tagsString = record.tags?.joinToString(separator = Constants.TAGS_SEPARATOR) { it.name }
     }
 
 }

@@ -70,7 +70,6 @@ class RecordViewModel(
 
     passInteractor: PasswordInteractor,
     favoritesManager: FavoritesManager,
-    tagsInteractor: TagsInteractor,
     interactionInteractor: InteractionInteractor,
     syncInteractor: SyncInteractor,
     trashInteractor: TrashInteractor,
@@ -123,7 +122,6 @@ class RecordViewModel(
     passInteractor = passInteractor,
     syncInteractor = syncInteractor,
     trashInteractor = trashInteractor,
-    tagsInteractor = tagsInteractor,
 
     initAppUseCase = initAppUseCase,
     getFileModifiedDateUseCase = getFileModifiedDateUseCase,

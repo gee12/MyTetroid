@@ -484,7 +484,6 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="search_nodes_not_found_mask">No nodes found for query \"%s\"…</string>
     <string name="search_tags_not_found_mask">No tags found for query \"%s\"…</string>
     <string name="search_found_mask">Found: %d</string>
-    <string name="search_tag_not_found_mask">Tag [%s] not found..</string>
     <string name="global_search_not_found">No matches found for query \"%s\"…</string>
     <string name="global_search_not_found_in_node">No matches found for query \"%1$s\" in node \"%2$s\"…</string>
     <string name="global_search_results">Search results</string>
@@ -806,9 +805,6 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_to_mask">&#160; to "%s"</string>
 <!--    <string name="log_more_in_logs">&#160;(more in the logs)</string>-->
     <string name="log_storage_decrypted">Storage was decrypted</string>
-    <string name="log_node_is_null">Node is empty (null)</string>
-    <string name="log_tag_is_null">Tag is empty (null)</string>
-    <string name="log_record_is_null">Record is empty (null)</string>
     <string name="log_enter_pass_first">The node contains encrypted data. Enter password first</string>
     <string name="log_attempt_save_empty_nodes">Empty nodes structure when saving mytetra.xml</string>
     <string name="log_settings_copied_from_free">Application settings were copied from the Free version</string>
@@ -870,6 +866,8 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="error_record_create_mask">Record creation error:\n%s</string>
     <string name="error_record_name_is_empty">Record name is empty</string>
     <string name="error_node_name_is_empty">Node name is empty</string>
+    <string name="error_tag_name_is_empty">Tag name is empty</string>
+    <string name="error_tag_not_found_by_name_mask">Tag not found by name [%s]</string>
     <string name="error_attach_name_is_empty">Attached file name is empty</string>
     <string name="error_save_storage_in_database">Failed to save storage in database</string>
     <string name="error_save_pass_check_data">Failed to save crypt_check data for password</string>

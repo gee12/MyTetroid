@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.data.xml
 
 import android.util.Xml
+import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.onFailure
 import kotlin.Throws
 import com.gee12.mytetroid.common.utils.Utils
@@ -53,16 +54,6 @@ open class StorageDataXmlProcessor(
 ) : IStorageDataProcessor {
 
     companion object {
-        /**
-         * Формат даты создания записи.
-         */
-        const val DATE_TIME_FORMAT = "yyyyMMddHHmmss"
-
-        /**
-         * Разделитель меток - запятая или запятая с пробелами.
-         */
-        const val TAGS_SEPAR = "\\s*,\\s*"
-
         /**
          * Версия формата структуры хранилища.
          */
@@ -440,7 +431,7 @@ open class StorageDataXmlProcessor(
             author = parser.getAttributeValue(ns, "author")
             url = parser.getAttributeValue(ns, "url")
             // строка формата "yyyyMMddHHmmss" (например, "20180901211132")
-            created = Utils.toDate(parser.getAttributeValue(ns, "ctime"), DATE_TIME_FORMAT)
+            created = Utils.toDate(parser.getAttributeValue(ns, "ctime"), Constants.DATE_TIME_FORMAT)
             dirName = parser.getAttributeValue(ns, "dir")
             fileName = parser.getAttributeValue(ns, "file")
         }
@@ -590,7 +581,9 @@ open class StorageDataXmlProcessor(
             val nodeElem = Element("node")
             val crypted = node.isCrypted
             addAttribute(nodeElem, "crypt", if (crypted) "1" else "")
-            addCryptAttribute(nodeElem, node, "icon", node.iconName, node.getIconName(true))
+            if (node.iconName.isNullOrEmpty()) {
+                addCryptAttribute(nodeElem, node, "icon", node.iconName, node.getIconName(true))
+            }
             addAttribute(nodeElem, "id", node.id)
             addCryptAttribute(nodeElem, node, "name", node.name, node.getName(true))
             if (node.recordsCount > 0) {
@@ -701,7 +694,7 @@ open class StorageDataXmlProcessor(
                 if (node.isCrypted) cryptedRecordsCount++
                 if (!StringUtil.isBlank(record.author)) authorsCount++
                 if (!StringUtil.isBlank(record.tagsString)) {
-                    tagsCount += record.tagsString.split(TAGS_SEPAR.toRegex()).toTypedArray().size
+                    tagsCount += record.tagsString.split(Constants.TAGS_SEPARATOR_MASK.toRegex()).toTypedArray().size
                 }
                 if (record.attachedFilesCount > 0) filesCount += record.attachedFilesCount
             }

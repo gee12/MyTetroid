@@ -19,7 +19,9 @@ import com.gee12.mytetroid.domain.usecase.record.image.SaveImageFromBitmapUseCas
 import com.gee12.mytetroid.domain.usecase.record.image.SaveImageFromUriUseCase
 import com.gee12.mytetroid.domain.usecase.storage.*
 import com.gee12.mytetroid.domain.usecase.tag.DeleteRecordTagsUseCase
+import com.gee12.mytetroid.domain.usecase.tag.GetTagByNameUseCase
 import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
+import com.gee12.mytetroid.domain.usecase.tag.RenameTagInRecordsUseCase
 import org.koin.android.ext.koin.androidApplication
 import org.koin.dsl.module
 
@@ -85,14 +87,6 @@ object UseCasesModule {
                     storagesInteractor = get(),
                     favoritesManager = get(),
                     initStorageFromDefaultSettingsUseCase = get(),
-                )
-            }
-
-            scoped {
-                TagsInteractor(
-                    logger = get(),
-                    storageDataProcessor = get(),
-                    saveStorageUseCase = get(),
                 )
             }
 
@@ -400,19 +394,6 @@ object UseCasesModule {
             }
 
             scoped {
-                ParseRecordTagsUseCase(
-                    storageProvider = get(),
-                )
-            }
-
-            scoped {
-                DeleteRecordTagsUseCase(
-                    storageProvider = get(),
-                    tagsInteractor = get(),
-                )
-            }
-
-            scoped {
                 CloneRecordToNodeUseCase(
                     resourcesProvider = get(),
                     logger = get(),
@@ -599,6 +580,36 @@ object UseCasesModule {
             }
 
             //endregion Attach
+
+            //region Tag
+
+            scoped {
+                ParseRecordTagsUseCase(
+                    storageProvider = get(),
+                )
+            }
+
+            scoped {
+                DeleteRecordTagsUseCase(
+                    storageProvider = get(),
+                    getTagByNameUseCase = get(),
+                )
+            }
+
+            scoped {
+                RenameTagInRecordsUseCase(
+                    storageProvider = get(),
+                    saveStorageUseCase = get(),
+                )
+            }
+
+            scoped {
+                GetTagByNameUseCase(
+                    storageProvider = get(),
+                )
+            }
+
+            //endregion Tag
 
             //region Image
 

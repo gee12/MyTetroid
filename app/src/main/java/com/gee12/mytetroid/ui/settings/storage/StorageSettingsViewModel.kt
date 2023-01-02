@@ -45,7 +45,6 @@ class StorageSettingsViewModel(
 
     favoritesManager: FavoritesManager,
     passInteractor: PasswordInteractor,
-    tagsInteractor: TagsInteractor,
     interactionInteractor: InteractionInteractor,
     syncInteractor: SyncInteractor,
     trashInteractor: TrashInteractor,
@@ -90,7 +89,6 @@ class StorageSettingsViewModel(
     passInteractor = passInteractor,
     syncInteractor = syncInteractor,
     trashInteractor = trashInteractor,
-    tagsInteractor = tagsInteractor,
 
     initAppUseCase = initAppUseCase,
     getFileModifiedDateUseCase = getFileModifiedDateUseCase,

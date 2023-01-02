@@ -66,9 +66,8 @@ open class StorageViewModel(
 
     val interactionInteractor: InteractionInteractor,
     val syncInteractor: SyncInteractor,
-    val favoritesManager: FavoritesManager, //TODO
-    val passInteractor: PasswordInteractor, //TODO
-    val tagsInteractor: TagsInteractor, //TODO
+    val favoritesManager: FavoritesManager,
+    val passInteractor: PasswordInteractor,
     val trashInteractor: TrashInteractor,
 
     protected val initAppUseCase: InitAppUseCase,

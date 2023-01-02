@@ -48,7 +48,7 @@ class FailureHandler(
             is Failure.Attach -> {
                 getAttachFailureMessage(failure)
             }
-            is Failure.Tags -> {
+            is Failure.Tag -> {
                 getTagsFailureMessage(failure)
             }
             is Failure.Favorites -> {
@@ -233,9 +233,18 @@ class FailureHandler(
         }
     }
 
-    private fun getTagsFailureMessage(failure: Failure.Tags): NotificationData {
+    private fun getTagsFailureMessage(failure: Failure.Tag): NotificationData {
         return when (failure) {
-            else -> NotificationData.Empty()
+            Failure.Tag.NameIsEmpty -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_tag_name_is_empty),
+                )
+            }
+            is Failure.Tag.NotFoundByName -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_tag_not_found_by_name_mask, failure.name),
+                )
+            }
         }
     }
 

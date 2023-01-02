@@ -27,12 +27,12 @@ class ParseRecordTagsUseCase(
         val tagsMap = storageProvider.getTagsMap()
         val isEmpty = tagsString.isBlank()
 
-        val tagNames = tagsString.split(StorageDataXmlProcessor.TAGS_SEPAR.toRegex())
+        val tagNames = tagsString.split(Constants.TAGS_SEPARATOR_MASK.toRegex())
         for (tagName in tagNames) {
             val lowerCaseTagName = tagName.lowercase(Locale.getDefault())
             var tag: TetroidTag
             if (tagsMap.containsKey(lowerCaseTagName)) {
-                tag = tagsMap.get(lowerCaseTagName) ?: continue
+                tag = tagsMap[lowerCaseTagName] ?: continue
                 // добавляем запись по метке, только если ее еще нет
                 // (исправление дублирования записей по метке, если одна и та же метка
                 // добавлена в запись несколько раз)
@@ -42,8 +42,9 @@ class ParseRecordTagsUseCase(
             } else {
                 val tagRecords = mutableListOf<TetroidRecord>()
                 tagRecords.add(record)
-                tag = TetroidTag(lowerCaseTagName, tagRecords, isEmpty)
-                tagsMap.put(lowerCaseTagName, tag)
+                // добавляем метку в список в исходном регистре
+                tag = TetroidTag(tagName, tagRecords, isEmpty)
+                tagsMap[lowerCaseTagName] = tag
             }
             record.addTag(tag)
         }

@@ -46,7 +46,9 @@ import com.gee12.mytetroid.domain.usecase.node.*
 import com.gee12.mytetroid.domain.usecase.node.icon.LoadNodeIconUseCase
 import com.gee12.mytetroid.domain.usecase.node.icon.SetNodeIconUseCase
 import com.gee12.mytetroid.domain.usecase.record.*
+import com.gee12.mytetroid.domain.usecase.tag.GetTagByNameUseCase
 import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
+import com.gee12.mytetroid.domain.usecase.tag.RenameTagInRecordsUseCase
 import com.gee12.mytetroid.model.enums.TagsSearchMode
 import com.gee12.mytetroid.ui.storage.StorageViewModel
 import kotlinx.coroutines.*
@@ -75,7 +77,6 @@ class MainViewModel(
     storageDataProcessor: IStorageDataProcessor,
 
     passInteractor: PasswordInteractor,
-    tagsInteractor: TagsInteractor,
     interactionInteractor: InteractionInteractor,
     syncInteractor: SyncInteractor,
     trashInteractor: TrashInteractor,
@@ -120,6 +121,9 @@ class MainViewModel(
     private val editAttachFieldsUseCase: EditAttachFieldsUseCase,
     private val saveAttachUseCase: SaveAttachUseCase,
 
+    private val getTagByNameUseCase: GetTagByNameUseCase,
+    private val renameTagInRecordsUseCase: RenameTagInRecordsUseCase,
+
     cryptRecordFilesUseCase: CryptRecordFilesUseCase,
     parseRecordTagsUseCase: ParseRecordTagsUseCase,
 ): StorageViewModel(
@@ -145,7 +149,6 @@ class MainViewModel(
     passInteractor = passInteractor,
     syncInteractor = syncInteractor,
     trashInteractor = trashInteractor,
-    tagsInteractor = tagsInteractor,
 
     initAppUseCase = initAppUseCase,
     getFileModifiedDateUseCase = getFileModifiedDateUseCase,
@@ -1336,11 +1339,14 @@ class MainViewModel(
      * Отображение записей по имени метки.
      */
     fun showTagRecords(tagName: String) {
-        val tag = tagsInteractor.getTag(tagName)
-        if (tag != null) {
-            showTagRecords(tag)
-        } else {
-            logWarning(getString(R.string.search_tag_not_found_mask, tagName), true)
+        launchOnMain {
+            withIo {
+                getTagByNameUseCase.run(tagName)
+            }.onFailure {
+                logFailure(it)
+            }.onSuccess { tag ->
+                showTagRecords(tag)
+            }
         }
     }
 
@@ -1399,15 +1405,25 @@ class MainViewModel(
         }
     }
 
-    fun renameTag(tag: TetroidTag?, name: String) {
-        if (tag == null || tag.name == name) return
+    fun renameTag(tag: TetroidTag, name: String) {
+        if (tag.name == name) {
+            return
+        }
         launchOnMain {
-            if (tagsInteractor.renameTag(tag, name)) {
+            withIo {
+                renameTagInRecordsUseCase.run(
+                    RenameTagInRecordsUseCase.Params(
+                        tag = tag,
+                        newName = name,
+                    )
+                )
+            }.onFailure {
+                logFailure(it)
+                //logOperErrorMore(LogObj.TAG, LogOper.RENAME)
+            }.onSuccess {
                 logOperRes(LogObj.TAG, LogOper.RENAME)
                 reloadTags()
                 updateRecordsList()
-            } else {
-                logOperErrorMore(LogObj.TAG, LogOper.RENAME)
             }
         }
     }

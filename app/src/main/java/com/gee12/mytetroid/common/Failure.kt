@@ -68,7 +68,9 @@ sealed class Failure(val ex: Throwable? = null) {
         class NotFoundInRecord(val attachId: String) : Attach()
     }
 
-    sealed class Tags(ex: Throwable? = null) : Failure(ex) {
+    sealed class Tag(ex: Throwable? = null) : Failure(ex) {
+        object NameIsEmpty : Tag()
+        class NotFoundByName(val name: String) : Tag()
     }
 
     sealed class Favorites(ex: Throwable? = null) : Failure(ex) {

@@ -40,7 +40,6 @@ object ViewModelsModule {
 
                     passInteractor = get(),
                     favoritesManager = get(),
-                    tagsInteractor = get(),
                     interactionInteractor = get(),
                     syncInteractor = get(),
                     trashInteractor = get(),
@@ -86,7 +85,6 @@ object ViewModelsModule {
 
                     favoritesManager = get(),
                     passInteractor = get(),
-                    tagsInteractor = get(),
                     interactionInteractor = get(),
                     syncInteractor = get(),
                     trashInteractor = get(),
@@ -132,7 +130,10 @@ object ViewModelsModule {
                     saveAttachUseCase = get(),
 
                     cryptRecordFilesUseCase = get(),
+
                     parseRecordTagsUseCase = get(),
+                    getTagByNameUseCase = get(),
+                    renameTagInRecordsUseCase = get(),
                 )
             }
 
@@ -156,7 +157,6 @@ object ViewModelsModule {
                     storageCrypter = get(),
 
                     passInteractor = get(),
-                    tagsInteractor = get(),
                     favoritesManager = get(),
                     interactionInteractor = get(),
                     syncInteractor = get(),
@@ -210,7 +210,6 @@ object ViewModelsModule {
                     storageDataProcessor = get(),
 
                     passInteractor = get(),
-                    tagsInteractor = get(),
                     favoritesManager = get(),
                     interactionInteractor = get(),
                     syncInteractor = get(),
@@ -258,7 +257,6 @@ object ViewModelsModule {
                     storageCrypter = get(),
 
                     passInteractor = get(),
-                    tagsInteractor = get(),
                     favoritesManager = get(),
                     interactionInteractor = get(),
                     syncInteractor = get(),

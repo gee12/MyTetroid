@@ -2,6 +2,17 @@ package com.gee12.mytetroid.common
 
 object Constants {
 
+    /**
+     * Формат даты создания записи.
+     */
+    const val DATE_TIME_FORMAT = "yyyyMMddHHmmss"
+
+    /**
+     * Разделитель меток - запятая или запятая с пробелами.
+     */
+    const val TAGS_SEPARATOR = ", "
+    const val TAGS_SEPARATOR_MASK = "\\s*,\\s*"
+
     const val BASE_DIR_NAME = "base"
     const val TRASH_DIR_NAME = "trash"
     const val LOG_DIR_NAME = "log"
@@ -47,9 +58,11 @@ object Constants {
     const val REQUEST_CODE_PERMISSION_CAMERA = 103
     const val REQUEST_CODE_PERMISSION_TERMUX = 104
 
+    // TODO: преобразовать в enum
     const val PAGE_MAIN = 0
     const val PAGE_FOUND = 1
 
+    // TODO: преобразовать в enum
     const val MAIN_VIEW_GLOBAL_FOUND = -1
     const val MAIN_VIEW_NONE = 0
     const val MAIN_VIEW_NODE_RECORDS = 1
@@ -57,6 +70,7 @@ object Constants {
     const val MAIN_VIEW_TAG_RECORDS = 3
     const val MAIN_VIEW_FAVORITES = 4
 
+    // TODO: преобразовать в enum
     const val MODE_VIEW = 1
     const val MODE_EDIT = 2
     const val MODE_HTML = 3

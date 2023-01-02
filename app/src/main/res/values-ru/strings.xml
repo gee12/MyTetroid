@@ -428,7 +428,6 @@
     <string name="filter_nodes_by_query">Фильтр веток по запросу "%s"…</string>
     <string name="search_tags_not_found_mask">По запросу \"%s\" не найдено меток…</string>
     <string name="search_found_mask">Найдено: %d</string>
-    <string name="search_tag_not_found_mask">Не найдена метка [%s]..</string>
     <string name="global_search_not_found">По запросу \"%s\" ничего не найдено…</string>
     <string name="global_search_not_found_in_node">По запросу \"%1$s\" в ветке \"%2$s\" ничего не найдено…</string>
     <string name="global_search_in_cur_node">В текущей ветке</string>
@@ -712,9 +711,6 @@
     <string name="log_to_mask">&#160;в "%s"</string>
 <!--    <string name="log_more_in_logs">&#160;(подробнее в логах)</string>-->
     <string name="log_storage_decrypted">Хранилище расшифровано</string>
-    <string name="log_node_is_null">Переданная ветка пуста (null)</string>
-    <string name="log_tag_is_null">Переданная метка пуста (null)</string>
-    <string name="log_record_is_null">Переданная запись пуста (null)</string>
     <string name="log_enter_pass_first">Ветка содержит нерасшифрованные данные. Сначала введите пароль</string>
     <string name="log_attempt_save_empty_nodes">Пустая структура веток при сохранении mytetra.xml</string>
     <string name="log_settings_copied_from_free">Настройки приложения были скопированы из версии Free</string>
@@ -772,6 +768,8 @@
     <string name="error_record_create_mask">Ошибка создания записи:\n%s</string>
     <string name="error_record_name_is_empty">Пустое имя записи</string>
     <string name="error_node_name_is_empty">Пустое имя ветки</string>
+    <string name="error_tag_name_is_empty">Пустое имя метки</string>
+    <string name="error_tag_not_found_by_name_mask">Метка по имени [%s] не найдена</string>
     <string name="error_attach_name_is_empty">Пустое имя прикрепленного файла</string>
     <string name="error_save_storage_in_database">Ошибка сохранения хранилища в базе данных</string>
     <string name="error_save_pass_check_data">Ошибка сохранения данных crypt_check для пароля</string>
