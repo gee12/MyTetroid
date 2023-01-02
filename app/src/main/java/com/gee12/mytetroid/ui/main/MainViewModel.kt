@@ -1878,13 +1878,13 @@ class MainViewModel(
             }.onSuccess { result ->
                 if (profile.isSearchInNode) {
                     profile.node?.let { node ->
-                        log(getString(R.string.global_search_by_node_result, node.name), true)
+                        log(getString(R.string.global_search_by_node_result, node.name), show = true)
                     }
                 }
 
                 // уведомляем, если не смогли поискать в зашифрованных ветках
                 if (result.isExistCryptedNodes) {
-                    log(R.string.log_found_crypted_nodes, true)
+                    log(R.string.log_found_crypted_nodes, show = true)
                 }
                 log(getString(R.string.global_search_end, result.foundObjects.size))
 
@@ -1926,16 +1926,16 @@ class MainViewModel(
         if (curNode != null) {
             filterRecords(query, curNode!!.records, Constants.MAIN_VIEW_NODE_RECORDS)
         } else {
-            log(R.string.search_records_search_select_node, true)
+            log(R.string.search_records_search_select_node, show = true)
         }
     }
 
     private fun filterTagRecords(query: String) {
-        if (selectedTags.isEmpty()) {
+        if (selectedTags.isNotEmpty()) {
             val tagsRecords = getTagsRecords(selectedTags)
             filterRecords(query, tagsRecords, Constants.MAIN_VIEW_TAG_RECORDS)
         } else {
-            log(R.string.search_records_select_tag, true)
+            log(R.string.search_records_select_tag, show = true)
         }
     }
 
@@ -1958,7 +1958,7 @@ class MainViewModel(
         if (curRecord != null) {
             filterAttaches(query, curRecord!!) }
         else {
-            logError(getString(R.string.log_cur_record_is_not_set), true)
+            logError(getString(R.string.log_cur_record_is_not_set), show = true)
         }
     }
 
@@ -1985,11 +1985,11 @@ class MainViewModel(
             if (isDropRecordsFiltering) {
                 when (curMainViewId) {
                     Constants.MAIN_VIEW_NODE_RECORDS -> if (curNode != null) {
-                        showRecords(curNode!!.records, Constants.MAIN_VIEW_NODE_RECORDS, false)
+                        showRecords(curNode!!.records, Constants.MAIN_VIEW_NODE_RECORDS, dropSearch = false)
                     }
                     Constants.MAIN_VIEW_TAG_RECORDS -> if (selectedTags.isNotEmpty()) {
                         val tagsRecords = getTagsRecords(selectedTags)
-                        showRecords(tagsRecords, Constants.MAIN_VIEW_TAG_RECORDS, false)
+                        showRecords(tagsRecords, Constants.MAIN_VIEW_TAG_RECORDS, dropSearch = false)
                     }
                 }
             }
