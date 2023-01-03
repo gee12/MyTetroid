@@ -19,7 +19,6 @@ import com.gee12.mytetroid.logs.TaskStage
 import com.gee12.mytetroid.logs.TaskStage.Stages
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.common.utils.Utils
-import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.domain.*
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -32,10 +31,7 @@ import com.gee12.mytetroid.domain.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.domain.usecase.storage.ReadStorageUseCase
 import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
 import com.gee12.mytetroid.domain.interactor.*
-import com.gee12.mytetroid.domain.manager.ClipboardManager
-import com.gee12.mytetroid.domain.manager.FavoritesManager
-import com.gee12.mytetroid.domain.manager.PasswordManager
-import com.gee12.mytetroid.domain.manager.ScanManager
+import com.gee12.mytetroid.domain.manager.*
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.domain.usecase.GlobalSearchUseCase
 import com.gee12.mytetroid.domain.usecase.InitAppUseCase

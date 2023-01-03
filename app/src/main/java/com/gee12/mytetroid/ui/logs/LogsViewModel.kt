@@ -5,7 +5,7 @@ import android.net.Uri
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.common.utils.FileUtils
-import com.gee12.mytetroid.domain.provider.CommonSettingsManager
+import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.domain.provider.IResourcesProvider

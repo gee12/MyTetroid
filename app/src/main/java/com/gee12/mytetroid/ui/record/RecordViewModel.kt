@@ -26,6 +26,7 @@ import java.util.*
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.domain.*
 import com.gee12.mytetroid.domain.interactor.*
+import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.manager.FavoritesManager
 import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.domain.manager.PasswordManager

@@ -10,6 +10,7 @@ import com.gee12.mytetroid.domain.manager.FavoritesManager
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.domain.interactor.*
+import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.manager.PasswordManager
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.logs.ITetroidLogger

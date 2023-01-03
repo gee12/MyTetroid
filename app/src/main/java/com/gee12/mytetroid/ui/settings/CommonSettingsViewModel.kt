@@ -9,7 +9,7 @@ import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.domain.interactor.TrashInteractor
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.domain.provider.BuildInfoProvider
-import com.gee12.mytetroid.domain.provider.CommonSettingsManager
+import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.domain.repo.StoragesRepo
 import com.gee12.mytetroid.ui.base.BaseViewModel

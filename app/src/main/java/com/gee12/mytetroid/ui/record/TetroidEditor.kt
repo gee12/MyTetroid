@@ -3,17 +3,21 @@ package com.gee12.mytetroid.ui.record
 import android.content.Context
 import android.util.AttributeSet
 import com.gee12.htmlwysiwygeditor.ActionButton
+import com.gee12.htmlwysiwygeditor.ActionButtonSize
 import com.gee12.htmlwysiwygeditor.ActionType
 import com.gee12.htmlwysiwygeditor.Dialogs
 import com.gee12.mytetroid.App.isFreeVersion
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.utils.ImageUtils
 import com.gee12.mytetroid.domain.HtmlHelper
+import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.model.TetroidImage
 import com.gee12.mytetroid.ui.dialogs.AskDialogs.showYesNoDialog
 import com.lumyjuwon.richwysiwygeditor.WysiwygEditor
 
 class TetroidEditor : WysiwygEditor {
+
+    private var settingsManager: CommonSettingsManager? = null
 
     interface IEditorListener {
         fun onIsEditedChanged(isEdited: Boolean)
@@ -30,6 +34,8 @@ class TetroidEditor : WysiwygEditor {
             editorListener?.onIsEditedChanged(isEdited)
         }
 
+    override val toolbarButtonsSize: ActionButtonSize
+        get() = settingsManager?.getEditorButtonsSize() ?: ActionButtonSize.MEDIUM
 
     constructor(context: Context) : super(context) {
         init()
@@ -44,6 +50,15 @@ class TetroidEditor : WysiwygEditor {
     }
 
     protected fun init() {}
+
+    fun init(settingsManager: CommonSettingsManager) {
+        this.settingsManager = settingsManager
+        onSettingsChanged()
+    }
+
+    fun onSettingsChanged() {
+        initToolbar()
+    }
 
 //    override val actionButtons: List<ActionButton>
 //        get() {

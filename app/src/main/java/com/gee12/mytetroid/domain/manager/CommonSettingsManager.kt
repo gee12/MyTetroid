@@ -1,7 +1,8 @@
-package com.gee12.mytetroid.domain.provider
+package com.gee12.mytetroid.domain.manager
 
 import android.content.Context
 import android.preference.PreferenceManager
+import com.gee12.htmlwysiwygeditor.ActionButtonSize
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.extensions.getAppExternalFilesDir
@@ -13,7 +14,8 @@ import com.gee12.mytetroid.data.StringList
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.domain.RecordFieldsSelector
 import com.gee12.mytetroid.domain.SortHelper
-import com.gee12.mytetroid.domain.manager.SharedPreferencesManager
+import com.gee12.mytetroid.domain.provider.BuildInfoProvider
+import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.enums.TagsSearchMode
 
@@ -154,6 +156,27 @@ class CommonSettingsManager(
 
     fun setTagsSearchMode(value: TagsSearchMode) {
         setInt(R.string.pref_key_tags_search_mode, value.id)
+    }
+
+    fun isHasShowRecordFieldsValue(): Boolean {
+        return isContains(R.string.pref_key_show_record_fields)
+    }
+
+    fun getShowRecordFields(): String? {
+        return getString(
+            R.string.pref_key_show_record_fields,
+            resourcesProvider.getString(R.string.pref_show_record_fields_no)
+        )
+    }
+
+    fun isHasEditorButtonsSizeValue(): Boolean {
+        return isContains(R.string.pref_key_editor_toolbar_buttons_size)
+    }
+
+    fun getEditorButtonsSize(): ActionButtonSize {
+        //FIXME: ListPreference сохраняет числовое значение в String
+        val stringValue = getString(R.string.pref_key_editor_toolbar_buttons_size)
+        return ActionButtonSize.getById(stringValue?.toInt() ?: ActionButtonSize.MEDIUM.id)
     }
 
 }

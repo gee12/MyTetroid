@@ -323,11 +323,16 @@
     <string name="pref_fix_empty_paragraphs">Исправлять html при сохранении</string>
     <string name="pref_fix_empty_paragraphs_summ">Исправлять html-текст заметки для корректного отображения в MyTetra</string>
     <string name="pref_show_record_fields">Показывать свойства записи</string>
-    <string name="pref_show_record_fields_summ">При открытии записи отображать панель со свойствами?</string>
+    <string name="pref_show_record_fields_summ">При открытии записи отображать панель со ее свойствами?</string>
     <string name="title_record_fields">Свойства записи</string>
+    <string name="pref_editor_toolbar_buttons_size_title">Размер кнопок в редакторе</string>
+    <string name="pref_editor_toolbar_buttons_size_summ">Размер кнопок в нижней панели инструментов редактора текста</string>
     <string name="pref_show_record_fields_yes">Отображать</string>
     <string name="pref_show_record_fields_no">Не отображать</string>
     <string name="pref_show_record_fields_filled">Отображать если заполнено</string>
+    <string name="pref_editor_toolbar_buttons_small_size">Маленький</string>
+    <string name="pref_editor_toolbar_buttons_medium_size">Средний</string>
+    <string name="pref_editor_toolbar_buttons_large_size">Большой</string>
     <string name="pref_record_fields_in_list">Отображаемые свойства записей</string>
     <string name="pref_record_fields_in_list_summ">Свойства записей, отображаемые в списке</string>
     <string name="pref_double_tap_fullscreen">Полноэкранный режим при двойном касании</string>

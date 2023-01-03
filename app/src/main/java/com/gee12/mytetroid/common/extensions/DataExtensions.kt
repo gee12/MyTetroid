@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.common.extensions
 
+import com.gee12.htmlwysiwygeditor.ActionButtonSize
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.model.TetroidObject
@@ -19,4 +20,14 @@ fun IResourcesProvider.getStringFromTo(from: String, to: String): String {
 
 fun IResourcesProvider.getStringTo(to: String): String {
     return getString(R.string.log_to_mask, to)
+}
+
+fun ActionButtonSize.getTitle(resourcesProvider: IResourcesProvider): String {
+    return resourcesProvider.getString(
+        when (this) {
+            ActionButtonSize.SMALL -> R.string.pref_editor_toolbar_buttons_small_size
+            ActionButtonSize.MEDIUM -> R.string.pref_editor_toolbar_buttons_medium_size
+            ActionButtonSize.LARGE -> R.string.pref_editor_toolbar_buttons_large_size
+        }
+    )
 }

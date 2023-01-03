@@ -11,6 +11,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.domain.manager.CommonSettingsManager
+import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.Message
 import com.gee12.mytetroid.ui.settings.CommonSettingsViewModel
 import com.gee12.mytetroid.ui.TetroidMessage
@@ -21,6 +23,8 @@ import org.koin.android.ext.android.inject
 open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
 
     protected open val baseViewModel: CommonSettingsViewModel by inject()
+    protected open val resourcesProvider: IResourcesProvider by inject()
+    protected open val settingsManager: CommonSettingsManager by inject()
 
     protected val application: Application
         get() = requireContext().applicationContext as Application

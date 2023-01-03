@@ -105,27 +105,51 @@ open class SharedPreferencesManager(
 
     //region Getters
 
+    @Deprecated("")
     protected fun getInt(id: Int, default: Int = 0): Int {
         return settings?.getInt(resourcesProvider.getString(id), default) ?: default
     }
 
+    protected fun getInt(id: String, default: Int = 0): Int {
+        return settings?.getInt(id, default) ?: default
+    }
+
+    @Deprecated("")
     protected fun getString(id: Int, default: String? = null): String? {
         return settings?.getString(resourcesProvider.getString(id), default) ?: default
+    }
+
+    protected fun getString(id: String, default: String? = null): String? {
+        return settings?.getString(id, default) ?: default
     }
 
     //endregion Getters
 
     //region Setters
 
+    @Deprecated("")
     protected fun setInt(id: Int, value: Int) {
         val editor = settings?.edit()
         editor?.putInt(resourcesProvider.getString(id), value)
         editor?.apply()
     }
 
+    protected fun setInt(id: String, value: Int) {
+        val editor = settings?.edit()
+        editor?.putInt(id, value)
+        editor?.apply()
+    }
+
+    @Deprecated("")
     protected fun setString(id: Int, value: String) {
         val editor = settings?.edit()
         editor?.putString(resourcesProvider.getString(id), value)
+        editor?.apply()
+    }
+
+    protected fun setString(id: String, value: String) {
+        val editor = settings?.edit()
+        editor?.putString(id, value)
         editor?.apply()
     }
 

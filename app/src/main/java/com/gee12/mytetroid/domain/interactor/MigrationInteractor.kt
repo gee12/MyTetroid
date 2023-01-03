@@ -7,7 +7,7 @@ import com.gee12.mytetroid.common.toRight
 import com.gee12.mytetroid.domain.manager.FavoritesManager
 import com.gee12.mytetroid.domain.usecase.storage.InitStorageFromDefaultSettingsUseCase
 import com.gee12.mytetroid.domain.provider.BuildInfoProvider
-import com.gee12.mytetroid.domain.provider.CommonSettingsManager
+import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidStorage
 

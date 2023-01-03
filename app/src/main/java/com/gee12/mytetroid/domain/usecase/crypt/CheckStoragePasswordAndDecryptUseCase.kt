@@ -4,7 +4,7 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.data.ini.DatabaseConfig
-import com.gee12.mytetroid.domain.provider.CommonSettingsManager
+import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.provider.ISensitiveDataProvider
 import com.gee12.mytetroid.domain.manager.PasswordManager
 import com.gee12.mytetroid.logs.ITetroidLogger

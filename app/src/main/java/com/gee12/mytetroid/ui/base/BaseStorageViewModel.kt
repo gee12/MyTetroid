@@ -7,7 +7,7 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.model.TetroidTag
-import com.gee12.mytetroid.domain.provider.CommonSettingsManager
+import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.domain.provider.IStorageProvider
 import kotlinx.coroutines.CoroutineScope

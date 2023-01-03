@@ -3,9 +3,12 @@ package com.gee12.mytetroid.ui.settings
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
+import androidx.preference.ListPreference
 import androidx.preference.MultiSelectListPreference
 import androidx.preference.Preference
+import com.gee12.htmlwysiwygeditor.ActionButtonSize
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.common.extensions.getTitle
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.ui.base.views.prefs.DateTimeFormatPreference
 import com.gee12.mytetroid.ui.base.views.DateTimeFormatDialog
@@ -31,7 +34,22 @@ class SettingsDisplayFragment : TetroidSettingsFragment() {
             prefFields?.setEntryValues(arrayId)
             prefFields?.setEntries(arrayId)
         }
-        updateSummary(R.string.pref_key_show_record_fields, CommonSettings.getShowRecordFields(context))
+
+        // панель со свойствами записи
+        val prefShowRecordFields = findPreference<ListPreference>(getString(R.string.pref_key_show_record_fields))
+        prefShowRecordFields?.setDefaultValue(getString(R.string.pref_show_record_fields_no))
+        if (settingsManager.isHasShowRecordFieldsValue()) {
+            prefShowRecordFields?.summary = settingsManager.getShowRecordFields()
+        }
+
+        // размер кнопок в toolbar в редакторе
+        val prefToolbarSize = findPreference<ListPreference>(getString(R.string.pref_key_editor_toolbar_buttons_size))
+        prefToolbarSize?.entryValues = ActionButtonSize.values().map { it.id.toString() }.toTypedArray()
+        prefToolbarSize?.setDefaultValue(ActionButtonSize.MEDIUM.id.toString())
+        if (settingsManager.isHasEditorButtonsSizeValue()) {
+            prefToolbarSize?.summary = settingsManager.getEditorButtonsSize().getTitle(resourcesProvider)
+        }
+
         updateSummaryIfContains(R.string.pref_key_record_fields_in_list, getRecordFieldsValuesString())
     }
 
@@ -49,7 +67,6 @@ class SettingsDisplayFragment : TetroidSettingsFragment() {
             }
             getString(R.string.pref_key_highlight_attach_color) -> {
                 // TODO
-            //                App.HighlightAttachColor = CommonSettings.getHighlightColor(context)
             }
             getString(R.string.pref_key_date_format_string) -> {
                 // меняем формат даты
@@ -57,6 +74,12 @@ class SettingsDisplayFragment : TetroidSettingsFragment() {
             }
             getString(R.string.pref_key_show_record_fields) -> {
                 updateSummary(R.string.pref_key_show_record_fields, CommonSettings.getShowRecordFields(context))
+            }
+            getString(R.string.pref_key_editor_toolbar_buttons_size) -> {
+                updateSummary(
+                    R.string.pref_key_editor_toolbar_buttons_size,
+                    settingsManager.getEditorButtonsSize().getTitle(resourcesProvider)
+                )
             }
             getString(R.string.pref_key_record_fields_in_list) -> {
                 // TODO

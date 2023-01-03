@@ -24,6 +24,11 @@
         <item>@string/pref_show_record_fields_no</item>
         <item>@string/pref_show_record_fields_filled</item>
     </string-array>
+    <string-array name="editor_toolbar_buttons_size_entries">
+        <item>@string/pref_editor_toolbar_buttons_small_size</item>
+        <item>@string/pref_editor_toolbar_buttons_medium_size</item>
+        <item>@string/pref_editor_toolbar_buttons_large_size</item>
+    </string-array>
     <string-array name="record_fields_in_list_entries">
         <item>@string/title_author</item>
         <item>@string/title_tags</item>

@@ -129,6 +129,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         startInitStorage()
         viewModel.onCreate(receivedIntent!!)
         editor = findViewById(R.id.html_editor)
+        editor.init(settingsManager)
         editor.setColorPickerListener(this)
         editor.setImagePickerListener(this)
         editor.setNetworkWorkerListener(this)
@@ -593,8 +594,8 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         viewModel.saveImages(uris, isCameraMode)
     }
 
-    fun saveImage(uri: Uri?, deleteSrcFile: Boolean) {
-        viewModel.saveImage(uri!!, deleteSrcFile)
+    fun saveImage(uri: Uri, deleteSrcFile: Boolean) {
+        viewModel.saveImage(uri, deleteSrcFile)
     }
 
     /**
@@ -630,8 +631,8 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         )
     }
 
-    fun downloadAndAttachFile(uri: Uri?) {
-        viewModel.downloadAndAttachFile(uri!!)
+    fun downloadAndAttachFile(uri: Uri) {
+        viewModel.downloadAndAttachFile(uri)
     }
 
     //endregion Attach
@@ -644,7 +645,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             Constants.MODE_VIEW -> {
                 editor.visibility = View.VISIBLE
                 editor.setToolBarVisibility(false)
-                mScrollViewHtml!!.visibility = View.GONE
+                mScrollViewHtml.visibility = View.GONE
                 setRecordFieldsVisibility(true)
                 editor.setEditMode(false)
                 editor.setScrollButtonsVisibility(true)
@@ -659,7 +660,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 //                }
                 editor.webView.loadEditorJSScript(false)
                 editor.setToolBarVisibility(true)
-                mScrollViewHtml!!.visibility = View.GONE
+                mScrollViewHtml.visibility = View.GONE
                 setRecordFieldsVisibility(false)
                 editor.setEditMode(true)
                 editor.setScrollButtonsVisibility(false)
@@ -678,7 +679,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                     editor.webView.loadEditorJSScript(true)
                 }
                 //                mEditor.getWebView().makeEditableHtmlRequest();
-                mScrollViewHtml!!.visibility = View.VISIBLE
+                mScrollViewHtml.visibility = View.VISIBLE
                 setRecordFieldsVisibility(false)
                 setSubtitle(getString(R.string.subtitle_record_html))
                 mEditTextHtml.focusAndShowKeyboard()
@@ -775,7 +776,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         }
         // сбрасываем счетчик совпадений от прежнего поиска
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            mFindListener!!.reset()
+            mFindListener.reset()
         }
     }
 
@@ -871,6 +872,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         } else if (requestCode == Constants.REQUEST_CODE_COMMON_SETTINGS_ACTIVITY) {
             // не гасим экран, если установили опцию
             checkKeepScreenOn(this)
+            editor.onSettingsChanged()
         }
     }
 

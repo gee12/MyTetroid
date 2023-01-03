@@ -16,6 +16,13 @@
         android:title="@string/pref_show_record_fields" />
 <!--    android:defaultValue="@string/pref_show_record_fields_no"-->
 
+    <ListPreference
+        android:entries="@array/editor_toolbar_buttons_size_entries"
+        android:dialogTitle="@string/pref_editor_toolbar_buttons_size_title"
+        android:key="@string/pref_key_editor_toolbar_buttons_size"
+        android:title="@string/pref_editor_toolbar_buttons_size_title"
+        android:summary="@string/pref_editor_toolbar_buttons_size_summ" />
+
     <CheckBoxPreference
         android:defaultValue="false"
         android:key="@string/pref_key_is_highlight_attach"
