@@ -1,71 +1,66 @@
-package com.gee12.mytetroid.ui.record;
+package com.gee12.mytetroid.ui.record
 
-import android.content.Context;
-import android.util.AttributeSet;
-import android.view.View;
+import android.content.Context
+import android.util.AttributeSet
+import com.gee12.htmlwysiwygeditor.ActionButton
+import com.gee12.htmlwysiwygeditor.ActionType
+import com.gee12.htmlwysiwygeditor.Dialogs
+import com.gee12.mytetroid.App.isFreeVersion
+import com.gee12.mytetroid.R
+import com.gee12.mytetroid.common.utils.ImageUtils
+import com.gee12.mytetroid.domain.HtmlHelper
+import com.gee12.mytetroid.model.TetroidImage
+import com.gee12.mytetroid.ui.dialogs.AskDialogs.showYesNoDialog
+import com.lumyjuwon.richwysiwygeditor.WysiwygEditor
 
-import androidx.annotation.Nullable;
+class TetroidEditor : WysiwygEditor {
 
-import com.gee12.htmlwysiwygeditor.ActionButton;
-import com.gee12.htmlwysiwygeditor.ActionType;
-import com.gee12.htmlwysiwygeditor.Dialogs;
-import com.gee12.mytetroid.App;
-import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.domain.HtmlHelper;
-import com.gee12.mytetroid.ui.dialogs.AskDialogs;
-import com.gee12.mytetroid.model.TetroidImage;
-import com.gee12.mytetroid.common.utils.ImageUtils;
-import com.lumyjuwon.richwysiwygeditor.WysiwygEditor;
-
-import java.util.ArrayList;
-import java.util.List;
-
-public class TetroidEditor extends WysiwygEditor {
-
-    public interface IEditorListener {
-        void onIsEditedChanged(boolean isEdited);
+    interface IEditorListener {
+        fun onIsEditedChanged(isEdited: Boolean)
     }
 
-    boolean mIsCalledHtmlRequest;
-    IEditorListener editorListener;
+    var isCalledHtmlRequest = false
+    protected var editorListener: IEditorListener? = null
+        private set
 
-    public TetroidEditor(Context context) {
-        super(context);
-        init();
-    }
-
-    public TetroidEditor(Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
-        init();
-    }
-
-    public TetroidEditor(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        init();
-    }
-
-    protected void init() {
-    }
-
-    public void setEditorListener(IEditorListener listener) {
-        this.editorListener = listener;
-    }
-
-    public List<ActionButton> getActionButtons() {
-        List<ActionButton> buttons = new ArrayList<>();
-        for (int i = 0; i < mToolbarActions.getChildCount(); i++) {
-            View view = mToolbarActions.getChildAt(i);
-            if (view instanceof ActionButton) {
-                buttons.add((ActionButton) view);
-            }
+    override var isEdited: Boolean
+        get() = super.isEdited
+        set(value) {
+            super.isEdited = value
+            editorListener?.onIsEditedChanged(isEdited)
         }
-        return buttons;
+
+
+    constructor(context: Context) : super(context) {
+        init()
     }
+
+    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
+        init()
+    }
+
+    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
+        init()
+    }
+
+    protected fun init() {}
+
+//    override val actionButtons: List<ActionButton>
+//        get() {
+//            val buttons: MutableList<ActionButton> = ArrayList()
+//            for (i in 0 until toolbarActions.childCount) {
+//                val view = toolbarActions.getChildAt(i)
+//                if (view is ActionButton) {
+//                    buttons.add(view)
+//                }
+//            }
+//            return buttons
+//        }
 
     /**
      * Отображение команд панели инструментов исходя из настроек приложения.
      */
-/*    @Override
+    /*    @Override
     protected void initToolbarActions() {
         super.initToolbarActions();
 
@@ -93,28 +88,30 @@ public class TetroidEditor extends WysiwygEditor {
 //        }
     }*/
 
-    @Override
-    protected void initActionButton(ActionButton button, ActionType type, boolean isCheckable, boolean isPopup) {
-        super.initActionButton(button, type, isCheckable, isPopup);
-        if ((App.INSTANCE.isFreeVersion()
-                // TODO: в качестве исключения
-                 || type != ActionType.INSERT_VIDEO)
-                && !type.isFree()) {
-            button.setEnabled(false);
+    override fun initActionButton(
+        button: ActionButton,
+        type: ActionType,
+        isCheckable: Boolean,
+        isPopup: Boolean
+    ) {
+        super.initActionButton(button, type, isCheckable, isPopup)
+        if ((isFreeVersion() // TODO: в качестве исключения
+                    || type !== ActionType.INSERT_VIDEO)
+            && !type.isFree
+        ) {
+            button.isEnabled = false
         }
     }
 
     /**
      * Вызывается перед сохранением текста записи в файл.
      */
-    public void beforeSaveAsync(boolean deleteStyleEmpty) {
-
+    fun beforeSaveAsync(deleteStyleEmpty: Boolean) {
         if (deleteStyleEmpty) {
-            deleteStyleEmpty();
+            deleteStyleEmpty()
         }
-
-        this.mIsCalledHtmlRequest = true;
-        mWebView.makeEditableHtmlRequest();
+        isCalledHtmlRequest = true
+        webView.makeEditableHtmlRequest()
     }
 
     /**
@@ -123,107 +120,107 @@ public class TetroidEditor extends WysiwygEditor {
      * удаление стиля "-qt-paragraph-type:empty;" в абзацах "p", содержащих
      * какой-то текст, а не просто элемент "br".
      */
-    private void deleteStyleEmpty() {
-        String script = "" +
-                "var paragraphs = document.getElementsByTagName(\"p\");\n" +
-                "for(var i = 0; i < paragraphs.length; i++) {\n" +
-                "\tvar elem = paragraphs[i];\n" +
-                "\tif (elem.hasAttribute(\"style\")) {\n" +
-                "\t\tvar styleAttr = elem.getAttribute(\"style\");\n" +
-                "\t\tif (!(elem.children.length == 1 && elem.children[0].tagName == \"BR\")\n" +
-                "\t\t\t&& styleAttr.indexOf(\"-qt-paragraph-type:empty;\") > -1) {\n" +
-                "\t\t\tvar newStyleAttr = styleAttr.replace(\"-qt-paragraph-type:empty;\",\"\");\n" +
-                "\t\t\telem.setAttribute(\"style\", newStyleAttr);\n" +
-                "\t\t}\n" +
-                "\t}\n" +
-                "}";
-        mWebView.execJavascript(script);
+    private fun deleteStyleEmpty() {
+        val script = """
+            |var paragraphs = document.getElementsByTagName("p");
+            |for(var i = 0; i < paragraphs.length; i++) {
+            |    var elem = paragraphs[i];
+            |    if (elem.hasAttribute("style")) {
+            |        var styleAttr = elem.getAttribute("style");
+            |        if (!(elem.children.length == 1 && elem.children[0].tagName == "BR")
+            |            && styleAttr.indexOf("-qt-paragraph-type:empty;") > -1) {
+            |            var newStyleAttr = styleAttr.replace("-qt-paragraph-type:empty;","");
+            |            elem.setAttribute("style", newStyleAttr);
+            |        }
+            |    }
+            |}
+            """.trimMargin()
+        webView.execJavascript(script)
     }
 
-    public void insertImage(TetroidImage image, String pathToImageFolder) {
-        ImageUtils.setImageDimensions(pathToImageFolder, image);
-        showEditImageDialog(image.getName(), image.getWidth(), image.getHeight(), false);
+    fun insertImage(image: TetroidImage, pathToImageFolder: String) {
+        ImageUtils.setImageDimensions(pathToImageFolder, image)
+        showEditImageDialog(image.name, image.width, image.height, false)
     }
 
     /**
      * Вставка выбранных изображений.
      * @param images
      */
-    public void insertImages(List<TetroidImage> images, String pathToImageFolder) {
-        if (images == null || images.size() == 0)
-            return;
-        if (images.size() == 1) {
-            // выводим диалог установки размера
-            insertImage(images.get(0), pathToImageFolder);
-        } else {
-            // спрашиваем о необходимости изменения размера
-            AskDialogs.INSTANCE.showYesNoDialog(
-                    getContext(),
-                    true,
-                    R.string.ask_change_image_dimens,
-                    () -> {
-                        createImageDimensDialog(images, 0, pathToImageFolder);
-                        return null;
+    fun insertImages(images: List<TetroidImage>, pathToImageFolder: String) {
+        when (images.size) {
+            0 -> {
+                return
+            }
+            1 -> {
+                // выводим диалог установки размера
+                insertImage(images[0], pathToImageFolder)
+            }
+            else -> {
+                // спрашиваем о необходимости изменения размера
+                showYesNoDialog(
+                    context = context,
+                    isCancelable = true,
+                    messageResId = R.string.ask_change_image_dimens,
+                    onApply = {
+                        createImageDimensDialog(images, 0, pathToImageFolder)
                     },
-                    () -> {
-                        for (TetroidImage fileName : images) {
-                            mWebView.insertImage(fileName.getName(), null);
-                        }
-                        return null;
-                    },
-                    () -> null
-            );
-            setIsEdited();
-        }
-    }
-
-    private void createImageDimensDialog(List<TetroidImage> images, int pos, String pathToImageFolder) {
-        if (images == null || pos < 0 || pos >= images.size())
-            return;
-        TetroidImage image = images.get(pos);
-        ImageUtils.setImageDimensions(pathToImageFolder, image);
-        // выводим диалог установки размера
-        boolean isSeveral = (pos < images.size() - 1);
-        Dialogs.createImageDimensDialog(getContext(), image.getWidth(), image.getHeight(), isSeveral,
-                (width, height, similar) -> {
-                    mWebView.insertImage(image.getName(), width, height);
-                    if (!similar) {
-                        // вновь выводим диалог установки размера
-                        createImageDimensDialog(images, pos + 1, pathToImageFolder);
-                    } else {
-                        // устанавливаем "сохраненный" размер
-                        for (int i = pos + 1; i < images.size(); i++) {
-                            mWebView.insertImage(images.get(i).getName(), width, height);
+                    onCancel = {
+                        for (fileName in images) {
+                            webView.insertImage(fileName.name, null)
                         }
                     }
-                });
-    }
-
-    public static String getDocumentHtml(String bodyHtml) {
-        StringBuilder sb = new StringBuilder(3);
-        sb.append(HtmlHelper.HTML_START_WITH);
-        sb.append(bodyHtml);
-        sb.append(HtmlHelper.HTML_END_WITH);
-        return sb.toString();
-    }
-
-    public String getDocumentHtml() {
-        return getDocumentHtml(mWebView.getEditableHtml());
-    }
-
-    @Override
-    public void setIsEdited(boolean isEdited) {
-        super.setIsEdited(isEdited);
-        if (editorListener != null) {
-            editorListener.onIsEditedChanged(isEdited);
+                )
+                setIsEdited()
+            }
         }
     }
 
-    public boolean isCalledHtmlRequest() {
-        return mIsCalledHtmlRequest;
+    private fun createImageDimensDialog(images: List<TetroidImage>, pos: Int, pathToImageFolder: String) {
+        if (pos < 0 || pos >= images.size) {
+            return
+        }
+        val image = images[pos]
+        ImageUtils.setImageDimensions(pathToImageFolder, image)
+        // выводим диалог установки размера
+        val isSeveral = pos < images.size - 1
+        Dialogs.createImageDimensDialog(
+            context, image.width, image.height, isSeveral
+        ) { width: Int, height: Int, similar: Boolean ->
+            webView.insertImage(image.name, width, height)
+            if (!similar) {
+                // вновь выводим диалог установки размера
+                createImageDimensDialog(images, pos + 1, pathToImageFolder)
+            } else {
+                // устанавливаем "сохраненный" размер
+                for (i in pos + 1 until images.size) {
+                    webView.insertImage(images[i].name, width, height)
+                }
+            }
+        }
     }
 
-    public void setHtmlRequestHandled() {
-        this.mIsCalledHtmlRequest = false;
+    val documentHtml: String
+        get() = getDocumentHtml(webView.editableHtml)
+
+    fun setHtmlRequestHandled() {
+        isCalledHtmlRequest = false
     }
+
+    fun setEditorListener(listener: IEditorListener) {
+        editorListener = listener
+    }
+
+    companion object {
+
+        fun getDocumentHtml(bodyHtml: String?): String {
+            return buildString(capacity = 3) {
+                append(HtmlHelper.HTML_START_WITH)
+                bodyHtml?.let { append(it) }
+                append(HtmlHelper.HTML_END_WITH)
+            }
+        }
+
+    }
+
 }

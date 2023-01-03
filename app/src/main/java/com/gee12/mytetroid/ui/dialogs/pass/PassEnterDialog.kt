@@ -4,7 +4,7 @@ import android.text.TextUtils
 import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
-import com.gee12.htmlwysiwygeditor.ViewUtils.TextChangedListener
+import com.gee12.htmlwysiwygeditor.TextChangedListener
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import com.gee12.mytetroid.ui.storage.StorageViewModel

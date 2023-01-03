@@ -137,7 +137,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         //mEditor.setOnTouchListener(this)
         editor.setOnPageLoadListener(this)
         editor.setEditorListener(this)
-        val webView = editor.getWebView()
+        val webView = editor.webView
         webView.setOnTouchListener(this)
         webView.setOnUrlLoadListener(this)
         webView.setOnHtmlReceiveListener(this)
@@ -160,10 +160,10 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         mButtonFullscreen.setOnClickListener {
             toggleFullscreen(false)
         }
-        val mButtonScrollBottom = findViewById<FloatingActionButton>(R.id.button_scroll_bottom)
+        val buttonScrollBottom = findViewById<FloatingActionButton>(R.id.button_scroll_bottom)
         mButtonScrollTop = findViewById(R.id.button_scroll_top)
         // прокидывание кнопок пролистывания в редактор
-        editor.initScrollButtons(mButtonScrollBottom, mButtonScrollTop)
+        editor.initScrollButtons(buttonScrollBottom, mButtonScrollTop)
         mButtonFindNext = findViewById(R.id.button_find_next)
         mButtonFindNext.setOnClickListener {
             findNext()
@@ -174,7 +174,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             mFindListener = TextFindListener()
-            editor.getWebView().setFindListener(mFindListener)
+            editor.webView.setFindListener(mFindListener)
         } else {
             // TODO: что здесь для API=15 ?
         }
@@ -304,7 +304,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             is RecordEvent.SwitchViews -> switchViews(event.viewMode)
             is RecordEvent.AskForSaving -> askForSaving(event.resultObj)
             RecordEvent.BeforeSaving -> onBeforeSavingAsync()
-            is RecordEvent.IsEditedChanged -> editor.setIsEdited(event.isEdited)
+            is RecordEvent.IsEditedChanged -> editor.isEdited = event.isEdited
             is RecordEvent.EditedDateChanged -> {
                 (findViewById<View>(R.id.text_view_record_edited) as TextView).text = event.dateString
             }
@@ -713,7 +713,12 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
     private fun saveRecord() {
         // если сохраняем запись перед выходом, то учитываем, что можем находиться в режиме HTML
-        val htmlText = TetroidEditor.getDocumentHtml(if (viewModel.isHtmlMode()) mEditTextHtml.text.toString() else editor.webView.editableHtml)
+        val bodyHtml = if (viewModel.isHtmlMode()) {
+            mEditTextHtml.text.toString()
+        } else {
+            editor.webView.editableHtml
+        }
+        val htmlText = TetroidEditor.getDocumentHtml(bodyHtml)
         viewModel.saveRecordText(htmlText)
     }
 
