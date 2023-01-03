@@ -5,16 +5,16 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.getAppVersionName
 import com.gee12.mytetroid.common.utils.FileUtils
-import com.gee12.mytetroid.domain.provider.CommonSettingsProvider
+import com.gee12.mytetroid.domain.provider.CommonSettingsManager
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import java.io.File
 
 class InitAppUseCase(
-    private val resourcesProvider: IResourcesProvider,
     private val context: Context,
+    private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
-    private val commonSettingsProvider: CommonSettingsProvider,
+    private val settingsManager: CommonSettingsManager,
 ) : UseCase<UseCase.None, InitAppUseCase.Params>() {
 
     object Params
@@ -24,24 +24,24 @@ class InitAppUseCase(
         logger.logRaw("************************************************************")
         logger.log(resourcesProvider.getString(R.string.log_app_start_mask, context.getAppVersionName().orEmpty()), false)
 
-        if (commonSettingsProvider.isCopiedFromFree()) {
+        if (settingsManager.isCopiedFromFree()) {
             logger.log(R.string.log_settings_copied_from_free, show = true)
         }
 
         createDefaultFolders()
 
-        commonSettingsProvider.init(context)
+        settingsManager.init()
 
         return None.toRight()
     }
 
     private fun createDefaultFolders() {
         createFolder(
-            path = commonSettingsProvider.getDefaultTrashPath(),
+            path = settingsManager.getDefaultTrashPath(),
             name = Constants.TRASH_DIR_NAME
         )
         createFolder(
-            path = commonSettingsProvider.getDefaultLogPath(),
+            path = settingsManager.getDefaultLogPath(),
             name = Constants.LOG_DIR_NAME
         )
     }

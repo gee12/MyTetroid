@@ -18,7 +18,7 @@ import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.domain.provider.BuildInfoProvider
-import com.gee12.mytetroid.domain.provider.CommonSettingsProvider
+import com.gee12.mytetroid.domain.provider.CommonSettingsManager
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.ui.base.BaseViewModel
@@ -31,7 +31,7 @@ class StoragesViewModel(
     logger: ITetroidLogger,
     notificator: INotificator,
     failureHandler: IFailureHandler,
-    commonSettingsProvider: CommonSettingsProvider,
+    settingsManager: CommonSettingsManager,
     private val buildInfoProvider: BuildInfoProvider,
     private val storagesInteractor: StoragesInteractor,
     private val checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
@@ -42,7 +42,7 @@ class StoragesViewModel(
     logger,
     notificator,
     failureHandler,
-    commonSettingsProvider,
+    settingsManager,
 ) {
 
     private val _storages = MutableLiveData<List<TetroidStorage>>()

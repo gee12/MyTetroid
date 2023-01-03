@@ -149,7 +149,7 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
 
     private fun initListAdapters() {
         // список записей
-        val settingsProvider = viewModel.commonSettingsProvider
+        val settingsProvider = viewModel.settingsManager
         listAdapterRecords = RecordsListAdapter(
             requireContext(),
             resourcesProvider = viewModel.resourcesProvider,

@@ -5,7 +5,7 @@ import android.net.Uri
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.common.utils.FileUtils
-import com.gee12.mytetroid.domain.provider.CommonSettingsProvider
+import com.gee12.mytetroid.domain.provider.CommonSettingsManager
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
@@ -20,14 +20,14 @@ class LogsViewModel(
     logger: ITetroidLogger,
     notificator: INotificator,
     failureHandler: IFailureHandler,
-    commonSettingsProvider: CommonSettingsProvider,
+    settingsManager: CommonSettingsManager,
 ) : BaseViewModel(
     app,
     resourcesProvider,
     logger,
     notificator,
     failureHandler,
-    commonSettingsProvider,
+    settingsManager,
 ), CoroutineScope {
 
     companion object {

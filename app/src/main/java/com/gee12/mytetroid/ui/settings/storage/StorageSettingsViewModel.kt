@@ -34,7 +34,7 @@ class StorageSettingsViewModel(
     failureHandler: IFailureHandler,
 
     buildInfoProvider: BuildInfoProvider,
-    commonSettingsProvider: CommonSettingsProvider,
+    settingsManager: CommonSettingsManager,
     storageProvider: IStorageProvider,
     sensitiveDataProvider: ISensitiveDataProvider,
     storagePathProvider: IStoragePathProvider,
@@ -74,7 +74,7 @@ class StorageSettingsViewModel(
     notificator = notificator,
     failureHandler = failureHandler,
 
-    commonSettingsProvider = commonSettingsProvider,
+    settingsManager = settingsManager,
     buildInfoProvider = buildInfoProvider,
     storageProvider = storageProvider,
     sensitiveDataProvider = sensitiveDataProvider,

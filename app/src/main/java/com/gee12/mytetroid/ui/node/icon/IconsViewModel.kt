@@ -8,7 +8,7 @@ import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidIcon
-import com.gee12.mytetroid.domain.provider.CommonSettingsProvider
+import com.gee12.mytetroid.domain.provider.CommonSettingsManager
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.domain.provider.IStoragePathProvider
 import com.gee12.mytetroid.domain.provider.IStorageProvider
@@ -23,7 +23,7 @@ class IconsViewModel(
     logger: ITetroidLogger,
     notificator: INotificator,
     failureHandler: IFailureHandler,
-    commonSettingsProvider: CommonSettingsProvider,
+    settingsManager: CommonSettingsManager,
     storageProvider: IStorageProvider,
     private val storagePathProvider: IStoragePathProvider,
     private val getIconsFoldersUseCase: GetIconsFoldersUseCase,
@@ -34,7 +34,7 @@ class IconsViewModel(
     logger = logger,
     notificator = notificator,
     failureHandler = failureHandler,
-    commonSettingsProvider = commonSettingsProvider,
+    settingsManager = settingsManager,
     storageProvider = storageProvider,
 ) {
 

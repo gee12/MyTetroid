@@ -10,7 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.Failure
 import com.gee12.mytetroid.common.extensions.getIdNameString
-import com.gee12.mytetroid.domain.provider.CommonSettingsProvider
+import com.gee12.mytetroid.domain.provider.CommonSettingsManager
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
@@ -29,7 +29,7 @@ open class BaseViewModel(
     val logger: ITetroidLogger,
     val notificator: INotificator,
     val failureHandler: IFailureHandler,
-    val commonSettingsProvider: CommonSettingsProvider,
+    val settingsManager: CommonSettingsManager,
 ) : AndroidViewModel(application) {
 
     private val internalCoroutineExceptionHandler =
@@ -53,8 +53,8 @@ open class BaseViewModel(
     open fun initialize() {
         // FIXME: перенести в InitAppUseCase ?
         logger.init(
-            path = commonSettingsProvider.getLogPath(),
-            isWriteToFile = commonSettingsProvider.isWriteLogToFile()
+            path = settingsManager.getLogPath(),
+            isWriteToFile = settingsManager.isWriteLogToFile()
         )
     }
 
@@ -76,7 +76,7 @@ open class BaseViewModel(
 
     //region Get
 
-    fun getLastFolderPathOrDefault(forWrite: Boolean) = commonSettingsProvider.getLastFolderPathOrDefault(forWrite)
+    fun getLastFolderPathOrDefault(forWrite: Boolean) = settingsManager.getLastFolderPathOrDefault(forWrite)
 
     //endregion Get
 

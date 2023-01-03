@@ -83,7 +83,7 @@ class TagsFragment : TetroidFragment<MainViewModel> {
         btnApplySelectedTags.setOnClickListener {
             selectRecordsBySearchMode()
         }
-        updateTagsSearchModeTitle(commonSettingsProvider.getTagsSearchMode())
+        updateTagsSearchModeTitle(settingsManager.getTagsSearchMode())
         val btnChangeTagsSearchMode  = view.findViewById<AppCompatImageButton>(R.id.button_change_tags_search_mode)
         btnChangeTagsSearchMode.setOnClickListener { view ->
             showSelectTagsSearchModePopupMenu(view)
@@ -136,7 +136,7 @@ class TagsFragment : TetroidFragment<MainViewModel> {
     fun setTagsDataItems(tags: Map<String, TetroidTag>) {
         adapterTags.setDataItems(
             data = tags,
-            sortHelper = SortHelper(commonSettingsProvider.getTagsSortOrder())
+            sortHelper = SortHelper(settingsManager.getTagsSortOrder())
         )
     }
 
@@ -146,13 +146,13 @@ class TagsFragment : TetroidFragment<MainViewModel> {
     }
 
     private fun selectRecordsBySearchMode() {
-        setTagsSearchMode(searchMode = commonSettingsProvider.getTagsSearchMode())
+        setTagsSearchMode(searchMode = settingsManager.getTagsSearchMode())
         viewModel.showTagsRecordsFromSelected()
     }
 
     private fun setTagsSearchMode(searchMode: TagsSearchMode) {
         updateTagsSearchModeTitle(searchMode)
-        commonSettingsProvider.setTagsSearchMode(searchMode)
+        settingsManager.setTagsSearchMode(searchMode)
     }
 
     private fun updateTagsSearchModeTitle(searchMode: TagsSearchMode) {
@@ -260,7 +260,7 @@ class TagsFragment : TetroidFragment<MainViewModel> {
         popupMenu.inflate(R.menu.tags_sort)
 
         // выделяем цветом текущую сортировку
-        val tagsSortMode = SortHelper(commonSettingsProvider.getTagsSortOrder())
+        val tagsSortMode = SortHelper(settingsManager.getTagsSortOrder())
         val isByName = tagsSortMode.isByName
         val isAscent = tagsSortMode.isAscent
         val menuItem = when {
@@ -290,22 +290,22 @@ class TagsFragment : TetroidFragment<MainViewModel> {
             when (item.itemId) {
                 R.id.action_sort_tags_name_asc -> {
                     adapterTags.sort(byName = true, isAscent = true)
-                    commonSettingsProvider.setTagsSortOrder(SortHelper.byNameAsc())
+                    settingsManager.setTagsSortOrder(SortHelper.byNameAsc())
                     true
                 }
                 R.id.action_sort_tags_name_desc -> {
                     adapterTags.sort(byName = true, isAscent = false)
-                    commonSettingsProvider.setTagsSortOrder(SortHelper.byNameDesc())
+                    settingsManager.setTagsSortOrder(SortHelper.byNameDesc())
                     true
                 }
                 R.id.action_sort_tags_count_asc -> {
                     adapterTags.sort(byName = false, isAscent = true)
-                    commonSettingsProvider.setTagsSortOrder(SortHelper.byCountAsc())
+                    settingsManager.setTagsSortOrder(SortHelper.byCountAsc())
                     true
                 }
                 R.id.action_sort_tags_count_desc -> {
                     adapterTags.sort(byName = false, isAscent = false)
-                    commonSettingsProvider.setTagsSortOrder(SortHelper.byCountDesc())
+                    settingsManager.setTagsSortOrder(SortHelper.byCountDesc())
                     true
                 }
                 else -> false

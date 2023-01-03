@@ -559,8 +559,8 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         // список веток
         listAdapterNodes = NodesListAdapter(
             context = this,
-            isHighlightCryptedNodes = viewModel.commonSettingsProvider.isHighlightCryptedNodes(),
-            highlightColor = viewModel.commonSettingsProvider.highlightAttachColor(),
+            isHighlightCryptedNodes = viewModel.settingsManager.isHighlightCryptedNodes(),
+            highlightColor = viewModel.settingsManager.highlightAttachColor(),
             onClick = { node, pos ->
                 if (node.isExpandable && CommonSettings.isExpandEmptyNode(this@MainActivity)) {
                     // если у ветки есть подветки и установлена опция
@@ -672,7 +672,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 tvSubtitle.visibility = View.VISIBLE
                 tvSubtitle.textSize = 12f
                 tvSubtitle.text = if (viewId == Constants.MAIN_VIEW_TAG_RECORDS && viewModel.isMultiTagsMode) {
-                    val tagsSearchMode = commonSettingsProvider.getTagsSearchMode().getStringValue(resourcesProvider)
+                    val tagsSearchMode = settingsManager.getTagsSearchMode().getStringValue(resourcesProvider)
                     "${resourcesProvider.getString(R.string.title_multiple_tags)} (${tagsSearchMode})"
                 } else {
                     titles[titleId]
@@ -1521,7 +1521,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             viewModel.onRecordFieldsUpdated(null, false)
         } else {
             // обновляем список записей, чтобы обновить дату изменения
-            if (viewModel.commonSettingsProvider.getRecordFieldsSelector().checkIsEditedDate()) {
+            if (viewModel.settingsManager.getRecordFieldsSelector().checkIsEditedDate()) {
                 viewModel.updateRecordsList()
             }
         }

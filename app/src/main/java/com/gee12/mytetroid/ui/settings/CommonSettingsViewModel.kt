@@ -9,7 +9,7 @@ import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.domain.interactor.TrashInteractor
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.domain.provider.BuildInfoProvider
-import com.gee12.mytetroid.domain.provider.CommonSettingsProvider
+import com.gee12.mytetroid.domain.provider.CommonSettingsManager
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.domain.repo.StoragesRepo
 import com.gee12.mytetroid.ui.base.BaseViewModel
@@ -25,14 +25,14 @@ class CommonSettingsViewModel(
     notificator: INotificator,
     val buildInfoProvider: BuildInfoProvider,
     failureHandler: IFailureHandler,
-    commonSettingsProvider: CommonSettingsProvider,
+    settingsManager: CommonSettingsManager,
 ) : BaseViewModel(
     app,
     resourcesProvider,
     logger,
     notificator,
     failureHandler,
-    commonSettingsProvider,
+    settingsManager,
 ), CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.Main + SupervisorJob()

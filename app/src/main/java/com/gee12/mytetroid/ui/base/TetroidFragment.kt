@@ -12,7 +12,7 @@ import androidx.core.view.GestureDetectorCompat
 import androidx.fragment.app.Fragment
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.di.ScopeSource
-import com.gee12.mytetroid.domain.provider.CommonSettingsProvider
+import com.gee12.mytetroid.domain.provider.CommonSettingsManager
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.ui.TetroidMessage
 import org.koin.android.ext.android.inject
@@ -26,7 +26,7 @@ abstract class TetroidFragment<VM : BaseStorageViewModel> : Fragment, View.OnTou
         get() = scopeSource.scope
 
     val resourcesProvider: IResourcesProvider by inject()
-    val commonSettingsProvider: CommonSettingsProvider by inject()
+    val settingsManager: CommonSettingsManager by inject()
 
     protected var gestureDetector: GestureDetectorCompat? = null
 

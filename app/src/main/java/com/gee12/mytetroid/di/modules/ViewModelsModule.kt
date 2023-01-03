@@ -27,7 +27,7 @@ object ViewModelsModule {
                     notificator = get(),
                     failureHandler = get(),
 
-                    commonSettingsProvider = get(),
+                    settingsManager = get(),
                     buildInfoProvider = get(),
                     storageProvider = get(),
                     sensitiveDataProvider = get(),
@@ -72,7 +72,7 @@ object ViewModelsModule {
                     buildInfoProvider = get(),
                     failureHandler = get(),
 
-                    commonSettingsProvider = get(),
+                    settingsManager = get(),
                     storageProvider = get(),
                     storagePathProvider = get(),
                     sensitiveDataProvider = get(),
@@ -146,7 +146,7 @@ object ViewModelsModule {
                     failureHandler = get(),
 
                     buildInfoProvider = get(),
-                    commonSettingsProvider = get(),
+                    settingsManager = get(),
                     storageProvider = get(),
                     sensitiveDataProvider = get(),
                     storagePathProvider = get(),
@@ -198,7 +198,7 @@ object ViewModelsModule {
                     failureHandler = get(),
 
                     buildInfoProvider = get(),
-                    commonSettingsProvider = get(),
+                    settingsManager = get(),
                     storageProvider = get(),
                     sensitiveDataProvider = get(),
                     storagePathProvider = get(),
@@ -246,7 +246,7 @@ object ViewModelsModule {
                     failureHandler = get(),
 
                     buildInfoProvider = get(),
-                    commonSettingsProvider = get(),
+                    settingsManager = get(),
                     storageProvider = get(),
                     sensitiveDataProvider = get(),
                     storagePathProvider = get(),
@@ -290,7 +290,7 @@ object ViewModelsModule {
                     failureHandler = get(),
 
                     buildInfoProvider = get(),
-                    commonSettingsProvider = get(),
+                    settingsManager = get(),
 
                     storagesInteractor = get(),
 
@@ -306,7 +306,7 @@ object ViewModelsModule {
                     logger = get(),
                     notificator = get(),
                     failureHandler = get(),
-                    commonSettingsProvider = get(),
+                    settingsManager = get(),
                     storageProvider = get(),
                     storagePathProvider = get(),
                     getIconsFoldersUseCase = get(),
@@ -324,7 +324,7 @@ object ViewModelsModule {
                 notificator = get(),
                 buildInfoProvider = get(),
                 failureHandler = get(),
-                commonSettingsProvider = get(),
+                settingsManager = get(),
             )
         }
 
@@ -335,7 +335,7 @@ object ViewModelsModule {
                 logger = get(),
                 notificator = get(),
                 failureHandler = get(),
-                commonSettingsProvider = get(),
+                settingsManager = get(),
             )
         }
 

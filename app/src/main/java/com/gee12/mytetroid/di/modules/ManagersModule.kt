@@ -51,7 +51,7 @@ object ManagersModule {
         }
 
         single {
-            CommonSettingsProvider(
+            CommonSettingsManager(
                 context = androidApplication(),
                 resourcesProvider = get(),
                 logger = get(),

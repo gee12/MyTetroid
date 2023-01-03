@@ -72,17 +72,17 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String) {}
 
     fun onSharedPreferenceChanged(key: String) {
-        onSharedPreferenceChanged(baseViewModel.commonSettingsProvider.settings, key)
+        onSharedPreferenceChanged(baseViewModel.settingsManager.settings, key)
     }
 
     override fun onResume() {
         super.onResume()
-        baseViewModel.commonSettingsProvider.settings?.registerOnSharedPreferenceChangeListener(this)
+        baseViewModel.settingsManager.settings?.registerOnSharedPreferenceChangeListener(this)
     }
 
     override fun onPause() {
         super.onPause()
-        baseViewModel.commonSettingsProvider.settings?.unregisterOnSharedPreferenceChangeListener(this)
+        baseViewModel.settingsManager.settings?.unregisterOnSharedPreferenceChangeListener(this)
     }
 
     protected fun openFolderPicker(title: String?, location: String, requestCode: Int) {
@@ -137,7 +137,7 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
     }
 
     protected fun updateSummaryIfContains(@StringRes keyStringRes: Int, value: String?) {
-        if (baseViewModel.commonSettingsProvider.isContains(keyStringRes)) {
+        if (baseViewModel.settingsManager.isContains(keyStringRes)) {
             updateSummary(keyStringRes, value)
         }
     }

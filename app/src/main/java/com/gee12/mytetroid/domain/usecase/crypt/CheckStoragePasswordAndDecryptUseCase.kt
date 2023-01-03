@@ -4,7 +4,7 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.data.ini.DatabaseConfig
-import com.gee12.mytetroid.domain.provider.CommonSettingsProvider
+import com.gee12.mytetroid.domain.provider.CommonSettingsManager
 import com.gee12.mytetroid.domain.provider.ISensitiveDataProvider
 import com.gee12.mytetroid.domain.manager.PasswordManager
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -14,7 +14,7 @@ import com.gee12.mytetroid.ui.storage.StorageParams
 class CheckStoragePasswordAndDecryptUseCase(
     private val logger: ITetroidLogger,
     private val sensitiveDataProvider: ISensitiveDataProvider,
-    private val commonSettingsProvider: CommonSettingsProvider,
+    private val settingsManager: CommonSettingsManager,
     private val cryptManager: IStorageCryptManager,
     private val passwordManager: PasswordManager,
 ) : UseCase<CheckStoragePasswordAndDecryptUseCase.Result, CheckStoragePasswordAndDecryptUseCase.Params>() {
@@ -93,7 +93,7 @@ class CheckStoragePasswordAndDecryptUseCase(
                     ).toRight()
                 }
             }
-            commonSettingsProvider.isAskPassOnStart() || isNodeOpening -> {
+            settingsManager.isAskPassOnStart() || isNodeOpening -> {
                 // если пароль не установлен и не сохранен локально, то спрашиваем его, если:
                 //  * нужно расшифровывать хранилище сразу на старте
                 //  * функция вызвана во время открытия зашифрованной ветки

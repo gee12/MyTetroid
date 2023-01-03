@@ -67,7 +67,7 @@ class MainViewModel(
     notificator: INotificator,
     failureHandler: IFailureHandler,
 
-    commonSettingsProvider: CommonSettingsProvider,
+    settingsManager: CommonSettingsManager,
     buildInfoProvider: BuildInfoProvider,
     storageProvider: IStorageProvider,
     favoritesManager: FavoritesManager,
@@ -137,7 +137,7 @@ class MainViewModel(
     notificator = notificator,
     failureHandler = failureHandler,
 
-    commonSettingsProvider = commonSettingsProvider,
+    settingsManager = settingsManager,
     buildInfoProvider = buildInfoProvider,
     storageProvider = storageProvider,
     sensitiveDataProvider = sensitiveDataProvider,
@@ -1395,7 +1395,7 @@ class MainViewModel(
     private fun getTagsRecords(tags: List<TetroidTag>): List<TetroidRecord> {
         val allTagsRecords = tags.map { it.records }.flatten().distinct()
 
-        return when (commonSettingsProvider.getTagsSearchMode()) {
+        return when (settingsManager.getTagsSearchMode()) {
             TagsSearchMode.OR -> {
                 allTagsRecords
             }

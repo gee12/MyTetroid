@@ -70,7 +70,7 @@ class SettingsDisplayFragment : TetroidSettingsFragment() {
 
     private fun getRecordFieldsValuesString(): String {
         val arrayId = if (baseViewModel.buildInfoProvider.isFullVersion()) R.array.record_fields_in_list_entries_pro else R.array.record_fields_in_list_entries
-        val recordFieldsInList = baseViewModel.commonSettingsProvider.getRecordFieldsSelector()
+        val recordFieldsInList = baseViewModel.settingsManager.getRecordFieldsSelector()
         return recordFieldsInList.joinToString(resources.getStringArray(arrayId), 0)
     }
 

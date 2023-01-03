@@ -80,7 +80,7 @@ class FoundPageFragment : TetroidFragment<MainViewModel> {
     }
 
     fun setFounds(found: Map<ITetroidObject, FoundType>, profile: SearchProfile) {
-        val settingsProvider = viewModel.commonSettingsProvider
+        val settingsProvider = viewModel.settingsManager
         listAdapterFound = FoundListAdapter(
             context = requireContext(),
             resourcesProvider = viewModel.resourcesProvider,

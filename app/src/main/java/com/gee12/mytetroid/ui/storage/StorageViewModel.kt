@@ -55,7 +55,7 @@ open class StorageViewModel(
     notificator: INotificator,
     failureHandler: IFailureHandler,
 
-    commonSettingsProvider: CommonSettingsProvider,
+    settingsManager: CommonSettingsManager,
     storageProvider: IStorageProvider,
     val buildInfoProvider: BuildInfoProvider,
     val sensitiveDataProvider: ISensitiveDataProvider,
@@ -95,7 +95,7 @@ open class StorageViewModel(
     logger,
     notificator,
     failureHandler,
-    commonSettingsProvider,
+    settingsManager,
     storageProvider,
 ) {
 

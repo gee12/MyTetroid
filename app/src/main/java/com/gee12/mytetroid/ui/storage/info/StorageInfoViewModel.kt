@@ -37,7 +37,7 @@ class StorageInfoViewModel(
     notificator: INotificator,
     failureHandler: IFailureHandler,
 
-    commonSettingsProvider: CommonSettingsProvider,
+    settingsManager: CommonSettingsManager,
     buildInfoProvider: BuildInfoProvider,
     storageProvider: IStorageProvider,
     sensitiveDataProvider: ISensitiveDataProvider,
@@ -82,7 +82,7 @@ class StorageInfoViewModel(
     notificator = notificator,
     failureHandler = failureHandler,
 
-    commonSettingsProvider = commonSettingsProvider,
+    settingsManager = settingsManager,
     buildInfoProvider = buildInfoProvider,
     storageProvider = storageProvider,
     sensitiveDataProvider = sensitiveDataProvider,

@@ -84,7 +84,7 @@ object UseCasesModule {
                 MigrationInteractor(
                     logger = get(),
                     buildInfoProvider = get(),
-                    commonSettingsProvider = get(),
+                    settingsManager = get(),
                     storagesInteractor = get(),
                     favoritesManager = get(),
                     initStorageFromDefaultSettingsUseCase = get(),
@@ -107,7 +107,7 @@ object UseCasesModule {
                     context = androidApplication(),
                     resourcesProvider = get(),
                     logger = get(),
-                    commonSettingsProvider = get(),
+                    settingsManager = get(),
                 )
             }
 
@@ -260,7 +260,7 @@ object UseCasesModule {
                 CheckStoragePasswordAndDecryptUseCase(
                     logger = get(),
                     sensitiveDataProvider = get(),
-                    commonSettingsProvider = get(),
+                    settingsManager = get(),
                     cryptManager = get(),
                     passwordManager = get(),
                 )

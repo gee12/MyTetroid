@@ -22,7 +22,7 @@ import com.gee12.mytetroid.common.extensions.hideKeyboard
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.di.ScopeSource
-import com.gee12.mytetroid.domain.provider.CommonSettingsProvider
+import com.gee12.mytetroid.domain.provider.CommonSettingsManager
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.logs.Message
@@ -51,7 +51,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
         get() = scopeSource.scope
 
     val resourcesProvider: IResourcesProvider by inject()
-    val commonSettingsProvider: CommonSettingsProvider by inject()
+    val settingsManager: CommonSettingsManager by inject()
 
     protected var receivedIntent: Intent? = null
     protected var optionsMenu: Menu? = null
