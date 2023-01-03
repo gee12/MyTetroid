@@ -60,7 +60,6 @@ import com.gee12.mytetroid.ui.search.SearchActivity.Companion.start
 import com.gee12.mytetroid.ui.settings.SettingsActivity
 import com.gee12.mytetroid.ui.storage.StorageEvent
 import com.gee12.mytetroid.ui.storage.info.StorageInfoActivity.Companion.start
-import com.gee12.mytetroid.viewmodels.*
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.runBlocking

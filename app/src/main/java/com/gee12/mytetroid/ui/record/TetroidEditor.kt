@@ -8,7 +8,6 @@ import com.gee12.htmlwysiwygeditor.ActionType
 import com.gee12.htmlwysiwygeditor.Dialogs
 import com.gee12.mytetroid.App.isFreeVersion
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.utils.ImageUtils
 import com.gee12.mytetroid.domain.HtmlHelper
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.model.TetroidImage
@@ -153,8 +152,7 @@ class TetroidEditor : WysiwygEditor {
         webView.execJavascript(script)
     }
 
-    fun insertImage(image: TetroidImage, pathToImageFolder: String) {
-        ImageUtils.setImageDimensions(pathToImageFolder, image)
+    fun insertImage(image: TetroidImage) {
         showEditImageDialog(image.name, image.width, image.height, false)
     }
 
@@ -162,14 +160,14 @@ class TetroidEditor : WysiwygEditor {
      * Вставка выбранных изображений.
      * @param images
      */
-    fun insertImages(images: List<TetroidImage>, pathToImageFolder: String) {
+    fun insertImages(images: List<TetroidImage>) {
         when (images.size) {
             0 -> {
                 return
             }
             1 -> {
                 // выводим диалог установки размера
-                insertImage(images[0], pathToImageFolder)
+                insertImage(images[0])
             }
             else -> {
                 // спрашиваем о необходимости изменения размера
@@ -178,7 +176,7 @@ class TetroidEditor : WysiwygEditor {
                     isCancelable = true,
                     messageResId = R.string.ask_change_image_dimens,
                     onApply = {
-                        createImageDimensDialog(images, 0, pathToImageFolder)
+                        createImageDimensDialog(images, 0)
                     },
                     onCancel = {
                         for (fileName in images) {
@@ -191,12 +189,11 @@ class TetroidEditor : WysiwygEditor {
         }
     }
 
-    private fun createImageDimensDialog(images: List<TetroidImage>, pos: Int, pathToImageFolder: String) {
+    private fun createImageDimensDialog(images: List<TetroidImage>, pos: Int) {
         if (pos < 0 || pos >= images.size) {
             return
         }
         val image = images[pos]
-        ImageUtils.setImageDimensions(pathToImageFolder, image)
         // выводим диалог установки размера
         val isSeveral = pos < images.size - 1
         Dialogs.createImageDimensDialog(
@@ -205,7 +202,7 @@ class TetroidEditor : WysiwygEditor {
             webView.insertImage(image.name, width, height)
             if (!similar) {
                 // вновь выводим диалог установки размера
-                createImageDimensDialog(images, pos + 1, pathToImageFolder)
+                createImageDimensDialog(images, pos + 1)
             } else {
                 // устанавливаем "сохраненный" размер
                 for (i in pos + 1 until images.size) {

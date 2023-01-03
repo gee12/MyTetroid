@@ -18,6 +18,7 @@ import com.gee12.mytetroid.domain.usecase.node.icon.SetNodeIconUseCase
 import com.gee12.mytetroid.domain.usecase.record.*
 import com.gee12.mytetroid.domain.usecase.record.image.SaveImageFromBitmapUseCase
 import com.gee12.mytetroid.domain.usecase.record.image.SaveImageFromUriUseCase
+import com.gee12.mytetroid.domain.usecase.record.image.SetImageDimensionsUseCase
 import com.gee12.mytetroid.domain.usecase.storage.*
 import com.gee12.mytetroid.domain.usecase.tag.DeleteRecordTagsUseCase
 import com.gee12.mytetroid.domain.usecase.tag.GetTagByNameUseCase
@@ -632,6 +633,10 @@ object UseCasesModule {
                     recordPathProvider = get(),
                     checkRecordFolderUseCase = get(),
                 )
+            }
+
+            scoped {
+                SetImageDimensionsUseCase()
             }
 
             //endregion Image

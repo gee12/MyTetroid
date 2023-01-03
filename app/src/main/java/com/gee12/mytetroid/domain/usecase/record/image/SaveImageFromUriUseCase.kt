@@ -2,19 +2,20 @@ package com.gee12.mytetroid.domain.usecase.record.image
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.common.utils.ImageUtils
+import com.gee12.mytetroid.domain.provider.IDataNameProvider
 import com.gee12.mytetroid.domain.provider.IRecordPathProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
-import com.gee12.mytetroid.domain.provider.IDataNameProvider
+import com.gee12.mytetroid.domain.usecase.record.CheckRecordFolderUseCase
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidImage
 import com.gee12.mytetroid.model.TetroidRecord
-import com.gee12.mytetroid.domain.usecase.record.CheckRecordFolderUseCase
 import java.io.File
-import java.lang.Exception
+import java.io.FileOutputStream
+import java.io.IOException
 
 /**
  * Сохранение файла изображения в каталог записи.
@@ -61,7 +62,13 @@ class SaveImageFromUriUseCase(
         logger.logDebug(resourcesProvider.getString(R.string.log_start_image_file_converting_mask, destFullName))
         try {
             // конвертируем изображение в формат PNG и сохраняем в каталог записи
-            ImageUtils.convertImage(context, srcUri, destFullName, Bitmap.CompressFormat.PNG, 100)
+            val bitmap = getBitmap(srcUri)
+            saveBitmap(
+                bitmap = bitmap!!,
+                destImagePath = destFullName,
+                format = Bitmap.CompressFormat.PNG,
+                quality = 100,
+            )
 
             val destFile = File(destFullName)
             if (destFile.exists()) {
@@ -83,6 +90,30 @@ class SaveImageFromUriUseCase(
         }
 
         return image.toRight()
+    }
+
+    @Throws(java.lang.Exception::class)
+    private fun saveBitmap(
+        bitmap: Bitmap,
+        destImagePath: String,
+        format: Bitmap.CompressFormat,
+        quality: Int,
+    ) {
+        FileOutputStream(destImagePath).use { stream ->
+            bitmap.compress(format, quality, stream)
+            stream.flush()
+        }
+    }
+
+    @Throws(IOException::class)
+    private fun getBitmap(uri: Uri): Bitmap? {
+        return if (uri.authority != null) {
+            context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                BitmapFactory.decodeStream(inputStream)
+            }
+        } else {
+            BitmapFactory.decodeFile(uri.path)
+        }
     }
 
 }

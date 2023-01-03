@@ -62,7 +62,6 @@ import com.gee12.mytetroid.ui.record.TetroidEditor.IEditorListener
 import com.gee12.mytetroid.ui.settings.SettingsActivity
 import com.gee12.mytetroid.ui.storage.StorageEvent
 import com.gee12.mytetroid.ui.storage.info.StorageInfoActivity.Companion.start
-import com.gee12.mytetroid.viewmodels.RecordViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
@@ -310,14 +309,14 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 (findViewById<View>(R.id.text_view_record_edited) as TextView).text = event.dateString
             }
             RecordEvent.StartCaptureCamera -> {
-                setProgressVisibility(true, getString(R.string.progress_camera_capture))
+                showProgress(getString(R.string.progress_camera_capture))
             }
             RecordEvent.StartLoadImages -> {
-                setProgressVisibility(true, getString(R.string.progress_images_loading))
+                showProgress(getString(R.string.progress_images_loading))
             }
             is RecordEvent.InsertImages -> {
-                editor.insertImages(event.images, viewModel.getPathToRecordFolder(viewModel.curRecord.value!!))
-                setProgressVisibility(false, null)
+                editor.insertImages(images = event.images)
+                hideProgress()
             }
             is RecordEvent.OpenWebLink -> openWebLink(event.link)
             is RecordEvent.InsertWebPageContent -> {

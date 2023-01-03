@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.viewmodels
+package com.gee12.mytetroid.ui.record
 
 import android.app.Activity
 import android.app.Application
@@ -15,8 +15,6 @@ import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.buildIntent
 import com.gee12.mytetroid.domain.NetworkHelper.IWebImageResult
 import com.gee12.mytetroid.domain.NetworkHelper.IWebPageContentResult
-import com.gee12.mytetroid.logs.LogObj
-import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.ui.main.MainActivity
@@ -36,8 +34,6 @@ import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.TetroidActivity
-import com.gee12.mytetroid.ui.record.RecordEvent
-import com.gee12.mytetroid.ui.record.ResultObj
 import com.gee12.mytetroid.ui.storage.StorageViewModel
 import com.gee12.mytetroid.domain.usecase.InitAppUseCase
 import com.gee12.mytetroid.domain.usecase.attach.CreateAttachToRecordUseCase
@@ -48,6 +44,7 @@ import com.gee12.mytetroid.domain.usecase.node.GetNodeByIdUseCase
 import com.gee12.mytetroid.domain.usecase.record.*
 import com.gee12.mytetroid.domain.usecase.record.image.SaveImageFromBitmapUseCase
 import com.gee12.mytetroid.domain.usecase.record.image.SaveImageFromUriUseCase
+import com.gee12.mytetroid.domain.usecase.record.image.SetImageDimensionsUseCase
 import com.gee12.mytetroid.domain.usecase.storage.CheckStorageFilesExistingUseCase
 import com.gee12.mytetroid.domain.usecase.storage.InitOrCreateStorageUseCase
 import com.gee12.mytetroid.domain.usecase.storage.ReadStorageUseCase
@@ -104,6 +101,7 @@ class RecordViewModel(
     private val createAttachToRecordUseCase : CreateAttachToRecordUseCase,
     private val saveImageFromUriUseCase : SaveImageFromUriUseCase,
     private val saveImageFromBitmapUseCase : SaveImageFromBitmapUseCase,
+    private val setImageDimensionsUseCase : SetImageDimensionsUseCase,
     private val editRecordFieldsUseCase : EditRecordFieldsUseCase,
 ): StorageViewModel(
     app = app,
@@ -618,6 +616,8 @@ class RecordViewModel(
                             deleteSrcFile = isCamera,
                         )
                     )
+                }.flatMap { image ->
+                    setImageDimensions(image)
                 }.onFailure {
                     errorCount++
                 }.onSuccess { image ->
@@ -642,11 +642,15 @@ class RecordViewModel(
                         srcUri = imageUri,
                         deleteSrcFile = deleteSrcFile,
                     )
-                )
+                ).flatMap { image ->
+                    setImageDimensions(image)
+                }
             }.onFailure {
                 logFailure(it)
+//                logOperError(LogObj.IMAGE, LogOper.SAVE, show = true)
+                sendEvent(BaseEvent.ShowMoreInLogs)
             }.onSuccess { image ->
-                saveImage(image)
+                sendEvent(RecordEvent.InsertImages(images = listOf(image)))
             }
         }
     }
@@ -659,23 +663,15 @@ class RecordViewModel(
                         record = curRecord.value!!,
                         bitmap = bitmap,
                     )
-                )
+                ).flatMap { image ->
+                    setImageDimensions(image)
+                }
             }.onFailure {
                 logFailure(it)
-            }.onSuccess { image ->
-                saveImage(image)
-            }
-        }
-    }
-
-    private fun saveImage(image: TetroidImage?) {
-        launchOnMain {
-            if (image != null) {
-//            mEditor.insertImage(image)
-                sendEvent(RecordEvent.InsertImages(images = listOf(image)))
-            } else {
-                logOperError(LogObj.IMAGE, LogOper.SAVE, true)
+//                logOperError(LogObj.IMAGE, LogOper.SAVE, show = true)
                 sendEvent(BaseEvent.ShowMoreInLogs)
+            }.onSuccess { image ->
+                sendEvent(RecordEvent.InsertImages(images = listOf(image)))
             }
         }
     }
@@ -732,6 +728,15 @@ class RecordViewModel(
                 }
             })
         }
+    }
+
+    private suspend fun setImageDimensions(image: TetroidImage): Either<Failure, TetroidImage> {
+        return setImageDimensionsUseCase.run(
+            SetImageDimensionsUseCase.Params(
+                image = image,
+                recordFolderPath = getPathToRecordFolder(curRecord.value!!),
+            )
+        ).map { image }
     }
 
     //endregion Image

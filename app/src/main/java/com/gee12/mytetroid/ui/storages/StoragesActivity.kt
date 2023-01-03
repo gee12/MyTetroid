@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.extensions.buildIntent
+import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.model.enums.TetroidPermission
@@ -31,7 +32,7 @@ import com.gee12.mytetroid.ui.dialogs.storage.StorageDialogs
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
 import lib.folderpicker.FolderPicker
-import org.koin.java.KoinJavaComponent.get
+import org.koin.core.scope.get
 
 
 class StoragesActivity : TetroidActivity<StoragesViewModel>() {
@@ -153,7 +154,9 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
     }
 
     private fun createStorageFiles(storage: TetroidStorage) {
-        val storageViewModel: StorageViewModel = get(StorageViewModel::class.java)
+        val tempKoinScope = ScopeSource.createNew().scope
+        val storageViewModel: StorageViewModel = tempKoinScope.get(StorageViewModel::class.java)
+
         lifecycleScope.launch {
             storageViewModel.eventFlow.collect { event ->
                 when (event) {

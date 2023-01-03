@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.data.settings.TetroidPreferenceDataStore
+import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.domain.manager.FavoritesManager
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
@@ -44,6 +45,7 @@ class StorageSettingsViewModel(
 
     storagesRepo: StoragesRepo,
     cryptManager: IStorageCryptManager,
+    storageDataProcessor: IStorageDataProcessor,
 
     favoritesManager: FavoritesManager,
     passwordManager: PasswordManager,
@@ -125,6 +127,10 @@ class StorageSettingsViewModel(
 
     var isFieldsChanged = false
     var isStoragePathChanged = false
+
+    init {
+        storageProvider.init(storageDataProcessor)
+    }
 
     /**
      * Установка отдельного параметра хранилища и сохранение в бд.

@@ -3,7 +3,6 @@ package com.gee12.mytetroid.domain.usecase.record.image
 import android.graphics.Bitmap
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.common.utils.ImageUtils
 import com.gee12.mytetroid.domain.provider.IRecordPathProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.domain.provider.IDataNameProvider
@@ -14,6 +13,7 @@ import com.gee12.mytetroid.model.TetroidImage
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.domain.usecase.record.CheckRecordFolderUseCase
 import java.io.File
+import java.io.FileOutputStream
 import java.lang.Exception
 
 /**
@@ -57,7 +57,12 @@ class SaveImageFromBitmapUseCase(
         logger.logDebug(resourcesProvider.getString(R.string.log_start_image_file_converting_mask, destFullName))
         try {
             // конвертируем изображение в формат PNG и сохраняем в каталог записи
-            ImageUtils.saveBitmap(bitmap, destFullName, Bitmap.CompressFormat.PNG, 100)
+            saveBitmap(
+                bitmap = bitmap,
+                destImagePath = destFullName,
+                format = Bitmap.CompressFormat.PNG,
+                quality = 100,
+            )
 
             val destFile = File(destFullName)
             if (!destFile.exists()) {
@@ -70,6 +75,19 @@ class SaveImageFromBitmapUseCase(
         }
 
         return image.toRight()
+    }
+
+    @Throws(java.lang.Exception::class)
+    private fun saveBitmap(
+        bitmap: Bitmap,
+        destImagePath: String,
+        format: Bitmap.CompressFormat,
+        quality: Int,
+    ) {
+        FileOutputStream(destImagePath).use { stream ->
+            bitmap.compress(format, quality, stream)
+            stream.flush()
+        }
     }
 
 }

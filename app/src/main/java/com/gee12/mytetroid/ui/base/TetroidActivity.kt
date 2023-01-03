@@ -32,7 +32,6 @@ import com.gee12.mytetroid.ui.about.AboutActivity
 import com.gee12.mytetroid.ui.base.views.ActivityDoubleTapListener
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
 import com.gee12.mytetroid.ui.record.RecordActivity
-import com.gee12.mytetroid.viewmodels.*
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.core.scope.Scope
