@@ -28,8 +28,10 @@ class SetNodeIconUseCase(
         val oldIconName = node.getIconName(true)
         // обновляем поля
         val isCrypted = node.isCrypted
-        if (isCrypted && !iconFileName.isNullOrEmpty()) {
-            node.iconName = cryptManager.encryptTextBase64(iconFileName)
+        node.iconName = if (isCrypted && iconFileName != null) {
+            cryptManager.encryptTextBase64(iconFileName)
+        } else {
+            iconFileName
         }
         if (isCrypted) {
             node.setDecryptedIconName(iconFileName)

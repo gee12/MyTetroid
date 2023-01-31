@@ -18,7 +18,6 @@ import org.jdom2.Document
 import org.jdom2.Element
 import org.jdom2.output.Format
 import org.jdom2.output.LineSeparator
-import org.jsoup.internal.StringUtil
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import java.io.FileInputStream
@@ -32,7 +31,11 @@ interface IStorageDataProcessor : IStorageInfoProvider {
 
     fun init()
     @Throws(XmlPullParserException::class, IOException::class)
-    suspend fun parse(fis: FileInputStream, isNeedDecrypt: Boolean, isLoadFavoritesOnly: Boolean): Boolean
+    suspend fun parse(
+        fis: FileInputStream,
+        isNeedDecrypt: Boolean,
+        isLoadFavoritesOnly: Boolean
+    ): Boolean
     @Throws(Exception::class)
     suspend fun save(fos: FileOutputStream): Boolean
     fun isLoaded(): Boolean
@@ -321,11 +324,6 @@ open class StorageDataXmlProcessor(
             if (crypt && isNeedDecrypt) {
                 decryptNode(node)
             }
-            /*//else if (!crypt) {
-            if (node.isNonCryptedOrDecrypted()) {
-                // парсим метки, если запись не зашифрована
-                parseNodeTags(node);
-            }*/
 
             // загрузка иконки из файла (после расшифровки имени иконки)
             loadNodeIcon(node)
@@ -370,16 +368,6 @@ open class StorageDataXmlProcessor(
         }
         return records
     }
-
-//    /**
-//     * Разбр метки у незашифрованных записей ветки.
-//     * @param node
-//     */
-//    protected void parseNodeTags(TetroidNode node) {
-//        for (TetroidRecord record : node.getRecords()) {
-//            parseRecordTags(record, record.getTagsString());
-//        }
-//    }
 
     /**
      * Чтение записи.
@@ -436,9 +424,7 @@ open class StorageDataXmlProcessor(
             fileName = parser.getAttributeValue(ns, "file")
         }
         val record = TetroidRecord(crypt, id, name, tags, author, url, created, dirName, fileName, node)
-        if (!StringUtil.isBlank(author)) authorsCount++
-        //        parser.nextTag();
-//        parser.require(XmlPullParser.END_TAG, ns, "record");
+        if (!author.isNullOrBlank()) authorsCount++
 
         // файлы
         var files: List<TetroidFile> = ArrayList()
@@ -581,9 +567,7 @@ open class StorageDataXmlProcessor(
             val nodeElem = Element("node")
             val crypted = node.isCrypted
             addAttribute(nodeElem, "crypt", if (crypted) "1" else "")
-            if (node.iconName.isNullOrEmpty()) {
-                addCryptAttribute(nodeElem, node, "icon", node.iconName, node.getIconName(true))
-            }
+            addCryptAttribute(nodeElem, node, "icon", node.iconName.orEmpty(), node.getIconName(true).orEmpty())
             addAttribute(nodeElem, "id", node.id)
             addCryptAttribute(nodeElem, node, "name", node.name, node.getName(true))
             if (node.recordsCount > 0) {
@@ -692,8 +676,8 @@ open class StorageDataXmlProcessor(
             for (record in node.records) {
                 recordsCount++
                 if (node.isCrypted) cryptedRecordsCount++
-                if (!StringUtil.isBlank(record.author)) authorsCount++
-                if (!StringUtil.isBlank(record.tagsString)) {
+                if (!record.author.isNullOrBlank()) authorsCount++
+                if (!record.tagsString.isNullOrBlank()) {
                     tagsCount += record.tagsString.split(Constants.TAGS_SEPARATOR_MASK.toRegex()).toTypedArray().size
                 }
                 if (record.attachedFilesCount > 0) filesCount += record.attachedFilesCount

@@ -10,6 +10,7 @@ import androidx.annotation.RequiresApi
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.extensions.buildIntent
+import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.model.TetroidIcon
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.ui.base.TetroidStorageActivity
@@ -76,6 +77,10 @@ class IconsActivity : TetroidStorageActivity<IconsViewModel>() {
         val nodeId = intent.extras?.getString(Constants.EXTRA_NODE_ID).orEmpty()
         val iconPath = intent.extras?.getString(Constants.EXTRA_NODE_ICON_PATH).orEmpty()
         viewModel.init(nodeId, iconPath)
+    }
+
+    override fun createDependencyScope() {
+        scopeSource = ScopeSource.current
     }
 
     override fun onBaseEvent(event: BaseEvent) {

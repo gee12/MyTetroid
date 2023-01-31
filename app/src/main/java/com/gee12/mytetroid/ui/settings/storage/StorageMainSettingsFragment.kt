@@ -16,7 +16,6 @@ import com.gee12.mytetroid.ui.dialogs.node.NodeChooserDialog
 import com.gee12.mytetroid.ui.dialogs.storage.StorageDialogs
 import com.gee12.mytetroid.ui.base.TetroidStorageSettingsFragment
 import lib.folderpicker.FolderPicker
-import org.jsoup.internal.StringUtil
 
 class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
 
@@ -233,8 +232,8 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment() {
         )
     }
 
-    protected fun openFolderPicker(title: String?, location: String, isNew: Boolean) {
-        val path = if (!StringUtil.isBlank(location)) location else viewModel.getLastFolderPathOrDefault(true)
+    private fun openFolderPicker(title: String?, location: String, isNew: Boolean) {
+        val path = location.ifEmpty { viewModel.getLastFolderPathOrDefault(true) }
         val intent = Intent(context, FolderPicker::class.java)
         intent.putExtra(FolderPicker.EXTRA_TITLE, title)
         intent.putExtra(FolderPicker.EXTRA_LOCATION, path)

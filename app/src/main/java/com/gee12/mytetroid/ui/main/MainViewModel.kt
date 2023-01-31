@@ -927,7 +927,7 @@ class MainViewModel(
                     setNodeIconUseCase.run(
                         SetNodeIconUseCase.Params(
                             node = node,
-                            iconFileName = if (isDrop) iconPath else null,
+                            iconFileName = if (!isDrop) iconPath else null,
                         )
                     )
                 }
