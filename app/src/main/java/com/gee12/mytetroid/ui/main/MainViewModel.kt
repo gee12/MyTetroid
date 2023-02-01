@@ -788,7 +788,7 @@ class MainViewModel(
     fun openRecordFolder(record: TetroidRecord) {
         logger.logDebug(resourcesProvider.getString(R.string.log_start_record_folder_opening) + record.id)
         val fileFullName = recordPathProvider.getPathToRecordFolder(record)
-        if (!interactionInteractor.openFile(getContext(), File(fileFullName))) {
+        if (!interactionInteractor.openFolder(getContext(), File(fileFullName))) {
             Utils.writeToClipboard(getContext(), resourcesProvider.getString(R.string.title_record_folder_path), fileFullName)
             logWarning(R.string.log_missing_file_manager, true)
         }
