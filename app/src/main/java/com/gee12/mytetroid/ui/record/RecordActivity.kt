@@ -8,6 +8,8 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.print.PdfPrinter
+import android.print.PrintAttributes
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
@@ -71,6 +73,7 @@ import com.lumyjuwon.richwysiwygeditor.WysiwygEditor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.cachapa.expandablelayout.ExpandableLayout
+import java.io.File
 import java.util.*
 
 /**
@@ -228,7 +231,10 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             is BaseEvent.Permission.Check -> {
                 when (event.permission) {
                     TetroidPermission.WriteStorage -> {
-                        viewModel.checkWriteExtStoragePermission(activity = this)
+                        viewModel.checkWriteExtStoragePermission(
+                            activity = this,
+                            requestCode = event.requestCode ?: Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE,
+                        )
                     }
                     TetroidPermission.RecordAudio -> {
                         viewModel.checkRecordAudioPermission(activity = this)
@@ -239,8 +245,15 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             is BaseEvent.Permission.Granted -> {
                 when (event.permission) {
                     TetroidPermission.WriteStorage -> {
-                        // загружаем параметры хранилища только после проверки разрешения на запись во внешнюю память
-                        startInitStorage()
+                        when (event.requestCode) {
+                            Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE -> {
+                                // загружаем параметры хранилища только после проверки разрешения на запись во внешнюю память
+                                startInitStorage()
+                            }
+                            Constants.REQUEST_CODE_PERMISSION_EXPORT_PDF -> {
+                                viewModel.startExportToPdf(isPermissionChecked = true)
+                            }
+                        }
                     }
                     TetroidPermission.RecordAudio -> {
                         startVoiceInputDirectly()
@@ -248,10 +261,20 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                     else -> {}
                 }
             }
-            is BaseEvent.Permission.Canceled ->
-                // закрываем активити, если нет разрешения на запись во внешнюю память
-                // TODO: поведение потребуется изменить, если хранилище загружается только на чтение
-                finish()
+            is BaseEvent.Permission.Canceled -> {
+                when (event.permission) {
+                    TetroidPermission.WriteStorage -> {
+                        when (event.requestCode) {
+                            Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE -> {
+                                // закрываем активити, если нет разрешения на запись во внешнюю память
+                                // TODO: поведение потребуется изменить, если хранилище загружается только на чтение
+                                finish()
+                            }
+                        }
+                    }
+                    else -> {}
+                }
+            }
             is BaseEvent.UpdateTitle -> setTitle(event.title)
             BaseEvent.UpdateOptionsMenu -> updateOptionsMenu()
             is BaseEvent.ShowHomeButton -> setVisibilityActionHome(event.isVisible)
@@ -324,6 +347,12 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             }
             is RecordEvent.InsertWebPageText -> {
                 editor.insertWebPageContent(event.text, true)
+            }
+            is RecordEvent.ExportToPdf -> {
+                exportToPdf(
+                    folder = event.folder,
+                    fileName = event.fileName,
+                )
             }
         }
     }
@@ -729,17 +758,72 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     /**
      * Отправка записи.
      */
-    fun shareRecord() {
+    private fun shareRecord() {
         val text = if (viewModel.isHtmlMode()) mEditTextHtml.text.toString() else Utils.fromHtml(
             editor.webView.editableHtml
         ).toString()
         viewModel.shareRecord(text)
     }
 
+    private fun exportToPdf(folder: File, fileName: String) {
+        showProgress(R.string.state_export_to_pdf)
+
+        val attributes = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            PrintAttributes.Builder()
+            .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
+            .setResolution(PrintAttributes.Resolution("pdf", "pdf", 600, 600))
+            .setMinMargins(PrintAttributes.Margins.NO_MARGINS).build()
+        } else {
+            viewModel.logError(getString(R.string.error_required_api_version_mask, Build.VERSION_CODES.KITKAT), show = true)
+            return
+        }
+        val pdfPrinter = PdfPrinter(
+            printAttributes = attributes,
+            onSuccess = {
+                hideProgress()
+                val pdfFile = File(folder, fileName)
+                AskDialogs.showYesDialog(
+                    context = this,
+                    message = getString(R.string.ask_open_exported_pdf, pdfFile.absolutePath),
+                    onApply = {
+                        viewModel.interactionInteractor.openFile(
+                            context = this,
+                            file = pdfFile,
+                            mimeType = "application/pdf"
+                        )
+                    },
+                )
+            },
+            onFailure = { ex ->
+                hideProgress()
+               if (ex != null) {
+                    viewModel.logError(ex, show = true)
+                } else {
+                   viewModel.logError(R.string.error_export_to_pdf, show = true)
+               }
+            }
+        )
+        val printAdapter = when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP -> {
+                editor.webView.createPrintDocumentAdapter(fileName)
+            }
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT -> {
+                editor.webView.createPrintDocumentAdapter()
+            }
+            else -> {
+                viewModel.logError(getString(R.string.error_required_api_version_mask, Build.VERSION_CODES.KITKAT), show = true)
+                null
+            }
+        }
+        printAdapter?.also {
+            pdfPrinter.print(printAdapter, folder, fileName)
+        }
+    }
+
     /**
      * Удаление записи.
      */
-    fun deleteRecord() {
+    private fun deleteRecord() {
         AskDialogs.showYesDialog(
             context = this,
             message = getString(R.string.ask_record_delete_mask, viewModel.getRecordName()),
@@ -749,7 +833,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         )
     }
 
-    fun showRecordInfoDialog() {
+    private fun showRecordInfoDialog() {
         RecordInfoDialog(
             viewModel.curRecord.value!!,
             viewModel.getStorageId()
@@ -1012,6 +1096,10 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 shareRecord()
                 return true
             }
+            R.id.action_export_pdf -> {
+                viewModel.startExportToPdf(isPermissionChecked = false)
+                return true
+            }
             R.id.action_delete -> {
                 deleteRecord()
                 return true
@@ -1024,7 +1112,9 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 toggleFullscreen(false)
                 return true
             }
-            R.id.action_storage_settings -> showStorageSettingsActivity(viewModel.storage)
+            R.id.action_storage_settings -> {
+                showStorageSettingsActivity(viewModel.storage)
+            }
             R.id.action_settings -> {
                 showActivityForResult(SettingsActivity::class.java, Constants.REQUEST_CODE_COMMON_SETTINGS_ACTIVITY)
                 return true
@@ -1033,7 +1123,9 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 start(this, viewModel.getStorageId())
                 return true
             }
-            android.R.id.home -> return viewModel.onHomePressed()
+            android.R.id.home -> {
+                return viewModel.onHomePressed()
+            }
         }
         return super.onOptionsItemSelected(item)
     }

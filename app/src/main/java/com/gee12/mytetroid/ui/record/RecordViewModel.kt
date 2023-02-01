@@ -6,6 +6,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.speech.SpeechRecognizer
 import android.text.TextUtils
 import androidx.annotation.UiThread
@@ -1123,6 +1124,33 @@ class RecordViewModel(
             text = text.substring(except.length)
         }
         interactionInteractor.shareText(getContext(), curRecord.value!!.name, text)
+    }
+
+    fun startExportToPdf(isPermissionChecked: Boolean) {
+        if (!isPermissionChecked) {
+            launchOnMain {
+                sendEvent(
+                    BaseEvent.Permission.Check(
+                        permission = TetroidPermission.WriteStorage,
+                        requestCode = Constants.REQUEST_CODE_PERMISSION_EXPORT_PDF,
+                    )
+                )
+            }
+        } else {
+            val downloadsFolder = getContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+            val folder = File(downloadsFolder, "/MyTetroid/")
+            val fileName = "${curRecord.value!!.name}.pdf"
+            try {
+                if (!folder.exists()) {
+                    folder.mkdirs()
+                }
+                launchOnMain {
+                    sendEvent(RecordEvent.ExportToPdf(folder, fileName))
+                }
+            } catch (ex: Exception) {
+                logError(ex)
+            }
+        }
     }
 
     //endregion Interaction

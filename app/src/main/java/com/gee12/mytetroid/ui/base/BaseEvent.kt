@@ -49,7 +49,8 @@ abstract class BaseEvent : VMEvent() {
     // permission
     sealed class Permission : BaseEvent() {
         data class Check(
-            val permission: TetroidPermission
+            val permission: TetroidPermission,
+            val requestCode: Int? = null,
         ) : Permission()
         data class Granted(
             val permission: TetroidPermission,

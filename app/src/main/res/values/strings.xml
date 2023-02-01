@@ -90,6 +90,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="title_record_folder_path">Record folder path</string>
     <string name="title_insert_record">Insert record</string>
     <string name="title_share">Share</string>
+    <string name="title_export_to_pdf">Export to pdf</string>
     <string name="title_intent_send">Mytetroid</string>
     <string name="title_not_implemented_yet">(not implemented yet)</string>
     <string name="title_trash_cleared">Trash folder was cleared</string>
@@ -889,4 +890,8 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="title_voice_input_started">Voice input is started</string>
     <string name="title_voice_input_finished">Voice input is finished</string>
     <string name="state_voice_input_recognition">Voice input recognition…</string>
+    <string name="state_export_to_pdf">Export to pdf…</string>
+    <string name="error_export_to_pdf">Failed to export to pdf</string>
+    <string name="ask_open_exported_pdf">File saved to «%s». Do you want to open file?</string>
+    <string name="error_required_api_version_mask">API level required >= %d</string>
 </resources>

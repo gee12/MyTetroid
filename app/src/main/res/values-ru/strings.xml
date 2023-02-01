@@ -87,6 +87,7 @@
     <string name="title_record_folder_path">Путь к каталогу записи</string>
     <string name="title_insert_record">Вставить запись</string>
     <string name="title_share">Отправить</string>
+    <string name="title_export_to_pdf">Экспорт в pdf</string>
     <string name="title_intent_send">Mytetroid</string>
     <string name="title_not_implemented_yet">(пока не реализовано)</string>
     <string name="title_trash_cleared">Корзина очищена</string>
@@ -790,4 +791,8 @@
     <string name="title_voice_input_started">Запущен голосовой ввод</string>
     <string name="title_voice_input_finished">Голосовой ввод закончен</string>
     <string name="state_voice_input_recognition">Распознавание текста…</string>
+    <string name="state_export_to_pdf">Экспорт в pdf…</string>
+    <string name="error_export_to_pdf">Ошибка экспорта pdf</string>
+    <string name="ask_open_exported_pdf">Файл сохранен в «%s». Открыть?</string>
+    <string name="error_required_api_version_mask">Требуется уровень API >= %d</string>
 </resources>

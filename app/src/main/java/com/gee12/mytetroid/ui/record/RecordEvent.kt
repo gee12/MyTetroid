@@ -4,6 +4,7 @@ import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.model.TetroidImage
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.ui.storage.StorageEvent
+import java.io.File
 
 sealed class RecordEvent : StorageEvent() {
     object NeedMigration : RecordEvent()
@@ -49,6 +50,10 @@ sealed class RecordEvent : StorageEvent() {
     ) : RecordEvent()
     data class OpenWebLink(
         val link: String,
+    ) : RecordEvent()
+    data class ExportToPdf(
+        val folder: File,
+        val fileName: String,
     ) : RecordEvent()
     object Save : RecordEvent()
 }
