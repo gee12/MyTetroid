@@ -72,7 +72,7 @@ abstract class TetroidStorageActivity<VM : BaseStorageViewModel> : TetroidActivi
             }
             is StorageEvent.Inited -> afterStorageInited()
             is StorageEvent.Loaded -> afterStorageLoaded(event.result)
-            StorageEvent.Decrypted -> afterStorageDecrypted(/*data as TetroidNode*/)
+            StorageEvent.Decrypted -> afterStorageDecrypted()
             else -> {}
         }
     }

@@ -1614,7 +1614,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     /**
      * Обработка входящего Intent.
      */
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         checkReceivedIntent(intent)
         super.onNewIntent(intent)
     }
@@ -1623,10 +1623,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      * Проверка входящего Intent.
      */
     private fun checkReceivedIntent(intent: Intent?) {
-        if (intent == null) {
-            return
-        }
-        when (intent.action) {
+        when (intent?.action) {
             Intent.ACTION_SEARCH -> {
                 // обработка результата голосового поиска
                 val query = intent.getStringExtra(SearchManager.QUERY)
@@ -1636,8 +1633,10 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 val resCode = intent.getIntExtra(Constants.EXTRA_RESULT_CODE, 0)
                 onRecordActivityResult(resCode, intent)
             }
-            Constants.ACTION_MAIN_ACTIVITY -> if (intent.hasExtra(Constants.EXTRA_SHOW_STORAGE_INFO)) {
-                showStorageInfoActivity()
+            Constants.ACTION_MAIN_ACTIVITY -> {
+                if (intent.hasExtra(Constants.EXTRA_SHOW_STORAGE_INFO)) {
+                    showStorageInfoActivity()
+                }
             }
             Constants.ACTION_STORAGE_SETTINGS -> {
                 val storageId = intent.getIntExtra(Constants.EXTRA_STORAGE_ID, 0)
