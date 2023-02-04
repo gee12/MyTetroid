@@ -787,10 +787,12 @@
     <string name="file_name_mask">файл %s</string>
     <string name="title_main_fragment">Главная</string>
     <string name="log_pass_hash_saved_local">Хэш пароля сохранен локально</string>
+    <string name="title_voice_input">Голосовой ввод</string>
     <string name="error_recognize_text">Не удалось распознать текст</string>
-    <string name="title_voice_input_started">Запущен голосовой ввод</string>
-    <string name="title_voice_input_finished">Голосовой ввод закончен</string>
+    <string name="state_voice_input_start">Запуск голосового ввода…</string>
     <string name="state_voice_input_recognition">Распознавание текста…</string>
+    <string name="title_voice_input_started">Говорите…</string>
+    <string name="title_voice_input_finished">Голосовой ввод закончен</string>
     <string name="state_export_to_pdf">Экспорт в pdf…</string>
     <string name="error_export_to_pdf">Ошибка экспорта pdf</string>
     <string name="ask_open_exported_pdf">Файл сохранен в «%s». Открыть?</string>

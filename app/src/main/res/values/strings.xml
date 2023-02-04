@@ -886,10 +886,12 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="file_name_mask">file %s</string>
     <string name="title_main_fragment">Main</string>
     <string name="log_pass_hash_saved_local">Password hash is saved locally</string>
+    <string name="title_voice_input">Voice input</string>
     <string name="error_recognize_text">Failed to recognize text</string>
-    <string name="title_voice_input_started">Voice input is started</string>
-    <string name="title_voice_input_finished">Voice input is finished</string>
+    <string name="state_voice_input_start">Starting voice input…</string>
     <string name="state_voice_input_recognition">Voice input recognition…</string>
+    <string name="title_voice_input_started">Speak…</string>
+    <string name="title_voice_input_finished">Voice input is finished</string>
     <string name="state_export_to_pdf">Export to pdf…</string>
     <string name="error_export_to_pdf">Failed to export to pdf</string>
     <string name="ask_open_exported_pdf">File saved to «%s». Do you want to open file?</string>

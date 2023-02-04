@@ -56,6 +56,7 @@ import com.gee12.mytetroid.ui.base.views.SearchViewXListener
 import com.gee12.mytetroid.ui.base.views.TetroidEditText
 import com.gee12.mytetroid.ui.base.views.TetroidEditText.ITetroidEditTextListener
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
+import com.gee12.mytetroid.ui.dialogs.VoiceSpeechDialog
 import com.gee12.mytetroid.ui.dialogs.record.RecordFieldsDialog
 import com.gee12.mytetroid.ui.dialogs.record.RecordInfoDialog
 import com.gee12.mytetroid.ui.dialogs.storage.StorageDialogs
@@ -105,6 +106,8 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     private lateinit var mButtonFindPrev: FloatingActionButton
     private lateinit var mFindListener: TextFindListener
     private lateinit var mSearchView: SearchView
+    private var voiceSpeechDialog: VoiceSpeechDialog? = null
+    private val syncObject = Object()
 
     private val imagePicker = TetroidImagePicker(
         activity = this,
@@ -1240,56 +1243,79 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     }
 
     private fun startVoiceInputDirectly() {
-        val speechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
-//            putExtra(RecognizerIntent.EXTRA_PROMPT, "Need to speak")
-//            putExtra(RecognizerIntent.ACTION_RECOGNIZE_SPEECH, RecognizerIntent.EXTRA_PREFER_OFFLINE)
+        try {
+            val speechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+                //putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 15000)
+                //putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1500)
+                //putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 1500)
+            }
+            speechRecognizer?.startListening(speechRecognizerIntent)
 
-//            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1500)
-//            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 1500)
-//            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 15000)
-//            putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+            editor.setVoiceInputState(ActionState.IN_PROGRESS)
+            showProgress(text = null)
+        } catch (ex: Exception) {
+            hideProgress()
+            editor.setVoiceInputState(ActionState.USUAL)
+            viewModel.logError(ex)
         }
-        speechRecognizer?.startListening(speechRecognizerIntent)
     }
 
     private fun onReadyForVoiceSpeech() {
         lifecycleScope.launch {
-            editor.setVoiceInputState(ActionState.IN_PROGRESS)
             delay(500)
             editor.setVoiceInputState(ActionState.CHECKED)
-            showMessage(R.string.title_voice_input_started)
+            hideProgress()
+            showVoiceSpeechDialog()
         }
     }
 
     private fun onBeginningOfVoiceSpeech() {
-        showProgress(R.string.state_voice_input_recognition)
+        synchronized(syncObject) {
+            voiceSpeechDialog?.onBeginningOfSpeech()
+        }
     }
 
     private fun onEndOfVoiceSpeech() {
-        hideProgress()
+        closeVoiceSpeechDialog()
         editor.setVoiceInputState(ActionState.USUAL)
         showMessage(R.string.title_voice_input_finished)
     }
 
     private fun onVoiceInputError(errorCode: Int) {
-        hideProgress()
+        closeVoiceSpeechDialog()
         editor.setVoiceInputState(ActionState.USUAL)
         viewModel.onVoiceInputError(errorCode)
     }
 
     private fun onVoiceInputResult(data: List<String>) {
-        hideProgress()
+        closeVoiceSpeechDialog()
         val text = data.joinToString(separator = " ")
         editor.webView.insertTextWithPreparation(text)
     }
 
     override fun stopVoiceInput() {
-        hideProgress()
         speechRecognizer?.stopListening()
         editor.setVoiceInputState(ActionState.USUAL)
         showMessage(R.string.title_voice_input_finished)
+    }
+
+    private fun showVoiceSpeechDialog() {
+        voiceSpeechDialog = VoiceSpeechDialog(
+            onCancel = {
+                stopVoiceInput()
+            }
+        ).also {
+            it.showIfPossible(supportFragmentManager)
+        }
+    }
+
+    private fun closeVoiceSpeechDialog() {
+        synchronized(syncObject) {
+            voiceSpeechDialog?.dismiss()
+            voiceSpeechDialog = null
+        }
     }
 
     //endregion Voice input
