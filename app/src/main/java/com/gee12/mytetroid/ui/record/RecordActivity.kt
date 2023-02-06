@@ -1284,6 +1284,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     }
 
     private fun onVoiceInputError(errorCode: Int) {
+        hideProgress()
         closeVoiceSpeechDialog()
         editor.setVoiceInputState(ActionState.USUAL)
         viewModel.onVoiceInputError(errorCode)

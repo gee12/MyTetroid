@@ -6,7 +6,7 @@ import com.gee12.htmlwysiwygeditor.ActionButton
 import com.gee12.htmlwysiwygeditor.ActionButtonSize
 import com.gee12.htmlwysiwygeditor.ActionType
 import com.gee12.htmlwysiwygeditor.Dialogs
-import com.gee12.mytetroid.App.isFreeVersion
+import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.domain.HtmlHelper
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
@@ -74,9 +74,9 @@ class TetroidEditor : WysiwygEditor {
     /**
      * Отображение команд панели инструментов исходя из настроек приложения.
      */
-    /*    @Override
-    protected void initToolbarActions() {
-        super.initToolbarActions();
+
+    override fun initToolbar() {
+        super.initToolbar()
 
         // TODO: реализовать хранение параметров команд в базе данных
 //        List<EditorAction> actions = new ArrayList<>();//Database.getEditorActions();
@@ -100,24 +100,40 @@ class TetroidEditor : WysiwygEditor {
 //                }
 //            }
 //        }
-    }*/
+    }
 
-    override fun initActionButton(
+    override fun initButton(
         button: ActionButton,
-        type: ActionType,
+        actionType: ActionType,
+        isEditable: Boolean,
         isCheckable: Boolean,
-        isPopup: Boolean
+        isPopup: Boolean,
+        isAction: Boolean,
     ) {
-        super.initActionButton(button, type, isCheckable, isPopup)
-        if ((isFreeVersion() // TODO: в качестве исключения
-                    || type !== ActionType.INSERT_VIDEO)
-            && !type.isFree
+        super.initButton(button, actionType, isEditable, isCheckable, isPopup, isAction)
+        if ((App.isFreeVersion()
+            && !actionType.isFree
+            && actionType !in arrayOf(ActionType.INSERT_VIDEO))
+            || actionType in arrayOf(ActionType.INSERT_TABLE, ActionType.INSERT_FORMULA)
         ) {
-            button.isEnabled = false
+            button.setIsAllowed(false)
         }
     }
 
-    /**
+    override fun onClickActionButton(button: ActionButton) {
+        if (!button.isAllowed) {
+            when (button.type) {
+                ActionType.INSERT_TABLE -> showToastNotAvailableYet()
+                ActionType.INSERT_FORMULA -> showToastNotAvailableYet()
+                ActionType.VOICE_INPUT -> showToastNotAvailableInFree()
+                else -> {}
+            }
+        } else {
+            super.onClickActionButton(button)
+        }
+    }
+
+        /**
      * Вызывается перед сохранением текста записи в файл.
      */
     fun beforeSaveAsync(deleteStyleEmpty: Boolean) {
@@ -210,6 +226,14 @@ class TetroidEditor : WysiwygEditor {
                 }
             }
         }
+    }
+
+    private fun showToastNotAvailableInFree() {
+        showToast(R.string.title_available_in_pro)
+    }
+
+    private fun showToastNotAvailableYet() {
+        showToast(R.string.title_not_available_yet)
     }
 
     val documentHtml: String

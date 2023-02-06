@@ -133,6 +133,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="title_remove_favor">Remove from favorites</string>
     <string name="title_add_favor">Add to favorites</string>
     <string name="title_available_in_pro">Available in version Pro</string>
+    <string name="title_not_available_yet">Not available yet</string>
     <string name="title_not_avail_when_favor">Not available when loading only favorites</string>
     <string name="title_not_avail_when_save_pass">Not available when saving password locally</string>
     <string name="title_record_info">Record info</string>
