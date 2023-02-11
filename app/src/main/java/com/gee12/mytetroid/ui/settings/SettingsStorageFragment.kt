@@ -20,8 +20,9 @@ class SettingsStorageFragment : TetroidSettingsFragment() {
 
         findPreference<Preference>(getString(R.string.pref_key_temp_path))
             ?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            if (!checkPermission(Constants.REQUEST_CODE_OPEN_TEMP_PATH)) return@OnPreferenceClickListener true
-            selectTrashFolder()
+            if (!checkPermission(Constants.REQUEST_CODE_OPEN_TEMP_PATH)) {
+                selectTrashFolder()
+            }
             true
         }
 

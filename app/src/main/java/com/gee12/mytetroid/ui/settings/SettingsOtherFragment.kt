@@ -22,8 +22,9 @@ class SettingsOtherFragment : TetroidSettingsFragment() {
 
         findPreference<Preference>(getString(R.string.pref_key_log_path))
             ?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            if (!checkPermission(Constants.REQUEST_CODE_OPEN_LOG_PATH)) return@OnPreferenceClickListener true
-            selectLogsFolder()
+            if (checkPermission(Constants.REQUEST_CODE_OPEN_LOG_PATH)) {
+                selectLogsFolder()
+            }
             true
         }
 

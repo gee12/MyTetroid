@@ -43,7 +43,7 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
         // сохранение пароля локально
         findPreference<CheckBoxPreference>(getString(R.string.pref_key_is_save_pass_hash_local))
             ?.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
-            return@OnPreferenceChangeListener viewModel.onPassLocalHashLocalParamChanged(isSaveLocal = newValue as Boolean)
+            viewModel.onPassLocalHashLocalParamChanged(isSaveLocal = newValue as Boolean)
         }
 
         updateChangeSetupPasswordPref()

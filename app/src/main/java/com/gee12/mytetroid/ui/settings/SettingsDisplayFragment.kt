@@ -30,7 +30,11 @@ class SettingsDisplayFragment : TetroidSettingsFragment() {
         if (baseViewModel.buildInfoProvider.isFullVersion()) {
             // добавляем поле "Дата изменения"
             val prefFields = findPreference<Preference>(getString(R.string.pref_key_record_fields_in_list)) as MultiSelectListPreference?
-            val arrayId = if (baseViewModel.buildInfoProvider.isFullVersion()) R.array.record_fields_in_list_entries_pro else R.array.record_fields_in_list_entries
+            val arrayId = if (baseViewModel.buildInfoProvider.isFullVersion()) {
+                R.array.record_fields_in_list_entries_pro
+            } else {
+                R.array.record_fields_in_list_entries
+            }
             prefFields?.setEntryValues(arrayId)
             prefFields?.setEntries(arrayId)
         }

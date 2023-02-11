@@ -32,14 +32,6 @@ class SettingsEncryptionFragment : TetroidSettingsFragment() {
                 }
         }
 
-        // когда запрашивать пароль
-        findPreference<Preference>(getString(R.string.pref_key_when_ask_password))
-            ?.onPreferenceClickListener = Preference.OnPreferenceClickListener {
-            if (CommonSettings.isSaveMiddlePassHashLocalDef(context)) {
-                baseViewModel.showMessage(R.string.title_not_avail_when_save_pass)
-            }
-            true
-        }
         updateSummary(
             R.string.pref_key_when_ask_password,
             getString(R.string.pref_when_ask_password_summ_mask, CommonSettings.getWhenAskPass(context))
