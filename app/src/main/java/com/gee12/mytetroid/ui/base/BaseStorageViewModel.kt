@@ -43,7 +43,7 @@ abstract class BaseStorageViewModel(
 
     //region Event
 
-    // TODO: можно избавиться
+    //TODO: можно избавиться
     suspend fun sendEventFromCallbackParam(callbackEvent: VMEvent) {
         when (callbackEvent) {
             is BaseEvent -> this.sendEvent(callbackEvent)
@@ -72,7 +72,7 @@ abstract class BaseStorageViewModel(
 
     fun getStoragePath() = storage?.path.orEmpty()
 
-    fun getStorageName() = storage?.name ?: ""
+    fun getStorageName() = storage?.name.orEmpty()
 
     fun isStorageDefault() = storage?.isDefault ?: false
 

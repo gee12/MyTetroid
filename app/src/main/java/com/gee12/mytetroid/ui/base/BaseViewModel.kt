@@ -323,33 +323,33 @@ open class BaseViewModel(
     }
 
     private fun addIdName(obj: TetroidObject?): String {
-        return logger.addIdName(obj) ?: ""
+        return logger.addIdName(obj)
     }
 
     // operation result
     open fun logOperRes(obj: LogObj, oper: LogOper): String {
-        return logger.logOperRes(obj, oper, "", true) ?: ""
+        return logger.logOperRes(obj, oper, "", true)
     }
 
     open fun logOperRes(obj: LogObj, oper: LogOper, tetroidObj: TetroidObject, show: Boolean): String {
-        return logger.logOperRes(obj, oper, tetroidObj.getIdNameString(resourcesProvider), show) ?: ""
+        return logger.logOperRes(obj, oper, tetroidObj.getIdNameString(resourcesProvider), show)
     }
 
     open fun logOperRes(obj: LogObj, oper: LogOper, add: String, show: Boolean): String {
-        return logger.logOperRes(obj, oper, add, show) ?: ""
+        return logger.logOperRes(obj, oper, add, show)
     }
 
     // operation start
     open fun logOperStart(obj: LogObj, oper: LogOper): String {
-        return logger.logOperStart(obj, oper, "") ?: ""
+        return logger.logOperStart(obj, oper, "")
     }
 
     open fun logOperStart(obj: LogObj, oper: LogOper, tetroidObj: TetroidObject?): String {
-        return logger.logOperStart(obj, oper, addIdName(tetroidObj)) ?: ""
+        return logger.logOperStart(obj, oper, addIdName(tetroidObj))
     }
 
     open fun logOperStart(obj: LogObj, oper: LogOper, add: String): String {
-        return logger.logOperStart(obj, oper, add) ?: ""
+        return logger.logOperStart(obj, oper, add)
     }
 
     open fun logOperError(obj: LogObj, oper: LogOper, add: String?, more: Boolean, show: Boolean): String? {

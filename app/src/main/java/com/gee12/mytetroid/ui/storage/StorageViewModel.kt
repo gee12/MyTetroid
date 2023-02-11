@@ -972,7 +972,7 @@ open class StorageViewModel(
 
             override fun onError(ex: Exception) {
                 callback?.onError(ex)
-                logError(getString(R.string.log_error_download_file_mask, ex.message ?: ""))
+                logError(getString(R.string.log_error_download_file_mask, ex.message.orEmpty()))
                 launchOnMain {
                     sendEvent(BaseEvent.ShowProgress(isVisible = false))
                 }
@@ -1001,7 +1001,7 @@ open class StorageViewModel(
         return try {
             FileUtils.getFileModifiedDate(context, getAttachFullName(attach))
         } catch (ex: java.lang.Exception) {
-            logger.logError(resourcesProvider.getString(R.string.error_get_attach_file_size_mask, ex.localizedMessage), false)
+            logger.logError(resourcesProvider.getString(R.string.error_get_attach_file_size_mask, ex.localizedMessage.orEmpty()), false)
             null
         }
     }
@@ -1010,7 +1010,7 @@ open class StorageViewModel(
         return try {
             FileUtils.getFileSize(context, getAttachFullName(attach))
         } catch (ex: java.lang.Exception) {
-            logger.logError(resourcesProvider.getString(R.string.error_get_attach_file_size_mask, ex.localizedMessage), false)
+            logger.logError(resourcesProvider.getString(R.string.error_get_attach_file_size_mask, ex.localizedMessage.orEmpty()), false)
             null
         }
     }
@@ -1435,7 +1435,7 @@ open class StorageViewModel(
             return null
         }
         set(value) {
-            updateStorageOption(getString(R.string.pref_key_quickly_node_id), value?.id ?: "")
+            updateStorageOption(getString(R.string.pref_key_quickly_node_id), value?.id.orEmpty())
         }
 
     open fun updateStorageOption(key: String, value: Any) {}

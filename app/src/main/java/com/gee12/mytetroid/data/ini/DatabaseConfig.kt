@@ -101,7 +101,7 @@ class DatabaseConfig(
     }
 
     fun setValueToGeneral(key: String, value: String?) {
-        set(INI_SECTION_GENERAL, key, value ?: "")
+        set(INI_SECTION_GENERAL, key, value.orEmpty())
     }
 
     fun setValueToGeneralWithQuotes(key: String, value: String?) {

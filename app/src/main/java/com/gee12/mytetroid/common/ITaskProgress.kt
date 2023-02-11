@@ -6,5 +6,5 @@ import com.gee12.mytetroid.logs.TaskStage.Stages
 
 interface ITaskProgress {
     suspend fun nextStage(obj: LogObj, oper: LogOper, stage: Stages)
-    suspend fun <L,R> nextStage(obj: LogObj, oper: LogOper, stageExecutor: suspend () -> Either<L,R>): Either<L,R>
+    suspend fun <L,R> nextStage(obj: LogObj, oper: LogOper, executeStage: suspend () -> Either<L,R>): Either<L,R>
 }

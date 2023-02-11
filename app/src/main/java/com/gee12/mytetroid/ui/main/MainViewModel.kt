@@ -291,7 +291,7 @@ class MainViewModel(
         var title: String? = null
         val restoredViewId = curMainViewId
         if (restoredViewId == Constants.MAIN_VIEW_RECORD_FILES) {
-            title = curRecord?.name ?: ""
+            title = curRecord?.name.orEmpty()
         }
         updateToolbar(restoredViewId, title)
     }

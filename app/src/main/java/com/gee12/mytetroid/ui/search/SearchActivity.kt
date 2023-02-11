@@ -212,7 +212,7 @@ class SearchActivity : TetroidStorageActivity<StorageViewModel>() {
 
     private fun buildSearchProfile(): SearchProfile {
         return SearchProfile(
-            query = etQuery.text?.toString() ?: "",
+            query = etQuery.text?.toString().orEmpty(),
             inText = cbText.isChecked,
             inRecordsNames = cbRecordsNames.isChecked,
             inAuthor = cbAuthor.isChecked,
@@ -252,7 +252,7 @@ class SearchActivity : TetroidStorageActivity<StorageViewModel>() {
         CommonSettings.setSearchSplitToWords(this, spSplitToWords.selectedItemPosition == 0)
         CommonSettings.setSearchInWholeWords(this, spInWholeWords.selectedItemPosition == 0)
 //        SettingsManager.setSearchInCurNode(this, spInCurrentNode.getSelectedItemPosition() == 1);
-        CommonSettings.setSearchInNodeMode(this, spInNodeMode.selectedItemPosition ?: 0)
+        CommonSettings.setSearchInNodeMode(this, spInNodeMode.selectedItemPosition)
         CommonSettings.setSearchNodeId(this, nodeId)
     }
 

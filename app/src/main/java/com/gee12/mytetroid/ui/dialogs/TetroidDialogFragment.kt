@@ -158,7 +158,7 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
     }
 
     fun setTitle(title: String?) {
-        dialog.setTitle(title ?: "")
+        dialog.setTitle(title.orEmpty())
     }
 
     fun setTitle(resId: Int) {

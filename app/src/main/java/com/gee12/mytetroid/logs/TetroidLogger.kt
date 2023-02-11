@@ -71,7 +71,6 @@ class TetroidLogger(
         return logOperStart(obj, oper, addIdName(tetroidObj))
     }
 
-    @JvmOverloads
     override fun logOperStart(obj: LogObj, oper: LogOper, add: String): String {
         // меняем местами существительное и глагол в зависимости от языка
         val first = if (localeProvider.isRusLanguage()) oper.getString(PRESENT_CONTINUOUS, ::getStringArray) else obj.getString(PRESENT_CONTINUOUS, ::getStringArray)
@@ -115,14 +114,14 @@ class TetroidLogger(
     }
 
     fun logOperRes(obj: LogObj, oper: LogOper, add: String, show: Boolean, showAdd: Boolean): String {
-        var show = show
+        var isShow = show
         var mes = obj.getString(PAST_PERFECT, ::getStringArray) + oper.getString(PAST_PERFECT, ::getStringArray)
         if (!showAdd) {
             showMessage(mes, LogType.INFO)
-            show = false
+            isShow = false
         }
         mes += add
-        log(mes, LogType.INFO, show)
+        log(mes, LogType.INFO, isShow)
         return mes
     }
 
@@ -147,7 +146,7 @@ class TetroidLogger(
             R.string.log_oper_error_mask,
             oper.getString(PRESENT_SIMPLE, ::getStringArray),
             obj.getString(PRESENT_SIMPLE, ::getStringArray),
-            add ?: ""
+            add.orEmpty()
         )
 //                (more) ? context.getString(R.string.log_more_in_logs) : "");
         log(mes, LogType.ERROR, show)
@@ -236,7 +235,7 @@ class TetroidLogger(
      * Формирование строки с идентификатором объекта хранилища.
      */
     override fun addIdName(obj: TetroidObject?): String {
-        return obj?.let { getIdString(obj) } ?: ""
+        return obj?.let { getIdString(obj) }.orEmpty()
     }
 
     /**

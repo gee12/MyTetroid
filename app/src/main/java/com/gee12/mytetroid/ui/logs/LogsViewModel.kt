@@ -57,7 +57,7 @@ class LogsViewModel(
                     sendEvent(LogsEvent.Loading.Success(data))
                 } catch (ex: Exception) {
                     // ошибка чтения
-                    val text = ex.localizedMessage ?: ""
+                    val text = ex.localizedMessage.orEmpty()
                     logError(text, true)
 
                     sendEvent(LogsEvent.Loading.Failed(text))

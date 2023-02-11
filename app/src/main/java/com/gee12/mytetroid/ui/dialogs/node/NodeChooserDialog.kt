@@ -152,7 +152,7 @@ class NodeChooserDialog(
                 else -> null
             }
             if (isNotRootWarning) {
-                mes = (mes?.plus("\n") ?: "") + getString(R.string.mes_select_first_level_node)
+                mes = (mes?.plus("\n").orEmpty()) + getString(R.string.mes_select_first_level_node)
             }
             tvNoticeBottom.text = mes
             tvNoticeBottom.visibility = View.VISIBLE
