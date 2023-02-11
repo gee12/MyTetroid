@@ -18,6 +18,7 @@ import com.gee12.mytetroid.model.SearchProfile
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.ui.main.MainViewModel
 import com.gee12.mytetroid.ui.base.TetroidFragment
+import com.gee12.mytetroid.ui.main.MainActivity
 import kotlinx.coroutines.runBlocking
 
 class FoundPageFragment : TetroidFragment<MainViewModel> {
@@ -25,13 +26,14 @@ class FoundPageFragment : TetroidFragment<MainViewModel> {
     private lateinit var lvFound: ListView
     private lateinit var listAdapterFound: FoundListAdapter
     private lateinit var tvEmpty: TextView
+    private lateinit var foundItems: Map<ITetroidObject, FoundType>
     private var foundCount = 0
+    private lateinit var profile: SearchProfile
 
-    constructor(viewModel: MainViewModel, detector: GestureDetectorCompat) : super(detector) {
-        this.viewModel = viewModel
-    }
 
-    constructor() : super() {}
+    constructor(detector: GestureDetectorCompat) : super(detector)
+
+    constructor() : super()
 
     override fun getLayoutResourceId() = R.layout.fragment_found
 
@@ -41,10 +43,12 @@ class FoundPageFragment : TetroidFragment<MainViewModel> {
         scopeSource = ScopeSource.current
     }
 
-    override fun createViewModel() {}
+    override fun createViewModel() {
+        viewModel = (requireActivity() as MainActivity).viewModel
+    }
 
     fun getTitle(): String {
-        return viewModel.getString(R.string.search_found_mask, foundCount)
+        return resourcesProvider.getString(R.string.search_found_mask, foundCount)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -79,7 +83,24 @@ class FoundPageFragment : TetroidFragment<MainViewModel> {
         return view
     }
 
-    fun setFounds(found: Map<ITetroidObject, FoundType>, profile: SearchProfile) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        showFoundsIfFragmentCreated()
+    }
+
+    fun setFounds(foundItems: Map<ITetroidObject, FoundType>, profile: SearchProfile) {
+        this.foundItems = foundItems
+        this.foundCount = foundItems.size
+        this.profile = profile
+    }
+
+    fun showFoundsIfFragmentCreated() {
+        if (isViewModelInited()) {
+            showFounds(foundItems, profile)
+        }
+    }
+
+    fun showFounds(foundItems: Map<ITetroidObject, FoundType>, profile: SearchProfile) {
         val settingsProvider = viewModel.settingsManager
         listAdapterFound = FoundListAdapter(
             context = requireContext(),
@@ -99,9 +120,8 @@ class FoundPageFragment : TetroidFragment<MainViewModel> {
             }
         )
         lvFound.adapter = listAdapterFound
-        listAdapterFound.setDataItems(found)
-        foundCount = found.size
-        if (found.isEmpty()) {
+        listAdapterFound.setDataItems(foundItems)
+        if (foundItems.isEmpty()) {
             if (profile.isSearchInNode && profile.node != null) {
                 tvEmpty.text = getString(R.string.global_search_not_found_in_node,
                     profile.query,

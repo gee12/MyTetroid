@@ -18,8 +18,7 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.commit
-import androidx.viewpager.widget.PagerTabStrip
-import androidx.viewpager.widget.ViewPager.OnPageChangeListener
+import androidx.viewpager2.widget.ViewPager2
 import com.gee12.mytetroid.BuildConfig
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
@@ -62,6 +61,8 @@ import com.gee12.mytetroid.ui.storage.StorageEvent
 import com.gee12.mytetroid.ui.storage.info.StorageInfoActivity.Companion.start
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.runBlocking
 import lib.folderpicker.FolderPicker
 import pl.openrnd.multilevellistview.*
@@ -81,8 +82,8 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     private lateinit var searchViewTags: SearchView
     private lateinit var searchViewRecords: SearchView
     private lateinit var viewPagerAdapter: MainPagerAdapter
-    private lateinit var viewPager: MainViewPager
-    private lateinit var titleStrip: PagerTabStrip
+    private lateinit var viewPager: ViewPager2
+    private lateinit var tabLayout: TabLayout
     private lateinit var favoritesNode: View
     private lateinit var btnLoadStorageNodes: Button
     private lateinit var btnTagsSort: View
@@ -127,28 +128,27 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
         // страницы (главная и найдено)
         viewPagerAdapter = MainPagerAdapter(
-            viewModel,
-            supportFragmentManager,
-            gestureDetector
+            fragmentManager = supportFragmentManager,
+            lifecycle = lifecycle,
+            detector = gestureDetector,
         )
         viewPager = findViewById(R.id.view_pager)
         viewPager.adapter = viewPagerAdapter
-//        mViewPager.setGestureDetector(mGestureDetector);
-        titleStrip = viewPager.findViewById(R.id.pager_title_strip)
-        setFoundPageVisibility(false)
-        viewPager.addOnPageChangeListener(object : OnPageChangeListener {
-            override fun onPageScrolled(i: Int, v: Float, i1: Int) {}
-            override fun onPageSelected(i: Int) {
+        //viewPager.setGestureDetector(gestureDetector)
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
                 if (isActivityCreated) {
-                    changeToolBarByPage(i)
+                    changeToolBarByPage(position)
                 }
             }
-            override fun onPageScrollStateChanged(i: Int) {}
         })
 
-//        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-//        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-//        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
+        tabLayout = findViewById(R.id.tab_layout)
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+            tab.text = viewPagerAdapter.getPageTitle(position)
+        }.attach()
+        setFoundPageVisibility(false)
 
         // ветки
         lvNodes = findViewById(R.id.list_view_nodes)
@@ -160,7 +160,9 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 //        registerForContextMenu(mListViewNodes.getListView());
         tvNodesEmpty = findViewById(R.id.nodes_text_view_empty)
         fabCreateNode = findViewById(R.id.button_add_node)
-        fabCreateNode.setOnClickListener { v: View? -> createNode() }
+        fabCreateNode.setOnClickListener {
+            createNode()
+        }
         fabCreateNode.hide()
         val nodesNavView = drawerLayout.findViewById<NavigationView>(R.id.nav_view_left)
         val nodesHeader = nodesNavView.getHeaderView(0)
@@ -169,7 +171,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         initNodesSearchView(searchViewNodes, nodesHeader)
 
         // метки
-        fragmentTags = TagsFragment(viewModel)
+        fragmentTags = TagsFragment()
         if (savedInstanceState == null) {
             supportFragmentManager.commit {
                 replace(R.id.fragment_container, fragmentTags)
@@ -276,14 +278,24 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 }
             }
             is BaseEvent.Permission.Canceled -> {}
-            is BaseEvent.OpenPage -> viewPager.setCurrent(event.pageId)
-            is BaseEvent.ShowMainView -> mainPage.showView(event.viewId)
-            BaseEvent.ClearMainView -> mainPage.clearView()
-            BaseEvent.CloseFoundView -> closeFoundFragment()
+            is BaseEvent.OpenPage -> {
+                setCurrentPage(event.pageId)
+            }
+            is BaseEvent.ShowMainView -> {
+                mainPage.showView(event.viewId)
+            }
+            BaseEvent.ClearMainView -> {
+                mainPage.clearView()
+            }
+            BaseEvent.CloseFoundView -> {
+                closeFoundFragment()
+            }
             is BaseEvent.TaskStarted -> {
                 openedDrawerBeforeLock = taskMainPreExecute(event.titleResId ?: R.string.task_wait)
             }
-            BaseEvent.TaskFinished -> taskMainPostExecute()
+            BaseEvent.TaskFinished -> {
+                taskMainPostExecute()
+            }
             else -> super.onBaseEvent(event)
         }
     }
@@ -726,6 +738,10 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             },
             onCancel = {},
         )
+    }
+
+    private fun setCurrentPage(position: Int) {
+        viewPager.currentItem = position
     }
 
     // endregion UI
@@ -1241,7 +1257,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             viewModel.isDropRecordsFiltering = true
         }
         drawerLayout.closeDrawers()
-        viewPager.setCurrent(Constants.PAGE_MAIN)
+        setCurrentPage(Constants.PAGE_MAIN)
         mainPage.showRecords(records, viewId)
     }
 
@@ -1586,17 +1602,19 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
     private fun setFoundPageVisibility(isVisible: Boolean) {
         if (!isVisible) {
-            viewPager.setCurrent(Constants.PAGE_MAIN)
+            setCurrentPage(Constants.PAGE_MAIN)
         }
-        viewPager.setPagingEnabled(isVisible)
-        titleStrip.visibility = if (isVisible) View.VISIBLE else View.GONE
+        viewPager.isUserInputEnabled = isVisible // отключаем свайп страниц
+        tabLayout.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
     private fun onGlobalSearchFinished(found: Map<ITetroidObject, FoundType>, profile: SearchProfile) {
-        foundPage.setFounds(found, profile)
-        viewPagerAdapter.notifyDataSetChanged() // для обновления title у страницы
         setFoundPageVisibility(true)
-        viewPager.setCurrent(Constants.PAGE_FOUND)
+        setCurrentPage(Constants.PAGE_FOUND)
+        foundPage.setFounds(found, profile)
+        foundPage.showFoundsIfFragmentCreated()
+        // обьновляем title у страницы
+        tabLayout.getTabAt(Constants.PAGE_FOUND)?.text = foundPage.getTitle()
     }
 
     private fun closeFoundFragment() {

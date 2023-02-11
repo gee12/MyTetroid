@@ -11,22 +11,29 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <com.gee12.mytetroid.ui.main.MainViewPager
-        android:id="@+id/view_pager"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:fitsSystemWindows="false">
+        android:orientation="vertical">
 
-        <androidx.viewpager.widget.PagerTabStrip
-            android:id="@+id/pager_title_strip"
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="34dp"
             android:background="@drawable/side_nav_bar"
-            android:textColor="@color/colorMoreLightText"
-            android:layout_gravity="top"/>
+            app:tabTextAppearance="@style/main_tab_layout"
+            app:tabIndicatorColor="@color/white"
+            app:tabTextColor="@color/colorLightText2"
+            app:tabSelectedTextColor="@color/colorLightText3" />
 
-    </com.gee12.mytetroid.ui.main.MainViewPager>
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fitsSystemWindows="false" />
+
+    </LinearLayout>
 
     <include
         android:id="@+id/layout_progress_bar"

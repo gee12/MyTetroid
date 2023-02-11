@@ -94,6 +94,11 @@
         <item name="useCompatPadding">true</item>
     </style>
 
+    <style name="main_tab_layout" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">14sp</item>
+        <item name="textAllCaps">false</item>
+    </style>
+
     <style name="fab_clans_menu">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>

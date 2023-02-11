@@ -66,7 +66,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
     protected var isOnCreateProcessed = false
     protected var isUICreated = false
 
-    protected lateinit var viewModel: VM
+    lateinit var viewModel: VM
 
 
     protected abstract fun getLayoutResourceId(): Int

@@ -41,11 +41,9 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
     private lateinit var listAdapterRecords: RecordsListAdapter
     private lateinit var listAdapterAttaches: FilesListAdapter
 
-    constructor(viewModel: MainViewModel, gestureDetector: GestureDetectorCompat) : super(gestureDetector) {
-        this.viewModel = viewModel
-    }
+    constructor(gestureDetector: GestureDetectorCompat) : super(gestureDetector)
 
-    constructor() : super() {}
+    constructor() : super()
 
     override fun getLayoutResourceId() = R.layout.fragment_main
 
@@ -55,14 +53,12 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
         scopeSource = ScopeSource.current
     }
 
-    override fun createViewModel() {}
-
-    fun getTitle(): String {
-        return viewModel.getString(R.string.title_main_fragment)
+    override fun createViewModel() {
+        viewModel = (requireActivity() as MainActivity).viewModel
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    fun getTitle(): String {
+        return resourcesProvider.getString(R.string.title_main_fragment)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {

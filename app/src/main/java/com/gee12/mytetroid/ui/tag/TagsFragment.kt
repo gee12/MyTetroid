@@ -27,9 +27,10 @@ import com.gee12.mytetroid.model.TetroidTag
 import com.gee12.mytetroid.model.enums.TagsSearchMode
 import com.gee12.mytetroid.ui.base.TetroidFragment
 import com.gee12.mytetroid.ui.dialogs.tag.TagFieldsDialog
+import com.gee12.mytetroid.ui.main.MainActivity
 import com.gee12.mytetroid.ui.main.MainViewModel
 
-class TagsFragment : TetroidFragment<MainViewModel> {
+class TagsFragment : TetroidFragment<MainViewModel>() {
 
     private lateinit var lvTags: ListView
     private lateinit var adapterTags: TagsListAdapter
@@ -40,12 +41,6 @@ class TagsFragment : TetroidFragment<MainViewModel> {
     private lateinit var adapterSelectedTags: SelectedTagsListAdapter
     private lateinit var btnApplySelectedTags: Button
 
-    constructor(viewModel: MainViewModel) : super() {
-        this.viewModel = viewModel
-    }
-
-    constructor() : super() {}
-
     override fun getLayoutResourceId() = R.layout.fragment_tags
 
     override fun getViewModelClazz() = MainViewModel::class.java
@@ -54,7 +49,9 @@ class TagsFragment : TetroidFragment<MainViewModel> {
         scopeSource = ScopeSource.current
     }
 
-    override fun createViewModel() {}
+    override fun createViewModel() {
+        viewModel = (requireActivity() as MainActivity).viewModel
+    }
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {

@@ -30,7 +30,7 @@ abstract class TetroidFragment<VM : BaseStorageViewModel> : Fragment, View.OnTou
 
     protected var gestureDetector: GestureDetectorCompat? = null
 
-    protected lateinit var viewModel: VM
+    protected open lateinit var viewModel: VM
 
 
     protected abstract fun getLayoutResourceId(): Int
@@ -48,11 +48,26 @@ abstract class TetroidFragment<VM : BaseStorageViewModel> : Fragment, View.OnTou
     }
 
     fun onCreateView(inflater: LayoutInflater, container: ViewGroup?): View {
+        createAndInitViewModel()
+        return inflater.inflate(getLayoutResourceId(), container, false)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (!isViewModelInited()) {
+            createAndInitViewModel()
+        }
+    }
+
+    protected fun isViewModelInited(): Boolean {
+        return ::viewModel.isInitialized
+    }
+
+    protected fun createAndInitViewModel() {
         createDependencyScope()
         afterCreateDependencyScope()
         createViewModel()
         initViewModel()
-        return inflater.inflate(getLayoutResourceId(), container, false)
     }
 
     protected open fun createDependencyScope() {
