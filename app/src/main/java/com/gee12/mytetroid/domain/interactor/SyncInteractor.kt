@@ -145,7 +145,7 @@ class SyncInteractor(
             putExtra("com.termux.RUN_COMMAND_BACKGROUND", bg)
         }
         val fullCommand = (command + " " + args?.let { TextUtils.join(" ", args) })
-        logger.log(resourcesProvider.getString(R.string.log_start_storage_sync_mask) + fullCommand)
+        logger.log(resourcesProvider.getString(R.string.log_start_storage_sync_mask, fullCommand))
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 activity.startForegroundService(intent)

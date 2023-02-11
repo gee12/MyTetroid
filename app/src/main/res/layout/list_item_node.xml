@@ -60,7 +60,7 @@
         android:layout_alignParentEnd="true"
         android:src="@drawable/ic_move_down"
         android:scaleType="center"
-        android:background="@color/colorMoreLightText"
+        android:background="@color/colorLightText3"
         tools:ignore="DuplicateIds" />
 
 </RelativeLayout>

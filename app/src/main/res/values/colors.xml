@@ -3,7 +3,8 @@
     <color name="colorBaseText">#444</color>
     <color name="colorBase2Text">#777</color>
     <color name="colorLightText">#BBB</color>
-    <color name="colorMoreLightText">#EEE</color>
+    <color name="colorLightText2">#CCC</color>
+    <color name="colorLightText3">#EEE</color>
     <color name="colorBlue">#3F51B5</color>
     <color name="colorLightLabelText">#a4a4e4</color>
     <color name="colorBlueDark">#303F9F</color>

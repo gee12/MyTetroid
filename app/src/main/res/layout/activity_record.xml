@@ -34,7 +34,7 @@
                 android:padding="8dp"
                 android:theme="@style/ThemeOverlay.AppCompat.Dark"
                 android:background="@drawable/side_nav_bar"
-                android:textColor="@color/colorMoreLightText">
+                android:textColor="@color/colorLightText3">
 
                 <TextView
                     android:id="@+id/label_record_tags"

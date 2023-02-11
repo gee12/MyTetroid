@@ -34,7 +34,7 @@
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:singleLine="true"
-                    android:textColor="@color/colorMoreLightText"
+                    android:textColor="@color/colorLightText3"
                     android:textSize="@dimen/font_app_title"
                     tools:text="Заголовок"/>
 
@@ -60,7 +60,7 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:singleLine="true"
-                android:textColor="@color/colorMoreLightText"
+                android:textColor="@color/colorLightText3"
                 android:textSize="@dimen/font_app_title"
                 tools:text="Одинарный заголовок" />
 
