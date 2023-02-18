@@ -347,7 +347,6 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 
     companion object {
 
-        @JvmStatic
         fun start(activity: Activity, requestCode: Int) {
             val intent = Intent(activity, StoragesActivity::class.java)
             activity.startActivityForResult(intent, requestCode)

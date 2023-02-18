@@ -217,7 +217,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="text_intent_exist_image_attach">Attach to an existing entry; Select an existing entry and attach the transferred image (s) as file (s)</string>
     <string name="text_pass_input_html"><![CDATA[The password will be used to encrypt selected nodes with records.]]></string>
     <string name="text_pass_change_warning_html"><![CDATA[<b>Attention!</b> When saving, re-encryption of all encrypted data to the new password will begin.]]></string>
-    <string name="text_create_storage_summ_html"><![CDATA[Select a directory in the phone memory to create a new storage <b>(directory contents will be cleared)</b>]]></string>
+    <string name="text_create_storage_summ_html"><![CDATA[Select an empty directory in the phone\'s memory to create a new storage]]></string>
     <string name="text_load_nodes_before_receive_mask"><![CDATA[In the application the boot mode is <b>load only favorites</b>. To receive %s, you need to load all nodes of the storage.<br>Proceed?]]></string>
 
     <string name="word_received_text">text</string>

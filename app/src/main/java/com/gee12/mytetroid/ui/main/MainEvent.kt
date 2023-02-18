@@ -84,7 +84,7 @@ sealed class MainEvent : StorageEvent() {
     ) : MainEvent()
 
     // favorites
-    object UpdateFavoritesTitle : MainEvent()
+    object UpdateFavoritesNodeTitle : MainEvent()
 
     // global search
     data class GlobalSearchStart(

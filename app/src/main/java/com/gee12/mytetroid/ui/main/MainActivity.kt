@@ -436,7 +436,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             is MainEvent.AttachDeleted -> mainPage.onDeleteAttachResult(event.attach)
             MainEvent.UpdateAttaches -> mainPage.updateAttachesList()
             is MainEvent.ReloadAttaches -> mainPage.setAttachesList(event.attaches)
-            MainEvent.UpdateFavoritesTitle -> updateFavoritesTitle()
+            MainEvent.UpdateFavoritesNodeTitle -> updateFavoritesNodeTitle()
             is MainEvent.GlobalSearchStart -> showGlobalSearchActivity(event.query)
             MainEvent.GlobalResearch -> research()
             is MainEvent.GlobalSearchFinished -> {
@@ -474,7 +474,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         favoritesNode.isVisible = isLoaded && viewModel.buildInfoProvider.isFullVersion()
         tvNodesEmpty.isVisible = false
         if (isLoaded && viewModel.buildInfoProvider.isFullVersion()) {
-            updateFavoritesTitle()
+            updateFavoritesNodeTitle()
         }
 
         // элементы фильтра веток и меток
@@ -1186,7 +1186,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     /**
      * Обновление ветки Избранное.
      */
-    fun updateFavoritesTitle() {
+    fun updateFavoritesNodeTitle() {
         val favorites = viewModel.getFavoriteRecords()
         val size = favorites.size
         val tvName = findViewById<TextView>(R.id.favorites_name)
@@ -1758,20 +1758,22 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      * @param isSearch Если false, то происходит сброс фильтра.
      */
     private fun searchInTags(query: String?, isSearch: Boolean) {
-        val tags = if (isSearch) {
-            ScanManager.searchInTags(viewModel.getTagsMap(), query)
-        } else {
-            viewModel.getTagsMap()
-        }
-        fragmentTags.setTagsDataItems(tags)
-        if (tags.isEmpty()) {
-            fragmentTags.setTagsEmptyText(
-                if (isSearch) {
-                    getString(R.string.search_tags_not_found_mask, query)
-                } else {
-                    getString(R.string.log_tags_is_missing)
-                }
-            )
+        if (isActivityCreated) {
+            val tags = if (isSearch) {
+                ScanManager.searchInTags(viewModel.getTagsMap(), query)
+            } else {
+                viewModel.getTagsMap()
+            }
+            fragmentTags.setTagsDataItems(tags)
+            if (tags.isEmpty()) {
+                fragmentTags.setTagsEmptyText(
+                    if (isSearch) {
+                        getString(R.string.search_tags_not_found_mask, query)
+                    } else {
+                        getString(R.string.log_tags_is_missing)
+                    }
+                )
+            }
         }
     }
 
@@ -1813,8 +1815,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         val ivIcon = nodesHeader.findViewById<ImageView>(R.id.image_view_app_icon)
         object : SearchViewXListener(searchView) {
             override fun onClose() {
-                // ничего не делать, если хранилище не было загружено
-                if (listAdapterNodes == null) return
                 searchInNodesNames(null)
                 setListEmptyViewState(
                     tvEmpty = tvNodesEmpty,
@@ -1851,7 +1851,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         val tvHeader = tagsHeader.findViewById<TextView>(R.id.text_view_tags_header)
         object : SearchViewXListener(searchView) {
             override fun onClose() {
-                searchInTags(null, false)
+                searchInTags(null, isSearch = false)
                 tvHeader.visibility = View.VISIBLE
             }
 
@@ -1860,15 +1860,15 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             }
 
             override fun onQuerySubmit(query: String) {
-                searchInTags(query, true)
+                searchInTags(query, isSearch = true)
             }
 
             override fun onQueryChange(query: String) {
-                searchInTags(query, true)
+                searchInTags(query, isSearch = true)
             }
 
             override fun onSuggestionSelectOrClick(query: String) {
-                searchInTags(query, true)
+                searchInTags(query, isSearch = true)
             }
         }
     }
@@ -1877,7 +1877,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      * Фильтр веток по названию ветки.
      */
     private fun searchInNodesNames(query: String?) {
-        if (listAdapterNodes != null) {
+        if (isActivityCreated) {
             if (query.isNullOrEmpty()) {
                 // просто выводим все ветки
                 listAdapterNodes.setDataItems(viewModel.getRootNodes())

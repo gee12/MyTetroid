@@ -29,7 +29,7 @@ fun String.isFileExist(): Boolean {
 }
 
 fun File?.isDirEmpty(): Boolean {
-    return this == null || listFiles()?.size == 0 ?: true
+    return this == null || listFiles()?.size == 0
 }
 
 fun String.isDirEmpty(): Boolean {

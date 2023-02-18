@@ -82,8 +82,8 @@ class TagsFragment : TetroidFragment<MainViewModel>() {
         }
         updateTagsSearchModeTitle(settingsManager.getTagsSearchMode())
         val btnChangeTagsSearchMode  = view.findViewById<AppCompatImageButton>(R.id.button_change_tags_search_mode)
-        btnChangeTagsSearchMode.setOnClickListener { view ->
-            showSelectTagsSearchModePopupMenu(view)
+        btnChangeTagsSearchMode.setOnClickListener { v ->
+            showSelectTagsSearchModePopupMenu(v)
         }
         val btnCancelSelectedTags  = view.findViewById<AppCompatImageButton>(R.id.button_cancel_selected_tags)
         btnCancelSelectedTags.setOnClickListener {

@@ -373,8 +373,7 @@ class MainViewModel(
                 if (isCutting) {
                     // очищаем "буфер обмена"
                     ClipboardManager.clear()
-                    // обновляем избранное
-                    updateFavoritesTitle(record)
+                    updateFavoritesNodeTitleAndListIfNeed(record)
                 }
             }
         }
@@ -404,9 +403,8 @@ class MainViewModel(
                 logOperRes(LogObj.RECORD, LogOper.CREATE, record, false)
                 reloadTags()
                 updateNodes()
-                if (!updateFavoritesTitle(record)) {
-                    updateRecordsList()
-                }
+                updateFavoritesNodeTitleAndListIfNeed(record)
+                updateRecordsList()
                 openRecord(record)
             }
         }
@@ -496,14 +494,6 @@ class MainViewModel(
     }
 
     fun deleteRecord(record: TetroidRecord) {
-//        launchOnMain {
-//            val res = deleteRecord(record, false)
-//            if (res == -1) {
-//                sendEvent(MainEvent.AskForOperationWithoutFolder(ClipboardParams(LogOper.DELETE, record)))
-//            } else {
-//                onDeleteRecordResult(record, res, false)
-//            }
-//        }
         cutOrDeleteRecord(record, isCutting = false, withoutDir = false)
     }
 
@@ -552,7 +542,7 @@ class MainViewModel(
                 updateRecordsList()
             }
             reloadTags()
-            updateFavoritesTitle()
+            updateFavoritesNodeTitle()
         }
     }
 
@@ -680,10 +670,8 @@ class MainViewModel(
                 sendEvent(MainEvent.Record.Deleted(record))
                 reloadTags()
                 updateNodes()
-                // обновляем избранное
-                if (!updateFavoritesTitle(record)) {
-                    updateRecordsList()
-                }
+                updateFavoritesNodeTitleAndListIfNeed(record)
+                updateRecordsList()
                 curRecord = null
                 logOperRes(LogObj.RECORD, if (isCutting) LogOper.CUT else LogOper.DELETE)
                 // переходим в список записей ветки после удаления
@@ -1043,7 +1031,7 @@ class MainViewModel(
 //            }
                 // обновляем label с количеством избранных записей
                 if (buildInfoProvider.isFullVersion()) {
-                    updateFavoritesTitle()
+                    updateFavoritesNodeTitle()
                 }
                 // убираем список записей удаляемой ветки
                 if (curNode == node || isNodeInNode(curNode, node)) {
@@ -1791,7 +1779,8 @@ class MainViewModel(
                 val mes = getString(R.string.log_added_to_favor)
                 showMessage(mes)
                 log(mes + ": " + record.getIdString(resourcesProvider), false)
-                updateFavoritesTitle(record)
+                updateFavoritesNodeTitle()
+                updateRecordsList()
             } else {
                 logOperError(LogObj.RECORD, LogOper.ADD, getString(R.string.log_with_id_to_favor_mask, record.id), true, true)
             }
@@ -1800,11 +1789,11 @@ class MainViewModel(
 
     fun removeFromFavorite(record: TetroidRecord) {
         launchOnMain {
-            if (favoritesManager.remove(record, true)) {
+            if (favoritesManager.remove(record, resetFlag = true)) {
                 val mes = getString(R.string.log_deleted_from_favor)
                 showMessage(mes)
                 log(mes + ": " + record.getIdString(resourcesProvider), false)
-                updateFavoritesTitle()
+                updateFavoritesNodeTitle()
                 updateRecordsList()
             } else {
                 logOperError(LogObj.RECORD, LogOper.DELETE, getString(R.string.log_with_id_from_favor_mask, record.id), true, true)
@@ -1812,16 +1801,15 @@ class MainViewModel(
         }
     }
 
-    fun updateFavoritesTitle(record: TetroidRecord?): Boolean {
-        if (record == null || !record.isFavorite) return false
-        updateFavoritesTitle()
-        updateRecordsList()
-        return true
+    fun updateFavoritesNodeTitleAndListIfNeed(record: TetroidRecord?) {
+        if (record?.isFavorite == true) {
+            updateFavoritesNodeTitle()
+        }
     }
 
-    private fun updateFavoritesTitle() {
+    private fun updateFavoritesNodeTitle() {
         launchOnMain {
-            sendEvent(MainEvent.UpdateFavoritesTitle)
+            sendEvent(MainEvent.UpdateFavoritesNodeTitle)
         }
     }
 

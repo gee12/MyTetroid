@@ -149,7 +149,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
         isOnCreateProcessed = true
         if (optionsMenu != null) {
             onCreateOptionsMenu(optionsMenu!!)
-            onPrepareOptionsMenu(optionsMenu)
+            onPrepareOptionsMenu(optionsMenu!!)
         }
     }
 
@@ -305,7 +305,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
 
     fun updateOptionsMenu() {
         if (optionsMenu != null) {
-            onPrepareOptionsMenu(optionsMenu)
+            onPrepareOptionsMenu(optionsMenu!!)
         } else {
             viewModel.logWarning("TetroidActivity.updateOptionsMenu(): optionsMenu is null", false)
         }

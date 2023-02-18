@@ -379,7 +379,7 @@ class RecordViewModel(
                 // получаем запись
                 val record = getRecord(recordId)
                 if (record != null) {
-                    curRecord.postValue(record)
+                    curRecord.postValue(record!!)
                     setTitle(record.name)
 //                setVisibilityActionHome(!mRecord.isTemp());
                     if (intent.hasExtra(Constants.EXTRA_ATTACHED_FILES)) {
