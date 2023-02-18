@@ -3,8 +3,12 @@ package com.gee12.mytetroid.domain.interactor
 import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
+import android.os.Environment
+import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.gee12.mytetroid.R
@@ -25,7 +29,7 @@ class PermissionManager(
      * Проверка разрешения на запись во внешнюю память.
      */
     fun hasWriteExtStoragePermission(context: Context): Boolean {
-        /*return when {
+        return when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
                 Environment.isExternalStorageManager()
             }
@@ -35,8 +39,8 @@ class PermissionManager(
             else -> {
                 true
             }
-        }*/
-        return ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+        }
+        //return ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
     }
 
     /**
@@ -47,8 +51,8 @@ class PermissionManager(
         requestCode: Int,
         onManualPermissionRequest: (() -> Unit) -> Unit
     ) {
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            logger.log(activity.getString(R.string.log_request_perm_mask, Manifest.permission.MANAGE_EXTERNAL_STORAGE), false)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            logger.log(activity.getString(R.string.log_request_permission_mask, Manifest.permission.MANAGE_EXTERNAL_STORAGE), false)
             onManualPermissionRequest {
                 try {
                     val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
@@ -65,8 +69,8 @@ class PermissionManager(
             }
         } else {
             requestPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE, requestCode)
-        }*/
-        requestPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE, requestCode)
+        }
+        //requestPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE, requestCode)
     }
 
     /**
