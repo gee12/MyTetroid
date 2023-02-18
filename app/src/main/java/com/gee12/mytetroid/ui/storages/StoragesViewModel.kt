@@ -5,10 +5,7 @@ import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.flatMap
-import com.gee12.mytetroid.common.onFailure
-import com.gee12.mytetroid.common.onSuccess
-import com.gee12.mytetroid.common.toRight
+import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
@@ -105,11 +102,10 @@ class StoragesViewModel(
             showMessage(R.string.mes_cant_more_one_storage_on_free)
         } else {
             // проверка разрешения перед диалогом добавления хранилища
-            checkWriteExtStoragePermission(activity) {
-                launchOnMain {
-                    sendEvent(StoragesEvent.ShowAddNewStorageDialog)
-                }
-            }
+            checkWriteExtStoragePermission(
+                activity = activity,
+                requestCode = Constants.REQUEST_CODE_PERMISSION_ADD_STORAGE,
+            )
         }
     }
 

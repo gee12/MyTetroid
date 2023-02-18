@@ -250,8 +250,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                     TetroidPermission.WriteStorage -> {
                         when (event.requestCode) {
                             Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE -> {
-                                // загружаем параметры хранилища только после проверки разрешения на запись во внешнюю память
-                                startInitStorage()
+                                initStorage()
                             }
                             Constants.REQUEST_CODE_PERMISSION_EXPORT_PDF -> {
                                 viewModel.startExportToPdf(isPermissionChecked = true)
@@ -363,23 +362,25 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     // region Storage
 
     private fun startInitStorage() {
+        // загружаем параметры хранилища только после проверки разрешения на запись во внешнюю память
         viewModel.checkWriteExtStoragePermission(
             activity = this,
             requestCode = Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE,
-            callback =  {
-                when (receivedIntent?.action) {
-                    Intent.ACTION_MAIN,
-                    Constants.ACTION_ADD_RECORD -> {
-                        if (!viewModel.initStorage(receivedIntent!!)) {
-                            finish()
-                        }
-                    }
-                    else -> {
-                        finish()
-                    }
+        )
+    }
+
+    private fun initStorage() {
+        when (receivedIntent?.action) {
+            Intent.ACTION_MAIN,
+            Constants.ACTION_ADD_RECORD -> {
+                if (!viewModel.initStorage(receivedIntent!!)) {
+                    finish()
                 }
             }
-        )
+            else -> {
+                finish()
+            }
+        }
     }
 
     override fun afterStorageInited() {

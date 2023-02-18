@@ -44,7 +44,7 @@ open class BaseViewModel(
     var isBusy = false
 
     // TODO: inject
-    val permissionInteractor = PermissionManager(resourcesProvider, this.logger)
+    val permissionManager = PermissionManager(resourcesProvider, this.logger)
 
     private val _messageEventFlow = MutableSharedFlow<Message>(extraBufferCapacity = 0)
     val messageEventFlow = _messageEventFlow.asSharedFlow()
@@ -85,11 +85,10 @@ open class BaseViewModel(
     fun checkReadExtStoragePermission(
         activity: Activity,
         requestCode: Int = Constants.REQUEST_CODE_PERMISSION_READ_STORAGE,
-        callback: (() -> Unit)? = null
     ): Boolean {
         val permission = TetroidPermission.ReadStorage
 
-        if (permissionInteractor.checkPermission(
+        return if (permissionManager.checkPermission(
                 PermissionRequestData(
                     permission = permission,
                     activity = activity,
@@ -103,21 +102,20 @@ open class BaseViewModel(
                 )
             )
         ) {
-            if (callback != null) callback.invoke()
-            else onPermissionGranted(permission, requestCode)
-            return true
+            onPermissionGranted(permission, requestCode)
+            true
+        } else {
+            false
         }
-        return false
     }
 
     fun checkWriteExtStoragePermission(
         activity: Activity,
         requestCode: Int = Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE,
-        callback: (() -> Unit)? = null
     ): Boolean {
         val permission = TetroidPermission.WriteStorage
 
-        if (permissionInteractor.checkPermission(
+        return if (permissionManager.checkPermission(
                 PermissionRequestData(
                     permission = permission,
                     activity = activity,
@@ -131,17 +129,17 @@ open class BaseViewModel(
                 )
             )
         ) {
-            if (callback != null) callback.invoke()
-            else onPermissionGranted(permission, requestCode)
-            return true
+            onPermissionGranted(permission, requestCode)
+            true
+        } else {
+            false
         }
-        return false
     }
 
     fun checkCameraPermission(activity: Activity): Boolean {
         val permission = TetroidPermission.Camera
 
-        return permissionInteractor.checkPermission(
+        return permissionManager.checkPermission(
             PermissionRequestData(
                 permission = permission,
                 activity = activity,
@@ -159,7 +157,7 @@ open class BaseViewModel(
     fun checkRecordAudioPermission(activity: Activity) {
         val permission = TetroidPermission.RecordAudio
 
-        if (permissionInteractor.checkPermission(
+        if (permissionManager.checkPermission(
                 PermissionRequestData(
                     permission = permission,
                     activity = activity,
@@ -182,7 +180,7 @@ open class BaseViewModel(
     fun checkTermuxPermission(activity: Activity): Boolean {
         val permission = TetroidPermission.Termux
 
-        return permissionInteractor.checkPermission(
+        return permissionManager.checkPermission(
             PermissionRequestData(
                 permission = permission,
                 activity = activity,

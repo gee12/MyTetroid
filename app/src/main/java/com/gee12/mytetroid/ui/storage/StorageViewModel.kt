@@ -123,7 +123,7 @@ open class StorageViewModel(
             !isStorageInited() -> {
                 if (showMessage) {
                     showMessage(
-                        if (permissionInteractor.hasWriteExtStoragePermission(getContext())) R.string.mes_storage_must_be_inited
+                        if (permissionManager.hasWriteExtStoragePermission(getContext())) R.string.mes_storage_must_be_inited
                         else R.string.mes_must_grant_perm_and_storage_inited
                     )
                 }

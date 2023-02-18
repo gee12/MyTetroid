@@ -343,7 +343,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
         // разрешение на запись в память на Android 11 запрашивается с помощью Intent
         if (requestCode == Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                val isGranted = (viewModel.permissionInteractor.hasWriteExtStoragePermission(this))
+                val isGranted = (viewModel.permissionManager.hasWriteExtStoragePermission(this))
                 onRequestPermissionsResult(
                     requestCode = requestCode,
                     permissions = emptyArray(),
@@ -382,7 +382,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
                     viewModel.logWarning(R.string.log_missing_run_termux_commands_permissions, true)
                 }
             }
-            else -> return
+            else -> Unit
         }
         if (isGranted) {
             onPermissionGranted(requestCode)

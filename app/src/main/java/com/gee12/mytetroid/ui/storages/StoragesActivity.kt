@@ -77,7 +77,9 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
         recyclerView.adapter = adapter
 
         val fabAdd = findViewById<FloatingActionButton>(R.id.fab_add_storage)
-        fabAdd.setOnClickListener { viewModel.addNewStorage(this) }
+        fabAdd.setOnClickListener {
+            viewModel.addNewStorage(this)
+        }
 
         loadStorages()
     }
@@ -98,8 +100,12 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
             }
             is BaseEvent.Permission.Granted -> {
                 when (event.requestCode) {
-                    Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE -> viewModel.addNewStorage(this)
-                    Constants.REQUEST_CODE_PERMISSION_READ_STORAGE -> Unit // ничего не делаем
+                    Constants.REQUEST_CODE_PERMISSION_ADD_STORAGE -> {
+                        showStorageDialog(storageId = null)
+                    }
+                    Constants.REQUEST_CODE_PERMISSION_READ_STORAGE -> {
+                        // ничего не делаем
+                    }
                 }
             }
             else -> super.onBaseEvent(event)
@@ -108,7 +114,6 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 
     private fun onStoragesEvent(event: StoragesEvent) {
         when (event) {
-            StoragesEvent.ShowAddNewStorageDialog -> showStorageDialog(storageId = null)
             is StoragesEvent.AddedNewStorage -> onStorageAdded(event.storage)
         }
     }
@@ -326,6 +331,15 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
             }
         }
         setForceShowMenuIcons(anchorView, popupMenu.menu as MenuBuilder)
+    }
+
+    override fun onPermissionGranted(requestCode: Int) {
+        when (requestCode) {
+            Constants.REQUEST_CODE_PERMISSION_ADD_STORAGE -> {
+                showStorageDialog(storageId = null)
+            }
+            else -> super.onPermissionGranted(requestCode)
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

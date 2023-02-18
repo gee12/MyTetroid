@@ -59,6 +59,7 @@ object Constants {
     const val REQUEST_CODE_PERMISSION_RECORD_AUDIO = 104
     const val REQUEST_CODE_PERMISSION_TERMUX = 105
     const val REQUEST_CODE_PERMISSION_EXPORT_PDF = 106
+    const val REQUEST_CODE_PERMISSION_ADD_STORAGE = 107
 
     // TODO: преобразовать в enum
     const val PAGE_MAIN = 0
