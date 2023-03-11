@@ -965,7 +965,7 @@ open class StorageViewModel(
             return
         }
         this.sendEvent(
-            BaseEvent.ShowProgressText(
+            BaseEvent.ShowProgressWithText(
                 message = getString(R.string.title_file_downloading)
             )
         )
@@ -979,7 +979,7 @@ open class StorageViewModel(
             override fun onSuccess() {
                 callback?.onSuccess(Uri.fromFile(File(outputFileName)))
                 launchOnMain {
-                    sendEvent(BaseEvent.ShowProgress(isVisible = false))
+                    sendEvent(BaseEvent.HideProgress)
                 }
             }
 
@@ -987,7 +987,7 @@ open class StorageViewModel(
                 callback?.onError(ex)
                 logError(getString(R.string.log_error_download_file_mask, ex.message.orEmpty()))
                 launchOnMain {
-                    sendEvent(BaseEvent.ShowProgress(isVisible = false))
+                    sendEvent(BaseEvent.HideProgress)
                 }
             }
         })
@@ -1426,7 +1426,7 @@ open class StorageViewModel(
             val taskStage = TaskStage(Constants.TetroidView.Settings, obj, oper, stage)
             launchOnMain {
                 sendEvent(
-                    BaseEvent.ShowProgressText(
+                    BaseEvent.ShowProgressWithText(
                         message = logger.logTaskStage(taskStage).orEmpty()
                     )
                 )

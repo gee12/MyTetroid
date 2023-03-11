@@ -85,10 +85,9 @@ abstract class BaseEvent : VMEvent() {
         val titleResId: Int? = null,
     ) : BaseEvent()
     object TaskFinished : BaseEvent()
-    data class ShowProgress(
-        val isVisible: Boolean,
-    ) : BaseEvent()
-    data class ShowProgressText(
+    object ShowProgress : BaseEvent()
+    object HideProgress : BaseEvent()
+    data class ShowProgressWithText(
         val message: String,
     ) : BaseEvent()
 }

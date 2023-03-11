@@ -112,8 +112,9 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment()/*, I
 
     protected open fun onBaseEvent(event: BaseEvent) {
         when (event) {
-            is BaseEvent.ShowProgress -> componentListener?.setProgressVisibility(event.isVisible)
-            is BaseEvent.ShowProgressText -> componentListener?.showProgress(event.message)
+            is BaseEvent.ShowProgress -> componentListener?.setProgressVisibility(true)
+            is BaseEvent.HideProgress -> componentListener?.setProgressVisibility(false)
+            is BaseEvent.ShowProgressWithText -> componentListener?.showProgress(event.message)
             is BaseEvent.TaskStarted -> {
                 componentListener?.setProgressVisibility(true, event.titleResId?.let { getString(it) })
             }

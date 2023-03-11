@@ -204,6 +204,8 @@
 
     <string name="progress_loading">Загрузка…</string>
     <string name="progress_copy_record">Копирование записи…</string>
+    <string name="progress_create_record">Создание записи…</string>
+    <string name="progress_save_record">Сохранение записи…</string>
     <string name="progress_insert_record">Вставка записи…</string>
     <string name="progress_images_loading">Загрузка изображения(-й)…</string>
     <string name="progress_camera_capture">Загрузка изображения с камеры…</string>

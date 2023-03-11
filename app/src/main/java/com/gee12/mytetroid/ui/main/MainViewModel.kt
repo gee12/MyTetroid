@@ -50,6 +50,7 @@ import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
 import com.gee12.mytetroid.domain.usecase.tag.RenameTagInRecordsUseCase
 import com.gee12.mytetroid.model.enums.TagsSearchMode
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
+import com.gee12.mytetroid.ui.base.VMEvent
 import com.gee12.mytetroid.ui.storage.StorageViewModel
 import kotlinx.coroutines.*
 import java.lang.Exception
@@ -338,7 +339,7 @@ class MainViewModel(
     private fun insertRecord(record: TetroidRecord, isCutting: Boolean, withoutDir: Boolean) {
         launchOnMain {
             sendEvent(
-                BaseEvent.ShowProgressText(
+                BaseEvent.ShowProgressWithText(
                     message = getString(if (isCutting) R.string.progress_insert_record else R.string.progress_copy_record)
                 )
             )
@@ -352,7 +353,7 @@ class MainViewModel(
                     )
                 )
             }.onComplete {
-                sendEvent(BaseEvent.ShowProgress(isVisible = false))
+                sendEvent(BaseEvent.HideProgress)
             }.onFailure {
                 when (it) {
                     is Failure.File -> {
@@ -385,9 +386,9 @@ class MainViewModel(
     /**
      * Создание новой записи.
      */
-    fun createRecord(name: String, tags: String, author: String, url: String, node: TetroidNode?, isFavor: Boolean) {
-        if (node == null) return
+    fun createRecord(name: String, tags: String, author: String, url: String, node: TetroidNode, isFavor: Boolean) {
         launchOnMain {
+            sendEvent(BaseEvent.ShowProgressWithText(message = getString(R.string.progress_create_record)))
             withIo {
                 createRecordUseCase.run(
                     CreateRecordUseCase.Params(
@@ -399,6 +400,8 @@ class MainViewModel(
                         isFavor = isFavor,
                     )
                 )
+            }.onComplete {
+                sendEvent(BaseEvent.HideProgress)
             }.onFailure {
                 logFailure(it)
             }.onSuccess { record ->
@@ -523,10 +526,8 @@ class MainViewModel(
                 )
             }.onFailure {
                 logFailure(it)
-//                logOperErrorMore(LogObj.RECORD_FIELDS, LogOper.CHANGE)
             }.onSuccess {
                 onRecordFieldsUpdated(record, oldNode !== record.node)
-//                TetroidLog.logOperRes(TetroidLog.LogObj.FILE_FIELDS, TetroidLog.LogOper.CHANGE);
                 log(R.string.log_record_fields_changed, true)
             }
         }
@@ -658,7 +659,6 @@ class MainViewModel(
                     }
                     else -> {
                         logFailure(it)
-//                        logOperErrorMore(LogObj.RECORD, if (isCutting) LogOper.CUT else LogOper.DELETE)
                     }
                 }
             }.onSuccess {
@@ -1195,7 +1195,7 @@ class MainViewModel(
         val taskStage = TaskStage(Constants.TetroidView.Main, obj, oper, stage)
         launchOnMain {
             sendEvent(
-                BaseEvent.ShowProgressText(
+                BaseEvent.ShowProgressWithText(
                     message = logger.logTaskStage(taskStage).orEmpty()
                 )
             )

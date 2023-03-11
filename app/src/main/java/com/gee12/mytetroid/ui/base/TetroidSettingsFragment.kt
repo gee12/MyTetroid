@@ -60,8 +60,9 @@ open class TetroidSettingsFragment :
     // TODO: заюзать VM из TetroidSettingsActivity
     open fun onViewEvent(event: BaseEvent) {
         when (event) {
-            is BaseEvent.ShowProgress -> settingsActivity?.setProgressVisibility(event.isVisible)
-            is BaseEvent.ShowProgressText -> settingsActivity?.showProgress(event.message)
+            is BaseEvent.ShowProgress -> settingsActivity?.setProgressVisibility(true)
+            is BaseEvent.HideProgress -> settingsActivity?.setProgressVisibility(false)
+            is BaseEvent.ShowProgressWithText -> settingsActivity?.showProgress(event.message)
             is BaseEvent.TaskStarted -> {
                 settingsActivity?.setProgressVisibility(true, event.titleResId?.let { getString(it) })
             }

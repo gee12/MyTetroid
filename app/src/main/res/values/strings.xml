@@ -208,6 +208,8 @@ Your storage settings have been automatically moved to the \"Default storage\"</
 
     <string name="progress_loading">Loading…</string>
     <string name="progress_copy_record">Record copying…</string>
+    <string name="progress_create_record">Record creating…</string>
+    <string name="progress_save_record">Record saving…</string>
     <string name="progress_insert_record">Record inserting…</string>
     <string name="progress_images_loading">Images loading…</string>
     <string name="progress_camera_capture">Image loading from camera…</string>

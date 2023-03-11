@@ -685,7 +685,7 @@ class RecordViewModel(
     fun downloadWebPageContent(url: String?, isTextOnly: Boolean) {
         launchOnMain {
             sendEvent(
-                BaseEvent.ShowProgressText(
+                BaseEvent.ShowProgressWithText(
                     message = getString(R.string.title_page_downloading)
                 )
             )
@@ -697,14 +697,14 @@ class RecordViewModel(
                             if (isTextOnly) RecordEvent.InsertWebPageText(text = content)
                             else RecordEvent.InsertWebPageContent(content = content)
                         )
-                        sendEvent(BaseEvent.ShowProgress(isVisible = false))
+                        sendEvent(BaseEvent.HideProgress)
                     }
                 }
 
                 override fun onError(ex: java.lang.Exception) {
                     launchOnMain {
                         logError(getString(R.string.log_error_download_web_page_mask, ex.message!!), true)
-                        sendEvent(BaseEvent.ShowProgress(isVisible = false))
+                        sendEvent(BaseEvent.HideProgress)
                     }
                 }
             })
@@ -714,7 +714,7 @@ class RecordViewModel(
     fun downloadImage(url: String?) {
         launchOnMain {
             sendEvent(
-                BaseEvent.ShowProgressText(
+                BaseEvent.ShowProgressWithText(
                     message = getString(R.string.title_image_downloading)
                 )
             )
@@ -722,14 +722,14 @@ class RecordViewModel(
                 override fun onSuccess(bitmap: Bitmap) {
                     launchOnMain {
                         saveImage(bitmap)
-                        sendEvent(BaseEvent.ShowProgress(isVisible = false))
+                        sendEvent(BaseEvent.HideProgress)
                     }
                 }
 
                 override fun onError(ex: java.lang.Exception) {
                     launchOnMain {
                         logError(getString(R.string.log_error_download_image_mask, ex.message!!), true)
-                        sendEvent(BaseEvent.ShowProgress(isVisible = false))
+                        sendEvent(BaseEvent.HideProgress)
                     }
                 }
             })
@@ -946,12 +946,17 @@ class RecordViewModel(
         launchOnMain {
             curRecord.value?.let { record ->
                 log(resourcesProvider.getString(R.string.log_start_record_file_saving) + record.id)
-                saveRecordHtmlTextUseCase.run(
-                    SaveRecordHtmlTextUseCase.Params(
-                        record = record,
-                        html = htmlText,
+                sendEvent(BaseEvent.ShowProgressWithText(message = resourcesProvider.getString(R.string.progress_save_record)))
+                withIo {
+                    saveRecordHtmlTextUseCase.run(
+                        SaveRecordHtmlTextUseCase.Params(
+                            record = record,
+                            html = htmlText,
+                        )
                     )
-                ).onFailure {
+                }.onComplete {
+                    sendEvent(BaseEvent.HideProgress)
+                }.onFailure {
                     logFailure(it)
                 }.onSuccess {
                     log(R.string.log_record_saved, true)

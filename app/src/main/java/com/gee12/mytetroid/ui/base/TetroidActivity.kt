@@ -175,8 +175,9 @@ abstract class TetroidActivity<VM : BaseViewModel>
      */
     protected open fun onBaseEvent(event: BaseEvent) {
         when (event) {
-            is BaseEvent.ShowProgress -> setProgressVisibility(event.isVisible)
-            is BaseEvent.ShowProgressText -> showProgress(event.message)
+            is BaseEvent.ShowProgress -> setProgressVisibility(true)
+            is BaseEvent.HideProgress -> setProgressVisibility(false)
+            is BaseEvent.ShowProgressWithText -> showProgress(event.message)
             is BaseEvent.Permission.ShowRequest -> showPermissionRequest(
                 permission = event.permission,
                 requestCallback = event.requestCallback,

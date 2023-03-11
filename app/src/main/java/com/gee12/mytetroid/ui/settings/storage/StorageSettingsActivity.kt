@@ -76,8 +76,9 @@ class StorageSettingsActivity : TetroidSettingsActivity<StorageSettingsViewModel
             is StorageEvent -> {
                 onStorageEvent(event)
             }
-            is BaseEvent.ShowProgress -> setProgressVisibility(event.isVisible)
-            is BaseEvent.ShowProgressText -> showProgress(event.message)
+            is BaseEvent.ShowProgress -> setProgressVisibility(true)
+            is BaseEvent.HideProgress -> setProgressVisibility(false)
+            is BaseEvent.ShowProgressWithText -> showProgress(event.message)
             is BaseEvent.TaskStarted -> {
                 setProgressVisibility(true, event.titleResId?.let { getString(it) })
             }
