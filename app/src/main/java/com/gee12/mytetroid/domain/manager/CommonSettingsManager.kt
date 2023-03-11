@@ -4,11 +4,7 @@ import android.content.Context
 import android.preference.PreferenceManager
 import com.gee12.htmlwysiwygeditor.ActionButtonSize
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.common.extensions.getAppExternalFilesDir
 import com.gee12.mytetroid.common.extensions.getExternalPublicDocsOrAppDir
-import com.gee12.mytetroid.common.extensions.isFileExist
-import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.data.StringList
 import com.gee12.mytetroid.data.settings.CommonSettings
@@ -35,12 +31,6 @@ class CommonSettingsManager(
         PreferenceManager.setDefaultValues(context, R.xml.prefs, false)
 
         // стартовые значения, которые нельзя установить в xml
-        if (CommonSettings.getTrashPathDef(context) == null) {
-            CommonSettings.setTrashPathDef(context, getDefaultTrashPath())
-        }
-        if (CommonSettings.getLogPath(context) == null) {
-            CommonSettings.setLogPath(context, getDefaultLogPath())
-        }
         if (buildInfoProvider.isFreeVersion()) {
             // принудительно отключаем
             CommonSettings.setIsLoadFavoritesOnly(context, false)
@@ -58,25 +48,17 @@ class CommonSettingsManager(
         }
     }
 
-    fun getDefaultTrashPath(): String {
-        return makePath(context.getAppExternalFilesDir().orEmpty(), Constants.TRASH_DIR_NAME)
-    }
-
-    fun getDefaultLogPath(): String {
-        return makePath(context.getAppExternalFilesDir().orEmpty(), Constants.LOG_DIR_NAME)
-    }
-
-    fun getLastFolderPathOrDefault(forWrite: Boolean): String? {
-        val lastFolder = CommonSettings.getLastChoosedFolderPath(context)
-        return if (!lastFolder.isNullOrEmpty() && lastFolder.isFileExist()) {
+    fun getLastSelectedFolderPathOrDefault(forWrite: Boolean): String? {
+        val lastFolder = CommonSettings.getLastSelectedFolderPath(context)
+        return if (!lastFolder.isNullOrEmpty() /*&& lastFolder.isFileExist()*/) {
             lastFolder
         } else {
             context.getExternalPublicDocsOrAppDir(forWrite)
         }
     }
 
-    fun getLogPath(): String {
-        return CommonSettings.getLogPath(context).orEmpty()
+    fun setLastSelectedFolderPath(path: String) {
+        CommonSettings.setLastSelectedFolder(context, path)
     }
 
     fun isWriteLogToFile(): Boolean {
@@ -87,6 +69,7 @@ class CommonSettingsManager(
         return CommonSettings.getSettingsVersion(context)
     }
 
+    @Deprecated("Устаревшее, используется для совместимости.")
     fun getStoragePath(): String {
         return CommonSettings.getStoragePath(context).orEmpty()
     }

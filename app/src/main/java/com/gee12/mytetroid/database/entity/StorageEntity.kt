@@ -27,6 +27,9 @@ open class StorageEntity(
     @ColumnInfo(name = "orderNum")
     var order: Int = 0
 
+    // TODO: сделать миграцию и убрать поле
+
+    @Deprecated("Используется для совместимости")
     @ColumnInfo(name = "trashPath")
     var trashPath: String? = null
 

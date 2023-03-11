@@ -1,5 +1,13 @@
 package com.gee12.mytetroid.common.extensions
 
+fun String.toNullIfEmpty(): String? {
+    return ifEmpty { null }
+}
+
+fun Boolean?.orFalse(): Boolean {
+    return this ?: false
+}
+
 fun Int?.orZero(): Int {
     return this ?: 0
 }

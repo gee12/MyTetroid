@@ -80,6 +80,11 @@
         <item>Файл&#160;</item>
         <item>файла</item>
     </string-array>
+    <string-array name="obj_folder">
+        <item>каталог</item>
+        <item>Каталог&#160;</item>
+        <item>каталога</item>
+    </string-array>
     <string-array name="obj_image">
         <item>изображение</item>
         <item>Изображение&#160;</item>
@@ -142,6 +147,11 @@
         <item>вставки</item>
     </string-array>
     <string-array name="oper_move">
+        <item>переместить</item>
+        <item>перемещен(-а)</item>
+        <item>перемещения</item>
+    </string-array>
+    <string-array name="oper_reorder">
         <item>переместить</item>
         <item>перемещен(-а)</item>
         <item>перемещения</item>

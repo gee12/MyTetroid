@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.domain.provider
 
+import com.gee12.mytetroid.model.ImageFileType
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.abs
@@ -50,10 +51,9 @@ class DataNameProvider(
     }
 
     override fun createUniqueImageName(): String {
-        return "image${createUniqueId()}.png"
+        return "image${createUniqueId()}.${ImageFileType.PNG.extension}"
     }
 
-    //TODO: GenerateDateTimeFilePrefixUseCase
     override fun createDateTimePrefix(): String {
         return SimpleDateFormat(PREFIX_DATE_TIME_FORMAT, Locale.getDefault()).format(Date()).orEmpty()
     }

@@ -169,6 +169,11 @@
         <item>File was&#160;</item>
         <item>file</item>
     </string-array>
+    <string-array name="obj_folder">
+        <item>folder</item>
+        <item>Folder was&#160;</item>
+        <item>folder</item>
+    </string-array>
     <string-array name="obj_image">
         <item>image</item>
         <item>Image was&#160;</item>
@@ -234,6 +239,11 @@
         <item>move</item>
         <item>moved</item>
         <item>moving</item>
+    </string-array>
+    <string-array name="oper_reorder">
+        <item>reorder</item>
+        <item>reordered</item>
+        <item>reordering</item>
     </string-array>
     <string-array name="oper_save">
         <item>save</item>

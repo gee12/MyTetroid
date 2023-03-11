@@ -32,7 +32,7 @@
         <Preference
             android:key="@string/pref_key_temp_path"
             android:summary="@string/pref_trash_path_summ_storage"
-            android:title="@string/pref_trash_path" />
+            android:title="@string/pref_trash_path_storage" />
 
         <Preference
             android:key="@string/pref_key_clear_trash"

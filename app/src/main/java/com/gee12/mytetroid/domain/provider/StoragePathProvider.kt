@@ -1,72 +1,90 @@
 package com.gee12.mytetroid.domain.provider
 
+import android.content.Context
 import android.net.Uri
+import com.anggrayudi.storage.file.getAbsolutePath
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.extensions.makePath
+import com.gee12.mytetroid.common.extensions.uriToAbsolutePathIfPossible
+import com.gee12.mytetroid.model.FilePath
 import com.gee12.mytetroid.model.TetroidStorage
 
 interface IStoragePathProvider {
-    fun getStoragePath(): String
-    fun getPathToTrash(): String
+    fun getPathToRootFolder(): FilePath
     fun getPathToMyTetraXml(): String
-    fun getPathToStorageBaseFolder(): String
-    fun getUriToStorageBaseFolder(): Uri
+    fun getPathToBaseFolder(): FilePath
+    fun getRelativePathToBaseFolder(): String
+    fun getUriToBaseFolder(): Uri
     fun getPathToDatabaseIniConfig(): String
-    fun getPathToIcons(): String
+    fun getPathToIconsFolder(): String
+    fun getRelativePathToIconsFolder(): String
     fun getPathToFileInIconsFolder(fileName: String): String
-    fun getPathToStorageTrashFolder(): String
+    fun getPathToStorageTrashFolder(): FilePath
     fun getUriToStorageTrashFolder(): Uri
 }
 
 class StoragePathProvider(
+    private val context: Context,
     // TODO: ?
     private val storageProvider: IStorageProvider?,
     private val storage: TetroidStorage? = null,
-//    private val storage: TetroidStorage,
+    private val appPathProvider: IAppPathProvider,
 ) : IStoragePathProvider {
 
     companion object {
+        // TODO: убрать
         const val FILE_URI_PREFIX = "file://"
     }
 
-    override fun getStoragePath() = storage?.path ?: storageProvider?.storage?.path.orEmpty()
-
-    override fun getPathToTrash() = storage?.trashPath ?: storageProvider?.storage?.trashPath.orEmpty()
-
-//    override fun getStoragePath() = storage.path
-
-//    override fun getPathToTrash() = storage.trashPath.orEmpty()
+    override fun getPathToRootFolder(): FilePath {
+        val path = storage?.uri?.uriToAbsolutePathIfPossible(context)
+            ?: storageProvider?.rootFolder?.getAbsolutePath(context).orEmpty()
+        return FilePath.FolderFull(path)
+    }
 
     override fun getPathToMyTetraXml(): String {
-        return makePath(getStoragePath(), Constants.MYTETRA_XML_FILE_NAME)
+        return makePath(getPathToRootFolder().fullPath, Constants.MYTETRA_XML_FILE_NAME)
     }
 
-    override fun getPathToStorageBaseFolder(): String {
-        return makePath(getStoragePath(), Constants.BASE_DIR_NAME)
+    override fun getPathToBaseFolder(): FilePath {
+        return FilePath.Folder(getPathToRootFolder().fullPath, Constants.BASE_DIR_NAME)
     }
 
-    override fun getUriToStorageBaseFolder(): Uri {
-        return Uri.parse("$FILE_URI_PREFIX${getPathToStorageBaseFolder()}")
+    override fun getRelativePathToBaseFolder(): String {
+        return Constants.BASE_DIR_NAME
+    }
+
+    override fun getUriToBaseFolder(): Uri {
+        return Uri.parse("$FILE_URI_PREFIX${getPathToBaseFolder()}")
     }
 
     override fun getPathToDatabaseIniConfig(): String {
-        return makePath(getStoragePath(), Constants.DATABASE_INI_FILE_NAME)
+        return makePath(getPathToRootFolder().fullPath, Constants.DATABASE_INI_FILE_NAME)
     }
 
-    override fun getPathToIcons(): String {
-        return makePath(getStoragePath(), Constants.ICONS_DIR_NAME)
+    override fun getPathToIconsFolder(): String {
+        return makePath(getPathToRootFolder().fullPath, Constants.ICONS_DIR_NAME)
+    }
+
+    override fun getRelativePathToIconsFolder(): String {
+        return Constants.ICONS_DIR_NAME
     }
 
     override fun getPathToFileInIconsFolder(fileName: String): String {
-        return makePath(getPathToIcons(), fileName)
+        return makePath(getPathToIconsFolder(), fileName)
     }
 
-    override fun getPathToStorageTrashFolder(): String {
-        return getPathToTrash()
+    override fun getPathToStorageTrashFolder(): FilePath {
+        val trashFolderPath = appPathProvider.getPathToTrashFolder()
+        return FilePath.Folder(trashFolderPath, getStorageId().toString())
     }
 
     override fun getUriToStorageTrashFolder(): Uri {
-        return Uri.parse("$FILE_URI_PREFIX${getPathToTrash()}")
+        return Uri.parse("$FILE_URI_PREFIX${getPathToStorageTrashFolder().fullPath}")
+    }
+
+    private fun getStorageId(): Int {
+        return storage?.id ?: storageProvider?.storage?.id ?: 0
     }
 
 }

@@ -2,6 +2,7 @@ package com.gee12.mytetroid.common
 
 object Constants {
 
+    // TODO: перенести в DataNameProvider
     /**
      * Формат даты создания записи.
      */
@@ -43,23 +44,8 @@ object Constants {
     const val REQUEST_CODE_RECORD_ACTIVITY = 103            // текст записи
     const val REQUEST_CODE_SEARCH_ACTIVITY = 104            // глобальный поиск
     const val REQUEST_CODE_STORAGES_ACTIVITY = 105          // список хранилищ
-    const val REQUEST_CODE_FILE_PICKER = 106                // выбор файла
-    const val REQUEST_CODE_FOLDER_PICKER = 107              // выбор каталога
-    const val REQUEST_CODE_NODE_ICON = 108                  // иконка ветки
-    const val REQUEST_CODE_OPEN_STORAGE_PATH = 111          // путь к существующему хранилищу
-    const val REQUEST_CODE_CREATE_STORAGE_PATH = 112        // путь к новому хранилищу
-    const val REQUEST_CODE_OPEN_TEMP_PATH = 113             // путь к корзине
-    const val REQUEST_CODE_OPEN_LOG_PATH = 114              // путь к каталогу лог-файла
-    const val REQUEST_CODE_SYNC_STORAGE = 115               // синхронизация хранилища
-
-    const val REQUEST_CODE_PERMISSION_READ_STORAGE = 100
-    const val REQUEST_CODE_PERMISSION_WRITE_STORAGE = 101
-    const val REQUEST_CODE_PERMISSION_WRITE_TEMP = 102
-    const val REQUEST_CODE_PERMISSION_CAMERA = 103
-    const val REQUEST_CODE_PERMISSION_RECORD_AUDIO = 104
-    const val REQUEST_CODE_PERMISSION_TERMUX = 105
-    const val REQUEST_CODE_PERMISSION_EXPORT_PDF = 106
-    const val REQUEST_CODE_PERMISSION_ADD_STORAGE = 107
+    const val REQUEST_CODE_NODE_ICON = 106                  // иконка ветки
+    const val REQUEST_CODE_SYNC_STORAGE = 107               // синхронизация хранилища
 
     // TODO: преобразовать в enum
     const val PAGE_MAIN = 0

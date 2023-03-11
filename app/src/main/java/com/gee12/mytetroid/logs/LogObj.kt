@@ -14,6 +14,7 @@ enum class LogObj {
     RECORD_DIR(R.array.obj_record_dir),
     TAG(R.array.obj_tag),
     FILE(R.array.obj_file),
+    FOLDER(R.array.obj_folder),
     IMAGE(R.array.obj_image),
     FILE_FIELDS(R.array.obj_file_fields),
     CUR_PASS,

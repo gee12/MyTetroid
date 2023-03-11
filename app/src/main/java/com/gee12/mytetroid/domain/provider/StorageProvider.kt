@@ -1,23 +1,30 @@
 package com.gee12.mytetroid.domain.provider
 
+import android.content.Context
+import androidx.documentfile.provider.DocumentFile
+import com.anggrayudi.storage.file.DocumentFileCompat
+import com.anggrayudi.storage.file.DocumentFileType
+import com.anggrayudi.storage.file.child
+import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.logs.ITetroidLogger
-import com.gee12.mytetroid.model.TetroidFavorite
-import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.model.TetroidStorage
-import com.gee12.mytetroid.model.TetroidTag
+import com.gee12.mytetroid.model.*
 import java.util.HashMap
 
 interface IStorageProvider {
 
     val storage: TetroidStorage?
+    val rootFolder: DocumentFile?
+    val baseFolder: DocumentFile?
+    val trashFolder: DocumentFile?
     val databaseConfig: DatabaseConfig
     val dataProcessor: IStorageDataProcessor
     val favorites: MutableList<TetroidFavorite>
 
     fun init(storageDataProcessor: IStorageDataProcessor)
     fun setStorage(storage: TetroidStorage)
+    fun setRootFolder(root: DocumentFile)
     fun resetStorage()
     fun isLoaded(): Boolean
     fun isLoadedFavoritesOnly(): Boolean
@@ -29,17 +36,26 @@ interface IStorageProvider {
 }
 
 class StorageProvider(
+    private val context: Context,
     private val logger: ITetroidLogger,
+    private val appPathProvider: IAppPathProvider,
 ) : IStorageProvider {
 
     override var storage: TetroidStorage? = null
         private set
+    override var rootFolder: DocumentFile? = null
+        private set
+    override val baseFolder: DocumentFile?
+        get() = getBaseFolderDirectly()
+    override val trashFolder: DocumentFile?
+        get() = getTrashFolderDirectly(requiresWriteAccess = true)
     override val databaseConfig = DatabaseConfig(logger)
     override lateinit var dataProcessor: IStorageDataProcessor
         private set
     override val favorites: MutableList<TetroidFavorite> = mutableListOf()
 
 
+    // TODO: по хорошему, вызывать только из InitStorageUseCase
     override fun init(storageDataProcessor: IStorageDataProcessor) {
         this.dataProcessor = storageDataProcessor
     }
@@ -48,9 +64,13 @@ class StorageProvider(
         this.storage = storage
     }
 
+    override fun setRootFolder(root: DocumentFile) {
+        this.rootFolder = root
+    }
+
     override fun resetStorage() {
         storage = null
-        databaseConfig.setFileName(null)
+        rootFolder = null
         favorites.clear()
         // TODO
 //         dataProcessor.reset()
@@ -85,6 +105,32 @@ class StorageProvider(
 
     override fun getRootNode(): TetroidNode {
         return dataProcessor.getRootNode()
+    }
+
+    private fun getBaseFolderDirectly(): DocumentFile? {
+        return rootFolder?.child(
+            context = context,
+            path = Constants.BASE_DIR_NAME,
+            requiresWriteAccess = true,
+        )
+    }
+
+    private fun getPathToTrashFolder(): FilePath {
+        val trashFolderPath = appPathProvider.getPathToTrashFolder()
+        return FilePath.Folder(trashFolderPath, getStorageId().toString())
+    }
+
+    private fun getTrashFolderDirectly(requiresWriteAccess: Boolean): DocumentFile? {
+        return DocumentFileCompat.fromFullPath(
+            context = context,
+            fullPath = getPathToTrashFolder().fullPath,
+            documentType = DocumentFileType.FOLDER,
+            requiresWriteAccess = requiresWriteAccess,
+        )
+    }
+
+    private fun getStorageId(): Int {
+        return storage?.id ?: 0
     }
 
 }

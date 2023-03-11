@@ -63,7 +63,7 @@ class StoragesRepo(context: Context) {
 
     private fun toTetroidStorage(entity: StorageEntity) = TetroidStorage(
         entity.name,
-        entity.path,
+        entity.uri,
         entity.isDefault,
         entity.isReadOnly,
         false

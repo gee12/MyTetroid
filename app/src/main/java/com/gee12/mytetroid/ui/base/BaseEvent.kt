@@ -3,7 +3,8 @@ package com.gee12.mytetroid.ui.base
 import android.content.Intent
 import android.os.Bundle
 import com.gee12.mytetroid.model.TetroidStorage
-import com.gee12.mytetroid.model.enums.TetroidPermission
+import com.gee12.mytetroid.model.permission.PermissionRequestCode
+import com.gee12.mytetroid.model.permission.TetroidPermission
 
 abstract class BaseEvent : VMEvent() {
     // activity
@@ -50,16 +51,16 @@ abstract class BaseEvent : VMEvent() {
     sealed class Permission : BaseEvent() {
         data class Check(
             val permission: TetroidPermission,
-            val requestCode: Int? = null,
+            val requestCode: PermissionRequestCode,
         ) : Permission()
         data class Granted(
             val permission: TetroidPermission,
-            val requestCode: Int? = null,
+            val requestCode: PermissionRequestCode,
         ) : Permission()
 
         data class Canceled(
             val permission: TetroidPermission,
-            val requestCode: Int,
+            val requestCode: PermissionRequestCode,
         ) : Permission()
 
         data class ShowRequest(

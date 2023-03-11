@@ -63,7 +63,6 @@ public class CommonSettings {
     /**
      * Путь к хранилищу (устаревшее).
      * Используется для совместимости.
-     * @return
      */
     @Deprecated
     public static String getStoragePath(Context context) {
@@ -82,11 +81,15 @@ public class CommonSettings {
     /**
      * Путь к каталогу корзины.
      * Используется по-умолчанию у хранилищ.
+     *
+     * Устаревшее, теперь корзина в app external storage.
      */
+    @Deprecated
     public static String getTrashPathDef(Context context) {
         return getString(context, R.string.pref_key_temp_path, null);
     }
 
+    @Deprecated
     public static void setTrashPathDef(Context context, String value) {
         setString(context, R.string.pref_key_temp_path, value);
     }
@@ -548,11 +551,15 @@ public class CommonSettings {
 
     /**
      * Путь к каталогу с лог-файлом.
+     *
+     * Устаревшее, теперь логи всегда в app external storage.
      */
+    @Deprecated
     public static String getLogPath(Context context) {
         return getString(context, R.string.pref_key_log_path, null);
     }
 
+    @Deprecated
     public static void setLogPath(Context context, String value) {
        setString(context, R.string.pref_key_log_path, value);
     }
@@ -560,11 +567,11 @@ public class CommonSettings {
     /**
      * Путь к каталогу, выбранному в последний раз.
      */
-    public static String getLastChoosedFolderPath(Context context) {
+    public static String getLastSelectedFolderPath(Context context) {
         return getString(context, R.string.pref_key_last_folder, null);
     }
 
-    public static void setLastChoosedFolder(Context context, String path) {
+    public static void setLastSelectedFolder(Context context, String path) {
         setString(context, R.string.pref_key_last_folder, path);
     }
 

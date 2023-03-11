@@ -1,20 +1,24 @@
-package com.gee12.mytetroid.model.enums
+package com.gee12.mytetroid.model.permission
 
 import android.Manifest
+import androidx.documentfile.provider.DocumentFile
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.domain.interactor.PermissionManager
+import com.gee12.mytetroid.domain.manager.PermissionManager
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 
-enum class TetroidPermission {
-    ReadStorage,
-    WriteStorage,
-    Camera,
-    RecordAudio,
-    Termux;
+sealed class TetroidPermission {
+    sealed class FileStorage(val root: DocumentFile) : TetroidPermission() {
+        class Read(root: DocumentFile) : FileStorage(root)
+        class Write(root: DocumentFile) : FileStorage(root)
+    }
+    object Camera : TetroidPermission()
+    object RecordAudio : TetroidPermission()
+    object Termux : TetroidPermission()
 
     fun toAndroidPermission(): String {
         return when (this) {
-            ReadStorage -> Manifest.permission.READ_EXTERNAL_STORAGE
+            is FileStorage.Read -> Manifest.permission.READ_EXTERNAL_STORAGE
+            is FileStorage.Write -> Manifest.permission.READ_EXTERNAL_STORAGE
             // запуск камеры для захвата изображения
             Camera -> Manifest.permission.CAMERA
             // голосовой ввод
@@ -27,8 +31,8 @@ enum class TetroidPermission {
 
     fun getPermissionRequestMessage(resourcesProvider: IResourcesProvider): String {
         return when (this) {
-            ReadStorage -> R.string.ask_request_read_ext_storage
-            WriteStorage -> R.string.ask_request_write_ext_storage
+            is FileStorage.Read -> R.string.ask_request_read_ext_storage
+            is FileStorage.Write -> R.string.ask_request_write_ext_storage
             Camera -> R.string.ask_request_camera
             RecordAudio -> R.string.ask_request_record_audio
             Termux -> R.string.ask_permission_termux
