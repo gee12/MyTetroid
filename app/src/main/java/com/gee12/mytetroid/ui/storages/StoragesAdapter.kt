@@ -41,7 +41,7 @@ class StoragesAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             ItemViewType.Footer.id -> {
-                val view = inflater.inflate(R.layout.list_view_empty_footer, parent, false)
+                val view = inflater.inflate(R.layout.recycler_view_empty_footer, parent, false)
                 FooterViewHolder(view)
             }
             else -> {

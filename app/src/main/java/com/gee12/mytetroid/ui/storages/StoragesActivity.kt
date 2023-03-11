@@ -52,7 +52,11 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 
         recyclerView = findViewById(R.id.recycle_view)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.addItemDecoration(DividerItemDecoration(recyclerView.context, DividerItemDecoration.VERTICAL))
+        recyclerView.addItemDecoration(DividerItemDecoration(
+            context = recyclerView.context,
+            orientation = DividerItemDecoration.VERTICAL,
+            spaceBetweenRes = R.dimen.recycler_view_item_top_spacing
+        ))
         adapter = StoragesAdapter(
             context = this,
             currentStorageId = viewModel.getCurrentStorageId()

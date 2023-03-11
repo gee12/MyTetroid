@@ -36,4 +36,7 @@
     <dimen name="widget_text_padding_top">0dp</dimen>
     <dimen name="widget_line_height">9dp</dimen>
     <dimen name="widget_line_spacing">-3sp</dimen>
+
+    <dimen name="recycler_view_item_top_spacing">4dp</dimen>
+
 </resources>

@@ -6,12 +6,6 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_alignParentTop="true"
-        android:background="@color/list_view_divider_color"/>
-
-    <View
-        android:layout_width="match_parent"
         android:layout_height="80dp"/>
 
 </RelativeLayout>

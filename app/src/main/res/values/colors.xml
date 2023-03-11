@@ -32,4 +32,8 @@
     <color name="fab_color_pressed">#86B945</color>
     <color name="fab_color_pressed_dark">#FF49780b</color>
     <color name="fab_color_ripple">#99FFFFFF</color>
+
+    <color name="list_view_divider_color">#DDD</color>
+    <color name="recycler_view_divider_color">#DDD</color>
+
 </resources>
