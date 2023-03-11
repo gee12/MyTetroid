@@ -23,7 +23,7 @@ ext {
     sdk = [
         compileSdk: 33,
         targetSdk : 31,
-        minSdk    : 15
+        minSdk    : 19
     ]
 }
 

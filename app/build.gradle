@@ -79,8 +79,6 @@ dependencies {
     implementation (project(path: ':wysiwyg-editor')) {
         exclude group: 'org.jetbrains', module: 'annotations'
     }
-    implementation project(path: ':folder-picker')
-//    implementation project(path: ':file-folder-picker')
     implementation project(path: ':multi-listview')
     implementation project(path: ':pinlock-view')
     implementation project(path: ':image-picker')
@@ -90,6 +88,7 @@ dependencies {
     implementation 'com.google.android.play:core:1.10.3'
 //    implementation 'com.adityak:browsemyfiles:1.9'
     implementation 'com.github.clans:fab:1.6.4'
+    implementation "com.anggrayudi:storage:1.5.4"
     implementation "androidx.core:core-ktx:$core_ktx_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines"

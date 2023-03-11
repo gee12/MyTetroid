@@ -11,7 +11,7 @@ open class StorageEntity(
     var name: String,
 
     @ColumnInfo(name = "path")
-    var path: String
+    var uri: String
 ) : BaseEntity() {
 
     @PrimaryKey(autoGenerate = true)

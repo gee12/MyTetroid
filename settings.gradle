@@ -1,10 +1,6 @@
 include ':app'
 include ':wysiwyg-editor'
 project(':wysiwyg-editor').projectDir = new File(settingsDir, '../../Android-HTML-WYSIWYG-Editor/richwysiwygeditor')
-include ':folder-picker'
-project(':folder-picker').projectDir = new File(settingsDir, '../../Android-Folder-Picker/folderpicker')
-//include ':file-folder-picker'
-//project(':file-folder-picker').projectDir = new File(settingsDir, '../../Android-FileBrowser-FilePicker/filebrowser')
 include ':multi-listview'
 project(':multi-listview').projectDir = new File(settingsDir, '../../android-multi-level-listview/multi-level-listview/')
 include ':pinlock-view'
