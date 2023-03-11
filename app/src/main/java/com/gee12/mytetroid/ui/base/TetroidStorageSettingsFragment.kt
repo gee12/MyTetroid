@@ -11,8 +11,8 @@ import java.lang.Exception
 
 open class TetroidStorageSettingsFragment : TetroidSettingsFragment() {
 
-    private val settingsActivity: StorageSettingsActivity?
-        get() = activity as StorageSettingsActivity?
+    override val settingsActivity: StorageSettingsActivity?
+        get() = activity as? StorageSettingsActivity
 
     protected val viewModel: StorageSettingsViewModel
         get() = settingsActivity?.viewModel ?: throw Exception("Not inited StorageSettingsViewModel")

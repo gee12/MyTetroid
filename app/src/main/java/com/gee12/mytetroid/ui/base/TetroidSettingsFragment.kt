@@ -1,7 +1,6 @@
 package com.gee12.mytetroid.ui.base
 
 import android.app.Application
-import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.Menu
@@ -10,18 +9,19 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import com.anggrayudi.storage.SimpleStorageHelper
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
-import com.gee12.mytetroid.logs.Message
 import com.gee12.mytetroid.ui.settings.CommonSettingsViewModel
-import com.gee12.mytetroid.ui.TetroidMessage
 import kotlinx.coroutines.launch
-import lib.folderpicker.FolderPicker
 import org.koin.android.ext.android.inject
 
-open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
+open class TetroidSettingsFragment :
+    PreferenceFragmentCompat(),
+    SharedPreferences.OnSharedPreferenceChangeListener {
 
+    // TODO: заюзать VM из TetroidSettingsActivity
     protected open val baseViewModel: CommonSettingsViewModel by inject()
     protected open val resourcesProvider: IResourcesProvider by inject()
     protected open val settingsManager: CommonSettingsManager by inject()
@@ -29,11 +29,14 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
     protected val application: Application
         get() = requireContext().applicationContext as Application
 
-    private val settingsActivity: TetroidSettingsActivity?
-        get() = activity as TetroidSettingsActivity?
+    protected open val settingsActivity: TetroidSettingsActivity<*>?
+        get() = activity as? TetroidSettingsActivity<*>
 
     protected val optionsMenu: Menu?
         get() = settingsActivity?.optionsMenu
+
+    protected val fileStorageHelper: SimpleStorageHelper?
+        get() = settingsActivity?.fileStorageHelper
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -44,15 +47,17 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
     }
 
+    // TODO: заюзать VM из TetroidSettingsActivity
     protected open fun initViewModel() {
         lifecycleScope.launch {
-            baseViewModel.messageEventFlow.collect { message -> showMessage(message) }
+            baseViewModel.messageEventFlow.collect { message -> settingsActivity?.showMessage(message) }
         }
         lifecycleScope.launch {
             baseViewModel.eventFlow.collect { event -> onViewEvent(event) }
         }
     }
 
+    // TODO: заюзать VM из TetroidSettingsActivity
     open fun onViewEvent(event: BaseEvent) {
         when (event) {
             is BaseEvent.ShowProgress -> settingsActivity?.setProgressVisibility(event.isVisible)
@@ -89,36 +94,21 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
         baseViewModel.settingsManager.settings?.unregisterOnSharedPreferenceChangeListener(this)
     }
 
-    protected fun openFolderPicker(title: String?, location: String, requestCode: Int) {
-        val path = location.ifBlank { baseViewModel.getLastFolderPathOrDefault(true) }
-        val intent = Intent(context, FolderPicker::class.java)
-        intent.putExtra(FolderPicker.EXTRA_TITLE, title)
-        intent.putExtra(FolderPicker.EXTRA_LOCATION, path)
-//        Intent intent = new Intent(getContext(), FolderChooser.class);
-//        intent.putExtra(Constants.SELECTION_MODE, Constants.SELECTION_MODES.SINGLE_SELECTION.ordinal());
-//        intent.putExtra(Constants.INITIAL_DIRECTORY, path);
-        requireActivity().startActivityForResult(intent, requestCode)
-    }
-
-    protected fun checkPermission(requestCode: Int): Boolean {
-        return baseViewModel.checkWriteExtStoragePermission(requireActivity(), requestCode)
-    }
-
     /**
      * Деактивация опции, если версия приложения Free.
      * @param pref
      */
-    protected fun disableIfFree(pref: Preference) {
+    protected fun Preference.disableIfFree() {
         if (baseViewModel.buildInfoProvider.isFullVersion()) {
-            pref.isEnabled = true
+            isEnabled = true
         } else {
-            pref.isEnabled = false
+            isEnabled = false
             // принудительно отключаем
-            pref.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+            onPreferenceClickListener = Preference.OnPreferenceClickListener {
                 baseViewModel.showMessage(R.string.title_available_in_pro)
                 true
             }
-            pref.dependency = null
+            dependency = null
         }
     }
 
@@ -156,14 +146,10 @@ open class TetroidSettingsFragment : PreferenceFragmentCompat(), SharedPreferenc
     }
 
     fun setTitle(titleResId: Int, subtitle: String? = null) {
-        (activity as? TetroidSettingsActivity)?.let {
+        settingsActivity?.let {
             it.setTitle(titleResId)
-            it.setSubTitle(subtitle)
+            it.setSubtitle(subtitle)
         }
-    }
-
-    private fun showMessage(message: Message) {
-        TetroidMessage.show(activity, message)
     }
 
 }

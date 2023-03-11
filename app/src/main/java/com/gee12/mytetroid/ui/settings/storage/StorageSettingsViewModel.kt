@@ -4,28 +4,22 @@ import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.data.settings.TetroidPreferenceDataStore
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
-import com.gee12.mytetroid.domain.manager.FavoritesManager
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.domain.interactor.*
-import com.gee12.mytetroid.domain.manager.CommonSettingsManager
-import com.gee12.mytetroid.domain.manager.PasswordManager
+import com.gee12.mytetroid.domain.manager.*
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.domain.repo.StoragesRepo
 import com.gee12.mytetroid.domain.usecase.InitAppUseCase
 import com.gee12.mytetroid.domain.usecase.crypt.*
-import com.gee12.mytetroid.domain.usecase.file.GetFileModifiedDateUseCase
-import com.gee12.mytetroid.domain.usecase.file.GetFolderSizeUseCase
+import com.gee12.mytetroid.domain.usecase.file.GetFileModifiedDateInStorageUseCase
+import com.gee12.mytetroid.domain.usecase.file.GetFolderSizeInStorageUseCase
 import com.gee12.mytetroid.domain.usecase.node.GetNodeByIdUseCase
 import com.gee12.mytetroid.domain.usecase.record.GetRecordByIdUseCase
-import com.gee12.mytetroid.domain.usecase.storage.CheckStorageFilesExistingUseCase
-import com.gee12.mytetroid.domain.usecase.storage.InitOrCreateStorageUseCase
-import com.gee12.mytetroid.domain.usecase.storage.ReadStorageUseCase
-import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
+import com.gee12.mytetroid.domain.usecase.storage.*
 import com.gee12.mytetroid.ui.storage.StorageViewModel
 
 class StorageSettingsViewModel(
@@ -36,6 +30,7 @@ class StorageSettingsViewModel(
     failureHandler: IFailureHandler,
 
     buildInfoProvider: BuildInfoProvider,
+    appPathProvider: IAppPathProvider,
     settingsManager: CommonSettingsManager,
     storageProvider: IStorageProvider,
     sensitiveDataProvider: ISensitiveDataProvider,
@@ -49,13 +44,12 @@ class StorageSettingsViewModel(
 
     favoritesManager: FavoritesManager,
     passwordManager: PasswordManager,
-    interactionInteractor: InteractionInteractor,
+    interactionManager: InteractionManager,
     syncInteractor: SyncInteractor,
-    trashInteractor: TrashInteractor,
 
     initAppUseCase: InitAppUseCase,
-    getFolderSizeUseCase: GetFolderSizeUseCase,
-    getFileModifiedDateUseCase: GetFileModifiedDateUseCase,
+    getFolderSizeUseCase: GetFolderSizeInStorageUseCase,
+    getFileModifiedDateUseCase: GetFileModifiedDateInStorageUseCase,
 
     initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
     readStorageUseCase: ReadStorageUseCase,
@@ -67,6 +61,7 @@ class StorageSettingsViewModel(
     checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
     setupPasswordUseCase : SetupPasswordUseCase,
     initPasswordUseCase : InitPasswordUseCase,
+    clearStorageTrashFolderUseCase: ClearStorageTrashFolderUseCase,
 
     getNodeByIdUseCase: GetNodeByIdUseCase,
     getRecordByIdUseCase: GetRecordByIdUseCase,
@@ -78,6 +73,7 @@ class StorageSettingsViewModel(
     failureHandler = failureHandler,
 
     settingsManager = settingsManager,
+    appPathProvider = appPathProvider,
     buildInfoProvider = buildInfoProvider,
     storageProvider = storageProvider,
     sensitiveDataProvider = sensitiveDataProvider,
@@ -89,10 +85,9 @@ class StorageSettingsViewModel(
     cryptManager = cryptManager,
 
     favoritesManager = favoritesManager,
-    interactionInteractor = interactionInteractor,
+    interactionManager = interactionManager,
     passwordManager = passwordManager,
     syncInteractor = syncInteractor,
-    trashInteractor = trashInteractor,
 
     initAppUseCase = initAppUseCase,
     getFileModifiedDateUseCase = getFileModifiedDateUseCase,
@@ -108,6 +103,7 @@ class StorageSettingsViewModel(
     checkStorageFilesExistingUseCase = checkStorageFilesExistingUseCase,
     setupPasswordUseCase = setupPasswordUseCase,
     initPasswordUseCase = initPasswordUseCase,
+    clearStorageTrashFolderUseCase = clearStorageTrashFolderUseCase,
 
     getNodeByIdUseCase = getNodeByIdUseCase,
     getRecordByIdUseCase = getRecordByIdUseCase,
@@ -137,25 +133,19 @@ class StorageSettingsViewModel(
      */
     override fun updateStorageOption(key: String, value: Any) {
         storage?.apply {
-            when (key) {
+            val isFieldsChanged = when (key) {
                 // основное
                 getString(R.string.pref_key_storage_path) -> {
-                    isFieldChanged(key, path, value.toString()) {
-                        path = it
+                    isFieldChanged(key, uri, value.toString()) {
+                        uri = it
                         isStoragePathChanged = true
-                        log(getString(R.string.log_storage_path_changed_mask, path), false)
+                        log(getString(R.string.log_storage_path_changed_mask, uri), false)
                     }
                 }
                 getString(R.string.pref_key_storage_name) -> {
                     isFieldChanged(key, name, value.toString()) {
                         name = it
                         log(getString(R.string.log_storage_name_changed_mask, name), false)
-                    }
-                }
-                getString(R.string.pref_key_temp_path) -> {
-                    isFieldChanged(key, trashPath, value) {
-                        trashPath = it
-                        log(getString(R.string.log_storage_trash_path_changed_mask, name), false)
                     }
                 }
                 getString(R.string.pref_key_is_def_storage) -> isFieldChanged(key, isDefault, value) { isDefault = it }
@@ -179,11 +169,17 @@ class StorageSettingsViewModel(
                 getString(R.string.pref_key_is_sync_before_exit) -> isFieldChanged(key, syncProfile.isSyncBeforeExit, value) { syncProfile.isSyncBeforeExit = it }
                 getString(R.string.pref_key_is_ask_before_exit_sync) -> isFieldChanged(key, syncProfile.isAskBeforeSyncOnExit, value) { syncProfile.isAskBeforeSyncOnExit = it }
                 getString(R.string.pref_key_check_outside_changing) -> isFieldChanged(key, syncProfile.isCheckOutsideChanging, value) { syncProfile.isCheckOutsideChanging = it }
+                else -> false
             }
             if (isFieldsChanged) {
+                this@StorageSettingsViewModel.isFieldsChanged = true
                 launchOnMain {
                     updateStorage(this@apply)
                     onStorageOptionChanged(key, value)
+
+                    if (isStoragePathChanged) {
+                        onStoragePathChanged()
+                    }
                 }
             }
         }
@@ -194,7 +190,6 @@ class StorageSettingsViewModel(
         return (if (curValue != newStringValue) {
             onChanged?.invoke(newStringValue)
             logDebug(getString(R.string.log_field_changed_mask, key, curValue ?: "null", newValue), false)
-            isFieldsChanged = true
             true
         } else {
             false
@@ -206,7 +201,6 @@ class StorageSettingsViewModel(
         return (if (curValue != newBoolValue) {
             onChanged?.invoke(newBoolValue)
             logDebug(getString(R.string.log_field_changed_mask, key, curValue, newValue), false)
-            isFieldsChanged = true
             true
         } else {
             false
@@ -217,7 +211,7 @@ class StorageSettingsViewModel(
         return storage?.let {
             when (key) {
                 // основное
-                getString(R.string.pref_key_storage_path) -> it.path
+                getString(R.string.pref_key_storage_path) -> it.uri
                 getString(R.string.pref_key_storage_name) -> it.name
                 getString(R.string.pref_key_is_def_storage) -> it.isDefault
                 getString(R.string.pref_key_is_read_only) -> it.isReadOnly

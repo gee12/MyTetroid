@@ -1,7 +1,5 @@
 package com.gee12.mytetroid.ui.settings
 
-import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.ui.base.TetroidSettingsActivity
@@ -9,14 +7,16 @@ import com.gee12.mytetroid.ui.base.TetroidSettingsActivity
 /**
  * Активность для управления настройками приложения.
  */
-class SettingsActivity : TetroidSettingsActivity() {
+class SettingsActivity : TetroidSettingsActivity<CommonSettingsViewModel>() {
+
+    override fun getLayoutResourceId() =  R.layout.activity_settings
+
+    override fun getViewModelClazz() = CommonSettingsViewModel::class.java
+
+    override fun isSingleTitle() = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-    }
-
-    override fun getLayoutResourceId(): Int {
-        return R.layout.activity_settings
     }
 
     override fun startDefaultFragment() {
@@ -26,43 +26,12 @@ class SettingsActivity : TetroidSettingsActivity() {
             .commit()
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        val permGranted = grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
-        val fragment = getCurrentFragment()
-        if (fragment is SettingsStorageFragment) {
-            fragment.onRequestPermissionsResult(permGranted, requestCode)
-        } else if (fragment is SettingsOtherFragment) {
-            fragment.onRequestPermissionsResult(permGranted, requestCode)
-        }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        val fragment = getCurrentFragment()
-        if (fragment is SettingsStorageFragment) {
-            fragment.onResult(requestCode, resultCode, data!!)
-        } else if (fragment is SettingsOtherFragment) {
-            fragment.onResult(requestCode, resultCode, data!!)
-        }
-        super.onActivityResult(requestCode, resultCode, data)
-    }
-
     override fun onBackPressed() {
-//        boolean isBackPressed = false;
-        val fragment = getCurrentFragment()
-        // обрабатываем нажатие Back во фрагменте SettingsEncryptionFragment отдельно
-//        if (fragment instanceof SettingsEncryptionFragment) {
-//            if (!((SettingsEncryptionFragment)fragment).onBackPressed()) {
-//                isBackPressed = true;
-//            }
-//        } else {
-//            isBackPressed = true;
-//        }
-//        if (isBackPressed) {
+        val fragment = currentFragment
         if (fragment !is SettingsSectionsFragment) {
-            setTitle(R.string.title_settings)
+            setTitle(R.string.action_common_settings)
         }
         super.onBackPressed()
-//        }
     }
+
 }

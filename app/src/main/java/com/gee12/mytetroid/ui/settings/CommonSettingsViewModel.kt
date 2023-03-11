@@ -2,16 +2,18 @@ package com.gee12.mytetroid.ui.settings
 
 import android.app.Application
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.common.onFailure
+import com.gee12.mytetroid.common.onSuccess
 import com.gee12.mytetroid.data.crypt.Crypter
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
-import com.gee12.mytetroid.domain.interactor.TrashInteractor
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
+import com.gee12.mytetroid.domain.provider.IAppPathProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
-import com.gee12.mytetroid.domain.repo.StoragesRepo
+import com.gee12.mytetroid.domain.usecase.storage.ClearAllStoragesTrashFolderUseCase
 import com.gee12.mytetroid.ui.base.BaseViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,18 +28,20 @@ class CommonSettingsViewModel(
     val buildInfoProvider: BuildInfoProvider,
     failureHandler: IFailureHandler,
     settingsManager: CommonSettingsManager,
+    appPathProvider: IAppPathProvider,
+    private val clearAllStoragesTrashFolderUseCase: ClearAllStoragesTrashFolderUseCase,
 ) : BaseViewModel(
-    app,
-    resourcesProvider,
-    logger,
-    notificator,
-    failureHandler,
-    settingsManager,
+    application = app,
+    resourcesProvider = resourcesProvider,
+    logger = logger,
+    notificator = notificator,
+    failureHandler = failureHandler,
+    settingsManager = settingsManager,
+    appPathProvider = appPathProvider
 ), CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.Main + SupervisorJob()
 
-    val trashInteractor = TrashInteractor(this.logger, StoragesRepo(app))
     val crypter = Crypter(this.logger)
 
 
@@ -85,14 +89,14 @@ class CommonSettingsViewModel(
 
     fun clearTrashFolders() {
         launchOnMain {
-            when (trashInteractor.clearTrashFoldersIfNeeded(/*false*/)) {
-                TrashInteractor.TrashClearResult.SUCCESS -> {
-                    log(R.string.title_trash_cleared, true)
-                }
-                TrashInteractor.TrashClearResult.FAILURE -> {
-                    logError(R.string.title_trash_clear_error, true)
-                }
-                else -> {}
+            withIo {
+                clearAllStoragesTrashFolderUseCase.run(
+                    ClearAllStoragesTrashFolderUseCase.Params
+                )
+            }.onFailure {
+                logFailure(it)
+            }.onSuccess {
+                log(R.string.title_trash_cleared, true)
             }
         }
     }

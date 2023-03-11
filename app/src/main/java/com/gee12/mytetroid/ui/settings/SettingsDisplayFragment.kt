@@ -29,29 +29,32 @@ class SettingsDisplayFragment : TetroidSettingsFragment() {
 
         if (baseViewModel.buildInfoProvider.isFullVersion()) {
             // добавляем поле "Дата изменения"
-            val prefFields = findPreference<Preference>(getString(R.string.pref_key_record_fields_in_list)) as MultiSelectListPreference?
-            val arrayId = if (baseViewModel.buildInfoProvider.isFullVersion()) {
-                R.array.record_fields_in_list_entries_pro
-            } else {
-                R.array.record_fields_in_list_entries
+            (findPreference<Preference>(getString(R.string.pref_key_record_fields_in_list)) as MultiSelectListPreference?)?.also {
+                val arrayId = if (baseViewModel.buildInfoProvider.isFullVersion()) {
+                    R.array.record_fields_in_list_entries_pro
+                } else {
+                    R.array.record_fields_in_list_entries
+                }
+                it.setEntryValues(arrayId)
+                it.setEntries(arrayId)
             }
-            prefFields?.setEntryValues(arrayId)
-            prefFields?.setEntries(arrayId)
         }
 
         // панель со свойствами записи
-        val prefShowRecordFields = findPreference<ListPreference>(getString(R.string.pref_key_show_record_fields))
-        prefShowRecordFields?.setDefaultValue(getString(R.string.pref_show_record_fields_no))
-        if (settingsManager.isHasShowRecordFieldsValue()) {
-            prefShowRecordFields?.summary = settingsManager.getShowRecordFields()
+        findPreference<ListPreference>(getString(R.string.pref_key_show_record_fields))?.also {
+            it.setDefaultValue(getString(R.string.pref_show_record_fields_no))
+            if (settingsManager.isHasShowRecordFieldsValue()) {
+                it.summary = settingsManager.getShowRecordFields()
+            }
         }
 
         // размер кнопок в toolbar в редакторе
-        val prefToolbarSize = findPreference<ListPreference>(getString(R.string.pref_key_editor_toolbar_buttons_size))
-        prefToolbarSize?.entryValues = ActionButtonSize.values().map { it.id.toString() }.toTypedArray()
-        prefToolbarSize?.setDefaultValue(ActionButtonSize.MEDIUM.id.toString())
-        if (settingsManager.isHasEditorButtonsSizeValue()) {
-            prefToolbarSize?.summary = settingsManager.getEditorButtonsSize().getTitle(resourcesProvider)
+        findPreference<ListPreference>(getString(R.string.pref_key_editor_toolbar_buttons_size))?.also {
+            it.entryValues = ActionButtonSize.values().map { it.id.toString() }.toTypedArray()
+            it.setDefaultValue(ActionButtonSize.MEDIUM.id.toString())
+            if (settingsManager.isHasEditorButtonsSizeValue()) {
+                it.summary = settingsManager.getEditorButtonsSize().getTitle(resourcesProvider)
+            }
         }
 
         updateSummaryIfContains(R.string.pref_key_record_fields_in_list, getRecordFieldsValuesString())

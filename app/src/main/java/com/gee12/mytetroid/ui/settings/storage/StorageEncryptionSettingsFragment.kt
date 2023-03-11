@@ -13,6 +13,7 @@ import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.ui.storage.StorageEvent
 import com.gee12.mytetroid.ui.dialogs.pass.PassChangeDialog
 import com.gee12.mytetroid.ui.base.TetroidStorageSettingsFragment
+import com.gee12.mytetroid.ui.base.views.prefs.DisabledPreference
 
 class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
 
@@ -38,12 +39,15 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
         setPreferencesFromResource(R.xml.storage_prefs_encryption, null)
 
         // отключаем опцию пока еще не проинициализировано хранилище
-        findPreference<Preference>(getString(R.string.pref_key_change_pass))?.isEnabled = false
+        findPreference<DisabledPreference>(getString(R.string.pref_key_change_pass))?.also {
+            it.isEnabled = false
+        }
 
         // сохранение пароля локально
-        findPreference<CheckBoxPreference>(getString(R.string.pref_key_is_save_pass_hash_local))
-            ?.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
-            viewModel.onPassLocalHashLocalParamChanged(isSaveLocal = newValue as Boolean)
+        findPreference<CheckBoxPreference>(getString(R.string.pref_key_is_save_pass_hash_local))?.also {
+            it.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
+                viewModel.onPassLocalHashLocalParamChanged(isSaveLocal = newValue as Boolean)
+            }
         }
 
         updateChangeSetupPasswordPref()
@@ -65,21 +69,21 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
 
     private fun updateChangeSetupPasswordPref() {
         // установка или смена пароля хранилища
-        findPreference<Preference>(getString(R.string.pref_key_change_pass))?.apply {
-            val isCrypted = if (viewModel.isStorageInited()) viewModel.isStorageCrypted() else false
-            setTitle(if (isCrypted) R.string.pref_change_pass else R.string.pref_setup_pass)
-            setSummary(if (isCrypted) R.string.pref_change_pass_summ else R.string.pref_setup_pass_summ)
-            isEnabled = viewModel.checkStorageIsReady(
+        findPreference<DisabledPreference>(getString(R.string.pref_key_change_pass))?.also {
+            val isEncrypted = if (viewModel.isStorageInited()) viewModel.isStorageEncrypted() else false
+            setTitle(if (isEncrypted) R.string.pref_change_pass else R.string.pref_setup_pass)
+            it.setSummary(if (isEncrypted) R.string.pref_change_pass_summ else R.string.pref_setup_pass_summ)
+            it.isEnabled = viewModel.checkStorageIsReady(
                 checkIsFavorMode = true,
                 showMessage = false
             )
-            onPreferenceClickListener = Preference.OnPreferenceClickListener {
+            it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
                 if (viewModel.checkStorageIsReady(
                         checkIsFavorMode = true,
                         showMessage = true
                     )
                 ) {
-                    if (isCrypted) {
+                    if (isEncrypted) {
                         changePass()
                     } else {
                         setupPass()

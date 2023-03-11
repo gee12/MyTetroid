@@ -20,8 +20,8 @@ class SettingsEncryptionFragment : TetroidSettingsFragment() {
         requireActivity().setTitle(R.string.pref_category_crypt)
 
         // установка ПИН-кода
-        findPreference<CheckBoxPreference>(getString(R.string.pref_key_request_pin_code))?.let {
-            disableIfFree(it)
+        findPreference<CheckBoxPreference>(getString(R.string.pref_key_request_pin_code))?.also {
+            it.disableIfFree()
             it.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _: Preference?, _: Any? ->
                     if (baseViewModel.isRequestPINCode()) {
                         showDropPinCodeDialog()

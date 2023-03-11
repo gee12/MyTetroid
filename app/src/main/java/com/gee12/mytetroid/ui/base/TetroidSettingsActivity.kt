@@ -3,79 +3,55 @@ package com.gee12.mytetroid.ui.base
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.ActionBar
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.Toolbar
-import androidx.core.view.isVisible
+import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.logs.ITetroidLogger
-import com.gee12.mytetroid.logs.Message
-import com.gee12.mytetroid.ui.TetroidMessage
-import org.koin.android.ext.android.inject
 
 /**
  * Активность для управления настройками.
  */
-// TODO: наследовать от TetroidStorageActivity (?)
-abstract class TetroidSettingsActivity : AppCompatActivity(), IViewEventListener {
+abstract class TetroidSettingsActivity<VM : BaseViewModel> : TetroidActivity<VM>() {
 
     private var newDelegate: AppCompatDelegate? = null
-    lateinit var optionsMenu: Menu
-    private lateinit var lProgress: LinearLayout
-    private lateinit var tvProgress: TextView
 
-    private val logger: ITetroidLogger by inject()
+    protected val currentFragment: Fragment?
+        get() = supportFragmentManager.findFragmentById(R.id.container)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         delegate.installViewFactory()
         delegate.onCreate(savedInstanceState)
         super.onCreate(savedInstanceState)
-        setContentView(getLayoutResourceId())
-        setSupportActionBar(findViewById(R.id.toolbar))
-        setVisibilityActionHome(true)
-
-        lProgress = findViewById(R.id.layout_progress_bar)
-        tvProgress = findViewById(R.id.progress_text)
 
         startDefaultFragment()
-
-        logger.logDebug(getString(R.string.log_activity_opened_mask, javaClass.simpleName))
     }
-
-    protected abstract fun getLayoutResourceId(): Int
 
     protected abstract fun startDefaultFragment()
 
-    protected fun getCurrentFragment(): Fragment? {
-        return supportFragmentManager.findFragmentById(R.id.container)
+    // region File
+
+    override fun isUseFileStorage() = true
+
+    override fun onStorageAccessGranted(requestCode: Int, root: DocumentFile) {
+        (currentFragment as? ITetroidFileStorage)?.onStorageAccessGranted(requestCode, root)
     }
 
-    //region IViewEventListener
-
-    override fun setProgressVisibility(isVisible: Boolean, text: String?) {
-        lProgress.isVisible = isVisible
-        tvProgress.text = text
+    override fun onFolderSelected(requestCode: Int, folder: DocumentFile) {
+        (currentFragment as? ITetroidFileStorage)?.onFolderSelected(requestCode, folder)
     }
 
-    override fun showProgress(textResId: Int?) {
-        setProgressVisibility(isVisible = true, text = textResId?.let { getString(it) })
+    override fun onFileSelected(requestCode: Int, files: List<DocumentFile>) {
+        (currentFragment as? ITetroidFileStorage)?.onFileSelected(requestCode, files)
     }
 
-    override fun showProgress(text: String?) {
-        setProgressVisibility(isVisible = true, text)
-    }
+    // endregion File
 
-    override fun hideProgress() {
-        setProgressVisibility(isVisible = false)
-    }
+    //region IAndroidComponent
 
-    //endregion IViewEventListener
+    //endregion IAndroidComponent
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         this.optionsMenu = menu
@@ -90,30 +66,6 @@ abstract class TetroidSettingsActivity : AppCompatActivity(), IViewEventListener
             return true
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    fun updateOptionsMenu() {
-        if (::optionsMenu.isInitialized) {
-            onPrepareOptionsMenu(optionsMenu)
-        } else {
-            TetroidMessage.show(this, "TetroidActivity.updateOptionsMenu(): optionsMenu is null")
-        }
-    }
-
-    protected fun setVisibilityActionHome(isVisible: Boolean) {
-        val actionBar = supportActionBar
-        actionBar?.setDisplayHomeAsUpEnabled(isVisible)
-    }
-
-    /**
-     * Вывод интерактивного уведомления SnackBar "Подробнее в логах".
-     */
-    override fun showSnackMoreInLogs() {
-        TetroidMessage.showSnackMoreInLogs(this, R.id.layout_coordinator)
-    }
-
-    protected fun showMessage(message: Message) {
-        TetroidMessage.show(this, message)
     }
 
     //region ToolBar in PreferenceActivity
@@ -148,10 +100,6 @@ abstract class TetroidSettingsActivity : AppCompatActivity(), IViewEventListener
 
     override fun setSupportActionBar(toolbar: Toolbar?) {
         delegate.setSupportActionBar(toolbar)
-    }
-
-    fun setSubTitle(subTitle: String?) {
-        supportActionBar!!.subtitle = subTitle
     }
 
     override fun getSupportActionBar(): ActionBar? {
