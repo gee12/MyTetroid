@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.data.ini
 
 import com.gee12.mytetroid.logs.ITetroidLogger
+import java.io.OutputStream
 import kotlin.Throws
 import java.lang.Exception
 
@@ -55,25 +56,25 @@ class DatabaseConfig(
      * @param salt
      * @return
      */
-    fun savePass(passHash: String?, salt: String?, cryptMode: Boolean): Boolean {
+    fun savePass(outputStream: OutputStream, passHash: String?, salt: String?, cryptMode: Boolean): Boolean {
         setValueToGeneralWithQuotes(INI_CRYPT_CHECK_HASH, passHash)
         setValueToGeneralWithQuotes(INI_CRYPT_CHECK_SALT, salt)
         setValueToGeneral(INI_CRYPT_MODE, if (cryptMode) "1" else "0")
-        return save()
+        return save(outputStream)
     }
 
-    fun saveCheckData(checkData: String?): Boolean {
+    fun saveCheckData(outputStream: OutputStream, checkData: String?): Boolean {
         setValueToGeneralWithQuotes(INI_MIDDLE_HASH_CHECK_DATA, checkData)
-        return save()
+        return save(outputStream)
     }
 
-    fun saveDefault(): Boolean {
+    fun saveDefault(outputStream: OutputStream): Boolean {
         setValueToGeneral(INI_CRYPT_CHECK_HASH, null)
         setValueToGeneral(INI_CRYPT_CHECK_SALT, null)
         setValueToGeneral(INI_CRYPT_MODE, "0")
         setValueToGeneral(INI_MIDDLE_HASH_CHECK_DATA, null)
         setValueToGeneral(INI_VERSION, DEF_VERSION)
-        return save()
+        return save(outputStream)
     }
 
     /**

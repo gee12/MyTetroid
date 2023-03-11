@@ -1,16 +1,13 @@
 package com.gee12.mytetroid.domain.usecase
 
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
 import java.util.*
 
 /**
  * Замена местами 2 элемента в списке.
  * @return true - успешно, false - перемещение невозможно (крайний элемент и through=false)
  */
-class SwapTetroidObjectsUseCase(
-    private val saveStorageUseCase: SaveStorageUseCase,
-) : UseCase<Boolean, SwapTetroidObjectsUseCase.Params>() {
+class SwapObjectsInListUseCase : UseCase<Boolean, SwapObjectsInListUseCase.Params>() {
 
     data class Params(
         val list: List<*>,
@@ -41,9 +38,7 @@ class SwapTetroidObjectsUseCase(
 
             return if (newPos != null) {
                 Collections.swap(list, pos, newPos)
-
-                saveStorageUseCase.run()
-                    .map { true }
+                true.toRight()
             } else {
                 false.toRight()
             }

@@ -8,7 +8,7 @@ import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.TetroidLogger
-import org.koin.android.ext.koin.androidApplication
+import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 object ManagersModule {
@@ -16,19 +16,19 @@ object ManagersModule {
 
         single {
             BuildInfoProvider(
-                context = androidApplication()
+                context = androidContext()
             )
         }
 
         single<IResourcesProvider> {
             ResourcesProvider(
-                context = androidApplication()
+                context = androidContext()
             )
         }
 
         single<ILocaleProvider> {
             LocaleProvider(
-                context = androidApplication()
+                context = androidContext()
             )
         }
 
@@ -53,7 +53,7 @@ object ManagersModule {
 
         single {
             CommonSettingsManager(
-                context = androidApplication(),
+                context = androidContext(),
                 resourcesProvider = get(),
                 logger = get(),
                 buildInfoProvider = get()
@@ -62,6 +62,12 @@ object ManagersModule {
 
         single<IDataNameProvider> {
             DataNameProvider()
+        }
+
+        single<IAppPathProvider> {
+            AppPathProvider(
+                context = androidContext(),
+            )
         }
 
     }

@@ -282,7 +282,9 @@ class GlobalSearchUseCase(
     private suspend fun searchInNodesNamesRecursively(nodes: List<TetroidNode>, regex: Regex): List<TetroidNode> {
         val res: MutableList<TetroidNode> = ArrayList()
         for (node in nodes) {
-            if (!node.isNonCryptedOrDecrypted) continue
+            if (!node.isNonCryptedOrDecrypted) {
+                continue
+            }
             if (node.name.matches(regex)) {
                 res.add(node)
                 continue

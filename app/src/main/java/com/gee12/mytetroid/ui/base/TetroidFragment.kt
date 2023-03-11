@@ -9,7 +9,9 @@ import android.view.ViewGroup
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.core.view.GestureDetectorCompat
+import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
+import com.anggrayudi.storage.SimpleStorageHelper
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
@@ -19,18 +21,18 @@ import org.koin.android.ext.android.inject
 import org.koin.core.scope.Scope
 import org.koin.core.scope.get
 
-abstract class TetroidFragment<VM : BaseStorageViewModel> : Fragment, View.OnTouchListener {
+abstract class TetroidFragment<VM : BaseStorageViewModel> : Fragment/*, ITetroidComponent*/, View.OnTouchListener {
 
     protected lateinit var scopeSource: ScopeSource
     protected val koinScope: Scope
         get() = scopeSource.scope
 
+    protected open lateinit var viewModel: VM
+
     val resourcesProvider: IResourcesProvider by inject()
     val settingsManager: CommonSettingsManager by inject()
 
     protected var gestureDetector: GestureDetectorCompat? = null
-
-    protected open lateinit var viewModel: VM
 
 
     protected abstract fun getLayoutResourceId(): Int
@@ -43,11 +45,8 @@ abstract class TetroidFragment<VM : BaseStorageViewModel> : Fragment, View.OnTou
         gestureDetector = detector
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return onCreateView(inflater, container)
-    }
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
 
-    fun onCreateView(inflater: LayoutInflater, container: ViewGroup?): View {
         createAndInitViewModel()
         return inflater.inflate(getLayoutResourceId(), container, false)
     }
@@ -95,13 +94,6 @@ abstract class TetroidFragment<VM : BaseStorageViewModel> : Fragment, View.OnTou
     override fun onTouch(v: View, event: MotionEvent): Boolean {
         if (gestureDetector != null) gestureDetector!!.onTouchEvent(event)
         return false
-    }
-
-    /**
-     * Вывод интерактивного уведомления SnackBar "Подробнее в логах".
-     */
-    protected fun showSnackMoreInLogs() {
-        TetroidMessage.showSnackMoreInLogs(this, R.id.layout_coordinator)
     }
 
     /**

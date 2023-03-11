@@ -1,6 +1,8 @@
 package com.gee12.mytetroid.ui.base
 
 import android.app.Application
+import androidx.documentfile.provider.DocumentFile
+import com.gee12.mytetroid.common.extensions.orFalse
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -8,8 +10,13 @@ import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.model.TetroidTag
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
+import com.gee12.mytetroid.domain.provider.IAppPathProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
+import com.gee12.mytetroid.domain.provider.IStoragePathProvider
 import com.gee12.mytetroid.domain.provider.IStorageProvider
+import com.gee12.mytetroid.model.FilePath
+import com.gee12.mytetroid.model.permission.PermissionRequestCode
+import com.gee12.mytetroid.model.permission.TetroidPermission
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -22,7 +29,9 @@ abstract class BaseStorageViewModel(
     notificator: INotificator,
     failureHandler: IFailureHandler,
     settingsManager: CommonSettingsManager,
+    appPathProvider: IAppPathProvider,
     val storageProvider: IStorageProvider,
+    val storagePathProvider: IStoragePathProvider,
 ) : BaseViewModel(
     application = app,
     resourcesProvider = resourcesProvider,
@@ -30,6 +39,7 @@ abstract class BaseStorageViewModel(
     notificator = notificator,
     failureHandler = failureHandler,
     settingsManager = settingsManager,
+    appPathProvider = appPathProvider,
 ), CoroutineScope {
 
     override val coroutineContext: CoroutineContext = Dispatchers.Main + SupervisorJob()
@@ -37,9 +47,27 @@ abstract class BaseStorageViewModel(
     open val storage: TetroidStorage?
         get() = storageProvider.storage
 
+    open val storageFolder: DocumentFile?
+        get() = storageProvider.rootFolder
+
+    val storageFolderPath: String
+        get() = storageFolder?.uri?.path.orEmpty()
 
     abstract fun startInitStorageFromBase(storageId: Int)
 
+
+    // region Permissions
+
+    fun onStorageAccessGranted(requestCode: Int, root: DocumentFile) {
+        PermissionRequestCode.fromCode(requestCode)?.also {
+            onPermissionGranted(
+                permission = TetroidPermission.FileStorage.Write(root),
+                requestCode = it
+            )
+        }
+    }
+
+    // endregion Permissions
 
     //region Event
 
@@ -58,49 +86,55 @@ abstract class BaseStorageViewModel(
 
     fun getRootNode() = storageProvider.getRootNode()
 
-    fun isStorageInited() = storage?.isInited ?: false
+    fun isStorageInited() = storage?.isInited.orFalse()
 
-    fun isStorageLoaded() = (storage?.isLoaded ?: false) && storageProvider.isLoaded()
+    fun isStorageLoaded() = storage?.isLoaded.orFalse() && storageProvider.isLoaded()
 
-    abstract fun isStorageCrypted(): Boolean
+    abstract fun isStorageEncrypted(): Boolean
 
-    fun isStorageDecrypted() = storage?.isDecrypted ?: false
+    fun isStorageDecrypted() = storage?.isDecrypted.orFalse()
 
-    fun isStorageNonEncryptedOrDecrypted() = !isStorageCrypted() || isStorageDecrypted()
+    fun isStorageNonEncryptedOrDecrypted() = !isStorageEncrypted() || isStorageDecrypted()
 
     fun getStorageId() = storage?.id ?: 0
 
-    fun getStoragePath() = storage?.path.orEmpty()
+    fun getStorageUri() = storage?.uri
+
+    fun getStorageFolderPath(): FilePath {
+        return storagePathProvider.getPathToRootFolder()
+    }
 
     fun getStorageName() = storage?.name.orEmpty()
 
-    fun isStorageDefault() = storage?.isDefault ?: false
+    fun isStorageDefault() = storage?.isDefault.orFalse()
 
-    fun isStorageReadOnly() = storage?.isReadOnly ?: false
+    fun isStorageReadOnly() = storage?.isReadOnly.orFalse()
 
-    fun getTrashPath() = storage?.trashPath.orEmpty()
+    fun getStorageTrashFolderPath(): FilePath {
+        return storagePathProvider.getPathToStorageTrashFolder()
+    }
 
     fun getStorageSyncProfile() = storage?.syncProfile
 
-    fun isStorageSyncEnabled() = storage?.syncProfile?.isEnabled ?: false
+    fun isStorageSyncEnabled() = storage?.syncProfile?.isEnabled.orFalse()
 
     fun getStorageSyncAppName() = storage?.syncProfile?.appName.orEmpty()
 
     fun getStorageSyncCommand() = storage?.syncProfile?.command.orEmpty()
 
-    fun isLoadFavoritesOnly() = /*storageProvider.isLoadedFavoritesOnly()*/ storage?.isLoadFavoritesOnly ?: false
+    fun isLoadFavoritesOnly() = /*storageProvider.isLoadedFavoritesOnly()*/ storage?.isLoadFavoritesOnly.orFalse()
 
-    fun isKeepLastNode() = storage?.isKeepLastNode ?: false
+    fun isKeepLastNode() = storage?.isKeepLastNode.orFalse()
 
     fun getLastNodeId() = storage?.lastNodeId
 
-    fun isSaveMiddlePassLocal() = storage?.isSavePassLocal ?: false
+    fun isSaveMiddlePassLocal() = storage?.isSavePassLocal.orFalse()
 
-    fun isDecryptAttachesToTemp() = storage?.isDecyptToTemp ?: false
+    fun isDecryptAttachesToTemp() = storage?.isDecyptToTemp.orFalse()
 
     fun getMiddlePassHash() = storage?.middlePassHash
 
-    fun isCheckOutsideChanging() = storage?.syncProfile?.isCheckOutsideChanging ?: false
+    fun isCheckOutsideChanging() = storage?.syncProfile?.isCheckOutsideChanging.orFalse()
 
     fun isNodesExist() = storageProvider.getRootNodes().isNotEmpty()
 

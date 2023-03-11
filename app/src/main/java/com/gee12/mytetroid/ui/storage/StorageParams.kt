@@ -1,10 +1,8 @@
 package com.gee12.mytetroid.ui.storage
 
 import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.model.TetroidStorage
 
 data class StorageParams(
-    val storage: TetroidStorage,
     var result: Boolean = false, // результат открытия/расшифровки
     var isDecrypt: Boolean? = null, // расшифровка хранилища, а не просто открытие
     val node: TetroidNode? = null, // ветка, которую нужно открыть после расшифровки хранилища

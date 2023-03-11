@@ -52,7 +52,7 @@ class FoundPageFragment : TetroidFragment<MainViewModel> {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val view = super.onCreateView(inflater, container)
+        val view = super.onCreateView(inflater, container, savedInstanceState)
 
         // ?
 //        view.setOnTouchListener(this);

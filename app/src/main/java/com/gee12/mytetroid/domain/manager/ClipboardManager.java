@@ -15,7 +15,7 @@ public class ClipboardManager {
 
     private TetroidObject mObj;
     private TetroidObject mObjForInsert;
-    private boolean mIsCutted;
+    private boolean mIsCutting;
 
     public ClipboardManager() {
         this.mObj = null;
@@ -35,9 +35,9 @@ public class ClipboardManager {
         mInstance.push(null, false);
     }
 
-    private void push(TetroidObject obj, boolean isCut) {
+    private void push(TetroidObject obj, boolean isCutting) {
         this.mObj = obj;
-        this.mIsCutted = isCut;
+        this.mIsCutting = isCutting;
         this.mObjForInsert = null;
     }
 
@@ -55,8 +55,8 @@ public class ClipboardManager {
         return mInstance.mObjForInsert;
     }
 
-    public boolean isCutted() {
-        return mIsCutted;
+    public boolean isCutting() {
+        return mIsCutting;
     }
 
     /**

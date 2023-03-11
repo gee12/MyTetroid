@@ -1,10 +1,9 @@
 package com.gee12.mytetroid.domain.usecase.record
 
-import android.net.Uri
+import android.content.Context
+import com.anggrayudi.storage.file.*
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.domain.manager.IStorageCryptManager
-import com.gee12.mytetroid.domain.provider.IRecordPathProvider
 import com.gee12.mytetroid.domain.manager.FavoritesManager
 import com.gee12.mytetroid.domain.provider.IDataNameProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -14,7 +13,7 @@ import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
 import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
-import java.io.File
+import com.gee12.mytetroid.model.FilePath
 import java.io.IOException
 import java.util.*
 
@@ -25,12 +24,12 @@ import java.util.*
  * 3) добавление в структуру mytetra.xml
  */
 class CreateRecordUseCase(
+    private val context: Context,
     private val logger: ITetroidLogger,
     private val dataNameProvider: IDataNameProvider,
-    private val recordPathProvider: IRecordPathProvider,
     private val cryptManager: IStorageCryptManager,
     private val favoritesManager: FavoritesManager,
-    private val checkRecordFolderUseCase: CheckRecordFolderUseCase,
+    private val getRecordFolderUseCase: GetRecordFolderUseCase,
     private val parseRecordTagsUseCase: ParseRecordTagsUseCase,
     private val saveStorageUseCase: SaveStorageUseCase,
 ) : UseCase<TetroidRecord, CreateRecordUseCase.Params>() {
@@ -60,49 +59,52 @@ class CreateRecordUseCase(
         // генерируем уникальные идентификаторы
         val id = dataNameProvider.createUniqueId()
         val folderName = dataNameProvider.createUniqueId()
-        val isCrypted = node.isCrypted
+        val isEncrypted = node.isCrypted
         val record = TetroidRecord(
-            isCrypted,
+            isEncrypted,
             id,
-            encryptFieldIfNeed(name, isCrypted),
-            encryptFieldIfNeed(tagsString, isCrypted),
-            encryptFieldIfNeed(author, isCrypted),
-            encryptFieldIfNeed(url, isCrypted),
+            encryptFieldIfNeed(name, isEncrypted),
+            encryptFieldIfNeed(tagsString, isEncrypted),
+            encryptFieldIfNeed(author, isEncrypted),
+            encryptFieldIfNeed(url, isEncrypted),
             Date(),
             folderName,
             TetroidRecord.DEF_FILE_NAME,
             node,
         )
-        if (isCrypted) {
+        if (isEncrypted) {
             record.setDecryptedValues(name, tagsString, author, url)
             record.setIsDecrypted(true)
         }
         record.setIsFavorite(isFavor)
         record.setIsNew(true)
+
         // создаем каталог записи
-        val folderPath = recordPathProvider.getPathToRecordFolder(record)
-        checkRecordFolderUseCase.run(
-            CheckRecordFolderUseCase.Params(
-                folderPath = folderPath,
-                isCreate = true
+        val recordFolder = getRecordFolderUseCase.run(
+            GetRecordFolderUseCase.Params(
+                record = record,
+                createIfNeed = true,
+                inTrash = false,
             )
-        ).onFailure {
-            return it.toLeft()
-        }
-        val folder = File(folderPath)
+        ).foldResult(
+            onLeft = {
+                return it.toLeft()
+            },
+            onRight = { it }
+        )
+        val recordFolderPath = recordFolder.getAbsolutePath(context)
+        val filePath = FilePath.File(recordFolderPath, record.fileName)
+
         // создаем файл записи (пустой)
-        val filePath = makePath(folderPath, record.fileName)
-        val fileUri = try {
-            Uri.parse(filePath)
-        } catch (ex: Exception) {
-            return Failure.File.CreateUriPath(path = filePath).toLeft()
-        }
-        val file = File(fileUri.path!!)
-        try {
-            @Suppress("BlockingMethodInNonBlockingContext")
-            file.createNewFile()
+        val file = try {
+            recordFolder.makeFile(
+                context = context,
+                name = record.fileName,
+                mimeType = MimeType.TEXT,
+                mode = CreateMode.REPLACE,
+            ) ?: return Failure.File.Create(filePath).toLeft()
         } catch (ex: IOException) {
-            return Failure.File.Create(filePath = file.path, ex).toLeft()
+            return Failure.File.Create(filePath, ex).toLeft()
         }
 
         // добавляем запись в ветку (и соответственно, в дерево)
@@ -130,7 +132,7 @@ class CreateRecordUseCase(
                 // удаляем файл записи
                 file.delete()
                 // удаляем каталог записи (пустой)
-                folder.delete()
+                recordFolder.delete()
             }
     }
 

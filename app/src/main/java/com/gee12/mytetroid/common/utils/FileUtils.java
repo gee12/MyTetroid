@@ -444,7 +444,7 @@ public class FileUtils {
         try {
             File file = new File(fullFileName);
             if (!file.exists()) {
-                throw new Exception(context.getString(R.string.error_file_is_missing_mask) + fullFileName);
+                throw new Exception(context.getString(R.string.error_file_is_missing_mask, fullFileName));
             }
             date = getFileLastModifiedDate(file);
         } catch (SecurityException ex) {

@@ -19,13 +19,13 @@ import com.gee12.mytetroid.common.extensions.hideKeyboard
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.logs.Message
 import com.gee12.mytetroid.ui.base.BaseViewModel
-import com.gee12.mytetroid.ui.base.IViewEventListener
+import com.gee12.mytetroid.ui.base.ITetroidComponent
 import com.gee12.mytetroid.ui.TetroidMessage
 import kotlinx.coroutines.launch
 import org.koin.core.scope.Scope
 import org.koin.core.scope.get
 
-abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
+abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment()/*, IAndroidComponent*/ {
 
     protected lateinit var scopeSource: ScopeSource
 
@@ -34,8 +34,8 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
 
     protected lateinit var viewModel: VM
 
-    private val viewEventListener: IViewEventListener?
-        get() = requireActivity() as? IViewEventListener
+    private val componentListener: ITetroidComponent?
+        get() = requireActivity() as? ITetroidComponent
 
     lateinit var dialog: AlertDialog
 
@@ -112,13 +112,13 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment() {
 
     protected open fun onBaseEvent(event: BaseEvent) {
         when (event) {
-            is BaseEvent.ShowProgress -> viewEventListener?.setProgressVisibility(event.isVisible)
-            is BaseEvent.ShowProgressText -> viewEventListener?.showProgress(event.message)
+            is BaseEvent.ShowProgress -> componentListener?.setProgressVisibility(event.isVisible)
+            is BaseEvent.ShowProgressText -> componentListener?.showProgress(event.message)
             is BaseEvent.TaskStarted -> {
-                viewEventListener?.setProgressVisibility(true, event.titleResId?.let { getString(it) })
+                componentListener?.setProgressVisibility(true, event.titleResId?.let { getString(it) })
             }
-            BaseEvent.TaskFinished -> viewEventListener?.setProgressVisibility(false)
-            BaseEvent.ShowMoreInLogs -> viewEventListener?.showSnackMoreInLogs()
+            BaseEvent.TaskFinished -> componentListener?.setProgressVisibility(false)
+            BaseEvent.ShowMoreInLogs -> componentListener?.showSnackMoreInLogs()
             else -> {}
         }
     }

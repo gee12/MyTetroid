@@ -131,7 +131,7 @@
         <activity
             android:name=".ui.settings.SettingsActivity"
             android:configChanges="orientation|screenSize"
-            android:label="@string/title_settings"
+            android:label="@string/action_common_settings"
             android:parentActivityName=".ui.main.MainActivity"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme.NoActionBar">

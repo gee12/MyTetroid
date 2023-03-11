@@ -13,8 +13,10 @@ object BaseAskDialog {
         message: CharSequence,
         isCancelable: Boolean,
         @StringRes applyResId: Int,
+        @StringRes neutralResId: Int? = null,
         @StringRes cancelResId: Int,
         onApply: () -> Unit,
+        onNeutral: (() -> Unit)? = null,
         onCancel: (() -> Unit)? = null,
         onDismiss: (() -> Unit)? = null,
     ) {
@@ -23,6 +25,11 @@ object BaseAskDialog {
             setCancelable(isCancelable)
             setPositiveButton(applyResId) { _: DialogInterface?, _: Int ->
                 onApply()
+            }
+            if (onNeutral != null && neutralResId != null) {
+                setNeutralButton(neutralResId) { _: DialogInterface?, _: Int ->
+                    onNeutral()
+                }
             }
             if (onCancel != null) {
                 setNegativeButton(cancelResId) { _: DialogInterface?, _: Int ->

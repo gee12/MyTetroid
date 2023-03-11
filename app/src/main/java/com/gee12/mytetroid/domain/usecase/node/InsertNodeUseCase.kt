@@ -15,7 +15,7 @@ import java.util.ArrayList
 
 /**
  * Вставка ветки в указанную родительскую ветку.
- * @param isCut Если true, то запись была вырезана. Иначе - скопирована
+ * @param isCutting Если true, то запись была вырезана. Иначе - скопирована
  */
 class InsertNodeUseCase(
     private val logger: ITetroidLogger,
@@ -29,7 +29,7 @@ class InsertNodeUseCase(
     data class Params(
         val srcNode: TetroidNode,
         val parentNode: TetroidNode,
-        val isCut: Boolean,
+        val isCutting: Boolean,
     )
 
     override suspend fun run(params: Params): Either<Failure, TetroidNode> {
@@ -40,7 +40,7 @@ class InsertNodeUseCase(
 
         return insertNodeRecursively(
             params = params,
-            breakOnFSErrors = false
+            breakOnFSErrors = false,
         ).flatMap { newNode ->
             // перезаписываем структуру хранилища в файл
             saveStorageUseCase.run().foldResult(
@@ -53,7 +53,6 @@ class InsertNodeUseCase(
                 onRight = { newNode.toRight() }
             )
         }
-
     }
 
     private suspend fun insertNodeRecursively(
@@ -62,26 +61,26 @@ class InsertNodeUseCase(
     ): Either<Failure, TetroidNode> {
         val srcNode = params.srcNode
         val parentNode = params.parentNode
-        val isCut = params.isCut
+        val isCutting = params.isCutting
 
         // генерируем уникальный идентификатор, если ветка копируется
-        val id = if (isCut) srcNode.id else dataNameProvider.createUniqueId()
+        val id = if (isCutting) srcNode.id else dataNameProvider.createUniqueId()
         val name = srcNode.name
         val iconName = srcNode.iconName
 
         // создаем копию ветки
-        val isCrypted = parentNode.isCrypted
+        val isEncrypted = parentNode.isCrypted
         val node = TetroidNode(
-            isCrypted,
+            isEncrypted,
             id,
-            encryptFieldIfNeed(name, isCrypted),
-            encryptFieldIfNeed(iconName, isCrypted),
+            encryptFieldIfNeed(name, isEncrypted),
+            encryptFieldIfNeed(iconName, isEncrypted),
             parentNode.level + 1
         )
         node.parentNode = parentNode
         node.records = ArrayList()
         node.subNodes = ArrayList()
-        if (isCrypted) {
+        if (isEncrypted) {
             node.setDecryptedName(name)
             node.setDecryptedIconName(iconName)
             node.setIsDecrypted(true)
@@ -99,7 +98,7 @@ class InsertNodeUseCase(
                 cloneRecordToNode(
                     srcRecord = srcRecord,
                     node = node,
-                    isCut = isCut,
+                    isCutting = isCutting,
                     breakOnFSErrors = breakOnFSErrors,
                 )
                     .onFailure {
@@ -131,14 +130,14 @@ class InsertNodeUseCase(
     private suspend fun cloneRecordToNode(
         srcRecord: TetroidRecord,
         node : TetroidNode,
-        isCut : Boolean,
+        isCutting : Boolean,
         breakOnFSErrors: Boolean,
     ) : Either<Failure, None> {
         return cloneRecordToNodeUseCase.run(
             CloneRecordToNodeUseCase.Params(
                 srcRecord = srcRecord,
                 node = node,
-                isCutted = isCut,
+                isCutting = isCutting,
                 breakOnFSErrors = breakOnFSErrors,
             )
         )

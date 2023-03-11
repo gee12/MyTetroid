@@ -1,15 +1,21 @@
 package com.gee12.mytetroid.domain.usecase.storage
 
+import android.content.Context
+import android.net.Uri
+import com.anggrayudi.storage.file.DocumentFileCompat
+import com.anggrayudi.storage.file.child
+import com.anggrayudi.storage.file.openInputStream
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.domain.manager.FavoritesManager
+import com.gee12.mytetroid.model.FilePath
 import com.gee12.mytetroid.model.TetroidStorage
 
 /**
  * Создание файлов хранилища, если оно новое.
  */
 class InitStorageUseCase(
+    private val context: Context,
     private val favoritesManager: FavoritesManager,
 ) : UseCase<UseCase.None, InitStorageUseCase.Params>() {
 
@@ -21,10 +27,8 @@ class InitStorageUseCase(
     override suspend fun run(params: Params): Either<Failure, None> {
         val storage = params.storage
 
-        return setPathToDatabaseIniConfig(params)
-            .flatMap {
-                loadConfig(params)
-            }.onFailure {
+        return loadIniConfig(params)
+            .onFailure {
                 storage.isInited = false
             }.flatMap {
                 storage.isInited = true
@@ -35,29 +39,35 @@ class InitStorageUseCase(
             }
     }
 
-    private fun loadConfig(params: Params): Either<Failure.Storage, None> {
+    private fun loadIniConfig(params: Params): Either<Failure, None> {
         val storage = params.storage
         val databaseConfig = params.databaseConfig
+        val storageFolderUri = Uri.parse(storage.uri)
+        val storageFolderPath = FilePath.FolderFull(storageFolderUri.path.orEmpty())
+        val iniFilePath = FilePath.File(storageFolderPath.fullPath, Constants.DATABASE_INI_FILE_NAME)
 
         return try {
+            val storageFolder = DocumentFileCompat.fromUri(context, storageFolderUri)
+                ?: return Failure.Folder.Get(storageFolderPath).toLeft()
+
+            val iniDocumentFile = storageFolder.child(
+                context = context,
+                path = iniFilePath.fileName,
+                requiresWriteAccess = false,
+            ) ?: return Failure.File.Get(iniFilePath).toLeft()
+
             // загружаем database.ini
-            if (params.databaseConfig.load()) {
-                None.toRight()
-            } else {
-                Failure.Storage.DatabaseConfig.Load(
-                    pathToFile = databaseConfig.getFileName().orEmpty()
-                ).toLeft()
-            }
+            iniDocumentFile.openInputStream(context)?.use { stream ->
+                if (databaseConfig.load(stream)) {
+                    None.toRight()
+                } else {
+                    Failure.Storage.DatabaseConfig.Load(iniFilePath).toLeft()
+                }
+            } ?: Failure.File.Read(iniFilePath).toLeft()
+
         } catch (ex: Exception) {
-            Failure.Storage.Init(storagePath = storage.path, ex).toLeft()
+            Failure.Storage.Init(storageFolderPath, ex).toLeft()
         }
     }
-
-    private fun setPathToDatabaseIniConfig(params: Params): Either<Failure, None> {
-        val databaseIniFileName = makePath(params.storage.path, Constants.DATABASE_INI_FILE_NAME)
-        params.databaseConfig.setFileName(databaseIniFileName)
-        return None.toRight()
-    }
-
 
 }

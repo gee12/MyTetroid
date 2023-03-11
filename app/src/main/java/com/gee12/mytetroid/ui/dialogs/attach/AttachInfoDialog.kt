@@ -54,12 +54,12 @@ class AttachInfoDialog(
             (dialogView.findViewById<View>(R.id.text_view_edited) as TextView).text =
                 if (edited != null) Utils.dateToString(edited, dateFormat) else "-"
         }
-        val path: String = viewModel.getPathToRecordFolder(record!!)
-        (dialogView.findViewById<View>(R.id.text_view_path) as TextView).text = path
+        val path = viewModel.getPathToRecordFolder(record!!)
+        (dialogView.findViewById<View>(R.id.text_view_path) as TextView).text = path.fullPath
         var sizeString = viewModel.getAttachFileSize(requireContext(), attach)
         val tvSize = dialogView.findViewById<TextView>(R.id.text_view_size)
         if (sizeString == null) {
-            sizeString = getString(R.string.title_folder_is_missing)
+            sizeString = getString(R.string.title_file_is_missing)
             tvSize?.setTextColor(ContextCompat.getColor(requireActivity().applicationContext, R.color.colorDarkRed))
         }
         tvSize?.text = sizeString

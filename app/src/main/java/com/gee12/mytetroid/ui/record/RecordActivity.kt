@@ -3,7 +3,6 @@ package com.gee12.mytetroid.ui.record
 import android.app.Activity
 import android.app.SearchManager
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
@@ -49,7 +48,8 @@ import com.gee12.mytetroid.domain.provider.TetroidSuggestionProvider
 import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
-import com.gee12.mytetroid.model.enums.TetroidPermission
+import com.gee12.mytetroid.model.permission.PermissionRequestCode
+import com.gee12.mytetroid.model.permission.TetroidPermission
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.TetroidStorageActivity
 import com.gee12.mytetroid.ui.base.views.SearchViewXListener
@@ -118,6 +118,9 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
     private var speechRecognizer: SpeechRecognizer? = null
 
+
+    // region Create
+
     override fun getLayoutResourceId() = R.layout.activity_record
 
     override fun getViewModelClazz() = RecordViewModel::class.java
@@ -131,7 +134,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             finish()
             return
         }
-        startInitStorage()
+        initStorage(receivedIntent!!)
         viewModel.onCreate(receivedIntent!!)
         editor = findViewById(R.id.html_editor)
         editor.init(settingsManager)
@@ -206,8 +209,32 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         super.initViewModel()
 
         viewModel.curRecord.observe(this) { record ->
-            viewModel.openRecord(record)
+            viewModel.checkPermissionsAndLoadRecord(record)
         }
+    }
+
+    override fun onUICreated(uiCreated: Boolean) {
+        viewModel.checkMigration()
+    }
+
+    // endregion Create
+
+    // region Lifecycle
+
+    override fun onStart() {
+        super.onStart()
+        viewModel.isFromAnotherActivity = isFromAnotherActivity()
+    }
+
+    public override fun onPause() {
+        viewModel.onPause()
+        super.onPause()
+    }
+
+    override fun onStop() {
+        // отключаем блокировку выключения экрана
+        ViewUtils.setKeepScreenOn(this, false)
+        super.onStop()
     }
 
     override fun onDestroy() {
@@ -218,6 +245,20 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         // TODO: если открывали активити из виджета, то закрываем главный scope
         //ScopeContainer.current.scope.close()
     }
+
+    override fun onBackPressed() {
+        if (!onBeforeBackPressed()) {
+            return
+        }
+        // выполняем родительский метод только если не был запущен асинхронный код
+        if (viewModel.isCanBack(isFromAnotherActivity())) {
+            super.onBackPressed()
+        }
+    }
+
+    // endregion Lifecycle
+
+    // region Events
 
     /**
      * Обработчик событий UI.
@@ -233,28 +274,35 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             is BaseEvent.FinishWithResult -> finishWithResult(event.code, event.bundle)
             is BaseEvent.Permission.Check -> {
                 when (event.permission) {
-                    TetroidPermission.WriteStorage -> {
-                        viewModel.checkWriteExtStoragePermission(
-                            activity = this,
-                            requestCode = event.requestCode ?: Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE,
+                    is TetroidPermission.FileStorage.Read -> {
+                        viewModel.checkAndRequestReadFileStoragePermission(
+                            file = event.permission.root,
+                            requestCode = event.requestCode,
+                        )
+                    }
+                    is TetroidPermission.FileStorage.Write -> {
+                        viewModel.checkAndRequestWriteFileStoragePermission(
+                            file = event.permission.root,
+                            requestCode = event.requestCode,
                         )
                     }
                     TetroidPermission.RecordAudio -> {
-                        viewModel.checkRecordAudioPermission(activity = this)
+                        viewModel.checkAndRequestRecordAudioPermission(activity = this)
                     }
                     else -> {}
                 }
             }
             is BaseEvent.Permission.Granted -> {
                 when (event.permission) {
-                    TetroidPermission.WriteStorage -> {
+                    is TetroidPermission.FileStorage.Write -> {
                         when (event.requestCode) {
-                            Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE -> {
-                                initStorage()
+                            PermissionRequestCode.OPEN_RECORD_FILE -> {
+                                viewModel.loadRecordAfterPermissionsGranted()
                             }
-                            Constants.REQUEST_CODE_PERMISSION_EXPORT_PDF -> {
+                            PermissionRequestCode.EXPORT_PDF -> {
                                 viewModel.startExportToPdf(isPermissionChecked = true)
                             }
+                            else -> Unit
                         }
                     }
                     TetroidPermission.RecordAudio -> {
@@ -265,13 +313,13 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             }
             is BaseEvent.Permission.Canceled -> {
                 when (event.permission) {
-                    TetroidPermission.WriteStorage -> {
+                    is TetroidPermission.FileStorage.Write -> {
                         when (event.requestCode) {
-                            Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE -> {
-                                // закрываем активити, если нет разрешения на запись во внешнюю память
-                                // TODO: поведение потребуется изменить, если хранилище загружается только на чтение
+                            PermissionRequestCode.OPEN_RECORD_FILE -> {
+                                // закрываем активити, если нет разрешения на чтение/запись в файловое хранилище
                                 finish()
                             }
+                            else -> Unit
                         }
                     }
                     else -> {}
@@ -359,21 +407,15 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         }
     }
 
+    // endregion Events
+
     // region Storage
 
-    private fun startInitStorage() {
-        // загружаем параметры хранилища только после проверки разрешения на запись во внешнюю память
-        viewModel.checkWriteExtStoragePermission(
-            activity = this,
-            requestCode = Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE,
-        )
-    }
-
-    private fun initStorage() {
-        when (receivedIntent?.action) {
+    private fun initStorage(intent: Intent) {
+        when (intent.action) {
             Intent.ACTION_MAIN,
             Constants.ACTION_ADD_RECORD -> {
-                if (!viewModel.initStorage(receivedIntent!!)) {
+                if (!viewModel.initStorage(intent)) {
                     finish()
                 }
             }
@@ -391,20 +433,19 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         viewModel.onStorageLoaded(res)
     }
 
-    // endregion Storage
-
     private fun showNeedMigrationDialog() {
-        AskDialogs.showOkDialog(this, R.string.mes_need_migration, R.string.answer_ok, false) { finish() }
+        AskDialogs.showOkDialog(
+            context = this,
+            messageRes = R.string.mes_need_migration,
+            applyResId = R.string.answer_ok,
+            isCancelable = false,
+            onApply = {
+                finish()
+            }
+        )
     }
 
-    override fun onUICreated(uiCreated: Boolean) {
-        viewModel.checkMigration()
-    }
-
-    override fun onStart() {
-        super.onStart()
-        viewModel.isFromAnotherActivity = isFromAnotherActivity()
-    }
+    // endregion Storage
 
     // region Open record
 
@@ -487,9 +528,9 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     private fun loadRecordText(textHtml: String) {
         mEditTextHtml.reset()
         //mEditor.getWebView().clearAndFocusEditor();
-        val baseUrl = viewModel.getUriToRecordFolder()
+        val baseUrl = viewModel.getUriToRecordFolder().toString()
         editor.webView.loadDataWithBaseURL(
-            baseUrl + "/",
+            "$baseUrl/",
             textHtml,
             "text/html",
             "UTF-8",
@@ -616,9 +657,10 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
     override fun startCamera() {
         // проверка разрешения на камеру
-        if (!viewModel.checkCameraPermission(this)) {
-            return
-        }
+        viewModel.checkCameraPermission(this)
+    }
+
+    fun startCameraAfterPermissionGranted() {
         imagePicker.startCamera()
     }
 
@@ -648,7 +690,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
     // region Attach
 
-    fun attachFile(uri: Uri?, deleteSrcFile: Boolean) {
+    fun attachFile(uri: Uri, deleteSrcFile: Boolean) {
         viewModel.attachFile(uri, deleteSrcFile)
     }
 
@@ -785,16 +827,18 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             printAttributes = attributes,
             onSuccess = {
                 hideProgress()
+
+                // TODO: file
                 val pdfFile = File(folder, fileName)
                 AskDialogs.showYesDialog(
                     context = this,
                     message = getString(R.string.ask_open_exported_pdf, pdfFile.absolutePath),
                     onApply = {
-                        viewModel.interactionInteractor.openFile(
+                        /*viewModel.interactionManager.openFile(
                             context = this,
                             file = pdfFile,
                             mimeType = "application/pdf"
-                        )
+                        )*/
                     },
                 )
             },
@@ -916,17 +960,11 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
     // endregion Search
 
+    // region OnActivityResult
+
     private fun isFromAnotherActivity(): Boolean {
 //        ActivityCompat.getReferrer()
         return callingActivity != null
-    }
-
-    /**
-     * Сохранение записи при любом скрытии активности.
-     */
-    public override fun onPause() {
-        viewModel.onPause()
-        super.onPause()
     }
 
     /**
@@ -978,7 +1016,9 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             mSearchView.setQuery(query, true)
         }
     }
-    
+
+    // endregion OnActivityResult
+
     // region Options menu
     
     /**
@@ -1093,7 +1133,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 return true
             }
             R.id.action_cur_record_folder -> {
-                viewModel.openRecordFolder()
+                viewModel.openRecordFolder(activity = this)
                 return true
             }
             R.id.action_share -> {
@@ -1322,6 +1362,8 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
     //endregion Voice input
 
+    // region UI
+
     override fun toggleFullscreen(fromDoubleTap: Boolean): Int {
         val res = super.toggleFullscreen(fromDoubleTap)
         if (res >= 0) {
@@ -1397,17 +1439,23 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        val permGranted = grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
+    fun setEditorProgressVisibility(isVisible: Boolean) {
+        mHtmlProgressBar.isVisible = isVisible
+    }
+
+    private fun checkKeepScreenOn(activity: Activity?) {
+        ViewUtils.setKeepScreenOn(activity, CommonSettings.isKeepScreenOn(activity))
+    }
+
+    // endregion UI
+
+    override fun onPermissionGranted(requestCode: PermissionRequestCode) {
         when (requestCode) {
-            Constants.REQUEST_CODE_PERMISSION_CAMERA -> {
-                if (permGranted) {
-                    viewModel.log(R.string.log_camera_perm_granted)
-                    startCamera()
-                } else {
-                    viewModel.logWarning(R.string.log_missing_camera_perm, true)
-                }
+            PermissionRequestCode.OPEN_CAMERA -> {
+                startCameraAfterPermissionGranted()
+            }
+            else -> {
+                super.onPermissionGranted(requestCode)
             }
         }
     }
@@ -1437,36 +1485,6 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             MainActivity.start(this, Constants.ACTION_RECORD, bundle)
         }
         finish()
-    }
-
-    /**
-     * Обработчик нажатия кнопки Назад.
-     */
-    override fun onBackPressed() {
-        if (!onBeforeBackPressed()) {
-            return
-        }
-        // выполняем родительский метод только если не был запущен асинхронный код
-        if (viewModel.isCanBack(isFromAnotherActivity())) {
-            super.onBackPressed()
-        }
-    }
-
-    /**
-     * Обработчик события закрытия активности.
-     */
-    override fun onStop() {
-        // отключаем блокировку выключения экрана
-        ViewUtils.setKeepScreenOn(this, false)
-        super.onStop()
-    }
-
-    fun setEditorProgressVisibility(isVisible: Boolean) {
-        mHtmlProgressBar.isVisible = isVisible
-    }
-
-    private fun checkKeepScreenOn(activity: Activity?) {
-        ViewUtils.setKeepScreenOn(activity, CommonSettings.isKeepScreenOn(activity))
     }
 
     /**

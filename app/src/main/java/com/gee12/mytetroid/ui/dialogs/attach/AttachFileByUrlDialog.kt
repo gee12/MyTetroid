@@ -7,7 +7,7 @@ import com.gee12.mytetroid.ui.storage.StorageViewModel
 import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import com.lumyjuwon.richwysiwygeditor.R
 
-class AttachFileByURLDialog(
+class AttachFileByUrlDialog(
     val onApply: (url: String) -> Unit,
 ) : TetroidStorageDialogFragment<StorageViewModel>() {
 

@@ -4,28 +4,22 @@ import android.app.Application
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.utils.Utils
-import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
-import com.gee12.mytetroid.domain.manager.FavoritesManager
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.domain.interactor.*
-import com.gee12.mytetroid.domain.manager.CommonSettingsManager
-import com.gee12.mytetroid.domain.manager.PasswordManager
+import com.gee12.mytetroid.domain.manager.*
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.domain.repo.StoragesRepo
 import com.gee12.mytetroid.ui.storage.StorageEvent
-import com.gee12.mytetroid.domain.usecase.file.GetFileModifiedDateUseCase
-import com.gee12.mytetroid.domain.usecase.file.GetFolderSizeUseCase
+import com.gee12.mytetroid.domain.usecase.file.GetFileModifiedDateInStorageUseCase
+import com.gee12.mytetroid.domain.usecase.file.GetFolderSizeInStorageUseCase
 import com.gee12.mytetroid.domain.usecase.InitAppUseCase
 import com.gee12.mytetroid.domain.usecase.crypt.*
 import com.gee12.mytetroid.domain.usecase.node.GetNodeByIdUseCase
 import com.gee12.mytetroid.domain.usecase.record.GetRecordByIdUseCase
-import com.gee12.mytetroid.domain.usecase.storage.CheckStorageFilesExistingUseCase
-import com.gee12.mytetroid.domain.usecase.storage.InitOrCreateStorageUseCase
-import com.gee12.mytetroid.domain.usecase.storage.ReadStorageUseCase
-import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
+import com.gee12.mytetroid.domain.usecase.storage.*
 import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
 import com.gee12.mytetroid.ui.storage.StorageParams
 import com.gee12.mytetroid.ui.storage.StorageViewModel
@@ -39,6 +33,7 @@ class StorageInfoViewModel(
     failureHandler: IFailureHandler,
 
     settingsManager: CommonSettingsManager,
+    appPathProvider: IAppPathProvider,
     buildInfoProvider: BuildInfoProvider,
     storageProvider: IStorageProvider,
     sensitiveDataProvider: ISensitiveDataProvider,
@@ -52,13 +47,12 @@ class StorageInfoViewModel(
 
     favoritesManager: FavoritesManager,
     passwordManager: PasswordManager,
-    interactionInteractor: InteractionInteractor,
+    interactionManager: InteractionManager,
     syncInteractor: SyncInteractor,
-    trashInteractor: TrashInteractor,
 
     initAppUseCase: InitAppUseCase,
-    getFolderSizeUseCase: GetFolderSizeUseCase,
-    getFileModifiedDateUseCase: GetFileModifiedDateUseCase,
+    getFolderSizeUseCase: GetFolderSizeInStorageUseCase,
+    getFileModifiedDateUseCase: GetFileModifiedDateInStorageUseCase,
 
     initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
     readStorageUseCase: ReadStorageUseCase,
@@ -70,11 +64,12 @@ class StorageInfoViewModel(
     checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
     setupPasswordUseCase : SetupPasswordUseCase,
     initPasswordUseCase : InitPasswordUseCase,
+    clearStorageTrashFolderUseCase : ClearStorageTrashFolderUseCase,
 
     getNodeByIdUseCase: GetNodeByIdUseCase,
     getRecordByIdUseCase: GetRecordByIdUseCase,
 
-    private val cryptRecordFilesUseCase: CryptRecordFilesUseCase,
+    private val cryptRecordFilesIfNeedUseCase: CryptRecordFilesIfNeedUseCase,
     private val parseRecordTagsUseCase: ParseRecordTagsUseCase,
 ) : StorageViewModel(
     app = app,
@@ -84,6 +79,7 @@ class StorageInfoViewModel(
     failureHandler = failureHandler,
 
     settingsManager = settingsManager,
+    appPathProvider = appPathProvider,
     buildInfoProvider = buildInfoProvider,
     storageProvider = storageProvider,
     sensitiveDataProvider = sensitiveDataProvider,
@@ -95,10 +91,9 @@ class StorageInfoViewModel(
     cryptManager = cryptManager,
 
     favoritesManager = favoritesManager,
-    interactionInteractor = interactionInteractor,
+    interactionManager = interactionManager,
     passwordManager = passwordManager,
     syncInteractor = syncInteractor,
-    trashInteractor = trashInteractor,
 
     initAppUseCase = initAppUseCase,
     getFileModifiedDateUseCase = getFileModifiedDateUseCase,
@@ -114,6 +109,7 @@ class StorageInfoViewModel(
     checkStorageFilesExistingUseCase = checkStorageFilesExistingUseCase,
     setupPasswordUseCase = setupPasswordUseCase,
     initPasswordUseCase = initPasswordUseCase,
+    clearStorageTrashFolderUseCase = clearStorageTrashFolderUseCase,
 
     getNodeByIdUseCase = getNodeByIdUseCase,
     getRecordByIdUseCase = getRecordByIdUseCase,
@@ -134,7 +130,7 @@ class StorageInfoViewModel(
 
     fun getStorageInfo(): IStorageInfoProvider = storageProvider.dataProcessor
 
-    override fun startInitStorage(storageId: Int) {
+    override fun checkPermissionsAndInitStorageById(storageId: Int) {
         if (storage?.id == storageId) {
             storage?.let {
                 launchOnMain {
@@ -160,7 +156,7 @@ class StorageInfoViewModel(
         storageProvider.init(storageDataProcessor)
         // TODO: нужно ли ?
         cryptManager.init(
-            cryptRecordFilesUseCase,
+            cryptRecordFilesIfNeedUseCase,
             parseRecordTagsUseCase,
         )
     }
@@ -178,8 +174,8 @@ class StorageInfoViewModel(
             sendEvent(StorageInfoEvent.GetStorageFolderSize.InProgress)
             withIo {
                 getFolderSizeUseCase.run(
-                    GetFolderSizeUseCase.Params(
-                        folderPath = storagePathProvider.getStoragePath(),
+                    GetFolderSizeInStorageUseCase.Params(
+                        folderRelativePath = "",
                     )
                 ).onFailure {
                     sendEvent(StorageInfoEvent.GetStorageFolderSize.Failed(it))
@@ -196,8 +192,8 @@ class StorageInfoViewModel(
         launchOnMain {
             sendEvent(StorageInfoEvent.GetMyTetraXmlLastModifiedDate.InProgress)
             getFileModifiedDateUseCase.run(
-                GetFileModifiedDateUseCase.Params(
-                    filePath = storagePathProvider.getPathToMyTetraXml(),
+                GetFileModifiedDateInStorageUseCase.Params(
+                    fileRelativePath = Constants.MYTETRA_XML_FILE_NAME,
                 )
             ).map { date ->
                 Utils.dateToString(date, getString(R.string.full_date_format_string))

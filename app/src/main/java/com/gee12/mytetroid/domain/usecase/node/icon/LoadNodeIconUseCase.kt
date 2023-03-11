@@ -4,15 +4,11 @@ import com.gee12.mytetroid.common.Either
 import com.gee12.mytetroid.common.Failure
 import com.gee12.mytetroid.common.UseCase
 import com.gee12.mytetroid.common.toRight
-import com.gee12.mytetroid.common.utils.FileUtils
-import com.gee12.mytetroid.domain.provider.IStoragePathProvider
-import com.gee12.mytetroid.logs.ITetroidLogger
+import com.gee12.mytetroid.domain.usecase.image.LoadDrawableFromFileUseCase
 import com.gee12.mytetroid.model.TetroidNode
-import java.lang.Exception
 
 class LoadNodeIconUseCase(
-    private val logger: ITetroidLogger,
-    private val storagePathProvider: IStoragePathProvider,
+    private val loadDrawableFromFileUseCase: LoadDrawableFromFileUseCase,
 ) : UseCase<UseCase.None, LoadNodeIconUseCase.Params>() {
 
     data class Params(
@@ -27,15 +23,17 @@ class LoadNodeIconUseCase(
         val node = params.node
 
         if (params.node.isNonCryptedOrDecrypted) {
-            node.icon = if (node.iconName.isNullOrEmpty()) {
-                null
+            node.icon = if (!node.iconName.isNullOrEmpty()) {
+                loadDrawableFromFileUseCase.run(
+                    LoadDrawableFromFileUseCase.Params(
+                        relativeIconPath = node.iconName
+                    )
+                ).foldResult(
+                    onLeft = { null },
+                    onRight = { it }
+                )
             } else {
-                try {
-                    FileUtils.loadSVGFromFile(storagePathProvider.getPathToFileInIconsFolder(node.iconName))
-                } catch (ex: Exception) {
-                    logger.logError(ex, show = false)
-                    null
-                }
+                null
             }
         }
         return None.toRight()

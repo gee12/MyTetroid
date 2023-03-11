@@ -12,7 +12,8 @@ import android.widget.TextView
 import androidx.core.view.isVisible
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.model.enums.TetroidPermission
+import com.gee12.mytetroid.model.permission.PermissionRequestCode
+import com.gee12.mytetroid.model.permission.TetroidPermission
 import com.gee12.mytetroid.ui.base.TetroidStorageActivity
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.storage.info.StorageInfoViewModel.StorageInfoEvent
@@ -46,7 +47,7 @@ class StorageInfoActivity : TetroidStorageActivity<StorageInfoViewModel>() {
         buttonLoadStorage = findViewById(R.id.button_load_storage)
 
         // загружаем параметры хранилища из бд
-        viewModel.startInitStorage(storageId = getStorageId())
+        viewModel.checkPermissionsAndInitStorageById(storageId = getStorageId())
     }
 
     override fun onBaseEvent(event: BaseEvent) {
@@ -55,12 +56,15 @@ class StorageInfoActivity : TetroidStorageActivity<StorageInfoViewModel>() {
                 onStorageInfoEvent(event)
             }
             is BaseEvent.Permission.Check -> {
-                if (event.permission == TetroidPermission.WriteStorage) {
-                    viewModel.checkWriteExtStoragePermission(activity = this)
+                if (event.permission is TetroidPermission.FileStorage.Write) {
+                    viewModel.checkAndRequestWriteFileStoragePermission(
+                        file = event.permission.root,
+                        requestCode = PermissionRequestCode.OPEN_STORAGE_FOLDER,
+                    )
                 }
             }
             is BaseEvent.Permission.Granted -> {
-                if (event.permission == TetroidPermission.WriteStorage) {
+                if (event.permission is TetroidPermission.FileStorage.Write) {
                     viewModel.initStorage()
                 }
             }
@@ -108,7 +112,7 @@ class StorageInfoActivity : TetroidStorageActivity<StorageInfoViewModel>() {
 
     private fun onStorageFoundInBase() {
         (findViewById<View>(R.id.text_view_name) as TextView).text = viewModel.getStorageName()
-        (findViewById<View>(R.id.text_view_path) as TextView).text = viewModel.getStoragePath()
+        (findViewById<View>(R.id.text_view_path) as TextView).text = viewModel.getStorageFolderPath().fullPath
         viewModel.computeStorageFolderSize()
         viewModel.computeMyTetraXmlLastModifiedDate()
     }

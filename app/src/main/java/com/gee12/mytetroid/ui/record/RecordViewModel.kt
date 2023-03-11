@@ -11,6 +11,7 @@ import android.speech.SpeechRecognizer
 import android.text.TextUtils
 import androidx.annotation.UiThread
 import androidx.lifecycle.MutableLiveData
+import com.anggrayudi.storage.file.child
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.buildIntent
@@ -25,10 +26,7 @@ import java.util.*
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.domain.*
 import com.gee12.mytetroid.domain.interactor.*
-import com.gee12.mytetroid.domain.manager.CommonSettingsManager
-import com.gee12.mytetroid.domain.manager.FavoritesManager
-import com.gee12.mytetroid.domain.manager.IStorageCryptManager
-import com.gee12.mytetroid.domain.manager.PasswordManager
+import com.gee12.mytetroid.domain.manager.*
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.domain.repo.StoragesRepo
 import com.gee12.mytetroid.logs.LogType
@@ -37,20 +35,17 @@ import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.TetroidActivity
 import com.gee12.mytetroid.ui.storage.StorageViewModel
 import com.gee12.mytetroid.domain.usecase.InitAppUseCase
-import com.gee12.mytetroid.domain.usecase.attach.CreateAttachToRecordUseCase
+import com.gee12.mytetroid.domain.usecase.attach.AttachFileToRecordUseCase
 import com.gee12.mytetroid.domain.usecase.crypt.*
-import com.gee12.mytetroid.domain.usecase.file.GetFileModifiedDateUseCase
-import com.gee12.mytetroid.domain.usecase.file.GetFolderSizeUseCase
+import com.gee12.mytetroid.domain.usecase.file.GetFileModifiedDateInStorageUseCase
+import com.gee12.mytetroid.domain.usecase.file.GetFolderSizeInStorageUseCase
 import com.gee12.mytetroid.domain.usecase.node.GetNodeByIdUseCase
 import com.gee12.mytetroid.domain.usecase.record.*
-import com.gee12.mytetroid.domain.usecase.record.image.SaveImageFromBitmapUseCase
-import com.gee12.mytetroid.domain.usecase.record.image.SaveImageFromUriUseCase
-import com.gee12.mytetroid.domain.usecase.record.image.SetImageDimensionsUseCase
-import com.gee12.mytetroid.domain.usecase.storage.CheckStorageFilesExistingUseCase
-import com.gee12.mytetroid.domain.usecase.storage.InitOrCreateStorageUseCase
-import com.gee12.mytetroid.domain.usecase.storage.ReadStorageUseCase
-import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
-import com.gee12.mytetroid.model.enums.TetroidPermission
+import com.gee12.mytetroid.domain.usecase.image.SaveImageFromBitmapUseCase
+import com.gee12.mytetroid.domain.usecase.image.SaveImageFromUriUseCase
+import com.gee12.mytetroid.domain.usecase.storage.*
+import com.gee12.mytetroid.model.permission.PermissionRequestCode
+import com.gee12.mytetroid.model.permission.TetroidPermission
 import java.io.File
 
 
@@ -62,6 +57,7 @@ class RecordViewModel(
     failureHandler: IFailureHandler,
 
     settingsManager: CommonSettingsManager,
+    appPathProvider: IAppPathProvider,
     buildInfoProvider: BuildInfoProvider,
     storageProvider: IStorageProvider,
     sensitiveDataProvider: ISensitiveDataProvider,
@@ -74,13 +70,12 @@ class RecordViewModel(
 
     passwordManager: PasswordManager,
     favoritesManager: FavoritesManager,
-    interactionInteractor: InteractionInteractor,
+    interactionManager: InteractionManager,
     syncInteractor: SyncInteractor,
-    trashInteractor: TrashInteractor,
 
     initAppUseCase: InitAppUseCase,
-    getFileModifiedDateUseCase : GetFileModifiedDateUseCase,
-    getFolderSizeUseCase: GetFolderSizeUseCase,
+    getFileModifiedDateUseCase : GetFileModifiedDateInStorageUseCase,
+    getFolderSizeUseCase: GetFolderSizeInStorageUseCase,
 
     initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
     readStorageUseCase: ReadStorageUseCase,
@@ -92,6 +87,7 @@ class RecordViewModel(
     checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
     setupPasswordUseCase : SetupPasswordUseCase,
     initPasswordUseCase : InitPasswordUseCase,
+    clearStorageTrashFolderUseCase: ClearStorageTrashFolderUseCase,
 
     getNodeByIdUseCase: GetNodeByIdUseCase,
     getRecordByIdUseCase: GetRecordByIdUseCase,
@@ -99,11 +95,11 @@ class RecordViewModel(
     private val createTempRecordUseCase: CreateTempRecordUseCase,
     private val getRecordHtmlTextDecryptedUseCase : GetRecordHtmlTextUseCase,
     private val saveRecordHtmlTextUseCase : SaveRecordHtmlTextUseCase,
-    private val createAttachToRecordUseCase : CreateAttachToRecordUseCase,
+    private val attachFileToRecordUseCase : AttachFileToRecordUseCase,
     private val saveImageFromUriUseCase : SaveImageFromUriUseCase,
     private val saveImageFromBitmapUseCase : SaveImageFromBitmapUseCase,
-    private val setImageDimensionsUseCase : SetImageDimensionsUseCase,
     private val editRecordFieldsUseCase : EditRecordFieldsUseCase,
+    private val getRecordFolderUseCase : GetRecordFolderUseCase,
 ): StorageViewModel(
     app = app,
     resourcesProvider = resourcesProvider,
@@ -112,6 +108,7 @@ class RecordViewModel(
     failureHandler = failureHandler,
 
     settingsManager = settingsManager,
+    appPathProvider = appPathProvider,
     buildInfoProvider = buildInfoProvider,
     storageProvider = storageProvider,
     sensitiveDataProvider = sensitiveDataProvider,
@@ -123,10 +120,9 @@ class RecordViewModel(
     cryptManager = cryptManager,
 
     favoritesManager = favoritesManager,
-    interactionInteractor = interactionInteractor,
+    interactionManager = interactionManager,
     passwordManager = passwordManager,
     syncInteractor = syncInteractor,
-    trashInteractor = trashInteractor,
 
     initAppUseCase = initAppUseCase,
     getFileModifiedDateUseCase = getFileModifiedDateUseCase,
@@ -142,6 +138,7 @@ class RecordViewModel(
     checkStorageFilesExistingUseCase = checkStorageFilesExistingUseCase,
     setupPasswordUseCase = setupPasswordUseCase,
     initPasswordUseCase = initPasswordUseCase,
+    clearStorageTrashFolderUseCase = clearStorageTrashFolderUseCase,
 
     getNodeByIdUseCase = getNodeByIdUseCase,
     getRecordByIdUseCase = getRecordByIdUseCase,
@@ -423,7 +420,6 @@ class RecordViewModel(
                 )
             }.onFailure {
                 logFailure(it)
-//                logOperError(LogObj.RECORD, LogOper.CREATE, true)
                 sendEvent(BaseEvent.FinishActivity)
             }.onSuccess { record ->
                 curRecord.postValue(record)
@@ -434,10 +430,25 @@ class RecordViewModel(
 
     /**
      * Отображение записи (свойств и текста).
-     * @param record
      */
-    fun openRecord(record: TetroidRecord) {
+    fun checkPermissionsAndLoadRecord(record: TetroidRecord) {
+        val htmlFilePath = recordPathProvider.getRelativePathToFileInRecordFolder(record, record.fileName)
+        storageFolder?.child(
+            context = getContext(),
+            path = htmlFilePath,
+            requiresWriteAccess = isStorageReadOnly()
+        )?.let { htmlFile ->
+            checkAndRequestFileStoragePermission(
+                storage = storage!!,
+                uri = htmlFile.uri,
+                requestCode = PermissionRequestCode.OPEN_RECORD_FILE,
+            )
+        } ?: logFailure(Failure.File.Get(FilePath.File(storageFolderPath, htmlFilePath)))
+    }
+
+    fun loadRecordAfterPermissionsGranted() {
         launchOnMain {
+            val record = curRecord.value!!
             log(getString(R.string.log_record_loading) + record.id)
             sendEvent(RecordEvent.LoadFields(record))
             // текст
@@ -613,12 +624,10 @@ class RecordViewModel(
                     saveImageFromUriUseCase.run(
                         SaveImageFromUriUseCase.Params(
                             record = curRecord.value!!,
-                            srcUri = uri,
-                            deleteSrcFile = isCamera,
+                            srcImageUri = uri,
+                            deleteSrcImageFile = isCamera,
                         )
                     )
-                }.flatMap { image ->
-                    setImageDimensions(image)
                 }.onFailure {
                     errorCount++
                 }.onSuccess { image ->
@@ -640,12 +649,10 @@ class RecordViewModel(
                 saveImageFromUriUseCase.run(
                     SaveImageFromUriUseCase.Params(
                         record = curRecord.value!!,
-                        srcUri = imageUri,
-                        deleteSrcFile = deleteSrcFile,
+                        srcImageUri = imageUri,
+                        deleteSrcImageFile = deleteSrcFile,
                     )
-                ).flatMap { image ->
-                    setImageDimensions(image)
-                }
+                )
             }.onFailure {
                 logFailure(it)
 //                logOperError(LogObj.IMAGE, LogOper.SAVE, show = true)
@@ -664,9 +671,7 @@ class RecordViewModel(
                         record = curRecord.value!!,
                         bitmap = bitmap,
                     )
-                ).flatMap { image ->
-                    setImageDimensions(image)
-                }
+                )
             }.onFailure {
                 logFailure(it)
 //                logOperError(LogObj.IMAGE, LogOper.SAVE, show = true)
@@ -731,51 +736,26 @@ class RecordViewModel(
         }
     }
 
-    private suspend fun setImageDimensions(image: TetroidImage): Either<Failure, TetroidImage> {
-        return setImageDimensionsUseCase.run(
-            SetImageDimensionsUseCase.Params(
-                image = image,
-                recordFolderPath = getPathToRecordFolder(curRecord.value!!),
-            )
-        ).map { image }
-    }
-
     //endregion Image
 
     //region Attach
 
     /**
-     * TODO: добавить удаление исходного файла
-     * @param uri
+     * Прикрепление нового файла к записи.
      */
-    fun attachFile(uri: Uri?, deleteSrcFile: Boolean) {
-        UriHelper(getContext()).getPath(uri)?.let {
-//        AttachFileFromRecordTask(mRecord, deleteSrcFile).run(uriHelper.getPath(uri))
-            attachFile(it, curRecord.value!!, deleteSrcFile)
+    fun attachFile(fileUri: Uri, deleteSrcFile: Boolean) {
+        curRecord.value?.let { record ->
+            attachFile(fileUri, record, deleteSrcFile)
         }
     }
 
-//    /**
-//     * Задание, в котором выполняется прикрепление нового файла в записи.
-//     */
-//    public class AttachFileFromRecordTask extends AttachFileTask {
-//        public AttachFileFromRecordTask(TetroidRecord record, boolean deleteSrcFile) {
-//            super(record, deleteSrcFile);
-//        }
-//        @Override
-//        protected void onPostExecute(TetroidFile res) {
-//            taskPostExecute(Gravity.NO_GRAVITY);
-//            onFileAttached(res);
-//        }
-//    }
-
-    private fun attachFile(fileFullName: String, record: TetroidRecord, deleteSrcFile: Boolean) {
+    private fun attachFile(uri: Uri, record: TetroidRecord, deleteSrcFile: Boolean) {
         launchOnMain {
             sendEvent(BaseEvent.TaskStarted(R.string.task_attach_file))
             withIo {
-                createAttachToRecordUseCase.run(
-                    CreateAttachToRecordUseCase.Params(
-                        fullName = fileFullName,
+                attachFileToRecordUseCase.run(
+                    AttachFileToRecordUseCase.Params(
+                        fileUri = uri,
                         record = record,
                         deleteSrcFile = deleteSrcFile,
                     )
@@ -784,7 +764,6 @@ class RecordViewModel(
                 sendEvent(BaseEvent.TaskFinished)
             }.onFailure {
                 logFailure(it)
-//                    logError(getString(R.string.log_files_attach_error), true)
                 sendEvent(BaseEvent.ShowMoreInLogs)
             }.onSuccess { attach ->
                 log(getString(R.string.log_file_was_attached), true)
@@ -795,12 +774,18 @@ class RecordViewModel(
 
     fun downloadAndAttachFile(uri: Uri) {
         launchOnMain {
-            super.downloadFileToCache(uri.toString(), object : TetroidActivity.IDownloadFileResult {
-                override fun onSuccess(uri: Uri) {
-                    attachFile(uri, true)
+            super.downloadFileToCache(
+                url = uri.toString(),
+                callback = object : TetroidActivity.IDownloadFileResult {
+                    override fun onSuccess(uri: Uri) {
+                        // прикрепляем и удаляем файл из кэша
+                        attachFile(uri, deleteSrcFile = true)
+                    }
+                    override fun onError(ex: Exception) {
+                        logError(ex, show = true)
+                    }
                 }
-                override fun onError(ex: java.lang.Exception) {}
-            })
+            )
         }
     }
 
@@ -987,8 +972,8 @@ class RecordViewModel(
             launchOnMain {
                 withIo {
                     getFileModifiedDateUseCase.run(
-                        GetFileModifiedDateUseCase.Params(
-                            filePath = recordPathProvider.getPathToFileInRecordFolder(record, record.fileName),
+                        GetFileModifiedDateInStorageUseCase.Params(
+                            fileRelativePath = recordPathProvider.getRelativePathToFileInRecordFolder(record, record.fileName),
                         )
                     )
                 }.onFailure {
@@ -1100,13 +1085,29 @@ class RecordViewModel(
     /**
      * Открытие каталога записи.
      */
-    fun openRecordFolder() {
+    fun openRecordFolder(activity: Activity) {
         val record = curRecord.value!!
         logger.logDebug(resourcesProvider.getString(R.string.log_start_record_folder_opening) + record.id)
-        val fileFullName = recordPathProvider.getPathToRecordFolder(record)
-        if (!interactionInteractor.openFolder(getContext(), File(fileFullName))) {
-            Utils.writeToClipboard(getContext(), resourcesProvider.getString(R.string.title_record_folder_path), fileFullName)
-            logWarning(R.string.log_missing_file_manager, true)
+
+        launchOnMain {
+            withIo {
+                getRecordFolderUseCase.run(
+                    GetRecordFolderUseCase.Params(
+                        record = record,
+                        createIfNeed = false,
+                        inTrash = record.isTemp,
+                        showMessage = true,
+                    )
+                )
+            }.onFailure {
+                logFailure(it)
+            }.onSuccess { recordFolder ->
+                val uri = recordFolder.uri
+                if (!interactionManager.openFolder(activity, uri)) {
+                    Utils.writeToClipboard(getContext(), resourcesProvider.getString(R.string.title_record_folder_path), uri.path)
+                    logWarning(R.string.log_missing_file_manager, show = true)
+                }
+            }
         }
     }
 
@@ -1123,21 +1124,26 @@ class RecordViewModel(
         if (text.startsWith(except)) {
             text = text.substring(except.length)
         }
-        interactionInteractor.shareText(getContext(), curRecord.value!!.name, text)
+        interactionManager.shareText(getContext(), curRecord.value!!.name, text)
     }
 
     fun startExportToPdf(isPermissionChecked: Boolean) {
+        val downloadsFolder = getContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
         if (!isPermissionChecked) {
             launchOnMain {
-                sendEvent(
-                    BaseEvent.Permission.Check(
-                        permission = TetroidPermission.WriteStorage,
-                        requestCode = Constants.REQUEST_CODE_PERMISSION_EXPORT_PDF,
-                    )
-                )
+
+                // TODO: отображать folder picker
+
+//                sendEvent(
+//                    BaseEvent.Permission.Check(
+//                        permission = TetroidPermission.FileStorage.Write(root = Uri.fromFile(downloadsFolder)),
+//                        requestCode = Constants.REQUEST_CODE_PERMISSION_EXPORT_PDF,
+//                    )
+//                )
             }
         } else {
-            val downloadsFolder = getContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+
+            // TODO: file
             val folder = File(downloadsFolder, "/MyTetroid/")
             val fileName = "${curRecord.value!!.name}.pdf"
             try {
@@ -1159,7 +1165,10 @@ class RecordViewModel(
 
     fun startVoiceInput() {
         launchOnMain {
-            sendEvent(BaseEvent.Permission.Check(permission = TetroidPermission.RecordAudio))
+            sendEvent(BaseEvent.Permission.Check(
+                permission = TetroidPermission.RecordAudio,
+                requestCode = PermissionRequestCode.RECORD_AUDIO,
+            ))
         }
     }
 
@@ -1296,7 +1305,7 @@ class RecordViewModel(
         }
     }
 
-    fun getUriToRecordFolder(): String {
+    fun getUriToRecordFolder(): Uri {
         return recordPathProvider.getUriToRecordFolder(curRecord.value!!)
     }
 

@@ -18,7 +18,7 @@ class TetroidFileObserver(
         Deleted(3)
     }
 
-    private lateinit var fileObserver: FileObserver
+    private var fileObserver: FileObserver? = null
 
 
     suspend fun create() {
@@ -50,7 +50,7 @@ class TetroidFileObserver(
      * Запуск отслеживания изменений файла.
      */
     fun start() {
-        fileObserver.startWatching()
+        fileObserver?.startWatching()
     }
 
     /**
@@ -61,15 +61,15 @@ class TetroidFileObserver(
         // при сохранении "исходный" файл mytetra.xml перемещается в корзину,
         // и нужно запустить отслеживание по указанному пути заново, чтобы привязаться
         // к только что созданному актуальному файлу mytetra.xml
-        fileObserver.stopWatching()
-        fileObserver.startWatching()
+        fileObserver?.stopWatching()
+        fileObserver?.startWatching()
     }
 
     /**
      * Остановка отслеживания изменений файла.
      */
     fun stop() {
-        fileObserver.stopWatching()
+        fileObserver?.stopWatching()
     }
 
 }

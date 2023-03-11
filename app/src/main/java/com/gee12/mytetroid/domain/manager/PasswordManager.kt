@@ -39,6 +39,7 @@ class PasswordManager(
     /**
      * Сброс сохраненного хэша пароля и его проверочных данных.
      */
+    // TODO: ClearSavedPassUseCase
     fun clearSavedPass(storage: TetroidStorage) {
         clearPassCheckData(storage)
         clearMiddlePassCheckData()
@@ -49,14 +50,22 @@ class PasswordManager(
      */
     fun clearPassCheckData(storage: TetroidStorage): Boolean {
         storage.middlePassHash = null
-        return databaseConfig.savePass(null, null, false)
+
+        // TODO
+
+        return databaseConfig.savePass(os, null, null, false)
+        return true
     }
 
     /**
      * Очистка сохраненной проверочной строки промежуточного хэша пароля.
      */
     fun clearMiddlePassCheckData(): Boolean {
-        return databaseConfig.saveCheckData(null)
+
+        // TODO
+
+        return databaseConfig.saveCheckData(so, null)
+        return true
     }
 
 }

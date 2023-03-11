@@ -20,20 +20,20 @@ class CloneAttachesToRecordUseCase(
     data class Params(
         val srcRecord: TetroidRecord,
         val destRecord: TetroidRecord,
-        val isCutted: Boolean,
+        val isCutting: Boolean,
     )
 
     override suspend fun run(params: Params): Either<Failure, None> {
         val srcRecord = params.srcRecord
         val destRecord = params.destRecord
-        val isCutted = params.isCutted
+        val isCutting = params.isCutting
 
         if (srcRecord.attachedFilesCount > 0) {
             val isCrypted = destRecord.isCrypted
             val attaches = mutableListOf<TetroidFile>()
             for (srcAttach in srcRecord.attachedFiles) {
                 // генерируем уникальные идентификаторы, если запись копируется
-                val id = if (isCutted) srcAttach.id else dataNameProvider.createUniqueId()
+                val id = if (isCutting) srcAttach.id else dataNameProvider.createUniqueId()
                 val name = srcAttach.name
                 val attach = TetroidFile(
                     isCrypted,

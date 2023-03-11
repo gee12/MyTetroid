@@ -16,6 +16,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
+import androidx.documentfile.provider.DocumentFile
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.commit
 import androidx.viewpager2.widget.ViewPager2
@@ -23,7 +24,6 @@ import com.gee12.mytetroid.BuildConfig
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.ICallback
-import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
@@ -35,7 +35,8 @@ import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.model.*
-import com.gee12.mytetroid.model.enums.TetroidPermission
+import com.gee12.mytetroid.model.permission.PermissionRequestCode
+import com.gee12.mytetroid.model.permission.TetroidPermission
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.TetroidStorageActivity
 import com.gee12.mytetroid.ui.base.VMEvent
@@ -64,7 +65,6 @@ import com.google.android.material.navigation.NavigationView
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.runBlocking
-import lib.folderpicker.FolderPicker
 import pl.openrnd.multilevellistview.*
 import java.util.*
 
@@ -98,12 +98,14 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     private val foundPage: FoundPageFragment
         get() = viewPagerAdapter.foundFragment
 
+
+    // region Create
+
     override fun getLayoutResourceId() = R.layout.activity_main
 
     override fun getViewModelClazz() = MainViewModel::class.java
 
     override fun isSingleTitle() = false
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -219,13 +221,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         super.initViewModel()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-
-        // TODO ?
-        //ScopeSource.main.scope.close()
-    }
-
     /**
      * Обработчик события, когда создался главный фрагмент активности.
      */
@@ -244,6 +239,27 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             viewModel.onUICreated()
         }
     }
+
+    // endregion Create
+
+    // region Lifecycle
+
+    override fun onPause() {
+        // устанавливаем признак необходимости запроса PIN-кода
+        viewModel.setIsPINNeedToEnter()
+        super.onPause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        // TODO ?
+        //ScopeSource.main.scope.close()
+    }
+
+    // endregion Lifecycle
+
+    // region Events
 
     /**
      * Обработчик событий UI.
@@ -268,13 +284,21 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 checkReceivedIntent(receivedIntent)
             }
             is BaseEvent.Permission.Check -> {
-                if (event.permission == TetroidPermission.WriteStorage) {
-                    viewModel.checkWriteExtStoragePermission(this)
+                if (event.permission is TetroidPermission.FileStorage) {
+                    requestFileStorageAccess(
+                        root = event.permission.root,
+                        requestCode = event.requestCode,
+                    )
                 }
             }
             is BaseEvent.Permission.Granted -> {
-                if (event.permission == TetroidPermission.WriteStorage) {
-                    viewModel.syncAndInitStorage(this)
+                if (event.permission is TetroidPermission.FileStorage
+                    && event.requestCode == PermissionRequestCode.OPEN_STORAGE_FOLDER
+                ) {
+                    viewModel.startInitStorageAfterPermissionsGranted(
+                        activity = this,
+                        permission = event.permission,
+                    )
                 }
             }
             is BaseEvent.Permission.Canceled -> {}
@@ -448,11 +472,19 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             is MainEvent.AskForOperationWithoutFile -> {
                 askForOperationWithoutFile(clipboardParams = event.clipboardParams)
             }
-            MainEvent.OpenFilePicker -> openFilePicker()
-            MainEvent.OpenFolderPicker -> openFolderPicker()
-            MainEvent.Exit -> finish()
+            MainEvent.PickAttach -> {
+                openFilePickerForAttach()
+            }
+            is MainEvent.PickFolderForAttach -> {
+                openFolderPickerForAttach()
+            }
+            MainEvent.Exit -> {
+                finish()
+            }
         }
     }
+
+    // endregion Events
 
     // region UI
 
@@ -611,7 +643,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 applyResId = R.string.answer_ok,
                 isCancelable = false,
                 onApply = {
-                    viewModel.startInitStorage()
+                    viewModel.checkPermissionsAndInitDefaultStorage()
                 }
             )
         }
@@ -854,7 +886,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     //region Encryption
 
     private fun showPasswordDialog(callbackEvent: VMEvent) {
-        val isSetup = !viewModel.isStorageCrypted()
+        val isSetup = !viewModel.isStorageEncrypted()
         showPasswordEnterDialog(
             isSetup = isSetup,
             fragmentManager = supportFragmentManager,
@@ -872,7 +904,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     private fun showPinCodeDialog(callbackEvent: VMEvent) {
         showDialog(
             length = CommonSettings.getPinCodeLength(this),
-            isSetup = !viewModel.isStorageCrypted(),
+            isSetup = !viewModel.isStorageEncrypted(),
             fragmentManager = supportFragmentManager,
             callback = object : IPinInputResult {
                 override fun onApply(pin: String): Boolean {
@@ -1066,10 +1098,10 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         )
     }
 
-    private fun onNodeDeleted(node: TetroidNode, isCutted: Boolean) {
+    private fun onNodeDeleted(node: TetroidNode, isCutting: Boolean) {
         // удаляем элемент внутри списка
         if (listAdapterNodes.deleteItem(node)) {
-            viewModel.logOperRes(LogObj.NODE, if (isCutted) LogOper.CUT else LogOper.DELETE)
+            viewModel.logOperRes(LogObj.NODE, if (isCutting) LogOper.CUT else LogOper.DELETE)
         } else {
             viewModel.logError(getString(R.string.log_node_delete_list_error), true)
         }
@@ -1274,6 +1306,45 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
     // endregion Record
 
+    // region File
+
+    private fun openFilePickerForAttach() {
+        openFilePicker(
+            requestCode = PermissionRequestCode.PICK_ATTACH_FILE,
+            //allowMultiple = true, // TODO: добавить множественный выбор
+        )
+    }
+
+    private fun openFolderPickerForAttach() {
+        openFolderPicker(
+            requestCode = PermissionRequestCode.PICK_FOLDER_FOR_ATTACH_FILE,
+        )
+    }
+
+    override fun onFileSelected(requestCode: Int, files: List<DocumentFile>) {
+        when (PermissionRequestCode.fromCode(requestCode)) {
+            PermissionRequestCode.PICK_ATTACH_FILE -> {
+                // TODO: добавить множественный выбор
+                viewModel.attachFileToCurrentRecord(
+                    fileUri = files.map { it.uri }.first(),
+                    deleteSrcFile = false,
+                )
+            }
+            else -> Unit
+        }
+    }
+
+    override fun onFolderSelected(requestCode: Int, folder: DocumentFile) {
+        when (PermissionRequestCode.fromCode(requestCode)) {
+            PermissionRequestCode.PICK_FOLDER_FOR_ATTACH_FILE -> {
+                viewModel.saveAttachToFolder(folder)
+            }
+            else -> Unit
+        }
+    }
+
+    // endregion File
+
     // region ContextMenus
     
     /**
@@ -1414,24 +1485,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             Constants.REQUEST_CODE_SYNC_STORAGE -> {
                 viewModel.onStorageSyncFinished(resultCode == RESULT_OK)
             }
-            Constants.REQUEST_CODE_FILE_PICKER -> {
-                if (resultCode == RESULT_OK) {
-                    data?.getStringExtra(FolderPicker.EXTRA_DATA)?.let { fileFullName ->
-                        // сохраняем путь
-                        CommonSettings.setLastChoosedFolder(this, FileUtils.getFileFolder(fileFullName))
-                        viewModel.attachFileToCurRecord(fileFullName, false)
-                    }
-                }
-            }
-            Constants.REQUEST_CODE_FOLDER_PICKER -> {
-                if (resultCode == RESULT_OK) {
-                    data?.getStringExtra(FolderPicker.EXTRA_DATA)?.let { folderPath ->
-                        // сохраняем путь
-                        CommonSettings.setLastChoosedFolder(this, folderPath)
-                        viewModel.saveCurAttachOnDevice(folderPath)
-                    }
-                }
-            }
             Constants.REQUEST_CODE_NODE_ICON -> {
                 if (resultCode == RESULT_OK) {
                     val nodeId = data?.getStringExtra(Constants.EXTRA_NODE_ID)
@@ -1501,7 +1554,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             if (data.getBooleanExtra(Constants.EXTRA_IS_LOAD_STORAGE, false)) {
                 val storageId = data.getIntExtra(Constants.EXTRA_STORAGE_ID, 0)
                 val isLoadAllNodes = data.getBooleanExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, false)
-                viewModel.startInitStorage(storageId, isLoadAllNodes)
+                viewModel.checkPermissionsAndInitStorage(storageId, isLoadAllNodes)
             } else {
                 if (data.getBooleanExtra(Constants.EXTRA_IS_RELOAD_STORAGE_ENTITY, false)) {
                     // перезагрузить свойства хранилища из базы
@@ -1588,11 +1641,17 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         }
     }
 
-    override fun onPermissionGranted(requestCode: Int) {
+    override fun onPermissionGranted(requestCode: PermissionRequestCode) {
         when (requestCode) {
-            Constants.REQUEST_CODE_PERMISSION_WRITE_TEMP -> viewModel.checkPermissionAndOpenTempAttach(this)
-            Constants.REQUEST_CODE_PERMISSION_TERMUX -> viewModel.syncAndInitStorage(this)
-            else -> super.onPermissionGranted(requestCode)
+            PermissionRequestCode.OPEN_ATTACH_FILE -> {
+                viewModel.checkPermissionAndOpenTempAttach(activity = this)
+            }
+            PermissionRequestCode.TERMUX -> {
+                viewModel.syncAndInitStorage(this)
+            }
+            else -> {
+                super.onPermissionGranted(requestCode)
+            }
         }
     }
 
@@ -1662,7 +1721,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                     val isLoadStorage = intent.getBooleanExtra(Constants.EXTRA_IS_LOAD_STORAGE, false)
                     val isLoadAllNodes = intent.getBooleanExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, false)
                     if (isLoadStorage) {
-                        viewModel.startInitStorage(storageId, isLoadAllNodes)
+                        viewModel.checkPermissionsAndInitStorage(storageId, isLoadAllNodes)
                     } else if (isLoadAllNodes) {
                         viewModel.loadAllNodes(true)
                     }
@@ -2003,9 +2062,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
     // region Exit
 
-    /**
-     * Обработчик нажатия кнопки Назад.
-     */
     override fun onBackPressed() {
         if (!onBeforeBackPressed()) {
             return
@@ -2062,12 +2118,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 }
             }
         }
-    }
-
-    override fun onPause() {
-        // устанавливаем признак необходимости запроса PIN-кода
-        viewModel.setIsPINNeedToEnter()
-        super.onPause()
     }
 
     private fun askForExit() {

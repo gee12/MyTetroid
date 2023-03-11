@@ -32,9 +32,9 @@ class EditNodeFieldsUseCase(
         logger.logOperStart(LogObj.NODE_FIELDS, LogOper.CHANGE, node)
         val oldName = node.getName(true)
         // обновляем поля
-        val isCrypted = node.isCrypted
-        node.name = encryptFieldIfNeed(name, isCrypted)
-        if (isCrypted) {
+        val isEncrypted = node.isCrypted
+        node.name = encryptFieldIfNeed(name, isEncrypted)
+        if (isEncrypted) {
             node.setDecryptedName(name)
         }
         // перезаписываем структуру хранилища в файл
@@ -43,7 +43,7 @@ class EditNodeFieldsUseCase(
                 logger.logOperCancel(LogObj.NODE_FIELDS, LogOper.CHANGE)
                 // возвращаем изменения
                 node.name = oldName
-                if (isCrypted) {
+                if (isEncrypted) {
                     node.setDecryptedName(cryptManager.decryptTextBase64(oldName))
                 }
             }

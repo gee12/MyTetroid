@@ -1,26 +1,34 @@
 package com.gee12.mytetroid.domain.usecase.record
 
-import android.net.Uri
+import android.content.Context
+import com.anggrayudi.storage.file.child
+import com.anggrayudi.storage.file.getAbsolutePath
+import com.anggrayudi.storage.file.openInputStream
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.common.extensions.makePath
-import com.gee12.mytetroid.common.utils.FileUtils
+import com.gee12.mytetroid.common.extensions.orFalse
+import com.gee12.mytetroid.common.extensions.readBytes
+import com.gee12.mytetroid.common.extensions.readText
 import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.domain.provider.IRecordPathProvider
-import java.io.File
+import com.gee12.mytetroid.domain.provider.IStorageProvider
+import com.gee12.mytetroid.model.FilePath
+import java.io.InputStream
 
 /**
  * Получение содержимого записи в виде "сырого" html.
  */
 class GetRecordHtmlTextUseCase(
+    private val context: Context,
     private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
+    private val storageProvider: IStorageProvider,
     private val recordPathProvider: IRecordPathProvider,
     private val cryptManager: IStorageCryptManager,
-    private val checkRecordFolderUseCase: CheckRecordFolderUseCase,
+    private val getRecordFolderUseCase: GetRecordFolderUseCase,
 ) : UseCase<String, GetRecordHtmlTextUseCase.Params>() {
 
     data class Params(
@@ -29,71 +37,81 @@ class GetRecordHtmlTextUseCase(
     )
 
     override suspend fun run(params: Params): Either<Failure, String> {
+        val storage = storageProvider.storage
         val record = params.record
-        val folderPath = recordPathProvider.getPathToRecordFolder(record)
         val showMessage = params.showMessage
 
         logger.logDebug(resourcesProvider.getString(R.string.start_record_file_reading_mask, record.id))
-        // проверка существования каталога записи
-        checkRecordFolderUseCase.run(
-            CheckRecordFolderUseCase.Params(
-                folderPath = folderPath,
-                isCreate = true,
+
+        val recordFolder = getRecordFolderUseCase.run(
+            GetRecordFolderUseCase.Params(
+                record = record,
+                createIfNeed = true,
+                inTrash = false,
                 showMessage = showMessage,
             )
-        ).onFailure {
-            return it.toLeft()
-        }
-        val filePath = makePath(folderPath, record.fileName)
-        val uri = try {
-            Uri.parse(filePath)
-        } catch (ex: Exception) {
-//            logger.logError(resourcesProvider.getString(R.string.error_generate_record_uri_path_mask) + filePath, ex)
-            return Failure.File.CreateUriPath(path = filePath).toLeft()
-        }
+        ).foldResult(
+            onLeft = {
+                return it.toLeft()
+            },
+            onRight = { it }
+        )
+        val recordFolderPath = recordFolder.getAbsolutePath(context)
+        val filePath = FilePath.File(recordFolderPath, record.fileName)
+
+        val file = recordFolder.child(
+            context = context,
+            path = record.fileName,
+            requiresWriteAccess = !storage?.isReadOnly.orFalse()
+        ) ?: return Failure.File.Get(filePath).toLeft()
+
         // проверка существования файла записи
-        val file = File(uri.path.orEmpty())
         if (!file.exists()) {
-//            logger.logWarning(resourcesProvider.getString(R.string.log_record_file_is_missing), showMessage)
             return Failure.File.NotExist(filePath).toLeft()
         }
-        return if (record.isCrypted) {
-            if (record.isDecrypted) {
-                readAndDecryptRecordFile(uri)
+
+        return file.openInputStream(context)?.use { inputStream ->
+            if (record.isCrypted) {
+                if (record.isDecrypted) {
+                    readAndDecryptRecordFile(inputStream, filePath)
+                } else {
+                    Failure.Record.Read.NotDecrypted().toLeft()
+                }
             } else {
-                Failure.Record.Read.NotDecrypted().toLeft()
+                readRecordFile(inputStream, filePath)
             }
-        } else {
-            try {
-                FileUtils.readTextFile(uri).toRight()
-            } catch (ex: Exception) {
-                Failure.File.Read(path = uri.toString(), ex).toLeft()
-            }
+        } ?: return Failure.File.Read(filePath).toLeft()
+    }
+
+    private fun readRecordFile(
+        inputStream: InputStream,
+        filePath: FilePath,
+    ): Either<Failure, String> {
+        return try {
+            inputStream.readText().toRight()
+        } catch (ex: Exception) {
+            Failure.File.Read(filePath, ex).toLeft()
         }
     }
 
-    private fun readAndDecryptRecordFile(uri: Uri): Either<Failure, String> {
-        val bytes: ByteArray? = try {
-            FileUtils.readFile(uri)
+    private fun readAndDecryptRecordFile(
+        inputStream: InputStream,
+        filePath: FilePath,
+    ): Either<Failure, String> {
+
+        val bytes = try {
+            inputStream.readBytes()
         } catch (ex: Exception) {
-            return Failure.File.Read(path = uri.toString(), ex).toLeft()
+            return Failure.File.Read(filePath, ex).toLeft()
         }
-        if (bytes == null) {
-//                    logger.logError(resourcesProvider.getString(R.string.log_error_decrypt_record_file) + filePath)
-            return Failure.Decrypt.File(fileName = uri.toString()).toLeft()
-        } else if (bytes.isEmpty()) {
+        if (bytes.isEmpty()) {
             // файл пуст
             return "".toRight()
         }
         // расшифровываем содержимое файла
         logger.logDebug(resourcesProvider.getString(R.string.log_start_record_text_decrypting))
-        val res = cryptManager.decryptText(bytes)
-        if (res == null) {
-//                    logger.logError(resourcesProvider.getString(R.string.log_error_decrypt_record_file) + filePath)
-            return Failure.Decrypt.File(fileName = uri.toString()).toLeft()
-        } else {
-            return res.toRight()
-        }
+        return cryptManager.decryptText(bytes)?.toRight()
+            ?: Failure.Decrypt.File(filePath).toLeft()
     }
 
 }

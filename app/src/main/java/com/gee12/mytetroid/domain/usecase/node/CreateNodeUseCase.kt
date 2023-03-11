@@ -37,19 +37,19 @@ class CreateNodeUseCase(
 
         // генерируем уникальные идентификаторы
         val id: String = dataNameProvider.createUniqueId()
-        val isCrypted = (parentNode != null && parentNode.isCrypted)
+        val isEncrypted = (parentNode != null && parentNode.isCrypted)
         val level = if (parentNode != null) parentNode.level + 1 else 0
         val node = TetroidNode(
-            isCrypted,
+            isEncrypted,
             id,
-            encryptFieldIfNeed(name, isCrypted),
+            encryptFieldIfNeed(name, isEncrypted),
             null,
             level,
         )
         node.parentNode = parentNode
         node.records = ArrayList()
         node.subNodes = ArrayList()
-        if (isCrypted) {
+        if (isEncrypted) {
             node.setDecryptedName(name)
             node.setIsDecrypted(true)
         }

@@ -18,7 +18,7 @@ import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.ui.attach.FilesListAdapter
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
 import com.gee12.mytetroid.ui.dialogs.attach.AttachFieldsDialog
-import com.gee12.mytetroid.ui.dialogs.attach.AttachFileByURLDialog
+import com.gee12.mytetroid.ui.dialogs.attach.AttachFileByUrlDialog
 import com.gee12.mytetroid.ui.dialogs.attach.AttachInfoDialog
 import com.gee12.mytetroid.ui.dialogs.record.RecordFieldsDialog
 import com.gee12.mytetroid.ui.dialogs.record.RecordInfoDialog
@@ -62,7 +62,7 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val view = super.onCreateView(inflater, container)
+        val view = super.onCreateView(inflater, container, savedInstanceState)
         
         viewFlipperMain = view.findViewById(R.id.view_flipper_main)
         // обработка нажатия на пустом месте экрана, когда записей в ветке нет
@@ -125,7 +125,7 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
         val fabAttachFileByLink = view.findViewById<com.github.clans.fab.FloatingActionButton>(R.id.fab_attach_file_by_link)
         fabAttachFileByLink.setOnClickListener {
             fabAddAttach.close(true)
-            AttachFileByURLDialog(
+            AttachFileByUrlDialog(
                 onApply = { url: String ->
                     viewModel.downloadAndAttachFile(url)
                 }
@@ -378,9 +378,8 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
      * @param position Индекс файла в списке прикрепленных файлов записи
      */
     private fun openAttach(position: Int) {
-        val attach = viewModel.curRecord?.attachedFiles?.getOrNull(position)
-        if (attach != null) {
-            viewModel.checkPermissionAndOpenAttach(requireActivity(), attach)
+        viewModel.curRecord?.attachedFiles?.getOrNull(position)?.also { attach ->
+            viewModel.checkPermissionAndOpenAttach(activity = requireActivity(), attach)
         }
     }
 
@@ -481,7 +480,10 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
                 return true
             }
             R.id.action_cur_record_folder -> {
-                viewModel.openRecordFolder(viewModel.curRecord!!)
+                viewModel.openRecordFolder(
+                    activity = requireActivity(),
+                    record = viewModel.curRecord!!
+                )
                 return true
             }
         }
@@ -626,7 +628,7 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
                 true
             }
             R.id.action_open_record_folder -> {
-                viewModel.openRecordFolder(record)
+                viewModel.openRecordFolder(activity = requireActivity(), record)
                 true
             }
             R.id.action_copy_link -> {
@@ -681,7 +683,7 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
 //                viewModel.copyAttachLink();
                 true
             R.id.action_save_as -> {
-                viewModel.saveAttachOnDevice(attach)
+                viewModel.pickFolderAndSaveAttachToFile(attach)
                 true
             }
             R.id.action_move_up -> {

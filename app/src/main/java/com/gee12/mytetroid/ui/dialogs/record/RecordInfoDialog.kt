@@ -71,7 +71,7 @@ class RecordInfoDialog(
             }
         }
         val path = viewModel.getPathToRecordFolder(record)
-        dialogView.findViewById<TextView>(R.id.text_view_path).text = path
+        dialogView.findViewById<TextView>(R.id.text_view_path).text = path.fullPath
 
         //TODO: использовать события вместо корутины
         lifecycleScope.launch {

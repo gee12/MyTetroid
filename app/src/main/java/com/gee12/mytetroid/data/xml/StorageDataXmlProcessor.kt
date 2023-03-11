@@ -20,9 +20,7 @@ import org.jdom2.output.Format
 import org.jdom2.output.LineSeparator
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.IOException
+import java.io.*
 import java.lang.Exception
 import java.util.*
 
@@ -32,12 +30,12 @@ interface IStorageDataProcessor : IStorageInfoProvider {
     fun init()
     @Throws(XmlPullParserException::class, IOException::class)
     suspend fun parse(
-        fis: FileInputStream,
+        fis: InputStream,
         isNeedDecrypt: Boolean,
         isLoadFavoritesOnly: Boolean
     ): Boolean
     @Throws(Exception::class)
-    suspend fun save(fos: FileOutputStream): Boolean
+    suspend fun save(fos: OutputStream): Boolean
     fun isLoaded(): Boolean
     fun isLoadFavoritesOnlyMode(): Boolean
     fun getRootNodes(): List<TetroidNode>
@@ -62,7 +60,6 @@ open class StorageDataXmlProcessor(
          */
         val DEF_VERSION = Version(1, 2)
 
-        private val ROOT_NODE = TetroidNode("", "<root>", -1)
     }
 
     private val ns: String? = null
@@ -82,6 +79,8 @@ open class StorageDataXmlProcessor(
     override var authorsCount: Int = 0
     override var maxSubnodesCount: Int = 0
     override var maxDepthLevel: Int = 0
+
+    private val rootNode = TetroidNode("", "<root>", -1)
 
     /**
      * Загружено ли хранилище.
@@ -105,7 +104,7 @@ open class StorageDataXmlProcessor(
      * Корневая ветка. Используется для добавления временных записей, которые
      * в mytetra.xml не записываются.
      */
-    override fun getRootNode() = ROOT_NODE
+    override fun getRootNode() = rootNode
 
     /**
      * Список меток.
@@ -132,7 +131,7 @@ open class StorageDataXmlProcessor(
         authorsCount = 0
         maxSubnodesCount = 0
         maxDepthLevel = 0
-        ROOT_NODE.subNodes = rootNodes
+        rootNode.subNodes = rootNodes
     }
 
     /**
@@ -143,7 +142,11 @@ open class StorageDataXmlProcessor(
      * @throws IOException
      */
     @Throws(XmlPullParserException::class, IOException::class)
-    override suspend fun parse(fis: FileInputStream, isNeedDecrypt: Boolean, isLoadFavoritesOnly: Boolean): Boolean {
+    override suspend fun parse(
+        fis: InputStream,
+        isNeedDecrypt: Boolean,
+        isLoadFavoritesOnly: Boolean
+    ): Boolean {
         this.isNeedDecrypt = isNeedDecrypt
         this.isLoadFavoritesOnly = isLoadFavoritesOnly
 
@@ -229,7 +232,7 @@ open class StorageDataXmlProcessor(
             }
             val tagName = parser.name
             if (tagName == "node") {
-                val node = readNode(parser, 0, ROOT_NODE)
+                val node = readNode(parser, 0, rootNode)
                 if (node != null && !isLoadFavoritesOnly) {
                     nodes?.add(node)
                 }
@@ -240,7 +243,7 @@ open class StorageDataXmlProcessor(
                 skip(parser)
             }
         }
-        ROOT_NODE.subNodes = nodes
+        rootNode.subNodes = nodes
         rootNodes = nodes ?: ArrayList()
         return true
     }
@@ -525,7 +528,7 @@ open class StorageDataXmlProcessor(
      * @return
      */
     @Throws(Exception::class)
-    override suspend fun save(fos: FileOutputStream): Boolean {
+    override suspend fun save(fos: OutputStream): Boolean {
         return fos.use {
             // параметры XML
             val format = Format.getPrettyFormat()

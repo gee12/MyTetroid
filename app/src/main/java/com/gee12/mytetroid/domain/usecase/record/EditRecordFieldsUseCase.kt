@@ -1,19 +1,18 @@
 package com.gee12.mytetroid.domain.usecase.record
 
+import android.content.Context
+import com.anggrayudi.storage.file.child
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.domain.manager.IStorageCryptManager
-import com.gee12.mytetroid.domain.provider.BuildInfoProvider
-import com.gee12.mytetroid.domain.provider.IRecordPathProvider
-import com.gee12.mytetroid.domain.provider.IStoragePathProvider
-import com.gee12.mytetroid.domain.provider.DataNameProvider
 import com.gee12.mytetroid.domain.manager.FavoritesManager
+import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
-import com.gee12.mytetroid.domain.usecase.crypt.CryptRecordFilesUseCase
-import com.gee12.mytetroid.domain.usecase.file.MoveFileUseCase
+import com.gee12.mytetroid.domain.usecase.crypt.CryptRecordFilesIfNeedUseCase
+import com.gee12.mytetroid.domain.usecase.file.MoveFileOrFolderUseCase
 import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
 import com.gee12.mytetroid.domain.usecase.tag.DeleteRecordTagsUseCase
 import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
@@ -22,16 +21,18 @@ import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
  * Изменение свойств записи или сохранение временной записи.
  */
 class EditRecordFieldsUseCase(
+    private val context: Context,
     private val logger: ITetroidLogger,
     private val buildInfoProvider: BuildInfoProvider,
+    private val storageProvider: IStorageProvider,
     private val storagePathProvider: IStoragePathProvider,
     private val recordPathProvider: IRecordPathProvider,
     private val favoritesManager: FavoritesManager,
     private val cryptManager: IStorageCryptManager,
-    private val moveFileUseCase: MoveFileUseCase,
+    private val moveFileUseCase: MoveFileOrFolderUseCase,
     private val deleteRecordTagsUseCase: DeleteRecordTagsUseCase,
     private val parseRecordTagsUseCase: ParseRecordTagsUseCase,
-    private val cryptRecordFilesUseCase: CryptRecordFilesUseCase,
+    private val cryptRecordFilesIfNeedUseCase: CryptRecordFilesIfNeedUseCase,
     private val saveStorageUseCase: SaveStorageUseCase,
 ) : UseCase<UseCase.None, EditRecordFieldsUseCase.Params>() {
 
@@ -57,28 +58,28 @@ class EditRecordFieldsUseCase(
         if (name.isEmpty()) {
             return Failure.Record.NameIsEmpty.toLeft()
         }
-        val isTemp = record.isTemp
-        if (isTemp) {
+        val isTemporary = record.isTemp
+        if (isTemporary) {
             logger.logOperStart(LogObj.TEMP_RECORD, LogOper.SAVE, record)
         } else {
             logger.logOperStart(LogObj.RECORD_FIELDS, LogOper.CHANGE, record)
         }
-        val oldIsCrypted = record.isCrypted
+        val oldIsEncrypted = record.isCrypted
         val oldName = record.getName(true)
         val oldAuthor = record.getAuthor(true)
         val oldTagsString = record.getTagsString(true)
         val oldUrl = record.getUrl(true)
         val oldNode = record.node
-        val oldDirName = record.dirName
+        val oldFolderName = record.dirName
         val oldIsFavor = record.isFavorite
         // обновляем поля
-        val isCrypted = node.isCrypted
-        record.name = encryptFieldIfNeed(name, isCrypted)
-        record.tagsString = encryptFieldIfNeed(tagsString, isCrypted)
-        record.author = encryptFieldIfNeed(author, isCrypted)
-        record.url = encryptFieldIfNeed(url, isCrypted)
-        record.setIsCrypted(isCrypted)
-        if (isCrypted) {
+        val isEncrypted = node.isCrypted
+        record.name = encryptFieldIfNeed(name, isEncrypted)
+        record.tagsString = encryptFieldIfNeed(tagsString, isEncrypted)
+        record.author = encryptFieldIfNeed(author, isEncrypted)
+        record.url = encryptFieldIfNeed(url, isEncrypted)
+        record.setIsCrypted(isEncrypted)
+        if (isEncrypted) {
             record.setDecryptedValues(name, tagsString, author, url)
             record.setIsDecrypted(true)
         }
@@ -89,19 +90,32 @@ class EditRecordFieldsUseCase(
             node.addRecord(record)
         }
         // удаляем пометку временной записи
-        if (isTemp) {
+        if (isTemporary) {
+
+            // TODO: проверить
+
+            val trashFolderPath = storagePathProvider.getPathToStorageTrashFolder()
+            val baseFolderPath = storagePathProvider.getPathToBaseFolder()
+
             // вырезаем уникальную приставку в имени каталога
-            val dirNameInBase = oldDirName.substring(DataNameProvider.PREFIX_DATE_TIME_FORMAT.length + 1)
+            val folderNameWithoutPrefix = oldFolderName.substring(DataNameProvider.PREFIX_DATE_TIME_FORMAT.length + 1)
+
+            val trashFolder = storageProvider.trashFolder
+                ?: return Failure.Folder.Get(trashFolderPath).toLeft()
+
+            val baseFolder = storageProvider.baseFolder
+                ?: return Failure.Folder.Get(baseFolderPath).toLeft()
+
             // перемещаем каталог записи из корзины
             moveFileUseCase.run(
-                MoveFileUseCase.Params(
-                    srcFullFileName = recordPathProvider.getPathToRecordFolderInTrash(record),
-                    destPath = storagePathProvider.getPathToStorageBaseFolder(),
-                    newFileName = dirNameInBase,
+                MoveFileOrFolderUseCase.Params(
+                    srcFileOrFolder = trashFolder,
+                    destFolder = baseFolder,
+                    newName = folderNameWithoutPrefix,
                 )
             ).map {
                 // обновляем имя каталога для дальнейшей вставки
-                record.dirName = dirNameInBase
+                record.dirName = folderNameWithoutPrefix
             }.onFailure {
                 return it.toLeft()
             }
@@ -135,17 +149,17 @@ class EditRecordFieldsUseCase(
                     }
                 }.flatMap {
                     // зашифровываем или расшифровываем файл записи и прикрепленные файлы
-                    cryptRecordFilesUseCase.run(
-                        CryptRecordFilesUseCase.Params(
+                    cryptRecordFilesIfNeedUseCase.run(
+                        CryptRecordFilesIfNeedUseCase.Params(
                             record = record,
-                            isCrypted = oldIsCrypted,
-                            isEncrypt = isCrypted,
+                            isEncrypted = oldIsEncrypted,
+                            isEncrypt = isEncrypted,
                         )
                     ).flatMap {
                         None.toRight()
                     }
                 }.onFailure {
-                    if (isTemp) {
+                    if (isTemporary) {
                         logger.logOperCancel(LogObj.TEMP_RECORD, LogOper.SAVE)
                     } else {
                         logger.logOperCancel(LogObj.RECORD_FIELDS, LogOper.CHANGE)
@@ -155,7 +169,7 @@ class EditRecordFieldsUseCase(
                     record.tagsString = oldTagsString
                     record.author = oldAuthor
                     record.url = oldUrl
-                    if (isCrypted) {
+                    if (isEncrypted) {
                         record.setDecryptedValues(
                             cryptManager.decryptTextBase64(oldName),
                             cryptManager.decryptTextBase64(oldTagsString),
@@ -168,18 +182,14 @@ class EditRecordFieldsUseCase(
                     if (buildInfoProvider.isFullVersion()) {
                         favoritesManager.addOrRemoveIfNeed(record, oldIsFavor)
                     }
-                    if (isTemp) {
+                    if (isTemporary) {
                         record.setIsTemp(true)
-                        moveFileUseCase.run(
-                            MoveFileUseCase.Params(
-                                srcFullFileName = recordPathProvider.getPathToRecordFolder(record),
-                                destPath = storagePathProvider.getPathToStorageTrashFolder(),
-                                newFileName = oldDirName,
-                            )
-                        ).map {
-                            // обновляем имя каталога для дальнейшей вставки
-                            record.dirName = oldDirName
-                        }
+
+                        moveFolderBackToTrash(params, oldFolderName)
+                            .map {
+                                // обновляем имя каталога для дальнейшей вставки
+                                record.dirName = oldFolderName
+                            }
                     }
                 }
             }
@@ -187,6 +197,33 @@ class EditRecordFieldsUseCase(
 
     private fun encryptFieldIfNeed(fieldValue: String, isEncrypt: Boolean): String? {
         return if (isEncrypt) cryptManager.encryptTextBase64(fieldValue) else fieldValue
+    }
+
+    private suspend fun moveFolderBackToTrash(
+        params: Params,
+        oldFolderName: String
+    ): Either<Failure, None> {
+        val record = params.record
+        val storageFolder = storageProvider.rootFolder
+        val recordFolderPath = recordPathProvider.getPathToRecordFolder(record)
+        val trashFolderPath = storagePathProvider.getPathToStorageTrashFolder()
+
+        val srcFolder = storageFolder?.child(
+            context = context,
+            path = recordFolderPath.folderName,
+            requiresWriteAccess = false,
+        ) ?: return Failure.Folder.Get(recordFolderPath).toLeft()
+
+        val trashFolder = storageProvider.trashFolder
+            ?: return Failure.Folder.Get(trashFolderPath).toLeft()
+
+        return moveFileUseCase.run(
+            MoveFileOrFolderUseCase.Params(
+                srcFileOrFolder = srcFolder,
+                destFolder = trashFolder,
+                newName = oldFolderName,
+            )
+        )
     }
 
 }

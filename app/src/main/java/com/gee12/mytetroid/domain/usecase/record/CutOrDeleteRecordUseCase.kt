@@ -1,5 +1,7 @@
 package com.gee12.mytetroid.domain.usecase.record
 
+import android.content.Context
+import androidx.documentfile.provider.DocumentFile
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.domain.provider.IRecordPathProvider
 import com.gee12.mytetroid.domain.manager.FavoritesManager
@@ -17,10 +19,11 @@ import com.gee12.mytetroid.domain.usecase.tag.DeleteRecordTagsUseCase
  * @param isCutting Если true, то запись вырезается, иначе - удаляется
  */
 class CutOrDeleteRecordUseCase(
+    private val context: Context,
     private val logger: ITetroidLogger,
     private val recordPathProvider: IRecordPathProvider,
     private val favoritesManager: FavoritesManager,
-    private val checkRecordFolderUseCase: CheckRecordFolderUseCase,
+    private val getRecordFolderUseCase: GetRecordFolderUseCase,
     private val deleteRecordTagsUseCase: DeleteRecordTagsUseCase,
     private val moveOrDeleteRecordFolderUseCase: MoveOrDeleteRecordFolderUseCase,
     private val saveStorageUseCase: SaveStorageUseCase,
@@ -29,30 +32,30 @@ class CutOrDeleteRecordUseCase(
     data class Params(
         val record: TetroidRecord,
         val withoutDir: Boolean,
-        val movePath: String,
         val isCutting: Boolean
     )
 
     override suspend fun run(params: Params): Either<Failure, None> {
         val record = params.record
         val withoutDir = params.withoutDir
-        val movePath = params.movePath
         val isCutting = params.isCutting
 
         logger.logOperStart(LogObj.RECORD, if (isCutting) LogOper.CUT else LogOper.DELETE, record)
-        var dirPath: String? = null
+        var recordFolder: DocumentFile? = null
         // проверяем существование каталога записи
         if (!withoutDir) {
-//            dirPath = (record.isTemp()) ? getPathToRecordFolderInTrash(context, record) : getPathToRecordFolderInBase(record);
-            dirPath = recordPathProvider.getPathToRecordFolder(record)
-            checkRecordFolderUseCase.run(
-                CheckRecordFolderUseCase.Params(
-                    folderPath = dirPath,
-                    isCreate = false,
+            recordFolder = getRecordFolderUseCase.run(
+                GetRecordFolderUseCase.Params(
+                    record = record,
+                    createIfNeed = false,
+                    inTrash = false,
                 )
-            ).onFailure {
-                return it.toLeft()
-            }
+            ).foldResult(
+                onLeft = {
+                    return it.toLeft()
+                },
+                onRight = { it }
+            )
         }
 
         // удаляем запись из ветки (и соответственно, из дерева)
@@ -90,8 +93,8 @@ class CutOrDeleteRecordUseCase(
             moveOrDeleteRecordFolderUseCase.run(
                 MoveOrDeleteRecordFolderUseCase.Params(
                     record = record,
-                    folderPath = dirPath!!,
-                    movePath = movePath,
+                    recordFolder = recordFolder!!,
+                    isMoveToTrash = true,
                 )
             )
         } else {

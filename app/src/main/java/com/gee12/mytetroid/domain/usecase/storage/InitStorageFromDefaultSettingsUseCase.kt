@@ -26,7 +26,6 @@ class InitStorageFromDefaultSettingsUseCase(
             isLoadFavoritesOnly = CommonSettings.isLoadFavoritesOnlyDef(context)
             isKeepLastNode = CommonSettings.isKeepLastNodeDef(context)
             // корзина
-            trashPath = CommonSettings.getTrashPathDef(context)
             isClearTrashBeforeExit = CommonSettings.isClearTrashBeforeExitDef(context)
             isAskBeforeClearTrashBeforeExit = CommonSettings.isAskBeforeClearTrashBeforeExitDef(context)
             // шифрование

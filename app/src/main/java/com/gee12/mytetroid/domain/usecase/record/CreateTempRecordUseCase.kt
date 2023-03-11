@@ -1,16 +1,19 @@
 package com.gee12.mytetroid.domain.usecase.record
 
-import android.net.Uri
+import android.content.Context
+import com.anggrayudi.storage.file.CreateMode
+import com.anggrayudi.storage.file.MimeType
+import com.anggrayudi.storage.file.getAbsolutePath
+import com.anggrayudi.storage.file.makeFile
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.common.extensions.makePath
+import com.gee12.mytetroid.domain.provider.IDataNameProvider
 import com.gee12.mytetroid.domain.provider.IRecordPathProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
+import com.gee12.mytetroid.model.FilePath
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
-import com.gee12.mytetroid.domain.provider.IDataNameProvider
-import java.io.File
 import java.io.IOException
 import java.util.*
 
@@ -18,10 +21,11 @@ import java.util.*
  * Создание временной записи (без сохранения в дерево) при использовании виджета.
  */
 class CreateTempRecordUseCase(
+    private val context: Context,
     private val logger: ITetroidLogger,
     private val dataNameProvider: IDataNameProvider,
     private val recordPathProvider: IRecordPathProvider,
-    private val checkRecordFolderUseCase: CheckRecordFolderUseCase,
+    private val getRecordFolderUseCase: GetRecordFolderUseCase,
     private val saveRecordHtmlTextUseCase: SaveRecordHtmlTextUseCase,
 ) : UseCase<TetroidRecord, CreateTempRecordUseCase.Params>() {
 
@@ -41,7 +45,7 @@ class CreateTempRecordUseCase(
         // генерируем уникальный идентификатор
         val id = dataNameProvider.createUniqueId()
         // имя каталога с добавлением префикса в виде текущей даты и времени
-        val folderName = dataNameProvider.createDateTimePrefix() + "_" + dataNameProvider.createUniqueId()
+        val folderNameInTrash = "${dataNameProvider.createDateTimePrefix()}_${dataNameProvider.createUniqueId()}"
         val name = params.srcName?.ifEmpty {
 //            name = String.format("%s - %s", resourcesProvider.getString(R.string.title_new_record),
 //                    Utils.dateToString(new Date(), "yyyy.MM.dd HH:mm:ss"));
@@ -56,7 +60,7 @@ class CreateTempRecordUseCase(
             null,
             url,
             Date(),
-            folderName,
+            folderNameInTrash,
             TetroidRecord.DEF_FILE_NAME,
             node
         )
@@ -64,28 +68,31 @@ class CreateTempRecordUseCase(
         record.setIsTemp(true)
 
         // создаем каталог записи в корзине
-        val folderPath = recordPathProvider.getPathToRecordFolderInTrash(record)
-        checkRecordFolderUseCase.run(
-            CheckRecordFolderUseCase.Params(
-                folderPath = folderPath,
-                isCreate = true,
+        val recordFolder = getRecordFolderUseCase.run(
+            GetRecordFolderUseCase.Params(
+                record = record,
+                createIfNeed = true,
+                inTrash = true,
             )
-        ).onFailure {
-            return it.toLeft()
-        }
+        ).foldResult(
+            onLeft = {
+                return it.toLeft()
+            },
+            onRight = { it }
+        )
+        val recordFolderPath = recordFolder.getAbsolutePath(context)
+        val filePath = FilePath.File(recordFolderPath, record.fileName)
+
         // создаем файл записи (пустой)
-        val filePath = makePath(folderPath, record.fileName)
-        val fileUri = try {
-            Uri.parse(filePath)
-        } catch (ex: Exception) {
-            return Failure.File.CreateUriPath(path = filePath).toLeft()
-        }
-        val file = File(fileUri.path!!)
         try {
-            @Suppress("BlockingMethodInNonBlockingContext")
-            file.createNewFile()
+            recordFolder.makeFile(
+                context = context,
+                name = record.fileName,
+                mimeType = MimeType.TEXT,
+                mode = CreateMode.REPLACE,
+            ) ?: return Failure.File.Create(filePath).toLeft()
         } catch (ex: IOException) {
-            return Failure.File.Create(filePath = file.path, ex).toLeft()
+            return Failure.File.Create(filePath, ex).toLeft()
         }
         // текст записи
         if (!text.isNullOrEmpty()) {

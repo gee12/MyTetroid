@@ -151,7 +151,6 @@ public class TetroidMessage {
             case WARNING:
             case ERROR:
                 Toast.makeText(context, message.getMessage(), Toast.LENGTH_LONG).show();
-                Toast.makeText(context, message.getMessage(), Toast.LENGTH_LONG).show();
 //                Message.showSnackMoreInLogs(this, R.id.layout_coordinator);
                 break;
             default:

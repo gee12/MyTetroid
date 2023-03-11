@@ -2,36 +2,35 @@ package com.gee12.mytetroid.di.modules
 
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.interactor.*
+import com.gee12.mytetroid.domain.manager.InteractionManager
 import com.gee12.mytetroid.domain.manager.PasswordManager
+import com.gee12.mytetroid.domain.manager.PermissionManager
 import com.gee12.mytetroid.domain.usecase.*
 import com.gee12.mytetroid.domain.usecase.attach.*
-import com.gee12.mytetroid.domain.usecase.file.GetFileModifiedDateUseCase
-import com.gee12.mytetroid.domain.usecase.file.GetFolderSizeUseCase
 import com.gee12.mytetroid.domain.usecase.crypt.*
 import com.gee12.mytetroid.domain.usecase.crypt.DecryptStorageUseCase
-import com.gee12.mytetroid.domain.usecase.file.MoveFileUseCase
+import com.gee12.mytetroid.domain.usecase.file.*
+import com.gee12.mytetroid.domain.usecase.image.LoadDrawableFromFileUseCase
 import com.gee12.mytetroid.domain.usecase.node.*
-import com.gee12.mytetroid.domain.usecase.node.icon.GetIconsFoldersUseCase
-import com.gee12.mytetroid.domain.usecase.node.icon.GetIconsFromFolderUseCase
-import com.gee12.mytetroid.domain.usecase.node.icon.LoadNodeIconUseCase
-import com.gee12.mytetroid.domain.usecase.node.icon.SetNodeIconUseCase
+import com.gee12.mytetroid.domain.usecase.node.icon.*
 import com.gee12.mytetroid.domain.usecase.record.*
-import com.gee12.mytetroid.domain.usecase.record.image.SaveImageFromBitmapUseCase
-import com.gee12.mytetroid.domain.usecase.record.image.SaveImageFromUriUseCase
-import com.gee12.mytetroid.domain.usecase.record.image.SetImageDimensionsUseCase
+import com.gee12.mytetroid.domain.usecase.image.SaveImageFromBitmapUseCase
+import com.gee12.mytetroid.domain.usecase.image.SaveImageFromUriUseCase
+import com.gee12.mytetroid.domain.usecase.image.SetImageDimensionsUseCase
 import com.gee12.mytetroid.domain.usecase.storage.*
 import com.gee12.mytetroid.domain.usecase.tag.DeleteRecordTagsUseCase
 import com.gee12.mytetroid.domain.usecase.tag.GetTagByNameUseCase
 import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
 import com.gee12.mytetroid.domain.usecase.tag.RenameTagInRecordsUseCase
 import org.koin.android.ext.koin.androidApplication
+import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 object UseCasesModule {
     val useCasesModule = module {
 
         single {
-            InteractionInteractor(
+            InteractionManager(
                 resourcesProvider = get(),
                 logger = get(),
             )
@@ -45,22 +44,9 @@ object UseCasesModule {
         }
 
         single {
-            StoragesInteractor(
-                storagesRepo = get()
-            )
-        }
-
-        single {
-            StorageTreeInteractor(
+            StorageTreeObserver(
                 app = androidApplication(),
                 logger = get(),
-            )
-        }
-
-        single {
-            TrashInteractor(
-                logger = get(),
-                storagesRepo = get(),
             )
         }
 
@@ -77,6 +63,21 @@ object UseCasesModule {
             )
         }
 
+        single {
+            ClearAllStoragesTrashFolderUseCase(
+                appPathProvider = get(),
+                clearFolderUseCase = get(),
+            )
+        }
+
+        single {
+            ClearFolderUseCase(
+                context = androidContext(),
+                resourcesProvider = get(),
+                logger = get(),
+            )
+        }
+
         scope<ScopeSource> {
 
             //region Interactors
@@ -86,7 +87,7 @@ object UseCasesModule {
                     logger = get(),
                     buildInfoProvider = get(),
                     settingsManager = get(),
-                    storagesInteractor = get(),
+                    storagesRepo = get(),
                     favoritesManager = get(),
                     initStorageFromDefaultSettingsUseCase = get(),
                 )
@@ -105,10 +106,11 @@ object UseCasesModule {
 
             scoped {
                 InitAppUseCase(
-                    context = androidApplication(),
+                    context = androidContext(),
                     resourcesProvider = get(),
                     logger = get(),
                     settingsManager = get(),
+                    appPathProvider = get(),
                 )
             }
 
@@ -122,9 +124,7 @@ object UseCasesModule {
             }
 
             scoped {
-                SwapTetroidObjectsUseCase(
-                    saveStorageUseCase = get(),
-                )
+                SwapObjectsInListUseCase()
             }
 
             //endregion App
@@ -132,23 +132,40 @@ object UseCasesModule {
             //region File
 
             scoped {
-                GetFolderSizeUseCase(
-                    context = androidApplication(),
+                GetFolderSizeInStorageUseCase(
+                    context = androidContext(),
+                    storageProvider = get(),
                 )
             }
 
             scoped {
-                GetFileModifiedDateUseCase()
+                GetFileModifiedDateInStorageUseCase(
+                    context = androidContext(),
+                    storageProvider = get(),
+                )
             }
 
-//        scoped {
-//            GenerateDateTimeFilePrefixUseCase()
-//        }
-
             scoped {
-                MoveFileUseCase(
+                MoveFileOrFolderUseCase(
+                    context = androidContext(),
                     resourcesProvider = get(),
                     logger = get(),
+                )
+            }
+
+            scoped {
+                CopyFileOrFolderUseCase(
+                    context = androidContext(),
+                    resourcesProvider = get(),
+                    logger = get(),
+                )
+            }
+
+            scoped {
+                CopyFileWithCryptUseCase(
+                    context = androidContext(),
+                    logger = get(),
+                    encryptOrDecryptFileIfNeedUseCase = get(),
                 )
             }
 
@@ -165,47 +182,63 @@ object UseCasesModule {
 
             scoped {
                 CreateStorageUseCase(
+                    context = androidContext(),
                     resourcesProvider = get(),
                     logger = get(),
+                    storageProvider = get(),
                     storageDataProcessor = get(),
                     favoritesManager = get(),
                     createNodeUseCase = get(),
+                    getStorageTrashFolderUseCase = get(),
+                )
+            }
+
+            scoped {
+                GetStorageTrashFolderUseCase(
+                    context = androidContext(),
+                    appPathProvider = get(),
                 )
             }
 
             scoped {
                 InitStorageUseCase(
+                    context = androidContext(),
                     favoritesManager = get(),
                 )
             }
 
             scoped {
                 ReadStorageUseCase(
+                    context = androidContext(),
                     resourcesProvider = get(),
+                    storageProvider = get(),
                 )
             }
 
             scoped {
                 CheckStorageFilesExistingUseCase(
+                    context = androidContext(),
                     resourcesProvider = get(),
                 )
             }
 
             scoped {
                 SaveStorageUseCase(
+                    context = androidContext(),
                     resourcesProvider = get(),
                     logger = get(),
                     dataNameProvider = get(),
                     storagePathProvider = get(),
-                    storageDataProcessor = get(),
+                    storageProvider = get(),
                     storageTreeInteractor = get(),
                     moveFileUseCase = get(),
+                    getStorageTrashFolderUseCase = get(),
                 )
             }
 
             scoped {
                 InitStorageFromDefaultSettingsUseCase(
-                    context = androidApplication()
+                    context = androidContext()
                 )
             }
 
@@ -238,6 +271,9 @@ object UseCasesModule {
 
             scoped {
                 InitPasswordUseCase(
+                    context = androidContext(),
+                    logger = get(),
+                    storageProvider = get(),
                     storagesRepo = get(),
                     cryptManager = get(),
                     sensitiveDataProvider = get(),
@@ -245,7 +281,10 @@ object UseCasesModule {
             }
 
             scoped {
-                SavePasswordCheckDataUseCase()
+                SavePasswordCheckDataUseCase(
+                    context = androidContext(),
+                    storageProvider = get(),
+                )
             }
 
             scoped {
@@ -268,8 +307,27 @@ object UseCasesModule {
             }
 
             scoped {
-                EncryptOrDecryptFileUseCase(
-                    crypter = get(),
+                EncryptOrDecryptFileIfNeedUseCase(
+                    context = androidContext(),
+                    logger = get(),
+                    cryptManager = get(),
+                )
+            }
+
+            scoped {
+                ClearStorageTrashFolderUseCase(
+                    storagePathProvider = get(),
+                    clearFolderUseCase = get(),
+                )
+            }
+
+            scoped {
+                DeleteStorageUseCase(
+                    context = androidContext(),
+                    resourcesProvider = get(),
+                    logger = get(),
+                    appPathProvider = get(),
+                    storagesRepo = get(),
                 )
             }
 
@@ -306,8 +364,7 @@ object UseCasesModule {
 
             scoped {
                 LoadNodeIconUseCase(
-                    logger = get(),
-                    storagePathProvider = get(),
+                    loadDrawableFromFileUseCase = get(),
                 )
             }
 
@@ -321,14 +378,15 @@ object UseCasesModule {
             }
 
             scoped {
-                DeleteNodeUseCase(
+                CutOrDeleteNodeUseCase(
+                    context = androidContext(),
                     logger = get(),
                     storageProvider = get(),
                     recordPathProvider = get(),
                     favoritesManager = get(),
                     deleteRecordTagsUseCase = get(),
-                    checkRecordFolderUseCase = get(),
-                    moveOrDeleteRecordFolder = get(),
+                    getRecordFolderUseCase = get(),
+                    moveOrDeleteRecordFolderUseCase = get(),
                     saveStorageUseCase = get(),
                 )
             }
@@ -350,13 +408,17 @@ object UseCasesModule {
             //region Node icon
 
             scoped {
-                GetIconsFoldersUseCase(
+                GetIconsFolderNamesUseCase(
+                    context = androidContext(),
+                    storageProvider = get(),
                     storagePathProvider = get(),
                 )
             }
 
             scoped {
-                GetIconsFromFolderUseCase(
+                GetNodesIconsFromFolderUseCase(
+                    context = androidContext(),
+                    storageProvider = get(),
                     storagePathProvider = get(),
                 )
             }
@@ -375,10 +437,11 @@ object UseCasesModule {
 
             scoped {
                 CutOrDeleteRecordUseCase(
+                    context = androidContext(),
                     logger = get(),
                     recordPathProvider = get(),
                     favoritesManager = get(),
-                    checkRecordFolderUseCase = get(),
+                    getRecordFolderUseCase = get(),
                     deleteRecordTagsUseCase = get(),
                     moveOrDeleteRecordFolderUseCase = get(),
                     saveStorageUseCase = get(),
@@ -386,8 +449,10 @@ object UseCasesModule {
             }
 
             scoped {
-                CryptRecordFilesUseCase(
+                CryptRecordFilesIfNeedUseCase(
+                    context = androidContext(),
                     logger = get(),
+                    storageProvider = get(),
                     resourcesProvider = get(),
                     recordPathProvider = get(),
                     encryptOrDecryptFileUseCase = get(),
@@ -396,56 +461,56 @@ object UseCasesModule {
 
             scoped {
                 CloneRecordToNodeUseCase(
-                    resourcesProvider = get(),
                     logger = get(),
                     favoritesManager = get(),
                     dataNameProvider = get(),
-                    recordPathProvider = get(),
-                    storagePathProvider = get(),
                     cryptManager = get(),
-                    checkRecordFolderUseCase = get(),
                     cloneAttachesToRecordUseCase = get(),
                     parseRecordTagsUseCase = get(),
-                    cryptRecordFilesUseCase = get(),
-                    renameRecordAttachesUseCase = get(),
-                    moveFileUseCase = get(),
+                    cryptRecordFilesIfNeedUseCase = get(),
+                    moveOrCopyRecordFolderUseCase = get(),
                 )
             }
 
             scoped {
-                CheckRecordFolderUseCase(
+                GetRecordFolderUseCase(
+                    context = androidContext(),
                     resourcesProvider = get(),
                     logger = get(),
+                    storagePathProvider = get(),
+                    recordPathProvider = get(),
+                    storageProvider = get(),
                 )
             }
 
             scoped {
                 InsertRecordUseCase(
-                    resourcesProvider = get(),
+                    context = androidContext(),
                     logger = get(),
+                    storageProvider = get(),
                     storagePathProvider = get(),
                     recordPathProvider = get(),
                     dataNameProvider = get(),
                     cryptManager = get(),
                     favoritesManager = get(),
-                    checkRecordFolderUseCase = get(),
+                    getRecordFolderUseCase = get(),
                     cloneAttachesToRecordUseCase = get(),
-                    renameRecordAttachesUseCase = get(),
-                    moveFileUseCase = get(),
+                    moveFileOrFolderUseCase = get(),
+                    moveOrCopyRecordFolderUseCase = get(),
                     parseRecordTagsUseCase = get(),
-                    cryptRecordFilesUseCase = get(),
+                    cryptRecordFilesIfNeedUseCase = get(),
                     saveStorageUseCase = get(),
                 )
             }
 
             scoped {
                 CreateRecordUseCase(
+                    context = androidContext(),
                     logger = get(),
                     dataNameProvider = get(),
-                    recordPathProvider = get(),
                     cryptManager = get(),
                     favoritesManager = get(),
-                    checkRecordFolderUseCase = get(),
+                    getRecordFolderUseCase = get(),
                     parseRecordTagsUseCase = get(),
                     saveStorageUseCase = get(),
                 )
@@ -453,21 +518,24 @@ object UseCasesModule {
 
             scoped {
                 CreateTempRecordUseCase(
+                    context = androidContext(),
                     logger = get(),
                     dataNameProvider = get(),
                     recordPathProvider = get(),
-                    checkRecordFolderUseCase = get(),
+                    getRecordFolderUseCase = get(),
                     saveRecordHtmlTextUseCase = get(),
                 )
             }
 
             scoped {
                 GetRecordHtmlTextUseCase(
+                    context = get(),
                     resourcesProvider = get(),
                     logger = get(),
+                    storageProvider = get(),
                     recordPathProvider = get(),
                     cryptManager = get(),
-                    checkRecordFolderUseCase = get(),
+                    getRecordFolderUseCase = get(),
                 )
             }
 
@@ -479,24 +547,42 @@ object UseCasesModule {
 
             scoped {
                 SaveRecordHtmlTextUseCase(
-                    recordPathProvider = get(),
+                    context = androidContext(),
                     cryptManager = get(),
-                    checkRecordFolderUseCase = get(),
+                    getRecordFolderUseCase = get(),
+                )
+            }
+
+            scoped {
+                MoveOrCopyRecordFolderUseCase(
+                    resourcesProvider = get(),
+                    logger = get(),
+                    storageProvider = get(),
+                    storagePathProvider = get(),
+                    recordPathProvider = get(),
+                    getRecordFolderUseCase = get(),
+                    renameRecordAttachesUseCase = get(),
+                    moveFileOrFolderUseCase = get(),
+                    copyFileOrFolderUseCase = get(),
                 )
             }
 
             scoped {
                 MoveOrDeleteRecordFolderUseCase(
+                    context = androidContext(),
                     logger = get(),
+                    storageProvider = get(),
+                    storagePathProvider = get(),
                     moveFileUseCase = get(),
-//                generateDateTimeFilePrefixUseCase = get(),
                     dataNameProvider = get(),
                 )
             }
 
             scoped {
                 EditRecordFieldsUseCase(
+                    context = androidContext(),
                     logger = get(),
+                    storageProvider = get(),
                     buildInfoProvider = get(),
                     storagePathProvider = get(),
                     recordPathProvider = get(),
@@ -505,7 +591,7 @@ object UseCasesModule {
                     moveFileUseCase = get(),
                     deleteRecordTagsUseCase = get(),
                     parseRecordTagsUseCase = get(),
-                    cryptRecordFilesUseCase = get(),
+                    cryptRecordFilesIfNeedUseCase = get(),
                     saveStorageUseCase = get(),
                 )
             }
@@ -515,23 +601,26 @@ object UseCasesModule {
             //region Attach
 
             scoped {
-                CreateAttachToRecordUseCase(
+                AttachFileToRecordUseCase(
+                    context = androidContext(),
                     resourcesProvider = get(),
                     logger = get(),
                     dataNameProvider = get(),
-                    recordPathProvider = get(),
                     cryptManager = get(),
-                    checkRecordFolderUseCase = get(),
+                    getRecordFolderUseCase = get(),
+                    copyFileWithCryptUseCase = get(),
                     saveStorageUseCase = get(),
                 )
             }
 
             scoped {
-                SaveAttachUseCase(
+                SaveAttachToFileUseCase(
+                    context = androidContext(),
                     resourcesProvider = get(),
                     logger = get(),
+                    storageProvider = get(),
                     recordPathProvider = get(),
-                    cryptManager = get(),
+                    copyFileWithCryptUseCase = get(),
                 )
             }
 
@@ -544,39 +633,44 @@ object UseCasesModule {
 
             scoped {
                 EditAttachFieldsUseCase(
+                    context = androidContext(),
                     resourcesProvider = get(),
                     logger = get(),
-                    recordPathProvider = get(),
                     cryptManager = get(),
-                    checkRecordFolderUseCase = get(),
+                    getRecordFolderUseCase = get(),
                     saveStorageUseCase = get(),
                 )
             }
 
             scoped {
                 RenameRecordAttachesUseCase(
+                    context = androidContext(),
                     resourcesProvider = get(),
                     logger = get(),
+                    storageProvider = get(),
                     recordPathProvider = get(),
                 )
             }
 
             scoped {
                 DeleteAttachUseCase(
+                    context = androidContext(),
                     logger = get(),
-                    recordPathProvider = get(),
-                    checkRecordFolderUseCase = get(),
+                    getRecordFolderUseCase = get(),
                     saveStorageUseCase = get(),
                 )
             }
 
             scoped {
-                GetFileFromAttachUseCase(
+                PrepareAttachForOpenUseCase(
+                    context = androidContext(),
                     resourcesProvider = get(),
                     logger = get(),
                     cryptManager = get(),
+                    storageProvider = get(),
                     recordPathProvider = get(),
                     storageSettingsProvider = get(),
+                    getRecordFolderUseCase = get(),
                 )
             }
 
@@ -615,23 +709,30 @@ object UseCasesModule {
             //region Image
 
             scoped {
+                LoadDrawableFromFileUseCase(
+                    context = androidContext(),
+                    logger = get(),
+                    storageProvider = get(),
+                    storagePathProvider = get(),
+                )
+            }
+
+            scoped {
                 SaveImageFromUriUseCase(
-                    context = androidApplication(),
+                    context = androidContext(),
                     resourcesProvider = get(),
                     logger = get(),
-                    dataNameProvider = get(),
-                    recordPathProvider = get(),
-                    checkRecordFolderUseCase = get(),
+                    saveImageFromBitmapUseCase = get(),
                 )
             }
 
             scoped {
                 SaveImageFromBitmapUseCase(
+                    context = androidContext(),
                     resourcesProvider = get(),
                     logger = get(),
                     dataNameProvider = get(),
-                    recordPathProvider = get(),
-                    checkRecordFolderUseCase = get(),
+                    getRecordFolderUseCase = get(),
                 )
             }
 

@@ -1,21 +1,24 @@
 package com.gee12.mytetroid.domain.usecase.attach
 
+import android.content.Context
+import androidx.documentfile.provider.DocumentFile
+import com.anggrayudi.storage.file.changeName
+import com.anggrayudi.storage.file.child
+import com.anggrayudi.storage.file.getAbsolutePath
 import com.gee12.mytetroid.common.*
+import com.gee12.mytetroid.common.extensions.getExtensionWithoutComma
 import com.gee12.mytetroid.common.extensions.getStringFromTo
-import com.gee12.mytetroid.common.extensions.makePath
-import com.gee12.mytetroid.common.extensions.makePathToFile
-import com.gee12.mytetroid.common.utils.FileUtils
+import com.gee12.mytetroid.common.extensions.withExtension
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.domain.manager.IStorageCryptManager
-import com.gee12.mytetroid.domain.provider.IRecordPathProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidFile
-import com.gee12.mytetroid.domain.usecase.record.CheckRecordFolderUseCase
+import com.gee12.mytetroid.domain.usecase.record.GetRecordFolderUseCase
 import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
-import java.io.File
+import com.gee12.mytetroid.model.FilePath
 
 /**
  * Изменение свойств прикрепленного файла.
@@ -23,11 +26,11 @@ import java.io.File
  * если у имени файла было изменено расширение.
  */
 class EditAttachFieldsUseCase(
+    private val context: Context,
     private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
-    private val recordPathProvider: IRecordPathProvider,
     private val cryptManager: IStorageCryptManager,
-    private val checkRecordFolderUseCase: CheckRecordFolderUseCase,
+    private val getRecordFolderUseCase: GetRecordFolderUseCase,
     private val saveStorageUseCase: SaveStorageUseCase,
 ) : UseCase<UseCase.None, EditAttachFieldsUseCase.Params>() {
 
@@ -51,37 +54,45 @@ class EditAttachFieldsUseCase(
 //            return 0
 //        }
         // сравниваем расширения
-        val ext = FileUtils.getExtensionWithComma(attach.name)
-        val newExt = FileUtils.getExtensionWithComma(name)
-        val isExtChanged = !Utils.isEquals(ext, newExt, true)
-        var folderPath: String? = null
-        var filePath: String? = null
-        var srcFile: File? = null
-        if (isExtChanged) {
-            // проверяем существование каталога записи
-            folderPath = recordPathProvider.getPathToRecordFolder(record)
-            checkRecordFolderUseCase.run(
-                CheckRecordFolderUseCase.Params(
-                    folderPath = folderPath,
-                    isCreate = false,
+        val oldExtension = attach.name.getExtensionWithoutComma()
+        val newExtension = name.getExtensionWithoutComma()
+        val isExtensionChanged = !Utils.isEquals(oldExtension, newExtension, true)
+        var srcFilePath: FilePath? = null
+        var srcFile: DocumentFile? = null
+
+        if (isExtensionChanged) {
+            val recordFolder = getRecordFolderUseCase.run(
+                GetRecordFolderUseCase.Params(
+                    record = record,
+                    createIfNeed = false,
+                    inTrash = false,
                 )
-            ).onFailure {
-                return it.toLeft()
-            }
+            ).foldResult(
+                onLeft = {
+                    return it.toLeft()
+                },
+                onRight = { it }
+            )
+            val folderPath = recordFolder.getAbsolutePath(context)
+
             // проверяем существование самого файла
-            val fileIdName = attach.id + ext
-            filePath = makePath(folderPath, fileIdName)
-            srcFile = File(filePath)
-            if (!srcFile.exists()) {
-//                logger.logError(resourcesProvider.getString(R.string.error_file_is_missing_mask) + filePath)
-                return Failure.File.NotExist(path = srcFile.path).toLeft()
+            val fileIdName = attach.id.withExtension(oldExtension)
+            srcFilePath = FilePath.File(folderPath, fileIdName)
+            srcFile = recordFolder.child(
+                context = context,
+                path = fileIdName,
+                requiresWriteAccess = true,
+            )
+
+            if (srcFile == null || !srcFile.exists()) {
+                return Failure.File.NotExist(srcFilePath).toLeft()
             }
         }
         val oldName = attach.getName(true)
         // обновляем поля
-        val isCrypted = attach.isCrypted
-        attach.name = encryptFieldIfNeed(name, isCrypted)
-        if (isCrypted) {
+        val isEncrypted = attach.isCrypted
+        attach.name = encryptFieldIfNeed(name, isEncrypted)
+        if (isEncrypted) {
             attach.setDecryptedName(name)
         }
 
@@ -89,15 +100,19 @@ class EditAttachFieldsUseCase(
         return saveStorageUseCase.run()
             .flatMap {
                 // меняем расширение, если изменилось
-                if (isExtChanged) {
-                    val newFileIdName = attach.id + newExt
-                    val destFile = makePathToFile(folderPath.orEmpty(), newFileIdName)
-                    val fromTo = resourcesProvider.getStringFromTo(filePath.orEmpty(), newFileIdName)
-                    if (srcFile!!.renameTo(destFile)) {
-                        logger.logOperRes(LogObj.FILE, LogOper.RENAME, fromTo, false)
+                if (isExtensionChanged && srcFile != null && srcFilePath != null) {
+                    val newFileIdName = attach.id.withExtension(newExtension)
+                    val fromTo = resourcesProvider.getStringFromTo(srcFilePath.fullPath, newFileIdName)
+                    val fileWithNewName = srcFile.changeName(
+                        context = context,
+                        newBaseName = attach.id,
+                        newExtension = newExtension,
+                    )
+                    if (fileWithNewName != null) {
+                        logger.logOperRes(LogObj.FILE, LogOper.RENAME, fromTo, show = false)
                     } else {
-                        logger.logOperError(LogObj.FILE, LogOper.RENAME, fromTo, false, false)
-                        return Failure.File.RenameTo(filePath = srcFile.path, newName = destFile.path).toLeft()
+                        logger.logOperError(LogObj.FILE, LogOper.RENAME, fromTo, false, show = false)
+                        return Failure.File.Rename(path = srcFilePath, newName = newFileIdName).toLeft()
                     }
                 }
                 None.toRight()
@@ -105,7 +120,7 @@ class EditAttachFieldsUseCase(
                 logger.logOperCancel(LogObj.FILE_FIELDS, LogOper.CHANGE)
                 // возвращаем изменения
                 attach.name = oldName
-                if (isCrypted) {
+                if (isEncrypted) {
                     attach.setDecryptedName(cryptManager.decryptTextBase64(oldName))
                 }
             }

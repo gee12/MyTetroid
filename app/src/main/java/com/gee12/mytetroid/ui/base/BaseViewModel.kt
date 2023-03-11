@@ -3,22 +3,27 @@ package com.gee12.mytetroid.ui.base
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.annotation.StringRes
+import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.gee12.mytetroid.common.Constants
+import com.anggrayudi.storage.file.DocumentFileCompat
+import com.anggrayudi.storage.file.isWritable
 import com.gee12.mytetroid.common.Failure
 import com.gee12.mytetroid.common.extensions.getIdNameString
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
-import com.gee12.mytetroid.domain.interactor.PermissionManager
-import com.gee12.mytetroid.domain.interactor.PermissionRequestData
+import com.gee12.mytetroid.domain.manager.PermissionManager
+import com.gee12.mytetroid.domain.provider.IAppPathProvider
+import com.gee12.mytetroid.model.permission.PermissionRequestData
 import com.gee12.mytetroid.logs.*
 import com.gee12.mytetroid.model.TetroidObject
-import com.gee12.mytetroid.model.enums.TetroidPermission
+import com.gee12.mytetroid.model.permission.PermissionRequestCode
+import com.gee12.mytetroid.model.permission.TetroidPermission
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -30,6 +35,7 @@ open class BaseViewModel(
     val notificator: INotificator,
     val failureHandler: IFailureHandler,
     val settingsManager: CommonSettingsManager,
+    val appPathProvider: IAppPathProvider,
 ) : AndroidViewModel(application) {
 
     private val internalCoroutineExceptionHandler =
@@ -53,7 +59,7 @@ open class BaseViewModel(
     open fun initialize() {
         // FIXME: перенести в InitAppUseCase ?
         logger.init(
-            path = settingsManager.getLogPath(),
+            path = appPathProvider.getPathToLogsFolder(),
             isWriteToFile = settingsManager.isWriteLogToFile()
         )
     }
@@ -76,74 +82,82 @@ open class BaseViewModel(
 
     //region Get
 
-    fun getLastFolderPathOrDefault(forWrite: Boolean) = settingsManager.getLastFolderPathOrDefault(forWrite)
+    fun getLastFolderPathOrDefault(forWrite: Boolean) = settingsManager.getLastSelectedFolderPathOrDefault(forWrite)
 
     //endregion Get
 
     //region Permission
 
-    fun checkReadExtStoragePermission(
-        activity: Activity,
-        requestCode: Int = Constants.REQUEST_CODE_PERMISSION_READ_STORAGE,
-    ): Boolean {
-        val permission = TetroidPermission.ReadStorage
+    fun checkReadFileStoragePermission(root: DocumentFile): Boolean {
+        return root.canRead() //TODO || Build.VERSION.SDK_INT < 21 ?
+    }
 
-        return if (permissionManager.checkPermission(
-                PermissionRequestData(
-                    permission = permission,
-                    activity = activity,
-                    requestCode = requestCode,
-                    onManualPermissionRequest = { requestCallback ->
-                        showManualPermissionRequest(
-                            permission = permission,
-                            requestCallback = requestCallback
-                        )
-                    }
-                )
-            )
-        ) {
-            onPermissionGranted(permission, requestCode)
-            true
-        } else {
-            false
+    fun checkWriteFileStoragePermission(root: DocumentFile): Boolean {
+        return root.isWritable(getContext()) //TODO || Build.VERSION.SDK_INT < 21 ?
+    }
+
+    fun requestFileStorageAccess(
+        permission: TetroidPermission,
+        requestCode: PermissionRequestCode
+    ) {
+        launchOnMain {
+            sendEvent(BaseEvent.Permission.Check(permission, requestCode))
         }
     }
 
-    fun checkWriteExtStoragePermission(
-        activity: Activity,
-        requestCode: Int = Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE,
-    ): Boolean {
-        val permission = TetroidPermission.WriteStorage
+    fun checkAndRequestReadFileStoragePermission(
+        file: DocumentFile,
+        requestCode: PermissionRequestCode,
+    ) {
+        val permission = TetroidPermission.FileStorage.Read(file)
 
-        return if (permissionManager.checkPermission(
-                PermissionRequestData(
-                    permission = permission,
-                    activity = activity,
-                    requestCode = requestCode,
-                    onManualPermissionRequest = { requestCallback ->
-                        showManualPermissionRequest(
-                            permission = permission,
-                            requestCallback = requestCallback
-                        )
-                    }
-                )
-            )
-        ) {
+        if (checkReadFileStoragePermission(file)) {
             onPermissionGranted(permission, requestCode)
-            true
         } else {
-            false
+            requestFileStorageAccess(permission, requestCode)
         }
     }
 
-    fun checkCameraPermission(activity: Activity): Boolean {
+    fun checkAndRequestReadFileStoragePermission(
+        uri: Uri,
+        requestCode: PermissionRequestCode,
+    ) {
+        DocumentFileCompat.fromUri(getContext(), uri)?.let { root ->
+            checkAndRequestReadFileStoragePermission(root, requestCode)
+        }
+    }
+
+    fun checkAndRequestWriteFileStoragePermission(
+        file: DocumentFile,
+        requestCode: PermissionRequestCode,
+    ) {
+        val permission = TetroidPermission.FileStorage.Write(file)
+
+        if (checkWriteFileStoragePermission(file)) {
+            onPermissionGranted(permission, requestCode)
+        } else {
+            requestFileStorageAccess(permission, requestCode)
+        }
+    }
+
+    fun checkAndRequestWriteFileStoragePermission(
+        uri: Uri,
+        requestCode: PermissionRequestCode,
+    ) {
+        DocumentFileCompat.fromUri(getContext(), uri)?.let { root ->
+            checkAndRequestWriteFileStoragePermission(root, requestCode)
+        }
+    }
+
+    // TODO: убрать boolean result
+    fun checkCameraPermission(activity: Activity) {
         val permission = TetroidPermission.Camera
 
-        return permissionManager.checkPermission(
+        permissionManager.checkPermission(
             PermissionRequestData(
                 permission = permission,
                 activity = activity,
-                requestCode = Constants.REQUEST_CODE_PERMISSION_CAMERA,
+                requestCode = PermissionRequestCode.OPEN_CAMERA,
                 onManualPermissionRequest = { requestCallback ->
                     showManualPermissionRequest(
                         permission = permission,
@@ -154,14 +168,15 @@ open class BaseViewModel(
         )
     }
 
-    fun checkRecordAudioPermission(activity: Activity) {
+    fun checkAndRequestRecordAudioPermission(activity: Activity) {
         val permission = TetroidPermission.RecordAudio
+        val requestCode = PermissionRequestCode.RECORD_AUDIO
 
         if (permissionManager.checkPermission(
                 PermissionRequestData(
                     permission = permission,
                     activity = activity,
-                    requestCode = Constants.REQUEST_CODE_PERMISSION_RECORD_AUDIO,
+                    requestCode = requestCode,
                     onManualPermissionRequest = { requestCallback ->
                         showManualPermissionRequest(
                             permission = permission,
@@ -171,52 +186,53 @@ open class BaseViewModel(
                 )
             )
         ) {
-            launchOnMain {
-                sendEvent(BaseEvent.Permission.Granted(permission))
-            }
-        }
-    }
-
-    fun checkTermuxPermission(activity: Activity): Boolean {
-        val permission = TetroidPermission.Termux
-
-        return permissionManager.checkPermission(
-            PermissionRequestData(
-                permission = permission,
-                activity = activity,
-                requestCode = Constants.REQUEST_CODE_PERMISSION_TERMUX,
-                onManualPermissionRequest = { requestCallback ->
-                    showManualPermissionRequest(
-                        permission = permission,
-                        requestCallback = requestCallback
-                    )
-                }
-            )
-        )
-    }
-
-    open fun onPermissionGranted(permission: TetroidPermission, requestCode: Int) {
-        launchOnMain {
-            sendEvent(BaseEvent.Permission.Granted(permission, requestCode))
-        }
-    }
-
-    open fun onPermissionGranted(requestCode: Int) {
-        requestCodeToPermission(requestCode)?.let { permission ->
             launchOnMain {
                 sendEvent(BaseEvent.Permission.Granted(permission, requestCode))
             }
         }
     }
 
-    open fun onPermissionCanceled(permission: TetroidPermission, requestCode: Int) {
+    // TODO: убрать boolean result
+    fun checkAndRequestTermuxPermission(activity: Activity): Boolean {
+        val permission = TetroidPermission.Termux
+
+        return permissionManager.checkPermission(
+            PermissionRequestData(
+                permission = permission,
+                activity = activity,
+                requestCode = PermissionRequestCode.TERMUX,
+                onManualPermissionRequest = { requestCallback ->
+                    showManualPermissionRequest(
+                        permission = permission,
+                        requestCallback = requestCallback
+                    )
+                }
+            )
+        )
+    }
+
+    open fun onPermissionGranted(permission: TetroidPermission, requestCode: PermissionRequestCode) {
+        launchOnMain {
+            sendEvent(BaseEvent.Permission.Granted(permission, requestCode))
+        }
+    }
+
+    open fun onPermissionGranted(requestCode: PermissionRequestCode) {
+        requestCode.toPermission()?.let { permission ->
+            launchOnMain {
+                sendEvent(BaseEvent.Permission.Granted(permission, requestCode))
+            }
+        }
+    }
+
+    open fun onPermissionCanceled(permission: TetroidPermission, requestCode: PermissionRequestCode) {
         launchOnMain {
             sendEvent(BaseEvent.Permission.Canceled(permission, requestCode))
         }
     }
 
-    open fun onPermissionCanceled(requestCode: Int) {
-        requestCodeToPermission(requestCode)?.let { permission ->
+    open fun onPermissionCanceled(requestCode: PermissionRequestCode) {
+        requestCode.toPermission()?.let { permission ->
             launchOnMain {
                 sendEvent(BaseEvent.Permission.Canceled(permission, requestCode))
             }
@@ -232,76 +248,54 @@ open class BaseViewModel(
         }
     }
 
-    fun requestCodeToPermission(requestCode: Int): TetroidPermission? {
-        return when (requestCode) {
-            Constants.REQUEST_CODE_PERMISSION_READ_STORAGE -> TetroidPermission.ReadStorage
-            Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE -> TetroidPermission.WriteStorage
-            Constants.REQUEST_CODE_PERMISSION_CAMERA -> TetroidPermission.Camera
-            Constants.REQUEST_CODE_PERMISSION_RECORD_AUDIO -> TetroidPermission.RecordAudio
-            Constants.REQUEST_CODE_PERMISSION_TERMUX -> TetroidPermission.Termux
-            else -> null
-        }
-    }
-
     //endregion Permission
 
     //region Log
 
     // info
-    @JvmOverloads
     fun log(mes: String, show: Boolean = false) {
         logger.log(mes, show)
     }
 
-    @JvmOverloads
     fun log(@StringRes resId: Int, show: Boolean = false) {
         logger.log(resId, show)
     }
 
     // debug
-    @JvmOverloads
     fun logDebug(mes: String, show: Boolean = false) {
         logger.logDebug(mes, show)
     }
 
-    @JvmOverloads
     fun logDebug(@StringRes resId: Int, show: Boolean = false) {
         logger.logDebug(resId, show)
     }
 
     // warning
-    @JvmOverloads
     fun logWarning(mes: String, show: Boolean = true) {
         logger.logWarning(mes, show)
     }
 
-    @JvmOverloads
     fun logWarning(@StringRes resId: Int, show: Boolean = true) {
         logger.logWarning(resId, show)
     }
 
     // error
-    @JvmOverloads
     fun logError(mes: String, show: Boolean = true) {
         logger.logError(mes, show)
     }
 
-    @JvmOverloads
     fun logError(@StringRes resId: Int, show: Boolean = true) {
         logger.logError(resId, show)
     }
 
-    @JvmOverloads
     fun logError(ex: Throwable, show: Boolean = true) {
         logger.logError(ex, show)
     }
 
-    @JvmOverloads
     fun logError(s: String, ex: Exception, show: Boolean = true) {
         logger.logError(s, ex, show)
     }
 
-    @JvmOverloads
     fun logFailure(failure: Failure, show: Boolean = true) {
         val message = failureHandler.getFailureMessage(failure)
         // TODO: сделать многострочные уведомления
@@ -310,12 +304,10 @@ open class BaseViewModel(
     }
 
     // common
-    @JvmOverloads
     fun log(mes: String, type: LogType, show: Boolean = false) {
         logger.log(mes, type, show)
     }
 
-    @JvmOverloads
     fun log(@StringRes resId: Int, type: LogType, show: Boolean = false) {
         logger.log(resId, type, show)
     }
@@ -358,7 +350,6 @@ open class BaseViewModel(
         return logger.logOperError(obj, oper, null, false, show)
     }
 
-    @JvmOverloads
     open fun logOperErrorMore(obj: LogObj, oper: LogOper, show: Boolean = false): String? {
         return logger.logOperError(obj, oper, null, true, show)
     }
@@ -385,6 +376,11 @@ open class BaseViewModel(
 
     fun showError(message: String) {
         showMessage(message, LogType.ERROR)
+    }
+
+    fun showFailure(failure: Failure) {
+        val message = failureHandler.getFailureMessage(failure)
+        showMessage(message.title, LogType.ERROR)
     }
 
     fun showMessage(message: String, type: LogType) {

@@ -82,6 +82,8 @@ sealed class MainEvent : StorageEvent() {
     data class AttachDeleted(
         val attach: TetroidFile,
     ) : MainEvent()
+    object PickAttach : MainEvent()
+    data class PickFolderForAttach(val attach: TetroidFile) : MainEvent()
 
     // favorites
     object UpdateFavoritesNodeTitle : MainEvent()
@@ -103,8 +105,6 @@ sealed class MainEvent : StorageEvent() {
     data class AskForOperationWithoutFile(
         val clipboardParams: ClipboardParams,
     ) : MainEvent()
-    object OpenFilePicker : MainEvent()
-    object OpenFolderPicker : MainEvent()
 
     object Exit : MainEvent()
 }

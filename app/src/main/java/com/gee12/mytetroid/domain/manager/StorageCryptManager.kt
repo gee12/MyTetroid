@@ -2,18 +2,19 @@ package com.gee12.mytetroid.domain.manager
 
 import com.gee12.mytetroid.common.onFailure
 import com.gee12.mytetroid.data.crypt.Crypter
-import com.gee12.mytetroid.domain.usecase.crypt.CryptRecordFilesUseCase
+import com.gee12.mytetroid.domain.usecase.crypt.CryptRecordFilesIfNeedUseCase
 import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.logs.ITetroidLogger
-import java.io.File
+import java.io.InputStream
+import java.io.OutputStream
 
 interface IStorageCryptManager {
 
     fun init(
-        cryptRecordFilesUseCase: CryptRecordFilesUseCase,
+        cryptRecordFilesIfNeedUseCase: CryptRecordFilesIfNeedUseCase,
         parseRecordTagsUseCase: ParseRecordTagsUseCase,
     )
 
@@ -152,11 +153,11 @@ interface IStorageCryptManager {
 
     fun encryptTextBase64(field: String): String?
 
-    fun decryptText(bytes: ByteArray): String
+    fun decryptText(bytes: ByteArray): String?
 
     fun encryptTextBytes(text: String): ByteArray
 
-    fun encryptDecryptFile(srcFile: File, destFile: File, encrypt: Boolean): Boolean
+    fun encryptOrDecryptFile(srcFileStream: InputStream, destFileStream: OutputStream, encrypt: Boolean): Boolean
 
     fun passToHash(pass: String): String
 
@@ -175,14 +176,14 @@ class StorageCryptManager(
 ) : IStorageCryptManager {
 
 
-    private lateinit var cryptRecordFilesUseCase: CryptRecordFilesUseCase
+    private lateinit var cryptRecordFilesIfNeedUseCase: CryptRecordFilesIfNeedUseCase
     private lateinit var parseRecordTagsUseCase: ParseRecordTagsUseCase
 
     override fun init(
-        cryptRecordFilesUseCase: CryptRecordFilesUseCase,
+        cryptRecordFilesIfNeedUseCase: CryptRecordFilesIfNeedUseCase,
         parseRecordTagsUseCase: ParseRecordTagsUseCase,
     ) {
-        this.cryptRecordFilesUseCase = cryptRecordFilesUseCase
+        this.cryptRecordFilesIfNeedUseCase = cryptRecordFilesIfNeedUseCase
         this.parseRecordTagsUseCase = parseRecordTagsUseCase
     }
 
@@ -594,7 +595,7 @@ class StorageCryptManager(
         return crypter.encryptTextBase64(field)
     }
 
-    override fun decryptText(bytes: ByteArray): String {
+    override fun decryptText(bytes: ByteArray): String? {
         return crypter.decryptText(bytes)
     }
 
@@ -602,15 +603,15 @@ class StorageCryptManager(
         return crypter.encryptTextBytes(text)
     }
 
-    override fun encryptDecryptFile(srcFile: File, destFile: File, encrypt: Boolean): Boolean {
-        return crypter.encryptDecryptFile(srcFile, destFile, encrypt)
+    override fun encryptOrDecryptFile(srcFileStream: InputStream, destFileStream: OutputStream, encrypt: Boolean): Boolean {
+        return crypter.encryptDecryptFile(srcFileStream, destFileStream, encrypt)
     }
 
     private suspend fun cryptRecordFiles(record: TetroidRecord, isCrypted: Boolean, isEncrypt: Boolean): Boolean {
-        return cryptRecordFilesUseCase.run(
-            CryptRecordFilesUseCase.Params(
+        return cryptRecordFilesIfNeedUseCase.run(
+            CryptRecordFilesIfNeedUseCase.Params(
                 record = record,
-                isCrypted = isCrypted,
+                isEncrypted = isCrypted,
                 isEncrypt = isEncrypt,
             )
         ).foldResult(

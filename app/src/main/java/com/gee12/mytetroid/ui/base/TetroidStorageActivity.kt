@@ -1,7 +1,7 @@
 package com.gee12.mytetroid.ui.base
 
-import android.content.Intent
 import android.view.*
+import androidx.documentfile.provider.DocumentFile
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.di.ScopeSource
@@ -11,7 +11,6 @@ import com.gee12.mytetroid.ui.settings.storage.StorageSettingsActivity.Companion
 import com.gee12.mytetroid.ui.storages.StoragesActivity.Companion.start
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
 import com.gee12.mytetroid.ui.storage.StorageEvent
-import lib.folderpicker.FolderPicker
 
 abstract class TetroidStorageActivity<VM : BaseStorageViewModel> : TetroidActivity<VM>() {
 
@@ -86,54 +85,15 @@ abstract class TetroidStorageActivity<VM : BaseStorageViewModel> : TetroidActivi
     open fun afterStorageDecrypted() {
     }
 
-    // region FileFolderPicker
+    // region File
 
-    fun openFilePicker() {
-        openFileFolderPicker(true)
+    override fun isUseFileStorage() = true
+
+    override fun onStorageAccessGranted(requestCode: Int, root: DocumentFile) {
+        viewModel.onStorageAccessGranted(requestCode, root)
     }
 
-    fun openFolderPicker() {
-        openFileFolderPicker(false)
-    }
-
-    /**
-     * Открытие активности для выбора файла или каталога в файловой системе.
-     */
-    fun openFileFolderPicker(isPickFile: Boolean) {
-        val intent = Intent(this, FolderPicker::class.java)
-        intent.putExtra(
-            FolderPicker.EXTRA_TITLE,
-            if (isPickFile) getString(R.string.title_select_file_to_upload) else getString(R.string.title_save_file_to)
-        )
-        intent.putExtra(FolderPicker.EXTRA_LOCATION, viewModel.getLastFolderPathOrDefault(false))
-        intent.putExtra(FolderPicker.EXTRA_PICK_FILES, isPickFile)
-        startActivityForResult(intent, if (isPickFile) Constants.REQUEST_CODE_FILE_PICKER else Constants.REQUEST_CODE_FOLDER_PICKER)
-    }
-
-    // endregion FileFolderPicker
-
-    /**
-     * Обработчик выбора пунктов системного меню.
-     * @param item
-     * @return
-     */
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return super.onOptionsItemSelected(item)
-    }
-
-    /**
-     * Обработчик результата активити.
-     */
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-    }
-
-    /**
-     * Обработчик запроса разрешения.
-     */
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    }
+    // endregion File
 
     protected fun showStoragesActivity() {
         start(this, Constants.REQUEST_CODE_STORAGES_ACTIVITY)

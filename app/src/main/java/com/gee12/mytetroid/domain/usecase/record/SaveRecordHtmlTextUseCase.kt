@@ -1,21 +1,21 @@
 package com.gee12.mytetroid.domain.usecase.record
 
-import android.net.Uri
+import android.content.Context
+import com.anggrayudi.storage.file.child
+import com.anggrayudi.storage.file.getAbsolutePath
+import com.anggrayudi.storage.file.openOutputStream
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.common.extensions.makePath
-import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.domain.manager.IStorageCryptManager
-import com.gee12.mytetroid.domain.provider.IRecordPathProvider
+import com.gee12.mytetroid.model.FilePath
 import com.gee12.mytetroid.model.TetroidRecord
-import java.io.IOException
 
 /**
  * Сохранение содержимого записи в файл.
  */
 class SaveRecordHtmlTextUseCase(
-    private val recordPathProvider: IRecordPathProvider,
+    private val context: Context,
     private val cryptManager: IStorageCryptManager,
-    private val checkRecordFolderUseCase: CheckRecordFolderUseCase,
+    private val getRecordFolderUseCase: GetRecordFolderUseCase,
 ) : UseCase<UseCase.None, SaveRecordHtmlTextUseCase.Params>() {
 
     data class Params(
@@ -27,36 +27,41 @@ class SaveRecordHtmlTextUseCase(
         val record = params.record
         val html = params.html
 
-        // проверка существования каталога записи
-        val folderPath = recordPathProvider.getPathToRecordFolder(record)
-        checkRecordFolderUseCase.run(
-            CheckRecordFolderUseCase.Params(
-                folderPath = folderPath,
-                isCreate = true,
+        val recordFolder = getRecordFolderUseCase.run(
+            GetRecordFolderUseCase.Params(
+                record = record,
+                createIfNeed = true,
+                inTrash = false,
                 showMessage = true,
             )
-        ).onFailure {
-            return it.toLeft()
-        }
+        ).foldResult(
+            onLeft = {
+                return it.toLeft()
+            },
+            onRight = { it }
+        )
+        val folderPath = recordFolder.getAbsolutePath(context)
+        val filePath = FilePath.File(folderPath, record.fileName)
+
         // формирование пути к файлу записи
-        val filePath = makePath(folderPath, record.fileName)
-        val uri = try {
-            Uri.parse(filePath)
-        } catch (ex: Exception) {
-//            logger.logError(resourcesProvider.getString(R.string.error_generate_record_uri_path_mask, filePath), ex)
-            return Failure.File.CreateUriPath(path = filePath).toLeft()
-        }
+        val file = recordFolder.child(
+            context = context,
+            path = record.fileName,
+            requiresWriteAccess = true,
+        ) ?: return Failure.File.Get(filePath).toLeft()
+
         // запись файла с шифрованием при необходимости
         try {
-            if (record.isCrypted) {
-                val res = cryptManager.encryptTextBytes(html)
-                FileUtils.writeFile(uri, res)
+            val bytes = if (record.isCrypted) {
+                cryptManager.encryptTextBytes(html)
             } else {
-                FileUtils.writeFile(uri, html)
+                html.toByteArray()
             }
-        } catch (ex: IOException) {
-//            logger.logError(resourcesProvider.getString(R.string.log_error_write_to_record_file) + filePath, ex)
-            return Failure.File.Write(fileName = record.fileName, path = filePath, ex).toLeft()
+            file.openOutputStream(context, append = false)?.use { outputStream ->
+                outputStream.write(bytes)
+            }
+        } catch (ex: Exception) {
+            return Failure.File.Write(filePath, ex).toLeft()
         }
         return None.toRight()
     }

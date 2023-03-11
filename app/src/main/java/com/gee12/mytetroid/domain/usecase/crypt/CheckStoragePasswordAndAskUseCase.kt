@@ -18,7 +18,7 @@ class CheckStoragePasswordAndAskUseCase(
 
     data class Params(
         val storage: TetroidStorage?,
-        val isStorageCrypted: Boolean,
+        val isStorageEncrypted: Boolean,
     )
 
     sealed class Result {
@@ -34,14 +34,13 @@ class CheckStoragePasswordAndAskUseCase(
 
     override suspend fun run(params: Params): Either<Failure, Result> {
         val storage = params.storage
-        val isStorageCrypted = params.isStorageCrypted
+        val isStorageEncrypted = params.isStorageEncrypted
         val isSaveMiddlePassLocal = storage?.isSavePassLocal ?: false
 
         var middlePassHash: String? = null
         return when {
             sensitiveDataProvider.getMiddlePassHashOrNull()?.also { middlePassHash = it } != null -> {
                 // хэш пароля сохранен в оперативной памяти (вводили до этого и проверяли)
-//                cryptInteractor.initCryptPass(middlePassHash!!, true)
                 cryptManager.setKeyFromMiddleHash(middlePassHash!!)
                 // запрос ПИН-кода
                 Result.AskPin(
@@ -52,7 +51,6 @@ class CheckStoragePasswordAndAskUseCase(
                 // хэш пароля сохранен локально, проверяем
                 try {
                     if (passwordManager.checkMiddlePassHash(middlePassHash)) {
-//                        cryptInteractor.initCryptPass(middlePassHash!!, true)
                         cryptManager.setKeyFromMiddleHash(middlePassHash!!)
                         // запрос ПИН-кода
                         Result.AskPin(
@@ -66,8 +64,7 @@ class CheckStoragePasswordAndAskUseCase(
                 } catch (ex: DatabaseConfig.EmptyFieldException) {
                     // если поля в INI-файле для проверки пустые
                     logger.logError(ex)
-                    // if (DataManager.isExistsCryptedNodes()) {
-                    if (isStorageCrypted) {
+                    if (isStorageEncrypted) {
                         // спрашиваем "continue anyway?"
                         Result.AskForEmptyPassCheckingField(
                             fieldName = ex.fieldName,
@@ -75,7 +72,6 @@ class CheckStoragePasswordAndAskUseCase(
                         ).toRight()
                     } else {
                         // если нет зашифрованных веток, но пароль сохранен
-//                        cryptInteractor.initCryptPass(middlePassHash!!, true)
                         cryptManager.setKeyFromMiddleHash(middlePassHash!!)
                         Result.AskPin(
                             specialFlag = true,

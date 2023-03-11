@@ -15,9 +15,11 @@ import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.isVisible
+import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
+import com.anggrayudi.storage.SimpleStorageHelper
+import com.anggrayudi.storage.file.FileFullPath
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.extensions.hideKeyboard
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
@@ -26,7 +28,8 @@ import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.logs.Message
-import com.gee12.mytetroid.model.enums.TetroidPermission
+import com.gee12.mytetroid.model.permission.PermissionRequestCode
+import com.gee12.mytetroid.model.permission.TetroidPermission
 import com.gee12.mytetroid.ui.TetroidMessage
 import com.gee12.mytetroid.ui.about.AboutActivity
 import com.gee12.mytetroid.ui.base.views.ActivityDoubleTapListener
@@ -38,7 +41,7 @@ import org.koin.core.scope.Scope
 import org.koin.core.scope.get
 
 abstract class TetroidActivity<VM : BaseViewModel>
-    : AppCompatActivity(), View.OnTouchListener, IViewEventListener {
+    : AppCompatActivity(), ITetroidComponent, View.OnTouchListener {
 
     interface IDownloadFileResult {
         fun onSuccess(uri: Uri)
@@ -49,11 +52,13 @@ abstract class TetroidActivity<VM : BaseViewModel>
     protected val koinScope: Scope
         get() = scopeSource.scope
 
+    lateinit var viewModel: VM
+
     val resourcesProvider: IResourcesProvider by inject()
     val settingsManager: CommonSettingsManager by inject()
 
     protected var receivedIntent: Intent? = null
-    protected var optionsMenu: Menu? = null
+    var optionsMenu: Menu? = null
     protected lateinit var tvSingleTitle: TextView
     protected lateinit var tvTitle: TextView
     protected lateinit var tvSubtitle: TextView
@@ -66,7 +71,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
     protected var isOnCreateProcessed = false
     protected var isUICreated = false
 
-    lateinit var viewModel: VM
+    lateinit var fileStorageHelper: SimpleStorageHelper
 
 
     protected abstract fun getLayoutResourceId(): Int
@@ -101,6 +106,11 @@ abstract class TetroidActivity<VM : BaseViewModel>
 
         isOnCreateProcessed = false
         isUICreated = false
+
+        if (isUseFileStorage()) {
+            fileStorageHelper = SimpleStorageHelper(this, savedInstanceState)
+            initFileStorage(savedInstanceState)
+        }
 
         createDependencyScope()
         afterCreateDependencyScope()
@@ -147,9 +157,9 @@ abstract class TetroidActivity<VM : BaseViewModel>
      */
     protected fun afterOnCreate() {
         isOnCreateProcessed = true
-        if (optionsMenu != null) {
-            onCreateOptionsMenu(optionsMenu!!)
-            onPrepareOptionsMenu(optionsMenu!!)
+        optionsMenu?.let {
+            onCreateOptionsMenu(it)
+            onPrepareOptionsMenu(it)
         }
     }
 
@@ -194,15 +204,140 @@ abstract class TetroidActivity<VM : BaseViewModel>
         )
     }
 
-    protected open fun onPermissionGranted(requestCode: Int) {
+    protected open fun onPermissionGranted(requestCode: PermissionRequestCode) {
         // по-умолчанию обрабатываем результат разрешения во ViewModel,
         //  но можем переопределить onPermissionGranted и в активити
         viewModel.onPermissionGranted(requestCode)
     }
 
-    protected fun onPermissionCanceled(requestCode: Int) {
+    protected fun onPermissionCanceled(requestCode: PermissionRequestCode) {
         viewModel.onPermissionCanceled(requestCode)
     }
+
+    // region File
+
+    override fun isUseFileStorage() = false
+
+    protected fun requestFileStorageAccess(
+        root: DocumentFile,
+        requestCode: PermissionRequestCode,
+    ) {
+        fileStorageHelper.requestStorageAccess(
+            requestCode = requestCode.code,
+            initialPath = FileFullPath(this, fullPath = root.uri.toString()),
+        )
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        fileStorageHelper.storage.checkIfFileReceived(intent)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        fileStorageHelper.onSaveInstanceState(outState)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        fileStorageHelper.onRestoreInstanceState(savedInstanceState)
+    }
+
+    // TODO: в отдельный FileStorageManager
+    private fun initFileStorage(savedInstanceState: Bundle?) {
+        savedInstanceState?.let { fileStorageHelper.onRestoreInstanceState(it) }
+        fileStorageHelper.onStorageAccessGranted = { requestCode, root ->
+            onStorageAccessGranted(requestCode, root)
+        }
+        fileStorageHelper.onFileSelected = { requestCode, files ->
+            onFileSelected(requestCode, files)
+        }
+        fileStorageHelper.onFolderSelected = { requestCode, folder ->
+            // сохраняем путь
+            settingsManager.setLastSelectedFolderPath(path = folder.uri.toString())
+
+            onFolderSelected(requestCode, folder)
+        }
+        /*fileStorageHelper.onFileCreated = { requestCode, file ->
+            onFileCreated(requestCode, file)
+        }
+        fileStorageHelper.onFileReceived = object : SimpleStorageHelper.OnFileReceived {
+            override fun onFileReceived(files: List<DocumentFile>) {
+                val names = files.joinToString(", ") { it.fullName }
+                Toast.makeText(baseContext, "File received: $names", Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onNonFileReceived(intent: Intent) {
+                Toast.makeText(baseContext, "Non-file is received", Toast.LENGTH_SHORT).show()
+            }
+        }*/
+        if (savedInstanceState == null) {
+            fileStorageHelper.storage.checkIfFileReceived(intent)
+        }
+    }
+
+    override fun onStorageAccessGranted(requestCode: Int, root: DocumentFile) {}
+
+    override fun onFolderSelected(requestCode: Int, folder: DocumentFile) {}
+
+    override fun onFileSelected(requestCode: Int, files: List<DocumentFile>) {}
+
+    //override fun onFileCreated(requestCode: Int, file: DocumentFile) {}
+
+    // TODO: в отдельный FileStorageManager
+    fun openFilePicker(
+        requestCode: PermissionRequestCode,
+        allowMultiple: Boolean = false,
+        initialPath: String? = null,
+        filterMimeTypes: Array<String> = emptyArray(),
+    ) {
+        val path = initialPath ?: settingsManager.getLastSelectedFolderPathOrDefault(true)
+        try {
+            fileStorageHelper.openFilePicker(
+                requestCode = requestCode.code,
+                allowMultiple = allowMultiple,
+                initialPath = path?.let { FileFullPath(this, fullPath = it) },
+                filterMimeTypes = filterMimeTypes,
+            )
+        } catch (ex: Exception) {
+            try {fileStorageHelper.openFilePicker(
+                requestCode = requestCode.code,
+                allowMultiple = allowMultiple,
+                initialPath = null,
+                filterMimeTypes = filterMimeTypes,
+            )
+                viewModel.logWarning(getString(R.string.error_incorrent_initial_path_for_picker_mask, initialPath), show = false)
+            } catch (ex: Exception) {
+                viewModel.logError(getString(R.string.error_open_file_folder_picker), show = true)
+            }
+        }
+    }
+
+    // TODO: в отдельный FileStorageManager
+    fun openFolderPicker(
+        requestCode: PermissionRequestCode,
+        initialPath: String? = null,
+    ) {
+        val path = initialPath ?: settingsManager.getLastSelectedFolderPathOrDefault(true)
+        try {
+            fileStorageHelper.openFolderPicker(
+                requestCode = requestCode.code,
+                initialPath = path?.let { FileFullPath(this, fullPath = it) },
+            )
+        } catch (ex: Exception) {
+            try {
+                fileStorageHelper.openFolderPicker(
+                    requestCode = requestCode.code,
+                    initialPath = null,
+                )
+                viewModel.logWarning(getString(R.string.error_incorrent_initial_path_for_picker_mask, initialPath), show = false)
+            } catch (ex: Exception) {
+                viewModel.logError(getString(R.string.error_open_file_folder_picker), show = true)
+            }
+        }
+    }
+
+    // endregion File
 
     /**
      * Установка заголовка активности.
@@ -304,9 +439,9 @@ abstract class TetroidActivity<VM : BaseViewModel>
     }*/
 
     fun updateOptionsMenu() {
-        if (optionsMenu != null) {
-            onPrepareOptionsMenu(optionsMenu!!)
-        } else {
+        optionsMenu?.let {
+            onPrepareOptionsMenu(it)
+        } ?: run {
             viewModel.logWarning("TetroidActivity.updateOptionsMenu(): optionsMenu is null", false)
         }
     }
@@ -341,7 +476,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
         super.onActivityResult(requestCode, resultCode, data)
 
         // разрешение на запись в память на Android 11 запрашивается с помощью Intent
-        if (requestCode == Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE) {
+        if (requestCode == PermissionRequestCode.OPEN_STORAGE_FOLDER.code) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 val isGranted = (viewModel.permissionManager.hasWriteExtStoragePermission(this))
                 onRequestPermissionsResult(
@@ -359,35 +494,17 @@ abstract class TetroidActivity<VM : BaseViewModel>
      */
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
         val isGranted = grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED
-        when (requestCode) {
-            Constants.REQUEST_CODE_PERMISSION_WRITE_STORAGE -> {
-                if (isGranted) {
-                    viewModel.log(R.string.log_write_ext_storage_perm_granted)
-                } else {
-                    viewModel.logWarning(R.string.log_missing_read_ext_storage_permissions, true)
-                }
+        val permissionRequestCode = PermissionRequestCode.fromCode(requestCode)
+        permissionRequestCode?.also {
+            if (isGranted) {
+                viewModel.log(getString(R.string.log_permission_granted_mask, it.name))
+                onPermissionGranted(it)
+            } else {
+                viewModel.log(getString(R.string.log_permission_canceled_mask, it.name))
+                onPermissionCanceled(it)
             }
-            Constants.REQUEST_CODE_PERMISSION_WRITE_TEMP -> {
-                if (isGranted) {
-                    viewModel.log(R.string.log_write_ext_storage_perm_granted)
-                } else {
-                    viewModel.logWarning(R.string.log_missing_write_ext_storage_permissions, true)
-                }
-            }
-            Constants.REQUEST_CODE_PERMISSION_TERMUX -> {
-                if (isGranted) {
-                    viewModel.log(R.string.log_run_termux_commands_perm_granted)
-                } else {
-                    viewModel.logWarning(R.string.log_missing_run_termux_commands_permissions, true)
-                }
-            }
-            else -> Unit
-        }
-        if (isGranted) {
-            onPermissionGranted(requestCode)
-        } else {
-            onPermissionCanceled(requestCode)
         }
     }
 
@@ -427,6 +544,8 @@ abstract class TetroidActivity<VM : BaseViewModel>
         actionBar?.setDisplayHomeAsUpEnabled(isVisible)
     }
 
+    // region IAndroidComponent
+
     override fun setProgressVisibility(isVisible: Boolean, text: String?) {
         layoutProgress.isVisible = isVisible
         tvProgress.text = text
@@ -444,6 +563,29 @@ abstract class TetroidActivity<VM : BaseViewModel>
         setProgressVisibility(isVisible = false)
     }
 
+    /**
+     * Публикация сообщений.
+     */
+    fun showMessage(message: Message) {
+        TetroidMessage.show(this, message)
+    }
+
+    protected fun showMessage(messageResId: Int, type: LogType = LogType.INFO) {
+        showMessage(getString(messageResId), type)
+    }
+
+    protected fun showMessage(message: String, type: LogType = LogType.INFO) {
+        showMessage(Message(message, type))
+    }
+
+    // endregion IAndroidComponent
+
+    /**
+     * Вывод интерактивного уведомления SnackBar "Подробнее в логах".
+     */
+    override fun showSnackMoreInLogs() {
+        TetroidMessage.showSnackMoreInLogs(this, R.id.layout_coordinator)
+    }
     /**
      * Установка видимости пункта меню.
      */
@@ -474,7 +616,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
      * Установка подзаголовка активности.
      * @param subtitle
      */
-    protected fun setSubtitle(subtitle: String?) {
+    fun setSubtitle(subtitle: String?) {
         tvSubtitle.visibility = View.VISIBLE
         tvSubtitle.textSize = 16f
         tvSubtitle.text = subtitle
@@ -485,25 +627,4 @@ abstract class TetroidActivity<VM : BaseViewModel>
         startActivityForResult(intent, requestCode)
     }
 
-    /**
-     * Публикация сообщений.
-     */
-    protected fun showMessage(message: Message) {
-        TetroidMessage.show(this, message)
-    }
-
-    protected fun showMessage(messageResId: Int, type: LogType = LogType.INFO) {
-        showMessage(getString(messageResId), type)
-    }
-
-    protected fun showMessage(message: String, type: LogType = LogType.INFO) {
-        showMessage(Message(message, type))
-    }
-
-    /**
-     * Вывод интерактивного уведомления SnackBar "Подробнее в логах".
-     */
-    override fun showSnackMoreInLogs() {
-        TetroidMessage.showSnackMoreInLogs(this, R.id.layout_coordinator)
-    }
 }

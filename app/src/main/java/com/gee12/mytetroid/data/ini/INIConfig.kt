@@ -2,9 +2,9 @@ package com.gee12.mytetroid.data.ini
 
 import com.gee12.mytetroid.logs.ITetroidLogger
 import org.ini4j.Ini
-import java.io.FileReader
-import java.io.FileWriter
 import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 import java.lang.Exception
 
 /**
@@ -15,28 +15,15 @@ open class INIConfig(
 ) {
 
     protected var config: Ini = Ini()
-    private var fileName: String? = null
-
-    /**
-     * Установка имени конфигурационного файла.
-     */
-    fun setFileName(fileName: String?) {
-        this.fileName = fileName
-    }
-
-    fun getFileName() : String? {
-        return fileName
-    }
 
     /**
      * Загрузка параметров из файла.
-     * @return
      */
-    fun load(): Boolean {
+    fun load(inputStream: InputStream): Boolean {
         try {
-            config.load(FileReader(fileName))
-        } catch (e: IOException) {
-            logger?.logError("Configuration error: ", e, false)
+            config.load(inputStream)
+        } catch (ex: IOException) {
+            logger?.logError("Configuration error: ", ex, show = false)
             return false
         }
         return true
@@ -44,13 +31,12 @@ open class INIConfig(
 
     /**
      * Сохранение параметров в файл.
-     * @return
      */
-    fun save(): Boolean {
+    fun save(outputStream: OutputStream): Boolean {
         try {
-            config.store(FileWriter(fileName))
-        } catch (e: Exception) {
-            logger?.logError("Configuration error: ", e, false)
+            config.store(outputStream)
+        } catch (ex: Exception) {
+            logger?.logError("Configuration error: ", ex, show = false)
             return false
         }
         return true

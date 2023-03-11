@@ -8,6 +8,7 @@ import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
+import com.gee12.mytetroid.domain.provider.IAppPathProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.ui.base.BaseViewModel
@@ -21,13 +22,15 @@ class LogsViewModel(
     notificator: INotificator,
     failureHandler: IFailureHandler,
     settingsManager: CommonSettingsManager,
+    appPathProvider: IAppPathProvider,
 ) : BaseViewModel(
-    app,
-    resourcesProvider,
-    logger,
-    notificator,
-    failureHandler,
-    settingsManager,
+    application = app,
+    resourcesProvider = resourcesProvider,
+    logger = logger,
+    notificator = notificator,
+    failureHandler = failureHandler,
+    settingsManager = settingsManager,
+    appPathProvider = appPathProvider,
 ), CoroutineScope {
 
     companion object {

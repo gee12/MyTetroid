@@ -105,7 +105,7 @@
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="300"
-        android:title="@string/title_settings"
+        android:title="@string/action_common_settings"
         android:icon="@drawable/ic_settings"
         app:showAsAction="never" />
     <item

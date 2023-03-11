@@ -28,6 +28,7 @@ object ViewModelsModule {
                     failureHandler = get(),
 
                     settingsManager = get(),
+                    appPathProvider = get(),
                     buildInfoProvider = get(),
                     storageProvider = get(),
                     sensitiveDataProvider = get(),
@@ -40,9 +41,8 @@ object ViewModelsModule {
 
                     passwordManager = get(),
                     favoritesManager = get(),
-                    interactionInteractor = get(),
+                    interactionManager = get(),
                     syncInteractor = get(),
-                    trashInteractor = get(),
 
                     initAppUseCase = get(),
                     initOrCreateStorageUseCase = get(),
@@ -55,6 +55,7 @@ object ViewModelsModule {
                     checkStorageFilesExistingUseCase = get(),
                     setupPasswordUseCase = get(),
                     initPasswordUseCase = get(),
+                    clearStorageTrashFolderUseCase = get(),
 
                     getFileModifiedDateUseCase = get(),
                     getFolderSizeUseCase = get(),
@@ -73,6 +74,7 @@ object ViewModelsModule {
                     failureHandler = get(),
 
                     settingsManager = get(),
+                    appPathProvider = get(),
                     storageProvider = get(),
                     storagePathProvider = get(),
                     sensitiveDataProvider = get(),
@@ -85,9 +87,8 @@ object ViewModelsModule {
 
                     favoritesManager = get(),
                     passwordManager = get(),
-                    interactionInteractor = get(),
+                    interactionManager = get(),
                     syncInteractor = get(),
-                    trashInteractor = get(),
                     migrationInteractor = get(),
                     storageTreeInteractor = get(),
 
@@ -102,6 +103,7 @@ object ViewModelsModule {
                     checkStorageFilesExistingUseCase = get(),
                     setupPasswordUseCase = get(),
                     initPasswordUseCase = get(),
+                    clearStorageTrashFolderUseCase = get(),
 
                     getFileModifiedDateUseCase = get(),
                     getFolderSizeUseCase = get(),
@@ -112,7 +114,7 @@ object ViewModelsModule {
                     globalSearchUseCase = get(),
                     createNodeUseCase = get(),
                     insertNodeUseCase = get(),
-                    deleteNodeUseCase = get(),
+                    cutOrDeleteNodeUseCase = get(),
                     editNodeFieldsUseCase = get(),
                     loadNodeIconUseCase = get(),
                     setNodeIconUseCase = get(),
@@ -122,14 +124,15 @@ object ViewModelsModule {
                     createTempRecordUseCase = get(),
                     editRecordFieldsUseCase = get(),
                     cutOrDeleteRecordUseCase = get(),
+                    getRecordFolderUseCase = get(),
 
-                    getFileFromAttachUseCase = get(),
+                    getUriFromAttachUseCase = get(),
                     createAttachToRecordUseCase = get(),
                     deleteAttachUseCase = get(),
                     editAttachFieldsUseCase = get(),
-                    saveAttachUseCase = get(),
+                    saveAttachToFileUseCase = get(),
 
-                    cryptRecordFilesUseCase = get(),
+                    cryptRecordFilesIfNeedUseCase = get(),
 
                     parseRecordTagsUseCase = get(),
                     getTagByNameUseCase = get(),
@@ -145,8 +148,9 @@ object ViewModelsModule {
                     notificator = get(),
                     failureHandler = get(),
 
-                    buildInfoProvider = get(),
                     settingsManager = get(),
+                    appPathProvider = get(),
+                    buildInfoProvider = get(),
                     storageProvider = get(),
                     sensitiveDataProvider = get(),
                     storagePathProvider = get(),
@@ -158,9 +162,8 @@ object ViewModelsModule {
 
                     passwordManager = get(),
                     favoritesManager = get(),
-                    interactionInteractor = get(),
+                    interactionManager = get(),
                     syncInteractor = get(),
-                    trashInteractor = get(),
 
                     initAppUseCase = get(),
                     initOrCreateStorageUseCase = get(),
@@ -173,6 +176,7 @@ object ViewModelsModule {
                     checkStorageFilesExistingUseCase = get(),
                     setupPasswordUseCase = get(),
                     initPasswordUseCase = get(),
+                    clearStorageTrashFolderUseCase = get(),
 
                     getFileModifiedDateUseCase = get(),
                     getFolderSizeUseCase = get(),
@@ -182,11 +186,11 @@ object ViewModelsModule {
                     createTempRecordUseCase = get(),
                     getRecordHtmlTextDecryptedUseCase = get(),
                     saveRecordHtmlTextUseCase = get(),
-                    createAttachToRecordUseCase = get(),
+                    attachFileToRecordUseCase = get(),
                     saveImageFromUriUseCase = get(),
                     saveImageFromBitmapUseCase = get(),
-                    setImageDimensionsUseCase = get(),
                     editRecordFieldsUseCase = get(),
+                    getRecordFolderUseCase = get(),
                 )
             }
 
@@ -198,8 +202,9 @@ object ViewModelsModule {
                     notificator = get(),
                     failureHandler = get(),
 
-                    buildInfoProvider = get(),
                     settingsManager = get(),
+                    appPathProvider = get(),
+                    buildInfoProvider = get(),
                     storageProvider = get(),
                     sensitiveDataProvider = get(),
                     storagePathProvider = get(),
@@ -212,9 +217,8 @@ object ViewModelsModule {
 
                     passwordManager = get(),
                     favoritesManager = get(),
-                    interactionInteractor = get(),
+                    interactionManager = get(),
                     syncInteractor = get(),
-                    trashInteractor = get(),
 
                     initAppUseCase = get(),
                     initOrCreateStorageUseCase = get(),
@@ -227,13 +231,14 @@ object ViewModelsModule {
                     checkStorageFilesExistingUseCase = get(),
                     setupPasswordUseCase = get(),
                     initPasswordUseCase = get(),
+                    clearStorageTrashFolderUseCase = get(),
 
                     getFileModifiedDateUseCase = get(),
                     getFolderSizeUseCase = get(),
                     getNodeByIdUseCase = get(),
                     getRecordByIdUseCase = get(),
 
-                    cryptRecordFilesUseCase = get(),
+                    cryptRecordFilesIfNeedUseCase = get(),
                     parseRecordTagsUseCase = get(),
                 )
             }
@@ -246,8 +251,9 @@ object ViewModelsModule {
                     notificator = get(),
                     failureHandler = get(),
 
-                    buildInfoProvider = get(),
                     settingsManager = get(),
+                    appPathProvider = get(),
+                    buildInfoProvider = get(),
                     storageProvider = get(),
                     sensitiveDataProvider = get(),
                     storagePathProvider = get(),
@@ -260,9 +266,8 @@ object ViewModelsModule {
 
                     passwordManager = get(),
                     favoritesManager = get(),
-                    interactionInteractor = get(),
+                    interactionManager = get(),
                     syncInteractor = get(),
-                    trashInteractor = get(),
 
                     initAppUseCase = get(),
                     initOrCreateStorageUseCase = get(),
@@ -275,6 +280,7 @@ object ViewModelsModule {
                     checkStorageFilesExistingUseCase = get(),
                     setupPasswordUseCase = get(),
                     initPasswordUseCase = get(),
+                    clearStorageTrashFolderUseCase = get(),
 
                     getFileModifiedDateUseCase = get(),
                     getFolderSizeUseCase = get(),
@@ -291,13 +297,15 @@ object ViewModelsModule {
                     notificator = get(),
                     failureHandler = get(),
 
-                    buildInfoProvider = get(),
                     settingsManager = get(),
+                    appPathProvider = get(),
+                    buildInfoProvider = get(),
 
-                    storagesInteractor = get(),
+                    storagesRepo = get(),
 
                     checkStorageFilesExistingUseCase = get(),
                     initStorageFromDefaultSettingsUseCase = get(),
+                    deleteStorageUseCase = get(),
                 )
             }
 
@@ -309,10 +317,11 @@ object ViewModelsModule {
                     notificator = get(),
                     failureHandler = get(),
                     settingsManager = get(),
+                    appPathProvider = get(),
                     storageProvider = get(),
                     storagePathProvider = get(),
-                    getIconsFoldersUseCase = get(),
-                    getIconsFromFolderUseCase = get(),
+                    getIconsFolderNamesUseCase = get(),
+                    getNodesIconsFromFolderUseCase = get(),
                 )
             }
 
@@ -324,9 +333,11 @@ object ViewModelsModule {
                 resourcesProvider = get(),
                 logger = get(),
                 notificator = get(),
+                settingsManager = get(),
+                appPathProvider = get(),
                 buildInfoProvider = get(),
                 failureHandler = get(),
-                settingsManager = get(),
+                clearAllStoragesTrashFolderUseCase = get(),
             )
         }
 
@@ -338,6 +349,7 @@ object ViewModelsModule {
                 notificator = get(),
                 failureHandler = get(),
                 settingsManager = get(),
+                appPathProvider = get(),
             )
         }
 

@@ -8,6 +8,7 @@ import com.gee12.mytetroid.domain.manager.FavoritesManager
 import com.gee12.mytetroid.domain.usecase.storage.InitStorageFromDefaultSettingsUseCase
 import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
+import com.gee12.mytetroid.domain.repo.StoragesRepo
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidStorage
 
@@ -15,14 +16,14 @@ class MigrationInteractor(
     private val logger: ITetroidLogger,
     private val buildInfoProvider: BuildInfoProvider,
     private val settingsManager: CommonSettingsManager,
-    private val storagesInteractor: StoragesInteractor,
+    private val storagesRepo: StoragesRepo,
     private val favoritesManager: FavoritesManager,
     private val initStorageFromDefaultSettingsUseCase: InitStorageFromDefaultSettingsUseCase,
 ) {
 
     suspend fun isNeedMigrateStorageFromPrefs(): Boolean {
         return settingsManager.getSettingsVersion() < Constants.SETTINGS_VERSION_CURRENT
-            && storagesInteractor.getStoragesCount() == 0
+            && storagesRepo.getStoragesCount() == 0
             && settingsManager.getStoragePath().isNotEmpty()
     }
 
@@ -32,7 +33,7 @@ class MigrationInteractor(
     suspend fun addDefaultStorageFromPrefs(): Boolean {
         return initStorageFromDefaultSettingsUseCase.run(
             storage = TetroidStorage(
-                path = settingsManager.getStoragePath()
+                uri = settingsManager.getStoragePath()
             )
         ).map { storage ->
             storage.also {
@@ -42,7 +43,7 @@ class MigrationInteractor(
                 it.lastNodeId = settingsManager.getLastNodeId()
             }
         }.flatMap { storage ->
-            storagesInteractor.addStorage(storage).toRight()
+            storagesRepo.addStorage(storage).toRight()
                 .flatMap { result ->
                     if (result && buildInfoProvider.isFullVersion()) {
                         val favorites = settingsManager.getFavorites()

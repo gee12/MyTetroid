@@ -9,6 +9,9 @@ import android.text.TextUtils
 import com.gee12.htmlwysiwygeditor.Dialogs.*
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
+import com.gee12.mytetroid.common.extensions.getExtensionWithoutComma
+import com.gee12.mytetroid.common.extensions.makePath
+import com.gee12.mytetroid.common.extensions.withExtension
 import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.data.settings.CommonSettings
@@ -17,15 +20,12 @@ import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.common.utils.UriUtils
-import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.domain.interactor.*
-import com.gee12.mytetroid.domain.manager.FavoritesManager
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.domain.NetworkHelper
-import com.gee12.mytetroid.domain.manager.CommonSettingsManager
-import com.gee12.mytetroid.domain.manager.PasswordManager
+import com.gee12.mytetroid.domain.manager.*
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.domain.usecase.InitAppUseCase
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -35,16 +35,14 @@ import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.BaseStorageViewModel
 import com.gee12.mytetroid.ui.base.TetroidActivity
 import com.gee12.mytetroid.ui.base.VMEvent
-import com.gee12.mytetroid.domain.usecase.storage.CheckStorageFilesExistingUseCase
-import com.gee12.mytetroid.domain.usecase.storage.InitOrCreateStorageUseCase
-import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
 import com.gee12.mytetroid.domain.usecase.crypt.*
-import com.gee12.mytetroid.domain.usecase.file.GetFileModifiedDateUseCase
-import com.gee12.mytetroid.domain.usecase.file.GetFolderSizeUseCase
+import com.gee12.mytetroid.domain.usecase.file.GetFileModifiedDateInStorageUseCase
+import com.gee12.mytetroid.domain.usecase.file.GetFolderSizeInStorageUseCase
 import com.gee12.mytetroid.domain.usecase.node.GetNodeByIdUseCase
 import com.gee12.mytetroid.domain.usecase.record.GetRecordByIdUseCase
-import com.gee12.mytetroid.domain.usecase.storage.ReadStorageUseCase
-import com.gee12.mytetroid.model.enums.TetroidPermission
+import com.gee12.mytetroid.domain.usecase.storage.*
+import com.gee12.mytetroid.model.permission.PermissionRequestCode
+import com.gee12.mytetroid.model.permission.TetroidPermission
 import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.util.*
@@ -57,25 +55,25 @@ open class StorageViewModel(
     failureHandler: IFailureHandler,
 
     settingsManager: CommonSettingsManager,
+    appPathProvider: IAppPathProvider,
     storageProvider: IStorageProvider,
+    storagePathProvider: IStoragePathProvider,
     val buildInfoProvider: BuildInfoProvider,
     val sensitiveDataProvider: ISensitiveDataProvider,
     val storagesRepo: StoragesRepo,
-    val storagePathProvider: IStoragePathProvider,
     val recordPathProvider: IRecordPathProvider,
     val dataNameProvider: IDataNameProvider,
 
     val cryptManager: IStorageCryptManager,
 
-    val interactionInteractor: InteractionInteractor,
+    val interactionManager: InteractionManager,
     val syncInteractor: SyncInteractor,
     val favoritesManager: FavoritesManager,
     val passwordManager: PasswordManager,
-    val trashInteractor: TrashInteractor,
 
     protected val initAppUseCase: InitAppUseCase,
-    protected val getFileModifiedDateUseCase: GetFileModifiedDateUseCase,
-    protected val getFolderSizeUseCase: GetFolderSizeUseCase,
+    protected val getFileModifiedDateUseCase: GetFileModifiedDateInStorageUseCase,
+    protected val getFolderSizeUseCase: GetFolderSizeInStorageUseCase,
 
     protected val initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
     protected val readStorageUseCase: ReadStorageUseCase,
@@ -87,17 +85,20 @@ open class StorageViewModel(
     protected val checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
     protected val setupPasswordUseCase: SetupPasswordUseCase,
     protected val initPasswordUseCase: InitPasswordUseCase,
+    protected val clearStorageTrashFolderUseCase: ClearStorageTrashFolderUseCase,
 
     protected val getNodeByIdUseCase: GetNodeByIdUseCase,
     protected val getRecordByIdUseCase: GetRecordByIdUseCase,
 ) : BaseStorageViewModel(
-    app,
-    resourcesProvider,
-    logger,
-    notificator,
-    failureHandler,
-    settingsManager,
-    storageProvider,
+    app = app,
+    resourcesProvider = resourcesProvider,
+    logger = logger,
+    notificator = notificator,
+    failureHandler = failureHandler,
+    settingsManager = settingsManager,
+    appPathProvider = appPathProvider,
+    storageProvider = storageProvider,
+    storagePathProvider = storagePathProvider,
 ) {
 
     private var isPinNeedEnter = false
@@ -235,20 +236,20 @@ open class StorageViewModel(
      * Запуск первичной инициализации хранилища по-умолчанию с указанием флага isCheckFavorMode
      * @param isLoadAllNodesForced Если true, то всегда загружать хранилище полностью.
      */
-    fun startInitStorage(storageId: Int, isLoadAllNodesForced: Boolean) {
+    fun checkPermissionsAndInitStorage(storageId: Int, isLoadAllNodesForced: Boolean) {
         this.isLoadAllNodesForced = isLoadAllNodesForced
-        startInitStorage(storageId)
+        checkPermissionsAndInitStorageById(storageId)
     }
 
     /**
      * Поиск хранилища по-умолчанию в базе данных и запуск первичной его инициализации.
      */
-    fun startInitStorage() {
+    fun checkPermissionsAndInitDefaultStorage() {
         log(R.string.log_start_load_def_storage)
         launchOnMain {
             val storageId = storagesRepo.getDefaultStorageId()
             if (storageId > 0) {
-                startInitStorage(storageId)
+                checkPermissionsAndInitStorageById(storageId)
             } else {
                 log(R.string.log_def_storage_not_specified)
                 sendEvent(StorageEvent.NoDefaultStorage)
@@ -259,12 +260,12 @@ open class StorageViewModel(
     /**
      * Поиск хранилища в базе данных и запуск первичной его инициализация.
      */
-    open fun startInitStorage(storageId: Int) {
+    open fun checkPermissionsAndInitStorageById(storageId: Int) {
         launchOnIo {
             val storage = storagesRepo.getStorage(storageId)
             if (storage != null) {
                 sendEvent(StorageEvent.FoundInBase(storage))
-                startInitStorage(storage)
+                checkPermissionsAndInitStorage(storage)
             } else {
                 sendEvent(StorageEvent.NotFoundInBase(storageId))
                 log(getString(R.string.log_storage_not_found_mask, storageId), true)
@@ -274,27 +275,55 @@ open class StorageViewModel(
 
     /**
      * Запуск первичной инициализации хранилища.
-     * Начинается с проверки разрешения на запись во внешнюю память устройства.
+     * Начинается с проверки и предоставления разрешения на доступ к хранилищу устройства.
      */
-    fun startInitStorage(storage: TetroidStorage) {
+    fun checkPermissionsAndInitStorage(storage: TetroidStorage) {
         storageProvider.setStorage(storage)
 
         CommonSettings.setLastStorageId(getContext(), storage.id)
 
-        // сначала проверяем разрешение на запись во внешнюю память
-        launchOnMain {
-            sendEvent(BaseEvent.Permission.Check(permission = TetroidPermission.WriteStorage))
+        val storageFolderUri = Uri.parse(storage.uri)
+
+        checkAndRequestFileStoragePermission(
+            storage = storage,
+            uri = storageFolderUri,
+            requestCode = PermissionRequestCode.OPEN_STORAGE_FOLDER,
+        )
+    }
+
+    fun checkAndRequestFileStoragePermission(
+        storage: TetroidStorage,
+        uri: Uri,
+        requestCode: PermissionRequestCode,
+    ) {
+        if (storage.isReadOnly) {
+            checkAndRequestReadFileStoragePermission(uri, requestCode)
+        } else {
+            checkAndRequestWriteFileStoragePermission(uri, requestCode)
         }
+    }
+
+    fun startInitStorageAfterPermissionsGranted(
+        activity: Activity,
+        permission: TetroidPermission.FileStorage
+    ) {
+        val root = permission.root
+        storage?.uri = root.uri.toString()
+        // сохраняем полученный Uri
+        updateStorageAsync()
+        // устанавливаем полученный DocumentFile
+        storageProvider.setRootFolder(root)
+
+        syncAndInitStorage(activity)
     }
 
     /**
      * Запуск перезагрузки хранилища.
-     *
-     * TODO: может здесь нужно сразу loadStorage() ?
      */
     fun startReinitStorage() {
+        // TODO: может здесь нужно сразу loadStorage() ?
         storage?.id?.let {
-            startInitStorage(it)
+            checkPermissionsAndInitStorageById(it)
         }
     }
 
@@ -302,12 +331,15 @@ open class StorageViewModel(
      * Инициализация хранилища (с созданием файлов, если оно новое).
      */
     fun initStorage(isLoadFavoritesOnly: Boolean? = null, isLoadAfter: Boolean = false) {
-        initStorage(
-            storage = storage!!, // FIXME
-            isLoadFavoritesOnly = isLoadFavoritesOnly,
-            isLoadAfter = isLoadAfter,
-        )
+        storage?.also {
+            initStorage(
+                storage = it,
+                isLoadFavoritesOnly = isLoadFavoritesOnly,
+                isLoadAfter = isLoadAfter,
+            )
+        }
     }
+
     fun initStorage(storage: TetroidStorage, isLoadFavoritesOnly: Boolean? = null, isLoadAfter: Boolean = false) {
         launchOnMain {
             isAlreadyTryDecrypt = false
@@ -320,7 +352,6 @@ open class StorageViewModel(
                 )
             }.onFailure { failure ->
                 logFailure(failure)
-                //logError(getString(R.string.log_failed_storage_init) + getStoragePath(), false)
                 sendEvent(
                     StorageEvent.InitFailed(
                         isOnlyFavorites = isLoadFavoritesOnly ?: checkIsNeedLoadFavoritesOnly()
@@ -329,14 +360,14 @@ open class StorageViewModel(
             }.onSuccess { result ->
                 when (result) {
                     is InitOrCreateStorageUseCase.Result.CreateStorage -> {
-                        logger.log(R.string.log_storage_created, true)
+                        logger.log(getString(R.string.log_storage_created_mask, storage.name), show = true)
                         sendEvent(StorageEvent.FilesCreated(storage))
                     }
                     is InitOrCreateStorageUseCase.Result.InitStorage -> {
 
                     }
                 }
-                log(getString(R.string.log_storage_inited) + getStoragePath())
+                log(getString(R.string.log_storage_config_loaded_mask, getStorageFolderPath().fullPath))
                 sendEvent(StorageEvent.Inited(storage))
                 if (isLoadAfter) {
                     startLoadStorage(
@@ -366,14 +397,13 @@ open class StorageViewModel(
         isNeedDecrypt: Boolean = true,
     ) {
         val params = StorageParams(
-            storage = storage!!,
             node = null,
             isNodeOpening = false,
             isLoadFavoritesOnly = isLoadFavoritesOnly,
             isHandleReceivedIntent = isHandleReceivedIntent,
             isAllNodesLoading = isAllNodesLoading
         )
-        if (isStorageCrypted() && isNeedDecrypt) {
+        if (isStorageEncrypted() && isNeedDecrypt) {
             // сначала устанавливаем пароль, а потом загружаем (с расшифровкой)
             params.isDecrypt = true
             checkPassAndDecryptStorage(params)
@@ -410,13 +440,7 @@ open class StorageViewModel(
     // region Load
 
     /**
-     * Непосредственное чтение или расшифровка (если зашифровано) данных хранилища.
-     *
-     * @param node            Зашифрованная ветка, которую нужно открыть после засшифровки.
-     * @param isDecrypt       Нужно ли вызвать процесс расшифровки хранилища.
-     * @param isOnlyFavorites Нужно ли загружать только избранные записи
-     * @param isHandleReceivedIntent  Нужно ли после загрузки открыть ветку, сохраненную в опции getLastNodeId()
-     * или ветку с избранным (если именно она передана в node)
+     * Непосредственный запуск чтения и/или расшифровки (если зашифровано) данных хранилища.
      */
     open fun loadOrDecryptStorage(params: StorageParams) {
         // расшифровуем хранилище только в том случаем, если:
@@ -435,7 +459,6 @@ open class StorageViewModel(
         } else {
             // загружаем хранилище впервые, с расшифровкой (если нужно)
             startReadStorage(
-                storage = params.storage,
                 isDecrypt = isDecrypt,
                 isFavoritesOnly = params.isLoadFavoritesOnly,
                 isOpenLastNode = params.isHandleReceivedIntent
@@ -452,7 +475,6 @@ open class StorageViewModel(
      * @param isDecrypt Необходимость расшифровки зашифрованных веток.
      */
     private fun startReadStorage(
-        storage: TetroidStorage,
         isDecrypt: Boolean,
         isFavoritesOnly: Boolean,
         isOpenLastNode: Boolean
@@ -469,8 +491,6 @@ open class StorageViewModel(
             val result = withIo {
                 readStorageUseCase.run(
                     ReadStorageUseCase.Params(
-                        storageProvider = storageProvider,
-                        storage = storage,
                         isDecrypt = isDecrypt,
                         isFavoritesOnly = isFavoritesOnly,
                         isOpenLastNode = isOpenLastNode,
@@ -488,8 +508,6 @@ open class StorageViewModel(
                 },
                 onRight = {
                     sendEvent(BaseEvent.TaskFinished)
-
-                    storageProvider.setStorage(storage)
 
                     val mes = getString(
                         when {
@@ -510,7 +528,7 @@ open class StorageViewModel(
             // инициализация контролов
             sendEvent(
                 BaseEvent.InitUI(
-                    storage = storage,
+                    storage = storage!!,
                     isLoadFavoritesOnly = isFavoritesOnly,
                     isHandleReceivedIntent = isOpenLastNode,
                     result = result
@@ -630,7 +648,6 @@ open class StorageViewModel(
     fun checkAndDecryptNode(node: TetroidNode): Boolean {
         if (!node.isNonCryptedOrDecrypted) {
             val params = StorageParams(
-                storage = storage!!,
                 node = node,
                 isDecrypt = true,
                 isNodeOpening = true,
@@ -650,7 +667,6 @@ open class StorageViewModel(
             // запрос на расшифровку записи может поступить только из списка Избранных записей,
             //  поэтому отправляем FAVORITES_NODE
             val params = StorageParams(
-                storage = storage!!, // FIXME
                 isDecrypt = true,
                 node = FavoritesManager.FAVORITES_NODE,
                 isNodeOpening = true,
@@ -669,6 +685,7 @@ open class StorageViewModel(
         isPinNeedEnter = true
     }
 
+    // TODO: ClearSavedPassUseCase
     fun clearSavedPass() {
         storage?.let {
             sensitiveDataProvider.resetMiddlePassHash()
@@ -763,13 +780,13 @@ open class StorageViewModel(
      */
     fun startStorageSync(activity: Activity, callback: ICallback?) {
         if (storage?.syncProfile?.appName == getString(R.string.title_app_termux)) {
-            if (!checkTermuxPermission(activity)) {
+            if (!checkAndRequestTermuxPermission(activity)) {
                 return
             }
         }
         val result = syncInteractor.startStorageSync(
             activity = activity,
-            storagePath = getStoragePath(),
+            storagePath = getStorageFolderPath().fullPath,
             command = storage?.syncProfile?.command.orEmpty(),
             appName = storage?.syncProfile?.appName.orEmpty(),
             requestCode = Constants.REQUEST_CODE_SYNC_STORAGE
@@ -830,8 +847,8 @@ open class StorageViewModel(
         return withMain {
             withIo {
                 getFileModifiedDateUseCase.run(
-                    GetFileModifiedDateUseCase.Params(
-                        filePath = recordPathProvider.getPathToFileInRecordFolder(record, record.fileName),
+                    GetFileModifiedDateInStorageUseCase.Params(
+                        fileRelativePath = recordPathProvider.getRelativePathToFileInRecordFolder(record, record.fileName),
                     )
                 )
             }.foldResult(
@@ -846,8 +863,8 @@ open class StorageViewModel(
         return withMain {
             withIo {
                 getFolderSizeUseCase.run(
-                    GetFolderSizeUseCase.Params(
-                        folderPath = recordPathProvider.getPathToRecordFolder(record),
+                    GetFolderSizeInStorageUseCase.Params(
+                        folderRelativePath = recordPathProvider.getRelativePathToRecordFolder(record),
                     )
                 )
             }.foldResult(
@@ -941,6 +958,7 @@ open class StorageViewModel(
      * @param url
      * @param callback
      */
+    // TODO: заюзать uri
     open suspend fun downloadFileToCache(url: String?, callback: TetroidActivity.IDownloadFileResult?) {
         if (TextUtils.isEmpty(url)) {
             logError(R.string.log_link_is_empty)
@@ -951,17 +969,12 @@ open class StorageViewModel(
                 message = getString(R.string.title_file_downloading)
             )
         )
-        var fileName = UriUtils.getFileName(url)
-        if (TextUtils.isEmpty(fileName)) {
-//            Exception ex = new Exception("");
-//            if (callback != null) {
-//                callback.onError(ex);
-//            }
-//            TetroidLog.log(TetroidActivity.this, getString(R.string.log_error_download_file_mask, ex.getMessage()), Toast.LENGTH_LONG);
-//            return;
-            fileName = dataNameProvider.createDateTimePrefix()
-        }
-        val outputFileName: String = getExternalCacheDir() + "/" + fileName
+        var fileName = UriUtils.getFileName(url).ifEmpty { dataNameProvider.createDateTimePrefix() }
+
+        // TODO: взять путь из AppPathProvider
+
+        val outputFileName = makePath(getExternalCacheDir(), fileName)
+
         NetworkHelper.downloadFileAsync(url, outputFileName, object : IWebFileResult {
             override fun onSuccess() {
                 callback?.onSuccess(Uri.fromFile(File(outputFileName)))
@@ -993,8 +1006,8 @@ open class StorageViewModel(
             logger.logError(resourcesProvider.getString(R.string.log_file_record_is_null))
             return null
         }
-        val ext = FileUtils.getExtensionWithComma(attach.name)
-        return recordPathProvider.getPathToFileInRecordFolder(record, attach.id + ext)
+        val ext = attach.name.getExtensionWithoutComma()
+        return recordPathProvider.getPathToFileInRecordFolder(record, attach.id.withExtension(ext))
     }
 
     fun getAttachEditedDate(context: Context, attach: TetroidFile): Date? {
@@ -1045,7 +1058,7 @@ open class StorageViewModel(
 
     //region Encryption
 
-    override fun isStorageCrypted(): Boolean {
+    override fun isStorageEncrypted(): Boolean {
         var iniFlag = false
         try {
             iniFlag = storageProvider.databaseConfig.isCryptMode
@@ -1094,7 +1107,7 @@ open class StorageViewModel(
                 checkStoragePasswordUseCase.run(
                     CheckStoragePasswordAndAskUseCase.Params(
                         storage = storage,
-                        isStorageCrypted = isStorageCrypted(),
+                        isStorageEncrypted = isStorageEncrypted(),
                     )
                 )
             }.onFailure { failure ->
@@ -1493,10 +1506,16 @@ open class StorageViewModel(
 
     fun clearTrashFolder() {
         launchOnMain {
-            if (trashInteractor.clearTrashFolder(storage ?: return@launchOnMain)) {
-                log(R.string.title_trash_cleared, true)
-            } else {
-                logError(R.string.title_trash_clear_error, true)
+            withIo {
+                clearStorageTrashFolderUseCase.run(
+                    ClearStorageTrashFolderUseCase.Params(
+                        storage = storage!!,
+                    )
+                )
+            }.onFailure {
+                logFailure(it)
+            }.onSuccess {
+                log(R.string.title_trash_cleared, show = true)
             }
         }
     }
@@ -1566,7 +1585,7 @@ open class StorageViewModel(
         )
     }
 
-    fun getPathToRecordFolder(record: TetroidRecord): String {
+    fun getPathToRecordFolder(record: TetroidRecord): FilePath.Folder {
         return recordPathProvider.getPathToRecordFolder(record)
     }
 

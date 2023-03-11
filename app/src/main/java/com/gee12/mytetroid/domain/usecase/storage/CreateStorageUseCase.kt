@@ -1,27 +1,33 @@
 package com.gee12.mytetroid.domain.usecase.storage
 
+import android.content.Context
+import android.net.Uri
+import androidx.documentfile.provider.DocumentFile
+import com.anggrayudi.storage.file.*
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.common.extensions.isDirEmpty
-import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.domain.manager.FavoritesManager
+import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.domain.usecase.node.CreateNodeUseCase
 import com.gee12.mytetroid.logs.ITetroidLogger
+import com.gee12.mytetroid.model.FilePath
 import com.gee12.mytetroid.model.TetroidStorage
-import java.io.File
 
 /**
  * Создание файлов хранилища, если оно новое.
  */
 class CreateStorageUseCase(
+    private val context: Context,
     private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
+    private val storageProvider: IStorageProvider,
     private val storageDataProcessor: IStorageDataProcessor,
     private val favoritesManager: FavoritesManager,
     private val createNodeUseCase: CreateNodeUseCase,
+    private val getStorageTrashFolderUseCase: GetStorageTrashFolderUseCase,
 ) : UseCase<UseCase.None, CreateStorageUseCase.Params>() {
 
     data class Params(
@@ -32,10 +38,7 @@ class CreateStorageUseCase(
     override suspend fun run(params: Params): Either<Failure, None> {
         val storage = params.storage
 
-        logger.logDebug(resourcesProvider.getString(R.string.log_start_storage_creating_mask, storage.path))
-
-        return setPathToDatabaseIniConfig(params)
-            .flatMap { createStorageFiles(params) }
+        return createStorageFiles(params)
             .onFailure {
                 storage.isInited = false
             }.flatMap {
@@ -50,45 +53,73 @@ class CreateStorageUseCase(
             }
     }
 
-    private fun setPathToDatabaseIniConfig(params: Params): Either<Failure, None> {
-        val databaseIniFileName = makePath(params.storage.path, Constants.DATABASE_INI_FILE_NAME)
-        params.databaseConfig.setFileName(databaseIniFileName)
-        return None.toRight()
-    }
-
     private suspend fun createStorageFiles(params: Params): Either<Failure, None> {
-        val storagePath = params.storage.path
+        val storage = params.storage
         val databaseConfig = params.databaseConfig
+        val storageFolderUri = Uri.parse(storage.uri)
+        var storageFolderPath = FilePath.FolderFull(storageFolderUri.path.orEmpty())
 
+        val storageFolder: DocumentFile?
         try {
-            val storageDir = File(storagePath)
-            if (storageDir.exists()) {
+            storageFolder = DocumentFileCompat.fromUri(context, storageFolderUri)
+
+            if (storageFolder != null && storageFolder.exists()) {
+                storageFolderPath = FilePath.FolderFull(storageFolder.getAbsolutePath(context))
+
                 // проверяем, пуст ли каталог
-                if (!storageDir.isDirEmpty()) {
-                    return Failure.Storage.Create.FolderNotEmpty(pathToFolder = storagePath).toLeft()
+                if (!storageFolder.isEmpty(context)) {
+                    return Failure.Storage.Create.FolderNotEmpty(storageFolderPath).toLeft()
                 }
             } else {
-                return Failure.Storage.Create.FolderIsMissing(pathToFolder = storagePath).toLeft()
+                return Failure.Storage.Create.FolderIsMissing(storageFolderPath).toLeft()
             }
 
+            logger.logDebug(resourcesProvider.getString(R.string.log_start_storage_creating_mask, storageFolderPath.fullPath))
+
             // сохраняем новый database.ini
-            if (!databaseConfig.saveDefault()) {
-                return Failure.Storage.DatabaseConfig.Save(
-                    pathToFile = databaseConfig.getFileName().orEmpty()
-                ).toLeft()
+            val iniFilePath = FilePath.File(storageFolderPath.fullPath, Constants.DATABASE_INI_FILE_NAME)
+
+            val iniFile = storageFolder.makeFile(
+                context = context,
+                name = iniFilePath.fileName,
+                mimeType = MimeType.TEXT,
+                mode = CreateMode.REPLACE,
+            ) ?: return Failure.File.Get(iniFilePath).toLeft()
+
+            iniFile.openOutputStream(context, append = false)?.use { stream ->
+                if (!databaseConfig.saveDefault(stream)) {
+                    return Failure.File.Write(iniFilePath).toLeft()
+                }
             }
 
             // создаем каталог base
-            val baseDir = File(storagePath, Constants.BASE_DIR_NAME)
-            if (!baseDir.mkdir()) {
-                return Failure.Storage.Create.BaseFolder(pathToFolder = baseDir.path).toLeft()
-            }
+            val baseFolderPath = FilePath.Folder(storageFolderPath.fullPath, Constants.BASE_DIR_NAME)
+
+            storageFolder.makeFolder(
+                context = context,
+                name = baseFolderPath.folderName,
+                mode = CreateMode.CREATE_NEW
+            ) ?: return Failure.Folder.Create(baseFolderPath).toLeft()
+
+            // создаем каталог корзины
+            // игнорируем, если не смогли создать
+            getStorageTrashFolderUseCase.run(
+                GetStorageTrashFolderUseCase.Params(
+                    storage = storage,
+                    createIfNotExist = true,
+                )
+            )
 
         } catch (ex: Exception) {
-            Failure.Storage.Create.FilesError(pathToFolder = storagePath, ex).toLeft()
+            return Failure.Storage.Create.FilesError(storageFolderPath, ex).toLeft()
         }
         // добавляем корневую ветку
         storageDataProcessor.init()
+
+        // инициализируем провайдер
+        storageProvider.init(storageDataProcessor)
+        storageProvider.setStorage(storage)
+        storageProvider.setRootFolder(storageFolder)
 
         return createNodeUseCase.run(
             CreateNodeUseCase.Params(

@@ -6,7 +6,7 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.domain.TetroidFileObserver
 import com.gee12.mytetroid.logs.ITetroidLogger
 
-class StorageTreeInteractor(
+class StorageTreeObserver(
     private val app: Application,
     private val logger: ITetroidLogger
 ) {
@@ -17,7 +17,7 @@ class StorageTreeInteractor(
     var observerStartedCallback: (() -> Unit)? = null
     var observerStoppedCallback: (() -> Unit)? = null
 
-    suspend fun startStorageTreeObserver(storagePath: String/*, callback: (TetroidFileObserver.Even) -> Unitt*/) {
+    suspend fun startObserver(storagePath: String/*, callback: (TetroidFileObserver.Even) -> Unitt*/) {
         fileObserver?.stop()
         fileObserver = null
 
@@ -34,7 +34,7 @@ class StorageTreeInteractor(
         observerStartedCallback?.invoke()
     }
 
-    fun stopStorageTreeObserver() {
+    fun stopObserver() {
         fileObserver?.stop()
         fileObserver = null
         logger.log(app.getString(R.string.log_mytetra_xml_observer_mask, app.getString(R.string.stopped)), false)

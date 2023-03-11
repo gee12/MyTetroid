@@ -8,6 +8,8 @@ import com.gee12.mytetroid.data.xml.StorageDataXmlProcessor
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.manager.FavoritesManager
 import com.gee12.mytetroid.domain.provider.*
+import org.koin.android.ext.koin.androidApplication
+import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 object StorageModule {
@@ -17,7 +19,9 @@ object StorageModule {
 
             scoped<IStorageProvider> {
                 StorageProvider(
+                    context = androidContext(),
                     logger = get(),
+                    appPathProvider = get(),
                 )
             }
 
@@ -33,7 +37,9 @@ object StorageModule {
 
             scoped<IStoragePathProvider> {
                 StoragePathProvider(
-                    storageProvider = get()
+                    context = androidContext(),
+                    storageProvider = get(),
+                    appPathProvider = get(),
                 )
             }
 

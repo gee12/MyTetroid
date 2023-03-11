@@ -9,11 +9,12 @@ import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidIcon
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
+import com.gee12.mytetroid.domain.provider.IAppPathProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.domain.provider.IStoragePathProvider
 import com.gee12.mytetroid.domain.provider.IStorageProvider
-import com.gee12.mytetroid.domain.usecase.node.icon.GetIconsFoldersUseCase
-import com.gee12.mytetroid.domain.usecase.node.icon.GetIconsFromFolderUseCase
+import com.gee12.mytetroid.domain.usecase.node.icon.GetIconsFolderNamesUseCase
+import com.gee12.mytetroid.domain.usecase.node.icon.GetNodesIconsFromFolderUseCase
 import com.gee12.mytetroid.ui.base.BaseStorageViewModel
 import java.io.File
 
@@ -24,10 +25,11 @@ class IconsViewModel(
     notificator: INotificator,
     failureHandler: IFailureHandler,
     settingsManager: CommonSettingsManager,
+    appPathProvider: IAppPathProvider,
     storageProvider: IStorageProvider,
-    private val storagePathProvider: IStoragePathProvider,
-    private val getIconsFoldersUseCase: GetIconsFoldersUseCase,
-    private val getIconsFromFolderUseCase: GetIconsFromFolderUseCase,
+    storagePathProvider: IStoragePathProvider,
+    private val getIconsFolderNamesUseCase: GetIconsFolderNamesUseCase,
+    private val getNodesIconsFromFolderUseCase: GetNodesIconsFromFolderUseCase,
 ) : BaseStorageViewModel(
     app = app,
     resourcesProvider = resourcesProvider,
@@ -35,14 +37,16 @@ class IconsViewModel(
     notificator = notificator,
     failureHandler = failureHandler,
     settingsManager = settingsManager,
+    appPathProvider = appPathProvider,
     storageProvider = storageProvider,
+    storagePathProvider = storagePathProvider,
 ) {
 
     lateinit var nodeId: String
 
     override fun startInitStorageFromBase(storageId: Int) {}
 
-    override fun isStorageCrypted() = storageProvider.isExistCryptedNodes()
+    override fun isStorageEncrypted() = storageProvider.isExistCryptedNodes()
 
     fun init(nodeId: String, currentIconPath: String) {
         this.nodeId = nodeId
@@ -55,8 +59,8 @@ class IconsViewModel(
 
     private suspend fun getIconsFolders(): Either<Failure, Unit> {
         return withIo {
-            getIconsFoldersUseCase.run(
-                GetIconsFoldersUseCase.Params
+            getIconsFolderNamesUseCase.run(
+                GetIconsFolderNamesUseCase.Params
             )
         }.onFailure {
             logFailure(it)
@@ -81,8 +85,8 @@ class IconsViewModel(
     fun getIconsFromFolder(folderName: String) {
         launchOnMain {
             withIo {
-                getIconsFromFolderUseCase.run(
-                    GetIconsFromFolderUseCase.Params(folderName)
+                getNodesIconsFromFolderUseCase.run(
+                    GetNodesIconsFromFolderUseCase.Params(folderName)
                 )
             }.onFailure {
                 logFailure(it)
@@ -96,7 +100,7 @@ class IconsViewModel(
     fun loadIconIfNeed(icon: TetroidIcon) {
         if (icon.icon == null) {
             try {
-                val pathToIcons = storagePathProvider.getPathToIcons()
+                val pathToIcons = storagePathProvider.getPathToIconsFolder()
                 val fullFileName = makePath(pathToIcons, icon.folder, icon.name)
                 icon.icon = FileUtils.loadSVGFromFile(fullFileName)
             } catch (ex: Exception) {

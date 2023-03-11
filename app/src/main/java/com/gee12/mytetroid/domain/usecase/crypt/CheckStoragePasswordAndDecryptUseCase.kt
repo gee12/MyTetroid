@@ -47,7 +47,6 @@ class CheckStoragePasswordAndDecryptUseCase(
         return when {
             sensitiveDataProvider.getMiddlePassHashOrNull()?.also { middlePassHash = it } != null -> {
                 // хэш пароля уже установлен (вводили до этого и проверяли)
-//                cryptInteractor.initCryptPass(middlePassHash!!, true)
                 cryptManager.setKeyFromMiddleHash(middlePassHash!!)
                 // спрашиваем ПИН-код
                 Result.AskPin.toRight()
@@ -59,7 +58,6 @@ class CheckStoragePasswordAndDecryptUseCase(
                 try {
                     if (passwordManager.checkMiddlePassHash(middlePassHash)) {
                         // сохраненный хеш пароля подошел, устанавливаем его
-//                        cryptInteractor.initCryptPass(middlePassHash!!, true)
                         cryptManager.setKeyFromMiddleHash(middlePassHash!!)
                         // спрашиваем ПИН-код
                         Result.AskPin.toRight()

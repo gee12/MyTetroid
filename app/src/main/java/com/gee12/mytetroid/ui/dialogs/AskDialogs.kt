@@ -88,13 +88,41 @@ object AskDialogs {
         )
     }
 
+    fun showYesNoCancelDialog(
+        context: Context,
+        message: CharSequence,
+        isCancelable: Boolean = true,
+        @StringRes yesResId: Int = R.string.answer_yes,
+        @StringRes noResId: Int? = R.string.answer_no,
+        @StringRes cancelResId: Int = R.string.action_cancel,
+        onYes: () -> Unit,
+        onNo: () -> Unit,
+        onCancel: () -> Unit,
+        onDismiss: (() -> Unit)? = null,
+    ) {
+        showDialog(
+            context = context,
+            isCancelable = isCancelable,
+            message = message,
+            applyResId = yesResId,
+            cancelResId = cancelResId,
+            neutralResId = noResId,
+            onApply = onYes,
+            onNeutral = onNo,
+            onCancel = onCancel,
+            onDismiss = onDismiss,
+        )
+    }
+
     fun showDialog(
         context: Context,
         message: CharSequence,
         isCancelable: Boolean,
         @StringRes applyResId: Int,
-        @StringRes cancelResId: Int = R.string.cancel,
+        @StringRes cancelResId: Int = R.string.action_cancel,
+        @StringRes neutralResId: Int? = null,
         onApply: () -> Unit,
+        onNeutral: (() -> Unit)? = null,
         onCancel: (() -> Unit)? = null,
         onDismiss: (() -> Unit)? = null,
     ) {
@@ -104,7 +132,9 @@ object AskDialogs {
             isCancelable = isCancelable,
             applyResId = applyResId,
             cancelResId = cancelResId,
+            neutralResId = neutralResId,
             onApply = onApply,
+            onNeutral = onNeutral,
             onCancel = onCancel,
             onDismiss = onDismiss,
         )

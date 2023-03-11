@@ -6,5 +6,5 @@ import com.gee12.mytetroid.model.TetroidObject
 class ClipboardParams(
     val operation: LogOper,
     val obj: TetroidObject,
-    val isCutted: Boolean = false
+    val isCutting: Boolean = false
 )
