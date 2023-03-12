@@ -10,7 +10,7 @@ import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import com.gee12.mytetroid.ui.storage.StorageViewModel
 
 class PassChangeDialog(
-    private val onApplyPass: (curPass: String, newPass: String) -> Boolean,
+    private val onApplyPassword: (curPass: String, newPass: String) -> Boolean,
 ) : TetroidStorageDialogFragment<StorageViewModel>() {
 
     override fun getRequiredTag() = TAG
@@ -45,7 +45,7 @@ class PassChangeDialog(
             // проверка совпадения паролей
             if (newPass.contentEquals(confirmPass)) {
                 // проверка текущего пароля
-                if (onApplyPass(curPass, newPass)) {
+                if (onApplyPassword(curPass, newPass)) {
                     dialog.dismiss()
                 }
             } else {

@@ -46,7 +46,7 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
         // сохранение пароля локально
         findPreference<CheckBoxPreference>(getString(R.string.pref_key_is_save_pass_hash_local))?.also {
             it.onPreferenceChangeListener = Preference.OnPreferenceChangeListener { _, newValue ->
-                viewModel.onPassLocalHashLocalParamChanged(isSaveLocal = newValue as Boolean)
+                viewModel.onPasswordLocalHashLocalParamChanged(isSaveLocal = newValue as Boolean)
             }
         }
 
@@ -134,9 +134,9 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
         // вводим пароли
         PassChangeDialog { curPass, newPass ->
             // проверяем введенный текущий пароль
-            viewModel.checkPassAndChange(
-                curPass = curPass,
-                newPass = newPass,
+            viewModel.checkPasswordAndChange(
+                curPassword = curPass,
+                newPassword = newPass,
             )
         }.showIfPossible(parentFragmentManager)
     }
@@ -150,9 +150,8 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
             fragmentManager = parentFragmentManager,
             passResult = object : PassDialogs.IPassInputResult {
                 override fun applyPass(pass: String) {
-                    viewModel.startSetupPass(pass)
+                    viewModel.startSetupPassword(pass)
                 }
-
                 override fun cancelPass() {
                 }
             }

@@ -6,22 +6,20 @@ import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.provider.ISensitiveDataProvider
-import com.gee12.mytetroid.domain.manager.PasswordManager
+import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
-import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.ui.storage.StorageParams
 
-class CheckStoragePasswordAndDecryptUseCase(
+class CheckPasswordOrPinAndDecryptUseCase(
     private val logger: ITetroidLogger,
     private val sensitiveDataProvider: ISensitiveDataProvider,
     private val settingsManager: CommonSettingsManager,
     private val cryptManager: IStorageCryptManager,
-    private val passwordManager: PasswordManager,
-) : UseCase<CheckStoragePasswordAndDecryptUseCase.Result, CheckStoragePasswordAndDecryptUseCase.Params>() {
+    private val storageProvider: IStorageProvider,
+) : UseCase<CheckPasswordOrPinAndDecryptUseCase.Result, CheckPasswordOrPinAndDecryptUseCase.Params>() {
 
     data class Params(
         val params: StorageParams,
-        val storage: TetroidStorage?,
         val isAlreadyTryDecrypt: Boolean,
     )
 
@@ -39,7 +37,7 @@ class CheckStoragePasswordAndDecryptUseCase(
     }
 
     override suspend fun run(params: Params): Either<Failure, Result> {
-        val storage = params.storage
+        val storage = storageProvider.storage
         val isSaveMiddlePassLocal = storage?.isSavePassLocal ?: false
         val isNodeOpening = params.params.isNodeOpening
 
@@ -56,7 +54,7 @@ class CheckStoragePasswordAndDecryptUseCase(
                 params.params.passHash = middlePassHash
 
                 try {
-                    if (passwordManager.checkMiddlePassHash(middlePassHash)) {
+                    if (checkMiddlePassHash(middlePassHash)) {
                         // сохраненный хеш пароля подошел, устанавливаем его
                         cryptManager.setKeyFromMiddleHash(middlePassHash!!)
                         // спрашиваем ПИН-код
@@ -108,6 +106,18 @@ class CheckStoragePasswordAndDecryptUseCase(
                 ).toRight()
             }
         }
+    }
+
+    /**
+     * Проверка сохраненного хэша пароля с помощью сохраненных зашифрованных данных.
+     * @throws DatabaseConfig.EmptyFieldException
+     */
+    @Throws(DatabaseConfig.EmptyFieldException::class)
+    fun checkMiddlePassHash(passHash: String?): Boolean {
+        val databaseConfig = storageProvider.databaseConfig
+
+        val checkData = databaseConfig.middleHashCheckData
+        return cryptManager.checkMiddlePassHash(passHash, checkData)
     }
 
 }

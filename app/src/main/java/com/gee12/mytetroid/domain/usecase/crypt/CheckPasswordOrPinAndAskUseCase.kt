@@ -5,19 +5,17 @@ import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.domain.provider.ISensitiveDataProvider
-import com.gee12.mytetroid.domain.manager.PasswordManager
+import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
-import com.gee12.mytetroid.model.TetroidStorage
 
-class CheckStoragePasswordAndAskUseCase(
+class CheckPasswordOrPinAndAskUseCase(
     private val logger: ITetroidLogger,
     private val cryptManager: IStorageCryptManager,
-    private val passwordManager: PasswordManager,
+    private val storageProvider: IStorageProvider,
     private val sensitiveDataProvider: ISensitiveDataProvider,
-) : UseCase<CheckStoragePasswordAndAskUseCase.Result, CheckStoragePasswordAndAskUseCase.Params>() {
+) : UseCase<CheckPasswordOrPinAndAskUseCase.Result, CheckPasswordOrPinAndAskUseCase.Params>() {
 
     data class Params(
-        val storage: TetroidStorage?,
         val isStorageEncrypted: Boolean,
     )
 
@@ -33,7 +31,7 @@ class CheckStoragePasswordAndAskUseCase(
     }
 
     override suspend fun run(params: Params): Either<Failure, Result> {
-        val storage = params.storage
+        val storage = storageProvider.storage
         val isStorageEncrypted = params.isStorageEncrypted
         val isSaveMiddlePassLocal = storage?.isSavePassLocal ?: false
 
@@ -50,7 +48,7 @@ class CheckStoragePasswordAndAskUseCase(
             isSaveMiddlePassLocal && storage?.middlePassHash.also { middlePassHash = it } != null -> {
                 // хэш пароля сохранен локально, проверяем
                 try {
-                    if (passwordManager.checkMiddlePassHash(middlePassHash)) {
+                    if (checkMiddlePassHash(middlePassHash)) {
                         cryptManager.setKeyFromMiddleHash(middlePassHash!!)
                         // запрос ПИН-кода
                         Result.AskPin(
@@ -84,6 +82,18 @@ class CheckStoragePasswordAndAskUseCase(
                 Result.AskPassword.toRight()
             }
         }
+    }
+
+    /**
+     * Проверка сохраненного хэша пароля с помощью сохраненных зашифрованных данных.
+     * @throws DatabaseConfig.EmptyFieldException
+     */
+    @Throws(DatabaseConfig.EmptyFieldException::class)
+    fun checkMiddlePassHash(passHash: String?): Boolean {
+        val databaseConfig = storageProvider.databaseConfig
+
+        val checkData = databaseConfig.middleHashCheckData
+        return cryptManager.checkMiddlePassHash(passHash, checkData)
     }
 
 }

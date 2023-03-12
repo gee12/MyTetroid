@@ -14,6 +14,7 @@ sealed class Failure(val ex: Throwable? = null) {
     class UnknownError(ex: Throwable? = null) : Failure(ex)
 
     sealed class Storage(ex: Throwable? = null) : Failure(ex) {
+        object StorageNotInited : Load()
         sealed class Create(ex: Throwable? = null) : Storage(ex) {
             class FilesError(val path: FilePath, ex: Throwable) : Create(ex)
             class FolderNotEmpty(val path: FilePath) : Create()
@@ -22,7 +23,6 @@ sealed class Failure(val ex: Throwable? = null) {
         class Init(val path: FilePath, ex: Throwable?) : Storage(ex)
 
         sealed class Load(ex: Throwable? = null) : Storage(ex) {
-            object StorageNotInited : Load()
             class ReadXmlFile(val path: FilePath, ex: Throwable?) : Load(ex)
         }
         sealed class Save(ex: Throwable? = null) : Storage(ex) {
@@ -34,11 +34,6 @@ sealed class Failure(val ex: Throwable? = null) {
                 val to: String,
             ) : Save()
         }
-
-        sealed class DatabaseConfig(ex: Throwable? = null) : Storage(ex) {
-            class Load(val path: FilePath, ex: Throwable? = null) : DatabaseConfig(ex)
-        }
-
         sealed class Delete(ex: Throwable? = null) : Storage(ex) {
             object FromDb : Delete()
         }

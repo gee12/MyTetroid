@@ -50,31 +50,28 @@ class DatabaseConfig(
     val isCryptMode: Boolean
         get() = getValueFromGeneral(INI_CRYPT_MODE) == "1"
 
-    /**
-     *
-     * @param passHash
-     * @param salt
-     * @return
-     */
-    fun savePass(outputStream: OutputStream, passHash: String?, salt: String?, cryptMode: Boolean): Boolean {
+    @Throws(Exception::class)
+    fun savePassword(outputStream: OutputStream, passHash: String?, salt: String?, cryptMode: Boolean) {
         setValueToGeneralWithQuotes(INI_CRYPT_CHECK_HASH, passHash)
         setValueToGeneralWithQuotes(INI_CRYPT_CHECK_SALT, salt)
         setValueToGeneral(INI_CRYPT_MODE, if (cryptMode) "1" else "0")
-        return save(outputStream)
+        save(outputStream)
     }
 
-    fun saveCheckData(outputStream: OutputStream, checkData: String?): Boolean {
+    @Throws(Exception::class)
+    fun saveCheckData(outputStream: OutputStream, checkData: String?) {
         setValueToGeneralWithQuotes(INI_MIDDLE_HASH_CHECK_DATA, checkData)
-        return save(outputStream)
+        save(outputStream)
     }
 
-    fun saveDefault(outputStream: OutputStream): Boolean {
+    @Throws(Exception::class)
+    fun saveDefault(outputStream: OutputStream) {
         setValueToGeneral(INI_CRYPT_CHECK_HASH, null)
         setValueToGeneral(INI_CRYPT_CHECK_SALT, null)
         setValueToGeneral(INI_CRYPT_MODE, "0")
         setValueToGeneral(INI_MIDDLE_HASH_CHECK_DATA, null)
         setValueToGeneral(INI_VERSION, DEF_VERSION)
-        return save(outputStream)
+        save(outputStream)
     }
 
     /**

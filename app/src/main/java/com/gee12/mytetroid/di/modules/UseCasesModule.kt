@@ -3,7 +3,6 @@ package com.gee12.mytetroid.di.modules
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.interactor.*
 import com.gee12.mytetroid.domain.manager.InteractionManager
-import com.gee12.mytetroid.domain.manager.PasswordManager
 import com.gee12.mytetroid.domain.manager.PermissionManager
 import com.gee12.mytetroid.domain.usecase.*
 import com.gee12.mytetroid.domain.usecase.attach.*
@@ -90,13 +89,6 @@ object UseCasesModule {
                     storagesRepo = get(),
                     favoritesManager = get(),
                     initStorageFromDefaultSettingsUseCase = get(),
-                )
-            }
-
-            scoped {
-                PasswordManager(
-                    storageProvider = get(),
-                    cryptManager = get(),
                 )
             }
 
@@ -243,10 +235,10 @@ object UseCasesModule {
             }
 
             scoped {
-                CheckStoragePasswordAndAskUseCase(
+                CheckPasswordOrPinAndAskUseCase(
                     logger = get(),
                     cryptManager = get(),
-                    passwordManager = get(),
+                    storageProvider = get(),
                     sensitiveDataProvider = get(),
                 )
             }
@@ -288,6 +280,30 @@ object UseCasesModule {
             }
 
             scoped {
+                CheckPasswordUseCase(
+                    logger = get(),
+                    storageProvider = get(),
+                    cryptManager = get(),
+                )
+            }
+
+            scoped {
+                CheckPasswordOnDecryptUseCase(
+                    logger = get(),
+                    storageProvider = get(),
+                    cryptManager = get(),
+                    initPasswordUseCase = get(),
+                )
+            }
+
+            scoped {
+                ClearSavedPasswordUseCase(
+                    context = androidContext(),
+                    storageProvider = get(),
+                )
+            }
+
+            scoped {
                 DecryptStorageUseCase(
                     logger = get(),
                     cryptManager = get(),
@@ -297,12 +313,12 @@ object UseCasesModule {
             }
 
             scoped {
-                CheckStoragePasswordAndDecryptUseCase(
+                CheckPasswordOrPinAndDecryptUseCase(
                     logger = get(),
                     sensitiveDataProvider = get(),
                     settingsManager = get(),
                     cryptManager = get(),
-                    passwordManager = get(),
+                    storageProvider = get(),
                 )
             }
 
@@ -477,7 +493,6 @@ object UseCasesModule {
                     context = androidContext(),
                     resourcesProvider = get(),
                     logger = get(),
-                    storagePathProvider = get(),
                     recordPathProvider = get(),
                     storageProvider = get(),
                 )

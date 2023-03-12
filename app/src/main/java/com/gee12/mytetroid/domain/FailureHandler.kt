@@ -73,7 +73,11 @@ class FailureHandler(
 
     private fun getStorageFailureMessage(failure: Failure.Storage): NotificationData {
         return when (failure) {
-
+            is Failure.Storage.StorageNotInited -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_storage_not_initialized)
+                )
+            }
             // create
             is Failure.Storage.Create.FilesError -> {
                 NotificationData.Error(
@@ -106,17 +110,7 @@ class FailureHandler(
                     message = failure.ex?.getInfo()
                 )
             }
-            is Failure.Storage.DatabaseConfig.Load -> {
-                NotificationData.Error(
-                    title = getString(R.string.error_load_file_mask, failure.path.fullPath)
-                )
-            }
             // save
-            is Failure.Storage.Load.StorageNotInited -> {
-                NotificationData.Error(
-                    title = getString(R.string.error_storage_not_initialized)
-                )
-            }
             is Failure.Storage.Save.RenameXmlFileFromTempName -> {
                 NotificationData.Error(
                     title = getString(R.string.error_rename_file_from_to_mask, failure.from, failure.to)
@@ -139,6 +133,7 @@ class FailureHandler(
                     message = failure.ex?.getInfo()
                 )
             }
+            // delete
             is Failure.Storage.Delete.FromDb -> {
                 NotificationData.Error(
                     title = getString(R.string.error_delete_storage_in_database),

@@ -45,10 +45,8 @@ class StorageProvider(
         private set
     override var rootFolder: DocumentFile? = null
         private set
-    override val baseFolder: DocumentFile?
-        get() = getBaseFolderDirectly()
-    override val trashFolder: DocumentFile?
-        get() = getTrashFolderDirectly(requiresWriteAccess = true)
+    override var baseFolder: DocumentFile? = null
+    override var trashFolder: DocumentFile? = null
     override val databaseConfig = DatabaseConfig(logger)
     override lateinit var dataProcessor: IStorageDataProcessor
         private set
@@ -66,11 +64,15 @@ class StorageProvider(
 
     override fun setRootFolder(root: DocumentFile) {
         this.rootFolder = root
+        this.baseFolder = getBaseFolderDirectly()
+        this.trashFolder = getTrashFolderDirectly()
     }
 
     override fun resetStorage() {
         storage = null
         rootFolder = null
+        baseFolder = null
+        trashFolder = null
         favorites.clear()
         // TODO
 //         dataProcessor.reset()
@@ -120,7 +122,7 @@ class StorageProvider(
         return FilePath.Folder(trashFolderPath, getStorageId().toString())
     }
 
-    private fun getTrashFolderDirectly(requiresWriteAccess: Boolean): DocumentFile? {
+    private fun getTrashFolderDirectly(requiresWriteAccess: Boolean = true): DocumentFile? {
         return DocumentFileCompat.fromFullPath(
             context = context,
             fullPath = getPathToTrashFolder().fullPath,

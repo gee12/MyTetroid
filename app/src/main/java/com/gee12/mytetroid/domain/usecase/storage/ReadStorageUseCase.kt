@@ -43,11 +43,11 @@ class ReadStorageUseCase(
      */
     private suspend fun readStorage(params: Params): Either<Failure, None> {
         val storage = storageProvider.storage
-            ?: return Failure.Storage.Load.StorageNotInited.toLeft()
+            ?: return Failure.Storage.StorageNotInited.toLeft()
         val storageFolderUri = Uri.parse(storage.uri)
         val storageFolderPath = storageFolderUri.path.orEmpty()
         val storageFolder = storageProvider.rootFolder
-            ?: return Failure.Storage.Load.StorageNotInited.toLeft()
+            ?: return Failure.Storage.StorageNotInited.toLeft()
         val xmlFilePath = FilePath.File(storageFolderPath, Constants.MYTETRA_XML_FILE_NAME)
 
         return try {

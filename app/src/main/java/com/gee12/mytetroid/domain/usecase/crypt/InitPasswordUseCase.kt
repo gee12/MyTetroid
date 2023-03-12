@@ -28,21 +28,21 @@ class InitPasswordUseCase(
 ) : UseCase<UseCase.None, InitPasswordUseCase.Params>() {
 
     data class Params(
-        val storage: TetroidStorage,
-        val databaseConfig: DatabaseConfig,
         val password: String,
     )
 
     override suspend fun run(params: Params): Either<Failure, None> {
-        return initPassword(params)
-            .flatMap { updateStorage(params.storage) }
+        val storage = storageProvider.storage
+            ?: return Failure.Storage.StorageNotInited.toLeft()
+
+        return initPassword(params, storage)
+            .flatMap { updateStorageInDb(storage) }
             .map { None }
     }
 
-    private fun initPassword(params: Params): Either<Failure, None> {
-        val storage = params.storage
+    private fun initPassword(params: Params, storage: TetroidStorage): Either<Failure, None> {
         val password = params.password
-        val databaseConfig = params.databaseConfig
+        val databaseConfig = storageProvider.databaseConfig
 
         val passHash = cryptManager.passToHash(password)
         if (storage.isSavePassLocal) {
@@ -68,7 +68,7 @@ class InitPasswordUseCase(
     private fun saveMiddlePassCheckData(
         passHash: String,
         databaseConfig: DatabaseConfig,
-    ): Either<Failure, Boolean> {
+    ): Either<Failure, None> {
         val checkData = cryptManager.createMiddlePassHashCheckData(passHash)
 
         val storageFolder = storageProvider.rootFolder
@@ -82,18 +82,18 @@ class InitPasswordUseCase(
                 requiresWriteAccess = true,
             ) ?: return Failure.File.Get(filePath).toLeft()
 
-            val isSaved = configFile.openOutputStream(context, append = false)?.use {
+            configFile.openOutputStream(context, append = false)?.use {
                 databaseConfig.saveCheckData(it, checkData)
             } ?: return Failure.File.Write(filePath).toLeft()
 
-            isSaved.toRight()
+            None.toRight()
         } catch (ex: Exception) {
             Failure.Storage.Save.PasswordCheckData(ex).toLeft()
         }
     }
 
     // сохраняем хэш пароля в бд (если установлена соответствующая опция)
-    private suspend fun updateStorage(storage: TetroidStorage): Either<Failure, Boolean> {
+    private suspend fun updateStorageInDb(storage: TetroidStorage): Either<Failure, Boolean> {
         return ifEitherOrTrue(!storagesRepo.updateStorage(storage)) {
             Failure.Storage.Save.UpdateInBase.toLeft()
         }

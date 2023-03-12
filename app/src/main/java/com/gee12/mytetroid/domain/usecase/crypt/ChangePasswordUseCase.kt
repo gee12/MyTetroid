@@ -21,8 +21,6 @@ class ChangePasswordUseCase(
 ) : UseCase<Boolean, ChangePasswordUseCase.Params>() {
 
     data class Params(
-        val storage: TetroidStorage,
-        val databaseConfig: DatabaseConfig,
         val curPassword: String,
         val newPassword: String,
         val taskProgress: ITaskProgress,
@@ -47,6 +45,7 @@ class ChangePasswordUseCase(
                                 saveStorage(params)
                                     // сохраняем database.ini
                                     .flatMap { savePassCheckData(params) }
+                                    .map { true }
                             }
                         }
                 }
@@ -59,19 +58,20 @@ class ChangePasswordUseCase(
 
         return initPasswordUseCase.run(
             InitPasswordUseCase.Params(
-                storage = params.storage,
-                databaseConfig = params.databaseConfig,
                 password = if (initNewPassword) params.newPassword else params.curPassword,
             )
         )
     }
 
     private suspend fun decryptStorage(params: Params) : Either<Failure, Boolean> {
+        val storage = storageProvider.storage
+            ?: return Failure.Storage.StorageNotInited.toLeft()
+
         return params.taskProgress.nextStage(LogObj.STORAGE, LogOper.DECRYPT) {
             decryptStorageUseCase.run(
                 DecryptStorageUseCase.Params(decryptFiles = true)
             ).map { result ->
-                params.storage.isDecrypted = result
+                storage.isDecrypted = result
                 result
             }
         }
@@ -95,11 +95,10 @@ class ChangePasswordUseCase(
         }
     }
 
-    private suspend fun savePassCheckData(params: Params) : Either<Failure, Boolean> {
+    private suspend fun savePassCheckData(params: Params) : Either<Failure, None> {
         return params.taskProgress.nextStage(LogObj.NEW_PASS, LogOper.SAVE) {
             savePasswordCheckDataUseCase.run(
                 SavePasswordCheckDataUseCase.Params(
-                    databaseConfig = params.databaseConfig,
                     password = params.newPassword,
                 )
             )

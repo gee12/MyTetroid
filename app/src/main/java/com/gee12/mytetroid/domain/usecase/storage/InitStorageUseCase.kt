@@ -58,13 +58,10 @@ class InitStorageUseCase(
 
             // загружаем database.ini
             iniDocumentFile.openInputStream(context)?.use { stream ->
-                if (databaseConfig.load(stream)) {
-                    None.toRight()
-                } else {
-                    Failure.Storage.DatabaseConfig.Load(iniFilePath).toLeft()
-                }
+                databaseConfig.load(stream)
             } ?: Failure.File.Read(iniFilePath).toLeft()
 
+            None.toRight()
         } catch (ex: Exception) {
             Failure.Storage.Init(storageFolderPath, ex).toLeft()
         }

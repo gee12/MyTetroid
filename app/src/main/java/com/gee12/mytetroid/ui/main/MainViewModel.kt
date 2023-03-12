@@ -77,7 +77,6 @@ class MainViewModel(
     cryptManager: IStorageCryptManager,
     storageDataProcessor: IStorageDataProcessor,
 
-    passwordManager: PasswordManager,
     interactionManager: InteractionManager,
     syncInteractor: SyncInteractor,
     private val migrationInteractor: MigrationInteractor,
@@ -87,19 +86,21 @@ class MainViewModel(
     private val globalSearchUseCase: GlobalSearchUseCase,
     getFileModifiedDateUseCase: GetFileModifiedDateInStorageUseCase,
     getFolderSizeUseCase: GetFolderSizeInStorageUseCase,
-    protected val swapTetroidObjectsUseCase: SwapObjectsInListUseCase,
+    private val swapObjectsInListUseCase: SwapObjectsInListUseCase,
 
     initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
     readStorageUseCase: ReadStorageUseCase,
     saveStorageUseCase: SaveStorageUseCase,
-    checkStoragePasswordUseCase: CheckStoragePasswordAndAskUseCase,
-    changePasswordUseCase: ChangePasswordUseCase,
     decryptStorageUseCase: DecryptStorageUseCase,
-    checkStoragePasswordAndDecryptUseCase: CheckStoragePasswordAndDecryptUseCase,
     checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
+    clearStorageTrashFolderUseCase: ClearStorageTrashFolderUseCase,
+    checkPasswordOrPinAndDecryptUseCase: CheckPasswordOrPinAndDecryptUseCase,
+    checkPasswordOrPinUseCase: CheckPasswordOrPinAndAskUseCase,
+    changePasswordUseCase: ChangePasswordUseCase,
     setupPasswordUseCase: SetupPasswordUseCase,
     initPasswordUseCase: InitPasswordUseCase,
-    clearStorageTrashFolderUseCase: ClearStorageTrashFolderUseCase,
+    clearSavedPasswordUseCase: ClearSavedPasswordUseCase,
+    private val checkPasswordOnDecryptUseCase: CheckPasswordOnDecryptUseCase,
 
     getNodeByIdUseCase: GetNodeByIdUseCase,
     private val createNodeUseCase: CreateNodeUseCase,
@@ -149,7 +150,6 @@ class MainViewModel(
 
     favoritesManager = favoritesManager,
     interactionManager = interactionManager,
-    passwordManager = passwordManager,
     syncInteractor = syncInteractor,
 
     initAppUseCase = initAppUseCase,
@@ -159,14 +159,15 @@ class MainViewModel(
     initOrCreateStorageUseCase = initOrCreateStorageUseCase,
     readStorageUseCase = readStorageUseCase,
     saveStorageUseCase = saveStorageUseCase,
-    checkStoragePasswordUseCase = checkStoragePasswordUseCase,
-    changePasswordUseCase = changePasswordUseCase,
     decryptStorageUseCase = decryptStorageUseCase,
-    checkStoragePasswordAndDecryptUseCase = checkStoragePasswordAndDecryptUseCase,
     checkStorageFilesExistingUseCase = checkStorageFilesExistingUseCase,
+    clearStorageTrashFolderUseCase = clearStorageTrashFolderUseCase,
+    checkPasswordOrPinAndDecryptUseCase = checkPasswordOrPinAndDecryptUseCase,
+    checkPasswordOrPinUseCase = checkPasswordOrPinUseCase,
+    changePasswordUseCase = changePasswordUseCase,
     setupPasswordUseCase = setupPasswordUseCase,
     initPasswordUseCase = initPasswordUseCase,
-    clearStorageTrashFolderUseCase = clearStorageTrashFolderUseCase,
+    clearSavedPasswordUseCase = clearSavedPasswordUseCase,
 
     getNodeByIdUseCase = getNodeByIdUseCase,
     getRecordByIdUseCase = getRecordByIdUseCase,
@@ -213,7 +214,7 @@ class MainViewModel(
         setStorageTreeObserverCallbacks()
     }
 
-    //region Migration
+    // region Migration
 
     /**
      * Проверка необходимости миграции и ее запуск.
@@ -259,9 +260,9 @@ class MainViewModel(
         return true
     }
 
-    //endregion Migration
+    // endregion Migration
 
-    //region Pages
+    // region Pages
 
     fun openPage(pageId: Int) {
         launchOnMain {
@@ -305,9 +306,130 @@ class MainViewModel(
         }
     }
 
-    //endregion Pages
+    // endregion Pages
 
-    //region Records
+    // region Password
+
+    /**
+     * Асинхронная проверка - имеется ли сохраненный пароль, и его запрос при необходимости.
+     * Используется:
+     *      * когда хранилище уже загружено (зашифровка/сброс шифровки ветки)
+     *      * либо когда загрузка хранилища не требуется (установка/сброс ПИН-кода)
+     * @param callback
+     */
+    fun checkStoragePassword(callbackEvent: VMEvent) {
+        launchOnMain {
+            withIo {
+                checkPasswordOrPinUseCase.run(
+                    CheckPasswordOrPinAndAskUseCase.Params(
+                        isStorageEncrypted = isStorageEncrypted(),
+                    )
+                )
+            }.onFailure { failure ->
+                logFailure(failure)
+            }.onSuccess { result ->
+                when (result) {
+                    is CheckPasswordOrPinAndAskUseCase.Result.AskPassword -> {
+                        askPassword(callbackEvent)
+                    }
+                    is CheckPasswordOrPinAndAskUseCase.Result.AskPin -> {
+                        askPinCode(true, callbackEvent)
+                    }
+                    is CheckPasswordOrPinAndAskUseCase.Result.AskForEmptyPassCheckingField -> {
+                        sendEvent(
+                            StorageEvent.AskForEmptyPassCheckingField(
+                                fieldName = result.fieldName,
+                                passHash = result.passHash,
+                                callbackEvent = callbackEvent,
+                            )
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    fun confirmEmptyPasswordCheckingFieldDialog(passHash: String, callbackEvent: VMEvent) {
+        cryptManager.setKeyFromMiddleHash(passHash)
+        askPinCode(true, callbackEvent)
+    }
+
+    fun cancelEmptyPasswordCheckingFieldDialog(callbackEvent: VMEvent) {
+        when (callbackEvent) {
+            is StorageEvent.LoadOrDecrypt -> {
+                if (!callbackEvent.params.isNodeOpening) {
+                    // загружаем хранилище без расшифровки
+                    callbackEvent.params.isDecrypt = false
+                    loadOrDecryptStorage(callbackEvent.params)
+                }
+            }
+            else -> {}
+        }
+    }
+
+    fun onPasswordEntered(password: String, isSetup: Boolean, callbackEvent: VMEvent) {
+        if (isSetup) {
+            launchOnMain {
+                setupPassword(password)
+                sendEventFromCallbackParam(callbackEvent)
+            }
+        } else {
+            launchOnMain {
+                withIo {
+                    checkPasswordOnDecryptUseCase.run(
+                        CheckPasswordOnDecryptUseCase.Params(password)
+                    )
+                }.onFailure {
+                    logFailure(it)
+                }.onSuccess { result ->
+                    when (result) {
+                        is CheckPasswordOnDecryptUseCase.Result.None -> {
+                            launchOnMain {
+                                sendEventFromCallbackParam(callbackEvent)
+                            }
+                        }
+                        is CheckPasswordOnDecryptUseCase.Result.AskPassword -> {
+                            askPassword(callbackEvent)
+                        }
+                        is CheckPasswordOnDecryptUseCase.Result.AskForEmptyPassCheckingField -> {
+                            launchOnMain {
+                                sendEvent(
+                                    StorageEvent.AskForEmptyPassCheckingField(
+                                        fieldName = result.fieldName,
+                                        passHash = "",
+                                        callbackEvent = callbackEvent,
+                                    )
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fun onPasswordCanceled(isSetup: Boolean, callbackEvent: VMEvent) {
+        if (!isSetup) {
+            isAlreadyTryDecrypt = true
+            //super.onPasswordCanceled(isSetup, callback)
+            // FIXME: не уверен в решении ..
+            when (callbackEvent) {
+                is StorageEvent.LoadOrDecrypt -> {
+                    if (!callbackEvent.params.isNodeOpening) {
+                        //isAlreadyTryDecrypt = true
+                        callbackEvent.params.isDecrypt = false
+                        launchOnMain {
+                            sendEventFromCallbackParam(callbackEvent)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // endregion Password
+
+    // region Records
 
     fun setCurrentRecords(records: List<TetroidRecord>) {
         curRecords.clear()
@@ -804,9 +926,9 @@ class MainViewModel(
         }
     }
 
-    //endregion Records
+    // endregion Records
 
-    //region Nodes
+    // region Nodes
 
     private fun setCurrentNode(node: TetroidNode?) {
         curNode = node
@@ -867,7 +989,7 @@ class MainViewModel(
     private fun saveLastSelectedNode(nodeId: String) {
         if (isKeepLastNode()) {
             setLastNodeId(nodeId)
-            updateStorageAsync()
+            updateStorageInDbAsync()
         }
     }
 
@@ -1070,7 +1192,7 @@ class MainViewModel(
         if (node == quicklyNode) {
             showMessage(R.string.mes_quickly_node_cannot_encrypt)
         } else {
-            checkStoragePass(
+            checkStoragePassword(
                 callbackEvent = MainEvent.Node.Encrypt(node)
             )
         }
@@ -1081,7 +1203,7 @@ class MainViewModel(
      * @param node
      */
     fun startDropEncryptNode(node: TetroidNode) {
-        checkStoragePass(
+        checkStoragePassword(
             MainEvent.Node.DropEncrypt(node)
         )
     }
@@ -1274,9 +1396,9 @@ class MainViewModel(
         } else false
     }
 
-    //endregion Nodes
+    // endregion Nodes
 
-    //region Tags
+    // region Tags
 
     fun isTagSelected(tag: TetroidTag): Boolean {
         return selectedTags.any { it.name == tag.name }
@@ -1437,7 +1559,7 @@ class MainViewModel(
         }
     }
 
-    //endregion Tags
+    // endregion Tags
 
     // region Attaches
 
@@ -1755,9 +1877,9 @@ class MainViewModel(
         }
     }
 
-    //endregion Attaches
+    // endregion Attaches
 
-    //region Favorites
+    // region Favorites
 
     /**
      * Отображение списка избранных записей.
@@ -1816,9 +1938,9 @@ class MainViewModel(
         }
     }
 
-    //endregion Favorites
+    // endregion Favorites
 
-    //region Global search
+    // region Global search
 
     /**
      * Открытие объекта из поисковой выдачи в зависимости от его типа.
@@ -1886,9 +2008,9 @@ class MainViewModel(
         }
     }
 
-    //endregion Global search
+    // endregion Global search
 
-    //region Filter
+    // region Filter
 
     /**
      * Фильтр записей, меток или файлов (смотря какой список активен в данный момент).
@@ -1983,9 +2105,9 @@ class MainViewModel(
         }
     }
 
-    //endregion Filter
+    // endregion Filter
 
-    //region FileObserver
+    // region FileObserver
 
     private fun setStorageTreeObserverCallbacks() {
         with(storageTreeInteractor) {
@@ -2070,9 +2192,9 @@ class MainViewModel(
         }
     }
 
-    //endregion FileObserver
+    // endregion FileObserver
 
-    //region Main view
+    // region Main view
 
     fun onUICreated() {
         launchOnMain {
@@ -2198,7 +2320,7 @@ class MainViewModel(
         storageProvider.resetStorage()
     }
 
-    //endregion Main view
+    // endregion Main view
 
     private suspend fun swapObjectsInStorageTree(
         list: List<Any>,
@@ -2206,7 +2328,7 @@ class MainViewModel(
         isUp: Boolean,
         through: Boolean
     ): Either<Failure, Boolean> {
-        return swapTetroidObjectsUseCase.run(
+        return swapObjectsInListUseCase.run(
             SwapObjectsInListUseCase.Params(
                 list = list,
                 position = pos,

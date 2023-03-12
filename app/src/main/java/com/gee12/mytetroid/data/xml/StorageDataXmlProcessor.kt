@@ -152,15 +152,13 @@ open class StorageDataXmlProcessor(
 
         init()
 
-        return fis.use {
-            val parser = Xml.newPullParser().apply {
-                setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
-                setInput(fis, null)
-                nextTag()
-            }
-            readRoot(parser).also {
-                isLoaded = it
-            }
+        val parser = Xml.newPullParser().apply {
+            setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
+            setInput(fis, null)
+            nextTag()
+        }
+        return readRoot(parser).also {
+            isLoaded = it
         }
     }
 
@@ -529,33 +527,31 @@ open class StorageDataXmlProcessor(
      */
     @Throws(Exception::class)
     override suspend fun save(fos: OutputStream): Boolean {
-        return fos.use {
-            // параметры XML
-            val format = Format.getPrettyFormat()
-            format.encoding = "UTF-8"
-            format.indent = " "
-            format.setLineSeparator(LineSeparator.UNIX)
-            val xmlOutput = XMLOutputter(format, TetroidXMLProcessor())
-            val doc = Document()
-            doc.docType = DocType("mytetradoc")
+        // параметры XML
+        val format = Format.getPrettyFormat()
+        format.encoding = "UTF-8"
+        format.indent = " "
+        format.setLineSeparator(LineSeparator.UNIX)
+        val xmlOutput = XMLOutputter(format, TetroidXMLProcessor())
+        val doc = Document()
+        doc.docType = DocType("mytetradoc")
 
-            // root
-            val rootElem = Element("root")
-            doc.rootElement = rootElem
+        // root
+        val rootElem = Element("root")
+        doc.rootElement = rootElem
 
-            // format
-            val formatElem = Element("format")
-            formatElem.setAttribute("version", formatVersion!!.major.toString())
-            formatElem.setAttribute("subversion", formatVersion!!.minor.toString())
-            rootElem.addContent(formatElem)
+        // format
+        val formatElem = Element("format")
+        formatElem.setAttribute("version", formatVersion!!.major.toString())
+        formatElem.setAttribute("subversion", formatVersion!!.minor.toString())
+        rootElem.addContent(formatElem)
 
-            // content
-            val contentElem = Element("content")
-            saveNodes(contentElem, rootNodes)
-            rootElem.addContent(contentElem)
-            xmlOutput.output(doc, fos)
-            true
-        }
+        // content
+        val contentElem = Element("content")
+        saveNodes(contentElem, rootNodes)
+        rootElem.addContent(contentElem)
+        xmlOutput.output(doc, fos)
+        return true
     }
 
     /**

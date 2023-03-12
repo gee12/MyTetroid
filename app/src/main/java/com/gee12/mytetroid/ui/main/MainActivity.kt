@@ -376,7 +376,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             }
             is StorageEvent.AskPassword -> showPasswordDialog(event.callbackEvent)
             is StorageEvent.AskPinCode -> showPinCodeDialog(event.callbackEvent)
-            is StorageEvent.ChangePassDirectly -> viewModel.startChangePass(
+            is StorageEvent.ChangePassDirectly -> viewModel.startChangePassword(
                 curPass = event.curPass,
                 newPass = event.newPass
             )
@@ -1151,7 +1151,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             context = this,
             messageResId = R.string.ask_clear_pass_database_ini,
             onApply = {
-                viewModel.clearSavedPass()
+                viewModel.clearSavedPassword()
             },
         )
     }
@@ -1168,13 +1168,13 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             context = this,
             message = getString(R.string.log_empty_middle_hash_check_data_field, fieldName),
             onApply = {
-                viewModel.confirmEmptyPassCheckingFieldDialog(
+                viewModel.confirmEmptyPasswordCheckingFieldDialog(
                     passHash = passHash,
                     callbackEvent = callbackEvent,
                 )
             },
             onCancel = {
-                viewModel.cancelEmptyPassCheckingFieldDialog(callbackEvent)
+                viewModel.cancelEmptyPasswordCheckingFieldDialog(callbackEvent)
             },
         )
     }

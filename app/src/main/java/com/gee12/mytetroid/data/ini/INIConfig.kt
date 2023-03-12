@@ -19,27 +19,17 @@ open class INIConfig(
     /**
      * Загрузка параметров из файла.
      */
-    fun load(inputStream: InputStream): Boolean {
-        try {
-            config.load(inputStream)
-        } catch (ex: IOException) {
-            logger?.logError("Configuration error: ", ex, show = false)
-            return false
-        }
-        return true
+    @Throws(Exception::class)
+    fun load(inputStream: InputStream) {
+        config.load(inputStream)
     }
 
     /**
      * Сохранение параметров в файл.
      */
-    fun save(outputStream: OutputStream): Boolean {
-        try {
-            config.store(outputStream)
-        } catch (ex: Exception) {
-            logger?.logError("Configuration error: ", ex, show = false)
-            return false
-        }
-        return true
+    @Throws(Exception::class)
+    fun save(outputStream: OutputStream) {
+        config.store(outputStream)
     }
 
     fun getSection(key: String): MutableMap<String, String>? {

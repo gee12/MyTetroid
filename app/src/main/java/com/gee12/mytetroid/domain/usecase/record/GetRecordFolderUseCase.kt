@@ -21,7 +21,6 @@ class GetRecordFolderUseCase(
     private val context: Context,
     private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
-    private val storagePathProvider: IStoragePathProvider,
     private val recordPathProvider: IRecordPathProvider,
     private val storageProvider: IStorageProvider,
 ) : UseCase<DocumentFile, GetRecordFolderUseCase.Params>() {
@@ -77,17 +76,16 @@ class GetRecordFolderUseCase(
     private fun getInStorageFolder(params: Params): Either<Failure, DocumentFile> {
         val storage = storageProvider.storage
         val record = params.record
-        val storageFolder = storageProvider.rootFolder
-        val storageFolderPath = storageFolder?.getAbsolutePath(context).orEmpty()
+        val baseFolder = storageProvider.baseFolder
+        val baseFolderPath = baseFolder?.getAbsolutePath(context).orEmpty()
         val showMessage = params.showMessage
         // путь к каталогу записи в каталоге хранилища
-        val recordFolderRelativePath = recordPathProvider.getRelativePathToRecordFolder(record)
-        val recordFolderPath = FilePath.Folder(storageFolderPath, recordFolderRelativePath)
+        val recordFolderPath = FilePath.Folder(baseFolderPath, record.dirName)
 
         return try {
-            var folder = storageFolder?.child(
+            var folder = baseFolder?.child(
                 context = context,
-                path = recordFolderRelativePath,
+                path = recordFolderPath.folderName,
                 requiresWriteAccess = !storage?.isReadOnly.orFalse(),
             )
 
@@ -95,9 +93,9 @@ class GetRecordFolderUseCase(
                 if (params.createIfNeed) {
                     logger.logWarning(resourcesProvider.getString(R.string.log_create_record_folder_mask, recordFolderPath.fullPath), showMessage)
 
-                    folder = storageFolder?.makeFolder(
+                    folder = baseFolder?.makeFolder(
                         context = context,
-                        name = recordFolderRelativePath,
+                        name = recordFolderPath.folderName,
                         mode = CreateMode.REUSE,
                     ) ?: return Failure.Folder.Create(recordFolderPath).toLeft()
                 } else {

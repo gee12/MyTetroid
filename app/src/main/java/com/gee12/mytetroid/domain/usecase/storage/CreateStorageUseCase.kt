@@ -87,9 +87,7 @@ class CreateStorageUseCase(
             ) ?: return Failure.File.Get(iniFilePath).toLeft()
 
             iniFile.openOutputStream(context, append = false)?.use { stream ->
-                if (!databaseConfig.saveDefault(stream)) {
-                    return Failure.File.Write(iniFilePath).toLeft()
-                }
+                databaseConfig.saveDefault(stream)
             }
 
             // создаем каталог base

@@ -20,6 +20,7 @@ import com.gee12.mytetroid.domain.usecase.file.GetFolderSizeInStorageUseCase
 import com.gee12.mytetroid.domain.usecase.node.GetNodeByIdUseCase
 import com.gee12.mytetroid.domain.usecase.record.GetRecordByIdUseCase
 import com.gee12.mytetroid.domain.usecase.storage.*
+import com.gee12.mytetroid.ui.storage.StorageEvent
 import com.gee12.mytetroid.ui.storage.StorageViewModel
 
 class StorageSettingsViewModel(
@@ -43,7 +44,6 @@ class StorageSettingsViewModel(
     storageDataProcessor: IStorageDataProcessor,
 
     favoritesManager: FavoritesManager,
-    passwordManager: PasswordManager,
     interactionManager: InteractionManager,
     syncInteractor: SyncInteractor,
 
@@ -54,14 +54,16 @@ class StorageSettingsViewModel(
     initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
     readStorageUseCase: ReadStorageUseCase,
     saveStorageUseCase: SaveStorageUseCase,
-    checkStoragePasswordUseCase: CheckStoragePasswordAndAskUseCase,
-    changePasswordUseCase: ChangePasswordUseCase,
     decryptStorageUseCase: DecryptStorageUseCase,
-    checkStoragePasswordAndDecryptUseCase: CheckStoragePasswordAndDecryptUseCase,
     checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
+    clearStorageTrashFolderUseCase: ClearStorageTrashFolderUseCase,
+    checkStoragePasswordAndDecryptUseCase: CheckPasswordOrPinAndDecryptUseCase,
+    checkStoragePasswordUseCase: CheckPasswordOrPinAndAskUseCase,
+    changePasswordUseCase: ChangePasswordUseCase,
     setupPasswordUseCase : SetupPasswordUseCase,
     initPasswordUseCase : InitPasswordUseCase,
-    clearStorageTrashFolderUseCase: ClearStorageTrashFolderUseCase,
+    clearSavedPasswordUseCase: ClearSavedPasswordUseCase,
+    private val checkPasswordUseCase: CheckPasswordUseCase,
 
     getNodeByIdUseCase: GetNodeByIdUseCase,
     getRecordByIdUseCase: GetRecordByIdUseCase,
@@ -86,7 +88,6 @@ class StorageSettingsViewModel(
 
     favoritesManager = favoritesManager,
     interactionManager = interactionManager,
-    passwordManager = passwordManager,
     syncInteractor = syncInteractor,
 
     initAppUseCase = initAppUseCase,
@@ -96,14 +97,15 @@ class StorageSettingsViewModel(
     initOrCreateStorageUseCase = initOrCreateStorageUseCase,
     readStorageUseCase = readStorageUseCase,
     saveStorageUseCase = saveStorageUseCase,
-    checkStoragePasswordUseCase = checkStoragePasswordUseCase,
-    changePasswordUseCase = changePasswordUseCase,
     decryptStorageUseCase = decryptStorageUseCase,
-    checkStoragePasswordAndDecryptUseCase = checkStoragePasswordAndDecryptUseCase,
     checkStorageFilesExistingUseCase = checkStorageFilesExistingUseCase,
+    clearStorageTrashFolderUseCase = clearStorageTrashFolderUseCase,
+    checkPasswordOrPinAndDecryptUseCase = checkStoragePasswordAndDecryptUseCase,
+    checkPasswordOrPinUseCase = checkStoragePasswordUseCase,
+    changePasswordUseCase = changePasswordUseCase,
     setupPasswordUseCase = setupPasswordUseCase,
     initPasswordUseCase = initPasswordUseCase,
-    clearStorageTrashFolderUseCase = clearStorageTrashFolderUseCase,
+    clearSavedPasswordUseCase = clearSavedPasswordUseCase,
 
     getNodeByIdUseCase = getNodeByIdUseCase,
     getRecordByIdUseCase = getRecordByIdUseCase,
@@ -174,7 +176,7 @@ class StorageSettingsViewModel(
             if (isFieldsChanged) {
                 this@StorageSettingsViewModel.isFieldsChanged = true
                 launchOnMain {
-                    updateStorage(this@apply)
+                    updateStorageInDb(this@apply)
                     onStorageOptionChanged(key, value)
 
                     if (isStoragePathChanged) {
@@ -240,5 +242,69 @@ class StorageSettingsViewModel(
     private fun onStorageOptionChanged(key: String, value: Any) {
         _updateStorageField.postValue(Pair(key, value))
     }
+
+    // region Password
+
+    fun checkPasswordAndChange(curPassword: String, newPassword: String): Boolean {
+        return checkPasswordUseCase.execute(
+            CheckPasswordUseCase.Params(password = curPassword)
+        ).foldResult(
+            onLeft = {
+                logFailure(it)
+                false
+            },
+            onRight = { result ->
+                when (result) {
+                    is CheckPasswordUseCase.Result.Success -> {
+                        startChangePassword(curPassword, newPassword)
+                        true
+                    }
+                    is CheckPasswordUseCase.Result.AskForEmptyPassCheckingField -> {
+                        launchOnMain {
+                            sendEvent(
+                                StorageEvent.AskForEmptyPassCheckingField(
+                                    fieldName = result.fieldName,
+                                    passHash = "",
+                                    callbackEvent = StorageEvent.ChangePassDirectly(
+                                        curPass = curPassword,
+                                        newPass = newPassword,
+                                    ),
+                                )
+                            )
+                        }
+                        true
+                    }
+                    is CheckPasswordUseCase.Result.NotMatched -> {
+                        logger.logError(R.string.log_cur_pass_is_incorrect, show = true)
+                        false
+                    }
+                }
+            }
+        )
+    }
+
+    fun startSetupPassword(password: String) {
+        launchOnMain {
+            setupPassword(password)
+        }
+    }
+
+    fun onPasswordLocalHashLocalParamChanged(isSaveLocal: Boolean): Boolean {
+        return if (getMiddlePassHash() != null) {
+            // если пароль задан, то проверяем ПИН-код
+            askPinCode(
+                specialFlag = true,
+                callbackEvent = StorageEvent.SavePassHashLocalChanged(isSaveLocal)
+            )
+            false
+        } else {
+            launchOnMain {
+                sendEvent(StorageEvent.SavePassHashLocalChanged(isSaveLocal))
+            }
+            false
+        }
+    }
+
+    // endregion Password
 
 }
