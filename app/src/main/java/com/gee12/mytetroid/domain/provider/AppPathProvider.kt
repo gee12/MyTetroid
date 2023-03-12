@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.domain.provider
 
 import android.content.Context
+import android.os.Environment
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.extensions.makeFolderPath
 import com.gee12.mytetroid.model.FilePath
@@ -9,6 +10,7 @@ interface IAppPathProvider {
     fun getPathToCacheFolder(): FilePath
     fun getPathToTrashFolder(): String
     fun getPathToLogsFolder(): String
+    fun getPathToDownloadsFolder(): String
 }
 
 class AppPathProvider(
@@ -20,17 +22,24 @@ class AppPathProvider(
     }
 
     override fun getPathToTrashFolder(): String {
-        return makeFolderPath(getAppExternalFilesFolder(), Constants.TRASH_DIR_NAME)
+        return makeFolderPath(getAppExternalFilesFolderPath(), Constants.TRASH_DIR_NAME)
     }
 
     override fun getPathToLogsFolder(): String {
-        return makeFolderPath(getAppExternalFilesFolder(), Constants.LOG_DIR_NAME)
+        return makeFolderPath(getAppExternalFilesFolderPath(), Constants.LOG_DIR_NAME)
+    }
+
+    override fun getPathToDownloadsFolder(): String {
+        // т.к. на API >= 30 автоматически каталог /Downloads/mytetroid создать нельзя,
+        // то нет смысла его использовать
+        //return makeFolderPath(getDownloadFolderPath(), Constants.DOWNLOADS_DIR_NAME)
+        return getDownloadFolderPath()
     }
 
     // каталог корзины в приватной области памяти приложения
     // /Android/data/com.gee12.mytetroid/files/trash
     // разрешения на чтение/запись не требуются
-    private fun getAppExternalFilesFolder(): String {
+    private fun getAppExternalFilesFolderPath(): String {
         return context.getExternalFilesDir(null)?.absolutePath.orEmpty()
     }
 
@@ -39,6 +48,10 @@ class AppPathProvider(
     // разрешения на чтение/запись не требуются
     private fun getAppExternalCacheFolder(): String {
         return context.externalCacheDir?.absolutePath.orEmpty()
+    }
+
+    private fun getDownloadFolderPath(): String {
+        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)?.path.orEmpty()
     }
 
 }

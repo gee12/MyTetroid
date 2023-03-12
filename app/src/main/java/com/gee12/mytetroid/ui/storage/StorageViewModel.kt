@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.text.TextUtils
+import androidx.documentfile.provider.DocumentFile
 import com.gee12.htmlwysiwygeditor.Dialogs.*
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
@@ -304,9 +305,8 @@ open class StorageViewModel(
 
     fun startInitStorageAfterPermissionsGranted(
         activity: Activity,
-        permission: TetroidPermission.FileStorage
+        root: DocumentFile
     ) {
-        val root = permission.root
         storage?.uri = root.uri.toString()
         // сохраняем полученный Uri
         updateStorageInDbAsync()

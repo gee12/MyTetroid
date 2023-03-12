@@ -45,6 +45,14 @@ class InitAppUseCase(
         runBeforeLeft(
             { createFolder(path = appPathProvider.getPathToTrashFolder()) },
             { createFolder(path = appPathProvider.getPathToLogsFolder()) },
+            /*{
+                // на API >= 30 автоматически каталог /Downloads/mytetroid создать нельзя
+                if (Build.VERSION.SDK_INT >= 30) {
+                    createFolder(path = appPathProvider.getPathToDownloadsFolder())
+                } else {
+                    None.toRight()
+                }
+            },*/
         ).onFailure {
             logger.logFailure(it, show = true)
         }

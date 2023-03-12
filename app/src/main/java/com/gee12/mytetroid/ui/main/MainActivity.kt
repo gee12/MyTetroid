@@ -283,25 +283,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             BaseEvent.HandleReceivedIntent -> {
                 checkReceivedIntent(receivedIntent)
             }
-            is BaseEvent.Permission.Check -> {
-                if (event.permission is TetroidPermission.FileStorage) {
-                    requestFileStorageAccess(
-                        root = event.permission.root,
-                        requestCode = event.requestCode,
-                    )
-                }
-            }
-            is BaseEvent.Permission.Granted -> {
-                if (event.permission is TetroidPermission.FileStorage
-                    && event.requestCode == PermissionRequestCode.OPEN_STORAGE_FOLDER
-                ) {
-                    viewModel.startInitStorageAfterPermissionsGranted(
-                        activity = this,
-                        permission = event.permission,
-                    )
-                }
-            }
-            is BaseEvent.Permission.Canceled -> {}
             is BaseEvent.OpenPage -> {
                 setCurrentPage(event.pageId)
             }
@@ -485,6 +466,54 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     }
 
     // endregion Events
+
+    // region Permissions
+
+    override fun onRequestPermission(
+        permission: TetroidPermission,
+        requestCode: PermissionRequestCode,
+    ) {
+        when (permission) {
+            is TetroidPermission.FileStorage -> {
+                requestFileStorageAccess(
+                    root = permission.root,
+                    requestCode = requestCode,
+                )
+            }
+            else -> {}
+        }
+    }
+
+    override fun onPermissionGranted(
+        permission: TetroidPermission?,
+        requestCode: PermissionRequestCode,
+    ) {
+        when (requestCode) {
+            PermissionRequestCode.OPEN_STORAGE_FOLDER -> {
+                if (permission is TetroidPermission.FileStorage) {
+                    viewModel.startInitStorageAfterPermissionsGranted(
+                        activity = this,
+                        root = permission.root,
+                    )
+                }
+            }
+            PermissionRequestCode.OPEN_ATTACH_FILE -> {
+                viewModel.checkPermissionAndOpenTempAttach(activity = this)
+            }
+            PermissionRequestCode.TERMUX -> {
+                viewModel.syncAndInitStorage(this)
+            }
+            else -> {
+                super.onPermissionGranted(permission, requestCode)
+            }
+        }
+    }
+
+    override fun onPermissionCanceled(requestCode: PermissionRequestCode) {
+        super.onPermissionCanceled(requestCode)
+    }
+
+    // endregion Permissions
 
     // region UI
 
@@ -1637,20 +1666,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 data.getStringExtra(Constants.EXTRA_OBJECT_ID)?.let { recordId ->
                     viewModel.deleteRecord(recordId)
                 }
-            }
-        }
-    }
-
-    override fun onPermissionGranted(requestCode: PermissionRequestCode) {
-        when (requestCode) {
-            PermissionRequestCode.OPEN_ATTACH_FILE -> {
-                viewModel.checkPermissionAndOpenTempAttach(activity = this)
-            }
-            PermissionRequestCode.TERMUX -> {
-                viewModel.syncAndInitStorage(this)
-            }
-            else -> {
-                super.onPermissionGranted(requestCode)
             }
         }
     }

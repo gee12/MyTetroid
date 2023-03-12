@@ -6,12 +6,15 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
+import android.print.PrintAttributes
+import android.print.PrintDocumentAdapter
+import android.print.PrintDocumentToFileUseCase
 import android.speech.SpeechRecognizer
 import android.text.TextUtils
 import androidx.annotation.UiThread
+import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.MutableLiveData
-import com.anggrayudi.storage.file.child
+import com.anggrayudi.storage.file.*
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.buildIntent
@@ -46,7 +49,6 @@ import com.gee12.mytetroid.domain.usecase.image.SaveImageFromUriUseCase
 import com.gee12.mytetroid.domain.usecase.storage.*
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.model.permission.TetroidPermission
-import java.io.File
 
 
 class RecordViewModel(
@@ -100,6 +102,7 @@ class RecordViewModel(
     private val saveImageFromBitmapUseCase : SaveImageFromBitmapUseCase,
     private val editRecordFieldsUseCase : EditRecordFieldsUseCase,
     private val getRecordFolderUseCase : GetRecordFolderUseCase,
+    private val printDocumentToFileUseCase : PrintDocumentToFileUseCase,
 ): StorageViewModel(
     app = app,
     resourcesProvider = resourcesProvider,
@@ -1132,35 +1135,41 @@ class RecordViewModel(
         interactionManager.shareText(getContext(), curRecord.value!!.name, text)
     }
 
-    fun startExportToPdf(isPermissionChecked: Boolean) {
-        val downloadsFolder = getContext().getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
-        if (!isPermissionChecked) {
+    fun exportRecordTextToPdfFile(
+        folder: DocumentFile,
+        pdfFileName: String,
+        printAdapter: PrintDocumentAdapter,
+        printAttributes: PrintAttributes,
+    ) {
+        val filePath = FilePath.File(folder.getAbsolutePath(getContext()), pdfFileName)
+        val pdfFile = folder.makeFile(
+            context = getContext(),
+            name = filePath.fileName,
+            mimeType = MimeType.getMimeTypeFromExtension("pdf"),
+            mode = CreateMode.CREATE_NEW,
+        )
+        if (pdfFile != null) {
             launchOnMain {
-
-                // TODO: отображать folder picker
-
-//                sendEvent(
-//                    BaseEvent.Permission.Check(
-//                        permission = TetroidPermission.FileStorage.Write(root = Uri.fromFile(downloadsFolder)),
-//                        requestCode = Constants.REQUEST_CODE_PERMISSION_EXPORT_PDF,
-//                    )
-//                )
+                sendEvent(BaseEvent.ShowProgressWithText(resourcesProvider.getString(R.string.state_export_to_pdf)))
+                // специально в Main
+                withMain {
+                    printDocumentToFileUseCase.run(
+                        PrintDocumentToFileUseCase.Params(
+                            printAdapter = printAdapter,
+                            printAttributes = printAttributes,
+                            uri = pdfFile.uri,
+                        )
+                    )
+                }.onComplete {
+                    sendEvent(BaseEvent.HideProgress)
+                }.onFailure {
+                    logFailure(it)
+                }.onSuccess {
+                    sendEvent(RecordEvent.AskToOpenExportedPdf(pdfFile))
+                }
             }
         } else {
-
-            // TODO: file
-            val folder = File(downloadsFolder, "/MyTetroid/")
-            val fileName = "${curRecord.value!!.name}.pdf"
-            try {
-                if (!folder.exists()) {
-                    folder.mkdirs()
-                }
-                launchOnMain {
-                    sendEvent(RecordEvent.ExportToPdf(folder, fileName))
-                }
-            } catch (ex: Exception) {
-                logError(ex)
-            }
+            logFailure(Failure.File.Create(filePath))
         }
     }
 

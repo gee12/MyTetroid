@@ -25,6 +25,7 @@ import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
+import com.gee12.mytetroid.domain.provider.IAppPathProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.logs.Message
@@ -56,6 +57,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
 
     val resourcesProvider: IResourcesProvider by inject()
     val settingsManager: CommonSettingsManager by inject()
+    val appPathProvider: IAppPathProvider by inject()
 
     protected var receivedIntent: Intent? = null
     var optionsMenu: Menu? = null
@@ -73,6 +75,8 @@ abstract class TetroidActivity<VM : BaseViewModel>
 
     lateinit var fileStorageHelper: SimpleStorageHelper
 
+
+    // region Create
 
     protected abstract fun getLayoutResourceId(): Int
 
@@ -170,11 +174,24 @@ abstract class TetroidActivity<VM : BaseViewModel>
     protected open fun onUICreated(uiCreated: Boolean) {
     }
 
+    // endregion Create
+
+    // region Events
+
     /**
      * Обработчик изменения состояния View.
      */
     protected open fun onBaseEvent(event: BaseEvent) {
         when (event) {
+            is BaseEvent.Permission.Check -> {
+                onRequestPermission(event.permission, event.requestCode)
+            }
+            is BaseEvent.Permission.Granted -> {
+                onPermissionGranted(event.permission, event.requestCode)
+            }
+            is BaseEvent.Permission.Canceled -> {
+                onPermissionCanceled(event.requestCode)
+            }
             is BaseEvent.ShowProgress -> setProgressVisibility(true)
             is BaseEvent.HideProgress -> setProgressVisibility(false)
             is BaseEvent.ShowProgressWithText -> showProgress(event.message)
@@ -191,6 +208,10 @@ abstract class TetroidActivity<VM : BaseViewModel>
         }
     }
 
+    // endregion Events
+
+    // region Permissions
+
     private fun showPermissionRequest(
         permission: TetroidPermission,
         requestCallback: () -> Unit
@@ -205,15 +226,22 @@ abstract class TetroidActivity<VM : BaseViewModel>
         )
     }
 
-    protected open fun onPermissionGranted(requestCode: PermissionRequestCode) {
-        // по-умолчанию обрабатываем результат разрешения во ViewModel,
-        //  но можем переопределить onPermissionGranted и в активити
-        viewModel.onPermissionGranted(requestCode)
+    protected open fun onRequestPermission(
+        permission: TetroidPermission,
+        requestCode: PermissionRequestCode,
+    ) {
     }
 
-    protected fun onPermissionCanceled(requestCode: PermissionRequestCode) {
-        viewModel.onPermissionCanceled(requestCode)
+    protected open fun onPermissionGranted(
+        permission: TetroidPermission?,
+        requestCode: PermissionRequestCode,
+    ) {
     }
+
+    protected open fun onPermissionCanceled(requestCode: PermissionRequestCode) {
+    }
+
+    // endregion Permissions
 
     // region File
 
@@ -501,10 +529,10 @@ abstract class TetroidActivity<VM : BaseViewModel>
         permissionRequestCode?.also {
             if (isGranted) {
                 viewModel.log(getString(R.string.log_permission_granted_mask, it.name))
-                onPermissionGranted(it)
+                onPermissionGranted(permission = null, requestCode = it)
             } else {
                 viewModel.log(getString(R.string.log_permission_canceled_mask, it.name))
-                onPermissionCanceled(it)
+                onPermissionCanceled(requestCode = it)
             }
         }
     }

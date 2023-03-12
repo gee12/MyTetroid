@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.ui.record
 
+import androidx.documentfile.provider.DocumentFile
 import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.model.TetroidImage
 import com.gee12.mytetroid.model.TetroidRecord
@@ -51,9 +52,8 @@ sealed class RecordEvent : StorageEvent() {
     data class OpenWebLink(
         val link: String,
     ) : RecordEvent()
-    data class ExportToPdf(
-        val folder: File,
-        val fileName: String,
+    data class AskToOpenExportedPdf(
+        val pdfFile: DocumentFile,
     ) : RecordEvent()
     object Save : RecordEvent()
 }

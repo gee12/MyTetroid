@@ -11,6 +11,7 @@ sealed class Failure(val ex: Throwable? = null) {
         val argument: String = ""
     ) : Failure()
 
+    class RequiredApiVersion(val minApiVersion: Int, ex: Throwable? = null) : Failure(ex)
     class UnknownError(ex: Throwable? = null) : Failure(ex)
 
     sealed class Storage(ex: Throwable? = null) : Failure(ex) {
@@ -53,6 +54,7 @@ sealed class Failure(val ex: Throwable? = null) {
             class NotDecrypted : Read()
             class ParseFromHtml(ex: Throwable) : Read(ex)
         }
+        class ExportToPdf(ex: Throwable? = null) : Record(ex)
     }
 
     sealed class Attach(ex: Throwable? = null) : Failure(ex) {

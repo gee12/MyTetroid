@@ -18,6 +18,7 @@ object Constants {
     const val TRASH_DIR_NAME = "trash"
     const val LOG_DIR_NAME = "log"
     const val ICONS_DIR_NAME = "icons"
+    const val DOWNLOADS_DIR_NAME = "mytetroid"
     const val MYTETRA_XML_FILE_NAME = "mytetra.xml"
     const val DATABASE_INI_FILE_NAME = "database.ini"
 

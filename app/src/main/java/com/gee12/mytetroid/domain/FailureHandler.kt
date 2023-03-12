@@ -21,6 +21,9 @@ class FailureHandler(
 
     override fun getFailureMessage(failure: Failure): NotificationData {
         return when (failure) {
+            is Failure.RequiredApiVersion -> {
+                NotificationData.Error(title = getString(R.string.error_required_api_version_mask, failure.minApiVersion))
+            }
             is Failure.UnknownError -> {
                 NotificationData.Error(title = "Unknown error")
             }
@@ -183,11 +186,18 @@ class FailureHandler(
             is Failure.Record.Read.ParseFromHtml -> {
                 NotificationData.Error(
                     title = getString(R.string.error_parse_text_from_html),
+                    message = failure.ex?.getInfo()
                 )
             }
             is Failure.Record.NotFound -> {
                 NotificationData.Error(
                     title = getString(R.string.error_record_not_found_with_id_mask, failure.recordId),
+                )
+            }
+            is Failure.Record.ExportToPdf -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_export_to_pdf),
+                    message = failure.ex?.getInfo()
                 )
             }
         }
@@ -226,7 +236,10 @@ class FailureHandler(
     private fun getFavoritesFailureMessage(failure: Failure.Favorites): NotificationData {
         return when (failure) {
             is Failure.Favorites.UnknownError -> {
-                NotificationData.Error(title = "Unknown error")
+                NotificationData.Error(
+                    title = "Unknown error",
+                    message = failure.ex?.getInfo(),
+                )
             }
         }
     }
@@ -285,7 +298,8 @@ class FailureHandler(
             }
             is Failure.File.AccessDenied -> {
                 NotificationData.Error(
-                    title = getString(R.string.error_denied_read_file_access_mask, failure.path.fullPath)
+                    title = getString(R.string.error_denied_read_file_access_mask, failure.path.fullPath),
+                    message = failure.ex?.getInfo()
                 )
             }
             is Failure.File.Get -> {
@@ -296,7 +310,8 @@ class FailureHandler(
             }
             is Failure.File.GetFileSize -> {
                 NotificationData.Error(
-                    title = getString(R.string.error_get_file_size_mask, failure.path.fullPath)
+                    title = getString(R.string.error_get_file_size_mask, failure.path.fullPath),
+                    message = failure.ex?.getInfo()
                 )
             }
             is Failure.File.Read -> {
@@ -337,7 +352,8 @@ class FailureHandler(
             }
             is Failure.File.Delete -> {
                 NotificationData.Error(
-                    title = getString(R.string.error_delete_file_mask, failure.path.fullPath)
+                    title = getString(R.string.error_delete_file_mask, failure.path.fullPath),
+                    message = failure.ex?.getInfo()
                 )
             }
             is Failure.File.Unknown -> {

@@ -192,6 +192,7 @@ object ViewModelsModule {
                     saveImageFromBitmapUseCase = get(),
                     editRecordFieldsUseCase = get(),
                     getRecordFolderUseCase = get(),
+                    printDocumentToFileUseCase = get(),
                 )
             }
 

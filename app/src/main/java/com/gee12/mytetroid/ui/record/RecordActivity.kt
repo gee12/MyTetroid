@@ -7,7 +7,6 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.print.PdfPrinter
 import android.print.PrintAttributes
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
@@ -29,13 +28,16 @@ import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
+import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
+import com.anggrayudi.storage.file.getAbsolutePath
 import com.gee12.htmlwysiwygeditor.ActionState
 import com.gee12.htmlwysiwygeditor.IImagePicker
 import com.gee12.htmlwysiwygeditor.INetworkWorker
 import com.gee12.htmlwysiwygeditor.IVoiceInputListener
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.Failure
 import com.gee12.mytetroid.common.extensions.focusAndShowKeyboard
 import com.gee12.mytetroid.common.extensions.hideKeyboard
 import com.gee12.mytetroid.common.utils.Utils
@@ -268,69 +270,36 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             is RecordEvent -> {
                 onRecordEvent(event)
             }
-            is BaseEvent.StartActivity -> startActivity(event.intent)
-            is BaseEvent.SetActivityResult -> setResult(event.code, event.intent)
-            BaseEvent.FinishActivity -> finish()
-            is BaseEvent.FinishWithResult -> finishWithResult(event.code, event.bundle)
-            is BaseEvent.Permission.Check -> {
-                when (event.permission) {
-                    is TetroidPermission.FileStorage.Read -> {
-                        viewModel.checkAndRequestReadFileStoragePermission(
-                            file = event.permission.root,
-                            requestCode = event.requestCode,
-                        )
-                    }
-                    is TetroidPermission.FileStorage.Write -> {
-                        viewModel.checkAndRequestWriteFileStoragePermission(
-                            file = event.permission.root,
-                            requestCode = event.requestCode,
-                        )
-                    }
-                    TetroidPermission.RecordAudio -> {
-                        viewModel.checkAndRequestRecordAudioPermission(activity = this)
-                    }
-                    else -> {}
-                }
+            is BaseEvent.StartActivity -> {
+                startActivity(event.intent)
             }
-            is BaseEvent.Permission.Granted -> {
-                when (event.permission) {
-                    is TetroidPermission.FileStorage.Write -> {
-                        when (event.requestCode) {
-                            PermissionRequestCode.OPEN_RECORD_FILE -> {
-                                viewModel.loadRecordAfterPermissionsGranted()
-                            }
-                            PermissionRequestCode.EXPORT_PDF -> {
-                                viewModel.startExportToPdf(isPermissionChecked = true)
-                            }
-                            else -> Unit
-                        }
-                    }
-                    TetroidPermission.RecordAudio -> {
-                        startVoiceInputDirectly()
-                    }
-                    else -> {}
-                }
+            is BaseEvent.SetActivityResult -> {
+                setResult(event.code, event.intent)
             }
-            is BaseEvent.Permission.Canceled -> {
-                when (event.permission) {
-                    is TetroidPermission.FileStorage.Write -> {
-                        when (event.requestCode) {
-                            PermissionRequestCode.OPEN_RECORD_FILE -> {
-                                // закрываем активити, если нет разрешения на чтение/запись в файловое хранилище
-                                finish()
-                            }
-                            else -> Unit
-                        }
-                    }
-                    else -> {}
-                }
+            BaseEvent.FinishActivity -> {
+                finish()
             }
-            is BaseEvent.UpdateTitle -> setTitle(event.title)
-            BaseEvent.UpdateOptionsMenu -> updateOptionsMenu()
-            is BaseEvent.ShowHomeButton -> setVisibilityActionHome(event.isVisible)
-            is BaseEvent.TaskStarted -> taskPreExecute(event.titleResId ?: R.string.task_wait)
-            BaseEvent.TaskFinished -> taskPostExecute()
-            else -> super.onBaseEvent(event)
+            is BaseEvent.FinishWithResult -> {
+                finishWithResult(event.code, event.bundle)
+            }
+            is BaseEvent.UpdateTitle -> {
+                setTitle(event.title)
+            }
+            BaseEvent.UpdateOptionsMenu -> {
+                updateOptionsMenu()
+            }
+            is BaseEvent.ShowHomeButton -> {
+                setVisibilityActionHome(event.isVisible)
+            }
+            is BaseEvent.TaskStarted -> {
+                taskPreExecute(event.titleResId ?: R.string.task_wait)
+            }
+            BaseEvent.TaskFinished -> {
+                taskPostExecute()
+            }
+            else -> {
+                super.onBaseEvent(event)
+            }
         }
     }
 
@@ -339,8 +308,12 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
      */
     override fun onStorageEvent(event: StorageEvent) {
         when (event) {
-            is StorageEvent.LoadOrDecrypt -> viewModel.loadOrDecryptStorage(event.params)
-            else -> super.onStorageEvent(event)
+            is StorageEvent.LoadOrDecrypt -> {
+                viewModel.loadOrDecryptStorage(event.params)
+            }
+            else -> {
+                super.onStorageEvent(event)
+            }
         }
     }
 
@@ -349,15 +322,25 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
      */
     private fun onRecordEvent(event: RecordEvent) {
         when (event) {
-            RecordEvent.NeedMigration -> showNeedMigrationDialog()
-            RecordEvent.Save -> saveRecord()
+            RecordEvent.NeedMigration -> {
+                showNeedMigrationDialog()
+            }
+            RecordEvent.Save -> {
+                saveRecord()
+            }
             is RecordEvent.LoadFields -> {
                 loadFields(event.record)
                 expandFieldsIfNeed()
             }
-            is RecordEvent.EditFields -> editFields(event.resultObj)
-            is RecordEvent.LoadRecordTextFromFile -> loadRecordText(event.recordText)
-            RecordEvent.LoadRecordTextFromHtml -> loadRecordTextFromHtmlEditor()
+            is RecordEvent.EditFields -> {
+                editFields(event.resultObj)
+            }
+            is RecordEvent.LoadRecordTextFromFile -> {
+                loadRecordText(event.recordText)
+            }
+            RecordEvent.LoadRecordTextFromHtml -> {
+                loadRecordTextFromHtmlEditor()
+            }
             is RecordEvent.AskForLoadAllNodes -> {
                 AskDialogs.showYesDialog(
                     context = this,
@@ -373,11 +356,21 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                     },
                 )
             }
-            is RecordEvent.FileAttached -> onFileAttached(event.attach)
-            is RecordEvent.SwitchViews -> switchViews(event.viewMode)
-            is RecordEvent.AskForSaving -> askForSaving(event.resultObj)
-            RecordEvent.BeforeSaving -> onBeforeSavingAsync()
-            is RecordEvent.IsEditedChanged -> editor.isEdited = event.isEdited
+            is RecordEvent.FileAttached -> {
+                onFileAttached(event.attach)
+            }
+            is RecordEvent.SwitchViews -> {
+                switchViews(event.viewMode)
+            }
+            is RecordEvent.AskForSaving -> {
+                askForSaving(event.resultObj)
+            }
+            RecordEvent.BeforeSaving -> {
+                onBeforeSavingAsync()
+            }
+            is RecordEvent.IsEditedChanged -> {
+                editor.isEdited = event.isEdited
+            }
             is RecordEvent.EditedDateChanged -> {
                 (findViewById<View>(R.id.text_view_record_edited) as TextView).text = event.dateString
             }
@@ -391,18 +384,17 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 editor.insertImages(images = event.images)
                 hideProgress()
             }
-            is RecordEvent.OpenWebLink -> openWebLink(event.link)
+            is RecordEvent.OpenWebLink -> {
+                openWebLink(event.link)
+            }
             is RecordEvent.InsertWebPageContent -> {
                 editor.insertWebPageContent(event.content, false)
             }
             is RecordEvent.InsertWebPageText -> {
                 editor.insertWebPageContent(event.text, true)
             }
-            is RecordEvent.ExportToPdf -> {
-                exportToPdf(
-                    folder = event.folder,
-                    fileName = event.fileName,
-                )
+            is RecordEvent.AskToOpenExportedPdf -> {
+                showDialogForOpenExportedPdf(event.pdfFile)
             }
         }
     }
@@ -811,61 +803,58 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         viewModel.shareRecord(text)
     }
 
-    private fun exportToPdf(folder: File, fileName: String) {
-        showProgress(R.string.state_export_to_pdf)
+    private fun selectFolderToExportPdf() {
+        openFolderPicker(
+            requestCode = PermissionRequestCode.EXPORT_PDF,
+            initialPath = appPathProvider.getPathToDownloadsFolder(),
+        )
+    }
 
-        val attributes = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            PrintAttributes.Builder()
-            .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
-            .setResolution(PrintAttributes.Resolution("pdf", "pdf", 600, 600))
-            .setMinMargins(PrintAttributes.Margins.NO_MARGINS).build()
+    private fun exportToPdf(folder: DocumentFile) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            val printAttributes = PrintAttributes.Builder()
+                .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
+                .setResolution(PrintAttributes.Resolution("pdf", "pdf", 600, 600))
+                .setMinMargins(PrintAttributes.Margins.NO_MARGINS).build()
+
+            val pdfFileName = "${viewModel.curRecord.value?.name.orEmpty()}.pdf"
+            val printAdapter = when {
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP -> {
+                    editor.webView.createPrintDocumentAdapter(pdfFileName)
+                }
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT -> {
+                    editor.webView.createPrintDocumentAdapter()
+                }
+                else -> {
+                    viewModel.logFailure(Failure.RequiredApiVersion(minApiVersion = Build.VERSION_CODES.KITKAT))
+                    null
+                }
+            }
+            printAdapter?.also {
+                viewModel.exportRecordTextToPdfFile(
+                    folder = folder,
+                    pdfFileName = pdfFileName,
+                    printAdapter = printAdapter,
+                    printAttributes = printAttributes,
+                )
+            }
         } else {
-            viewModel.logError(getString(R.string.error_required_api_version_mask, Build.VERSION_CODES.KITKAT), show = true)
-            return
+            viewModel.logFailure(Failure.RequiredApiVersion(minApiVersion = Build.VERSION_CODES.KITKAT))
         }
-        val pdfPrinter = PdfPrinter(
-            printAttributes = attributes,
-            onSuccess = {
-                hideProgress()
+    }
 
-                // TODO: file
-                val pdfFile = File(folder, fileName)
-                AskDialogs.showYesDialog(
+    private fun showDialogForOpenExportedPdf(pdfFile: DocumentFile) {
+        AskDialogs.showYesDialog(
+            context = this,
+            message = getString(R.string.ask_open_exported_pdf, pdfFile.getAbsolutePath(this)),
+            onApply = {
+                viewModel.interactionManager.openFile(
                     context = this,
-                    message = getString(R.string.ask_open_exported_pdf, pdfFile.absolutePath),
-                    onApply = {
-                        /*viewModel.interactionManager.openFile(
-                            context = this,
-                            file = pdfFile,
-                            mimeType = "application/pdf"
-                        )*/
-                    },
+                    uri = pdfFile.uri,
+                    mimeType = "application/pdf"
                 )
             },
-            onFailure = { ex ->
-                hideProgress()
-               if (ex != null) {
-                    viewModel.logError(ex, show = true)
-                } else {
-                   viewModel.logError(R.string.error_export_to_pdf, show = true)
-               }
-            }
         )
-        val printAdapter = when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP -> {
-                editor.webView.createPrintDocumentAdapter(fileName)
-            }
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT -> {
-                editor.webView.createPrintDocumentAdapter()
-            }
-            else -> {
-                viewModel.logError(getString(R.string.error_required_api_version_mask, Build.VERSION_CODES.KITKAT), show = true)
-                null
-            }
-        }
-        printAdapter?.also {
-            pdfPrinter.print(printAdapter, folder, fileName)
-        }
     }
 
     /**
@@ -1141,7 +1130,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 return true
             }
             R.id.action_export_pdf -> {
-                viewModel.startExportToPdf(isPermissionChecked = false)
+                selectFolderToExportPdf()
                 return true
             }
             R.id.action_delete -> {
@@ -1449,16 +1438,80 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
     // endregion UI
 
-    override fun onPermissionGranted(requestCode: PermissionRequestCode) {
+    // region Permissions
+
+    override fun onRequestPermission(
+        permission: TetroidPermission,
+        requestCode: PermissionRequestCode,
+    ) {
+        when (permission) {
+            is TetroidPermission.FileStorage.Read -> {
+                viewModel.checkAndRequestReadFileStoragePermission(
+                    file = permission.root,
+                    requestCode = requestCode,
+                )
+            }
+            is TetroidPermission.FileStorage.Write -> {
+                viewModel.checkAndRequestWriteFileStoragePermission(
+                    file = permission.root,
+                    requestCode = requestCode,
+                )
+            }
+            TetroidPermission.RecordAudio -> {
+                viewModel.checkAndRequestRecordAudioPermission(activity = this)
+            }
+            else -> {}
+        }
+    }
+
+    override fun onPermissionGranted(
+        permission: TetroidPermission?,
+        requestCode: PermissionRequestCode,
+    ) {
         when (requestCode) {
+            PermissionRequestCode.OPEN_RECORD_FILE -> {
+                viewModel.loadRecordAfterPermissionsGranted()
+            }
+            PermissionRequestCode.RECORD_AUDIO -> {
+                startVoiceInputDirectly()
+            }
             PermissionRequestCode.OPEN_CAMERA -> {
                 startCameraAfterPermissionGranted()
             }
             else -> {
-                super.onPermissionGranted(requestCode)
+                super.onPermissionGranted(permission, requestCode)
             }
         }
     }
+
+    override fun onPermissionCanceled(requestCode: PermissionRequestCode) {
+        when (requestCode) {
+            PermissionRequestCode.OPEN_RECORD_FILE -> {
+                // закрываем активити, если нет разрешения на чтение/запись в файловое хранилище
+                finish()
+            }
+            else -> {
+                super.onPermissionCanceled(requestCode)
+            }
+        }
+    }
+
+    // endregion Permissions
+
+    // region File
+
+    override fun onFolderSelected(requestCode: Int, folder: DocumentFile) {
+        when (requestCode) {
+            PermissionRequestCode.EXPORT_PDF.code -> {
+                exportToPdf(folder)
+            }
+            else -> {
+                super.onFolderSelected(requestCode, folder)
+            }
+        }
+    }
+
+    // endregion File
 
     override fun showActivityForResult(cls: Class<*>?, requestCode: Int) {
         val intent = Intent(this, cls)

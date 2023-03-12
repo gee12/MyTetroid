@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.di.modules
 
+import android.print.PrintDocumentToFileUseCase
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.interactor.*
 import com.gee12.mytetroid.domain.manager.InteractionManager
@@ -565,6 +566,12 @@ object UseCasesModule {
                     context = androidContext(),
                     cryptManager = get(),
                     getRecordFolderUseCase = get(),
+                )
+            }
+
+            scoped {
+                PrintDocumentToFileUseCase(
+                    context = androidContext(),
                 )
             }
 
