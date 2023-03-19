@@ -54,8 +54,6 @@ object ViewModelsModule {
                     checkPasswordOrPinUseCase = get(),
                     changePasswordUseCase = get(),
                     setupPasswordUseCase = get(),
-                    initPasswordUseCase = get(),
-                    clearSavedPasswordUseCase = get(),
 
                     getFileModifiedDateUseCase = get(),
                     getFolderSizeUseCase = get(),
@@ -103,8 +101,8 @@ object ViewModelsModule {
                     changePasswordUseCase = get(),
                     setupPasswordUseCase = get(),
                     initPasswordUseCase = get(),
-                    clearSavedPasswordUseCase = get(),
-                    checkPasswordOnDecryptUseCase = get(),
+                    checkPasswordUseCase = get(),
+                    dropAllPasswordDataUseCase = get(),
 
                     getFileModifiedDateUseCase = get(),
                     getFolderSizeUseCase = get(),
@@ -176,8 +174,6 @@ object ViewModelsModule {
                     checkStoragePasswordUseCase = get(),
                     changePasswordUseCase = get(),
                     setupPasswordUseCase = get(),
-                    initPasswordUseCase = get(),
-                    clearSavedPasswordUseCase = get(),
 
                     getFileModifiedDateUseCase = get(),
                     getFolderSizeUseCase = get(),
@@ -232,8 +228,6 @@ object ViewModelsModule {
                     checkStoragePasswordUseCase = get(),
                     changePasswordUseCase = get(),
                     setupPasswordUseCase = get(),
-                    initPasswordUseCase = get(),
-                    clearSavedPasswordUseCase = get(),
 
                     getFileModifiedDateUseCase = get(),
                     getFolderSizeUseCase = get(),
@@ -281,8 +275,8 @@ object ViewModelsModule {
                     checkStoragePasswordUseCase = get(),
                     changePasswordUseCase = get(),
                     setupPasswordUseCase = get(),
-                    initPasswordUseCase = get(),
-                    clearSavedPasswordUseCase = get(),
+                    saveMiddlePasswordHashUseCase = get(),
+                    clearSavedPasswordHashUseCase = get(),
                     checkPasswordUseCase = get(),
 
                     getFileModifiedDateUseCase = get(),

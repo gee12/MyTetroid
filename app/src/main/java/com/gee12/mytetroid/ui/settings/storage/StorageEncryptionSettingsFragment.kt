@@ -97,10 +97,10 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
     /**
      * Обработка изменения опции локального сохранения пароля.
      */
-    private fun changeSavePassHashLocal(newValue: Boolean) {
+    private fun changeSavePassHashLocal(isSavePasswordHashLocal: Boolean) {
         val pref = findPreference<CheckBoxPreference>(getString(R.string.pref_key_is_save_pass_hash_local))
         when {
-            newValue -> {
+            isSavePasswordHashLocal -> {
                 viewModel.saveMiddlePassHashLocalIfCached()
                 pref?.isChecked = true
             }
@@ -113,7 +113,9 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
                     context = requireContext(),
                     messageResId = R.string.ask_clear_saved_pass_hash,
                     onApply = {
-                        viewModel.dropSavedLocalPassHash()
+                        viewModel.clearSavedPasswordHash(
+                            isDropSavePasswordLocal = true,
+                        )
                         pref?.isChecked = false
                     },
                     onCancel = {},

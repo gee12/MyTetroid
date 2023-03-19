@@ -19,7 +19,11 @@ class CheckPasswordUseCase(
         val password: String,
     )
 
+    private val databaseConfig: DatabaseConfig
+        get() = storageProvider.databaseConfig
+
     sealed class Result {
+        object PasswordNotSet : Result()
         object Success : Result()
         object NotMatched : Result()
         data class AskForEmptyPassCheckingField(val fieldName: String) : Result()
@@ -29,10 +33,16 @@ class CheckPasswordUseCase(
         val password = params.password
 
         return try {
-            if (checkPass(password)) {
-                Result.Success.toRight()
-            } else {
-                Result.NotMatched.toRight()
+            when {
+                !databaseConfig.isCryptMode -> {
+                    Result.PasswordNotSet.toRight()
+                }
+                checkPass(password) -> {
+                    Result.Success.toRight()
+                }
+                else -> {
+                    Result.NotMatched.toRight()
+                }
             }
         } catch (ex: DatabaseConfig.EmptyFieldException) {
             // если поля в INI-файле для проверки пустые
@@ -50,8 +60,6 @@ class CheckPasswordUseCase(
      */
     @Throws(DatabaseConfig.EmptyFieldException::class)
     fun checkPass(pass: String?): Boolean {
-        val databaseConfig = storageProvider.databaseConfig
-
         val salt = databaseConfig.cryptCheckSalt
         val checkHash = databaseConfig.cryptCheckHash
         return cryptManager.checkPass(pass, salt, checkHash)

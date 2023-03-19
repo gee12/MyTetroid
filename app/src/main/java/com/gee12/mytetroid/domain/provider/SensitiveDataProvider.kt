@@ -1,24 +1,24 @@
 package com.gee12.mytetroid.domain.provider
 
 interface ISensitiveDataProvider {
-    fun getMiddlePassHashOrNull(): String?
-    fun saveMiddlePassHash(value: String)
-    fun resetMiddlePassHash()
+    fun getMiddlePasswordHashOrNull(): String?
+    fun saveMiddlePasswordHash(value: String)
+    fun resetMiddlePasswordHash()
 }
 
 class SensitiveDataProvider : ISensitiveDataProvider {
 
     var middlePassHash: String? = null
 
-    override fun getMiddlePassHashOrNull(): String? {
+    override fun getMiddlePasswordHashOrNull(): String? {
         return middlePassHash
     }
 
-    override fun saveMiddlePassHash(value: String) {
+    override fun saveMiddlePasswordHash(value: String) {
         middlePassHash = value
     }
 
-    override fun resetMiddlePassHash() {
+    override fun resetMiddlePasswordHash() {
         middlePassHash = null
     }
 

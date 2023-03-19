@@ -86,8 +86,10 @@ class CreateStorageUseCase(
                 mode = CreateMode.REPLACE,
             ) ?: return Failure.File.Get(iniFilePath).toLeft()
 
-            iniFile.openOutputStream(context, append = false)?.use { stream ->
-                databaseConfig.saveDefault(stream)
+            databaseConfig.setDefault()
+
+            iniFile.openOutputStream(context, append = false)?.use {
+                databaseConfig.save(it)
             }
 
             // создаем каталог base

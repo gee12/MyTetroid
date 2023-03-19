@@ -88,7 +88,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="title_attached_files">Attached files</string>
     <string name="title_cur_record">Record text</string>
     <string name="title_fullscreen">Fullscreen</string>
-    <string name="title_record_folder_path">Record folder path</string>
+    <string name="title_record_folder_uri">Record folder uri</string>
     <string name="title_insert_record">Insert record</string>
     <string name="title_share">Share</string>
     <string name="title_export_to_pdf">Export to pdf</string>
@@ -570,6 +570,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="action_search">Apply</string>
     <string name="action_tags_search_mode_or">OR</string>
     <string name="action_tags_search_mode_and">AND</string>
+    <string name="action_enter_password">Enter password</string>
 
     <string name="ask_oper_without_record_dir_mask">Record directory is missing. %s anyway ?</string>
     <string name="ask_attach_delete_without_file">File is missing on the disk. Delete anyway ?</string>

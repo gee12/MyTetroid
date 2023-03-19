@@ -30,7 +30,7 @@ class InitStorageFromDefaultSettingsUseCase(
             isAskBeforeClearTrashBeforeExit = CommonSettings.isAskBeforeClearTrashBeforeExitDef(context)
             // шифрование
             isSavePassLocal = CommonSettings.isSaveMiddlePassHashLocalDef(context)
-            isDecyptToTemp = CommonSettings.isDecryptFilesInTempDef(context)
+            isDecryptToTemp = CommonSettings.isDecryptFilesInTempDef(context)
             // синхронизация
             syncProfile.apply {
                 isEnabled = CommonSettings.isSyncStorageDef(context)

@@ -85,7 +85,7 @@
     <string name="title_show_record_content">Открыть запись</string>
     <string name="title_show_attached_files">Прикрепленные файлы</string>
     <string name="title_open_record_folder">Открыть каталог</string>
-    <string name="title_record_folder_path">Путь к каталогу записи</string>
+    <string name="title_record_folder_uri">Uri к каталогу записи</string>
     <string name="title_insert_record">Вставить запись</string>
     <string name="title_share">Отправить</string>
     <string name="title_export_to_pdf">Экспорт в pdf</string>
@@ -473,6 +473,7 @@
     <string name="action_search">Поиск</string>
     <string name="action_tags_search_mode_or">ИЛИ</string>
     <string name="action_tags_search_mode_and">И</string>
+    <string name="action_enter_password">Ввести пароль</string>
 
     <string name="ask_exit_from_app">Выйти из приложения?</string>
     <string name="ask_node_delete_mask">Удалить ветку «%s» ?</string>

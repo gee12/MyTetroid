@@ -50,7 +50,6 @@ import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
 import com.gee12.mytetroid.domain.usecase.tag.RenameTagInRecordsUseCase
 import com.gee12.mytetroid.model.enums.TagsSearchMode
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
-import com.gee12.mytetroid.ui.base.VMEvent
 import com.gee12.mytetroid.ui.storage.StorageViewModel
 import kotlinx.coroutines.*
 import java.lang.Exception
@@ -98,9 +97,9 @@ class MainViewModel(
     checkPasswordOrPinUseCase: CheckPasswordOrPinAndAskUseCase,
     changePasswordUseCase: ChangePasswordUseCase,
     setupPasswordUseCase: SetupPasswordUseCase,
-    initPasswordUseCase: InitPasswordUseCase,
-    clearSavedPasswordUseCase: ClearSavedPasswordUseCase,
-    private val checkPasswordOnDecryptUseCase: CheckPasswordOnDecryptUseCase,
+    private val initPasswordUseCase: InitPasswordUseCase,
+    private val checkPasswordUseCase: CheckPasswordUseCase,
+    private val dropAllPasswordDataUseCase: DropAllPasswordDataUseCase,
 
     getNodeByIdUseCase: GetNodeByIdUseCase,
     private val createNodeUseCase: CreateNodeUseCase,
@@ -166,8 +165,6 @@ class MainViewModel(
     checkPasswordOrPinUseCase = checkPasswordOrPinUseCase,
     changePasswordUseCase = changePasswordUseCase,
     setupPasswordUseCase = setupPasswordUseCase,
-    initPasswordUseCase = initPasswordUseCase,
-    clearSavedPasswordUseCase = clearSavedPasswordUseCase,
 
     getNodeByIdUseCase = getNodeByIdUseCase,
     getRecordByIdUseCase = getRecordByIdUseCase,
@@ -313,11 +310,10 @@ class MainViewModel(
     /**
      * Асинхронная проверка - имеется ли сохраненный пароль, и его запрос при необходимости.
      * Используется:
-     *      * когда хранилище уже загружено (зашифровка/сброс шифровки ветки)
-     *      * либо когда загрузка хранилища не требуется (установка/сброс ПИН-кода)
-     * @param callback
+     * * когда хранилище уже загружено (зашифровка/сброс шифровки ветки)
+     * * либо когда загрузка хранилища не требуется (установка/сброс ПИН-кода)
      */
-    fun checkStoragePassword(callbackEvent: VMEvent) {
+    fun checkStoragePassword(callbackEvent: BaseEvent) {
         launchOnMain {
             withIo {
                 checkPasswordOrPinUseCase.run(
@@ -329,6 +325,9 @@ class MainViewModel(
                 logFailure(failure)
             }.onSuccess { result ->
                 when (result) {
+                    is CheckPasswordOrPinAndAskUseCase.Result.PasswordNotSet -> {
+                        sendEvent(callbackEvent)
+                    }
                     is CheckPasswordOrPinAndAskUseCase.Result.AskPassword -> {
                         askPassword(callbackEvent)
                     }
@@ -349,12 +348,12 @@ class MainViewModel(
         }
     }
 
-    fun confirmEmptyPasswordCheckingFieldDialog(passHash: String, callbackEvent: VMEvent) {
+    fun confirmEmptyPasswordCheckingFieldDialog(passHash: String, callbackEvent: BaseEvent) {
         cryptManager.setKeyFromMiddleHash(passHash)
         askPinCode(true, callbackEvent)
     }
 
-    fun cancelEmptyPasswordCheckingFieldDialog(callbackEvent: VMEvent) {
+    fun cancelEmptyPasswordCheckingFieldDialog(callbackEvent: BaseEvent) {
         when (callbackEvent) {
             is StorageEvent.LoadOrDecrypt -> {
                 if (!callbackEvent.params.isNodeOpening) {
@@ -367,31 +366,44 @@ class MainViewModel(
         }
     }
 
-    fun onPasswordEntered(password: String, isSetup: Boolean, callbackEvent: VMEvent) {
+    fun onPasswordEntered(password: String, isSetup: Boolean, callbackEvent: BaseEvent) {
         if (isSetup) {
             launchOnMain {
-                setupPassword(password)
-                sendEventFromCallbackParam(callbackEvent)
+                setupPassword(password, callbackEvent)
             }
         } else {
             launchOnMain {
                 withIo {
-                    checkPasswordOnDecryptUseCase.run(
-                        CheckPasswordOnDecryptUseCase.Params(password)
+                    checkPasswordUseCase.run(
+                        CheckPasswordUseCase.Params(password)
                     )
                 }.onFailure {
                     logFailure(it)
                 }.onSuccess { result ->
                     when (result) {
-                        is CheckPasswordOnDecryptUseCase.Result.None -> {
+                        is CheckPasswordUseCase.Result.PasswordNotSet -> {
+                            sendEvent(callbackEvent)
+                        }
+                        is CheckPasswordUseCase.Result.Success -> {
                             launchOnMain {
-                                sendEventFromCallbackParam(callbackEvent)
+                                withIo {
+                                    initPasswordUseCase.run(
+                                        InitPasswordUseCase.Params(
+                                            password = password,
+                                        )
+                                    )
+                                }.onFailure {
+                                    logFailure(it)
+                                }.onSuccess {
+                                    sendEvent(callbackEvent)
+                                }
                             }
                         }
-                        is CheckPasswordOnDecryptUseCase.Result.AskPassword -> {
+                        is CheckPasswordUseCase.Result.NotMatched -> {
+                            logError(R.string.log_pass_is_incorrect, show = true)
                             askPassword(callbackEvent)
                         }
-                        is CheckPasswordOnDecryptUseCase.Result.AskForEmptyPassCheckingField -> {
+                        is CheckPasswordUseCase.Result.AskForEmptyPassCheckingField -> {
                             launchOnMain {
                                 sendEvent(
                                     StorageEvent.AskForEmptyPassCheckingField(
@@ -408,7 +420,7 @@ class MainViewModel(
         }
     }
 
-    fun onPasswordCanceled(isSetup: Boolean, callbackEvent: VMEvent) {
+    fun onPasswordCanceled(isSetup: Boolean, callbackEvent: BaseEvent) {
         if (!isSetup) {
             isAlreadyTryDecrypt = true
             //super.onPasswordCanceled(isSetup, callback)
@@ -419,10 +431,22 @@ class MainViewModel(
                         //isAlreadyTryDecrypt = true
                         callbackEvent.params.isDecrypt = false
                         launchOnMain {
-                            sendEventFromCallbackParam(callbackEvent)
+                            sendEvent(callbackEvent)
                         }
                     }
                 }
+            }
+        }
+    }
+
+    fun dropAllPasswordData() {
+        launchOnMain {
+            withIo {
+                dropAllPasswordDataUseCase.run(
+                    DropAllPasswordDataUseCase.Params
+                )
+            }.onFailure {
+                logFailure(it)
             }
         }
     }
@@ -908,7 +932,7 @@ class MainViewModel(
             }.onSuccess { recordFolder ->
                 val uri = recordFolder.uri
                 if (!interactionManager.openFolder(activity, uri)) {
-                    Utils.writeToClipboard(getContext(), resourcesProvider.getString(R.string.title_record_folder_path), uri.path)
+                    Utils.writeToClipboard(getContext(), resourcesProvider.getString(R.string.title_record_folder_uri), uri.toString())
                     logWarning(R.string.log_missing_file_manager, show = true)
                 }
             }
@@ -988,8 +1012,7 @@ class MainViewModel(
      */
     private fun saveLastSelectedNode(nodeId: String) {
         if (isKeepLastNode()) {
-            setLastNodeId(nodeId)
-            updateStorageInDbAsync()
+            setLastNodeIdAndSaveStorageInDb(nodeId)
         }
     }
 
@@ -1189,12 +1212,16 @@ class MainViewModel(
      * @param node
      */
     fun startEncryptNode(node: TetroidNode) {
+        val callbackEvent = MainEvent.Node.Encrypt(node)
+
         if (node == quicklyNode) {
             showMessage(R.string.mes_quickly_node_cannot_encrypt)
+        } else if (!isStorageEncrypted()) {
+            launchOnMain {
+                sendEvent(StorageEvent.AskPassword(callbackEvent))
+            }
         } else {
-            checkStoragePassword(
-                callbackEvent = MainEvent.Node.Encrypt(node)
-            )
+            checkStoragePassword(callbackEvent)
         }
     }
 
@@ -1203,9 +1230,8 @@ class MainViewModel(
      * @param node
      */
     fun startDropEncryptNode(node: TetroidNode) {
-        checkStoragePassword(
-            MainEvent.Node.DropEncrypt(node)
-        )
+        val callbackEvent = MainEvent.Node.DropEncrypt(node)
+        checkStoragePassword(callbackEvent)
     }
 
     fun encryptNode(node: TetroidNode) {
@@ -2314,7 +2340,7 @@ class MainViewModel(
         storageTreeInteractor.stopObserver()
 
         // удаляем сохраненный хэш пароля из памяти
-        sensitiveDataProvider.resetMiddlePassHash()
+        sensitiveDataProvider.resetMiddlePasswordHash()
 
         // удаляем загруженное хранилище из памяти
         storageProvider.resetStorage()

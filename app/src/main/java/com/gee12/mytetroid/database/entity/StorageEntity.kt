@@ -58,7 +58,7 @@ open class StorageEntity(
     var middlePassHash: String? = null
 
     @ColumnInfo(name = "isDecryptToTemp")
-    var isDecyptToTemp: Boolean = false
+    var isDecryptToTemp: Boolean = false
 
     @Embedded(prefix="syncProfile")
     var syncProfile = SyncProfileEntity(false)
@@ -83,7 +83,7 @@ open class StorageEntity(
         if (lastNodeId != other.lastNodeId) return false
         if (isSavePassLocal != other.isSavePassLocal) return false
         if (middlePassHash != other.middlePassHash) return false
-        if (isDecyptToTemp != other.isDecyptToTemp) return false
+        if (isDecryptToTemp != other.isDecryptToTemp) return false
         if (syncProfile != other.syncProfile) return false
 
         return true
@@ -105,7 +105,7 @@ open class StorageEntity(
         result = 31 * result + (lastNodeId?.hashCode() ?: 0)
         result = 31 * result + isSavePassLocal.hashCode()
         result = 31 * result + (middlePassHash?.hashCode() ?: 0)
-        result = 31 * result + isDecyptToTemp.hashCode()
+        result = 31 * result + isDecryptToTemp.hashCode()
         result = 31 * result + syncProfile.hashCode()
         return result
     }

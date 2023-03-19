@@ -3,11 +3,9 @@ package com.gee12.mytetroid.domain.usecase.crypt
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.ITaskProgress
 import com.gee12.mytetroid.domain.manager.IStorageCryptManager
-import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.TaskStage
-import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
 
@@ -17,7 +15,7 @@ class ChangePasswordUseCase(
     private val saveStorageUseCase: SaveStorageUseCase,
     private val decryptStorageUseCase: DecryptStorageUseCase,
     private val initPasswordUseCase: InitPasswordUseCase,
-    private val savePasswordCheckDataUseCase: SavePasswordCheckDataUseCase,
+    private val savePasswordInConfigUseCase: SavePasswordInConfigUseCase,
 ) : UseCase<Boolean, ChangePasswordUseCase.Params>() {
 
     data class Params(
@@ -44,7 +42,7 @@ class ChangePasswordUseCase(
                                 // сохраняем mytetra.xml
                                 saveStorage(params)
                                     // сохраняем database.ini
-                                    .flatMap { savePassCheckData(params) }
+                                    .flatMap { savePasswordInConfig(params) }
                                     .map { true }
                             }
                         }
@@ -95,10 +93,10 @@ class ChangePasswordUseCase(
         }
     }
 
-    private suspend fun savePassCheckData(params: Params) : Either<Failure, None> {
+    private suspend fun savePasswordInConfig(params: Params) : Either<Failure, None> {
         return params.taskProgress.nextStage(LogObj.NEW_PASS, LogOper.SAVE) {
-            savePasswordCheckDataUseCase.run(
-                SavePasswordCheckDataUseCase.Params(
+            savePasswordInConfigUseCase.run(
+                SavePasswordInConfigUseCase.Params(
                     password = params.newPassword,
                 )
             )

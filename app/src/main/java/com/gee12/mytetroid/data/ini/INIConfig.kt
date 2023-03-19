@@ -7,32 +7,23 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.lang.Exception
 
-/**
- * Параметры хранилища.
- */
 open class INIConfig(
     protected var logger: ITetroidLogger?
 ) {
 
     protected var config: Ini = Ini()
 
-    /**
-     * Загрузка параметров из файла.
-     */
     @Throws(Exception::class)
     fun load(inputStream: InputStream) {
         config.load(inputStream)
     }
 
-    /**
-     * Сохранение параметров в файл.
-     */
     @Throws(Exception::class)
     fun save(outputStream: OutputStream) {
         config.store(outputStream)
     }
 
-    fun getSection(key: String): MutableMap<String, String>? {
+    protected fun getSection(key: String): MutableMap<String, String>? {
         return config[key]
     }
 

@@ -3,7 +3,6 @@ package com.gee12.mytetroid.ui.storage
 import com.gee12.mytetroid.common.ICallback
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.ui.base.BaseEvent
-import com.gee12.mytetroid.ui.base.VMEvent
 
 abstract class StorageEvent : BaseEvent() {
     object NoDefaultStorage : StorageEvent()
@@ -45,12 +44,12 @@ abstract class StorageEvent : BaseEvent() {
 
     // password
     data class AskPassword(
-        val callbackEvent: VMEvent,
+        val callbackEvent: BaseEvent,
     ) : StorageEvent()
     data class AskForEmptyPassCheckingField(
         val fieldName: String,
         val passHash: String,
-        val callbackEvent: VMEvent,
+        val callbackEvent: BaseEvent,
     ) : StorageEvent()
     object AskForClearStoragePass : StorageEvent()
     data class SavePassHashLocalChanged(
@@ -65,6 +64,6 @@ abstract class StorageEvent : BaseEvent() {
 
     // pincode
     data class AskPinCode(
-        val callbackEvent: VMEvent,
+        val callbackEvent: BaseEvent,
     ) : StorageEvent()
 }

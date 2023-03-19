@@ -63,8 +63,6 @@ class StorageInfoViewModel(
     checkStoragePasswordUseCase: CheckPasswordOrPinAndAskUseCase,
     changePasswordUseCase: ChangePasswordUseCase,
     setupPasswordUseCase : SetupPasswordUseCase,
-    initPasswordUseCase : InitPasswordUseCase,
-    clearSavedPasswordUseCase: ClearSavedPasswordUseCase,
 
     getNodeByIdUseCase: GetNodeByIdUseCase,
     getRecordByIdUseCase: GetRecordByIdUseCase,
@@ -108,8 +106,6 @@ class StorageInfoViewModel(
     checkPasswordOrPinUseCase = checkStoragePasswordUseCase,
     changePasswordUseCase = changePasswordUseCase,
     setupPasswordUseCase = setupPasswordUseCase,
-    initPasswordUseCase = initPasswordUseCase,
-    clearSavedPasswordUseCase = clearSavedPasswordUseCase,
 
     getNodeByIdUseCase = getNodeByIdUseCase,
     getRecordByIdUseCase = getRecordByIdUseCase,

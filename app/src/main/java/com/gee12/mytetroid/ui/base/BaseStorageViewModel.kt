@@ -71,14 +71,6 @@ abstract class BaseStorageViewModel(
 
     //region Event
 
-    //TODO: можно избавиться
-    suspend fun sendEventFromCallbackParam(callbackEvent: VMEvent) {
-        when (callbackEvent) {
-            is BaseEvent -> this.sendEvent(callbackEvent)
-            else -> {}
-        }
-    }
-
     //endregion Event
 
 
@@ -130,7 +122,7 @@ abstract class BaseStorageViewModel(
 
     fun isSaveMiddlePassLocal() = storage?.isSavePassLocal.orFalse()
 
-    fun isDecryptAttachesToTemp() = storage?.isDecyptToTemp.orFalse()
+    fun isDecryptAttachesToTemp() = storage?.isDecryptToTemp.orFalse()
 
     fun getMiddlePassHash() = storage?.middlePassHash
 

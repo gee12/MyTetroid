@@ -34,7 +34,6 @@ import com.gee12.mytetroid.domain.repo.StoragesRepo
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.BaseStorageViewModel
 import com.gee12.mytetroid.ui.base.TetroidActivity
-import com.gee12.mytetroid.ui.base.VMEvent
 import com.gee12.mytetroid.domain.usecase.crypt.*
 import com.gee12.mytetroid.domain.usecase.file.GetFileModifiedDateInStorageUseCase
 import com.gee12.mytetroid.domain.usecase.file.GetFolderSizeInStorageUseCase
@@ -42,7 +41,6 @@ import com.gee12.mytetroid.domain.usecase.node.GetNodeByIdUseCase
 import com.gee12.mytetroid.domain.usecase.record.GetRecordByIdUseCase
 import com.gee12.mytetroid.domain.usecase.storage.*
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
-import com.gee12.mytetroid.model.permission.TetroidPermission
 import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.util.*
@@ -78,14 +76,12 @@ open class StorageViewModel(
     protected val readStorageUseCase: ReadStorageUseCase,
     protected val saveStorageUseCase: SaveStorageUseCase,
     protected val decryptStorageUseCase: DecryptStorageUseCase,
-    protected val clearSavedPasswordUseCase: ClearSavedPasswordUseCase,
     protected val checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
     protected val clearStorageTrashFolderUseCase: ClearStorageTrashFolderUseCase,
     protected val checkPasswordOrPinAndDecryptUseCase: CheckPasswordOrPinAndDecryptUseCase,
     protected val checkPasswordOrPinUseCase: CheckPasswordOrPinAndAskUseCase,
     protected val changePasswordUseCase: ChangePasswordUseCase,
     protected val setupPasswordUseCase: SetupPasswordUseCase,
-    protected val initPasswordUseCase: InitPasswordUseCase,
 
     protected val getNodeByIdUseCase: GetNodeByIdUseCase,
     protected val getRecordByIdUseCase: GetRecordByIdUseCase,
@@ -307,13 +303,17 @@ open class StorageViewModel(
         activity: Activity,
         root: DocumentFile
     ) {
-        storage?.uri = root.uri.toString()
-        // сохраняем полученный Uri
-        updateStorageInDbAsync()
-        // устанавливаем полученный DocumentFile
-        storageProvider.setRootFolder(root)
+        launchOnIo {
+            storage?.also {
+                it.uri = root.uri.toString()
+                // сохраняем полученный Uri
+                updateStorageInDb(storage = it)
+                // устанавливаем полученный DocumentFile
+                storageProvider.setRootFolder(root)
 
-        syncAndInitStorage(activity)
+                syncAndInitStorage(activity)
+            }
+        }
     }
 
     /**
@@ -681,24 +681,6 @@ open class StorageViewModel(
 
     fun setIsPINNeedToEnter() {
         isPinNeedEnter = true
-    }
-
-    fun clearSavedPassword() {
-        storage?.let { storage ->
-            launchOnMain {
-                withIo {
-                    clearSavedPasswordUseCase.run(
-                        ClearSavedPasswordUseCase.Params
-                    ).flatMap {
-                        sensitiveDataProvider.resetMiddlePassHash()
-                        updateStorageInDb(storage)
-                        UseCase.None.toRight()
-                    }
-                }.onFailure {
-                    logFailure(it)
-                }
-            }
-        }
     }
 
     // endregion Decrypt
@@ -1104,7 +1086,7 @@ open class StorageViewModel(
     /**
      * Отображения запроса пароля от хранилища.
      */
-    fun askPassword(callbackEvent: VMEvent) {
+    fun askPassword(callbackEvent: BaseEvent) {
         logger.log(R.string.log_show_pass_dialog, false)
         // выводим окно с запросом пароля в асинхронном режиме
         launchOnMain {
@@ -1112,7 +1094,7 @@ open class StorageViewModel(
         }
     }
 
-    suspend fun setupPassword(password: String) {
+    suspend fun setupPassword(password: String, callbackEvent: BaseEvent? = null) {
         log(R.string.log_start_pass_setup)
         sendEvent(BaseEvent.TaskStarted(R.string.task_pass_setting))
         isBusy = true
@@ -1127,12 +1109,14 @@ open class StorageViewModel(
             isBusy = false
             sendEvent(BaseEvent.TaskFinished)
         }.onFailure {
-            // TODO
-            //logger.log(R.string.log_pass_set_error, true)
             logFailure(it)
         }.onSuccess {
             logger.log(R.string.log_pass_setted, true)
             sendEvent(StorageEvent.PassSetuped)
+
+            callbackEvent?.also {
+                sendEvent(it)
+            }
         }
     }
 
@@ -1188,23 +1172,23 @@ open class StorageViewModel(
      * конкретно в данный момент.
      * @param callback Обработчик обратного вызова.
      */
-    fun askPinCode(specialFlag: Boolean, callbackEvent: VMEvent) {
+    fun askPinCode(specialFlag: Boolean, callbackEvent: BaseEvent) {
         launchOnMain {
             if (isRequestPinCode() && specialFlag) {
                 // выводим запрос ввода ПИН-кода
                 sendEvent(StorageEvent.AskPinCode(callbackEvent))
             } else {
-                sendEventFromCallbackParam(callbackEvent)
+                sendEvent(callbackEvent)
             }
         }
     }
 
-    fun startCheckPinCode(pin: String, callbackEvent: VMEvent): Boolean {
+    fun startCheckPinCode(pin: String, callbackEvent: BaseEvent): Boolean {
         // зашифровываем введеный пароль перед сравнением
         val res = checkPinCode(pin)
         if (res) {
             launchOnMain {
-                sendEventFromCallbackParam(callbackEvent)
+                sendEvent(callbackEvent)
             }
             // сбрасываем признак
             isPinNeedEnter = false
@@ -1267,21 +1251,6 @@ open class StorageViewModel(
 
     open fun updateStorageOption(key: String, value: Any) {}
 
-
-    fun updateStorageInDbAsync(storage: TetroidStorage) {
-        launchOnIo {
-            if (!updateStorageInDb(storage)) {
-//                logFailure()
-            }
-        }
-    }
-
-    fun updateStorageInDbAsync() {
-        storage?.let {
-            updateStorageInDbAsync(it)
-        }
-    }
-
     suspend fun updateStorageInDb(storage: TetroidStorage): Boolean {
         return storagesRepo.updateStorage(storage)
     }
@@ -1306,15 +1275,6 @@ open class StorageViewModel(
             launchOnIo {
                 quicklyNode = getNode(nodeId)
             }
-        }
-    }
-
-    fun dropSavedLocalPassHash() {
-        storage?.apply {
-            // удаляем хэш пароля и сбрасываем галку
-            middlePassHash = null
-            isSavePassLocal = false
-            updateStorageInDbAsync(this)
         }
     }
 
@@ -1359,18 +1319,6 @@ open class StorageViewModel(
 
     fun getQuicklyNodeId() = quicklyNode?.id.orEmpty()
 
-    fun saveMiddlePassHashLocalIfCached() {
-        // сохраняем хеш локально, если пароль был введен
-        sensitiveDataProvider.getMiddlePassHashOrNull()?.let { passHash ->
-            storage?.apply {
-                isSavePassLocal = true
-                middlePassHash = passHash
-                updateStorageInDbAsync(this)
-                log(R.string.log_pass_hash_saved_local, show = true)
-            }
-        }
-    }
-
     // endregion Getters
 
     // region Setters
@@ -1379,8 +1327,13 @@ open class StorageViewModel(
         storage?.isDecrypted = value
     }
 
-    fun setLastNodeId(nodeId: String?) {
-        storage?.lastNodeId = nodeId
+    fun setLastNodeIdAndSaveStorageInDb(nodeId: String?) {
+        launchOnIo {
+            storage?.also {
+                it.lastNodeId = nodeId
+                updateStorageInDb(storage = it)
+            }
+        }
     }
 
     // endregion Setters

@@ -79,7 +79,7 @@ class StoragesRepo(context: Context) {
         lastNodeId = entity.lastNodeId
         isSavePassLocal = entity.isSavePassLocal
         middlePassHash = entity.middlePassHash
-        isDecyptToTemp = entity.isDecyptToTemp
+        isDecryptToTemp = entity.isDecryptToTemp
         syncProfile = entity.syncProfile
         createdDate = entity.createdDate
         editedDate = entity.editedDate

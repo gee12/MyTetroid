@@ -251,32 +251,40 @@ object UseCasesModule {
                     saveStorageUseCase = get(),
                     decryptStorageUseCase = get(),
                     initPasswordUseCase = get(),
-                    savePasswordCheckDataUseCase = get(),
+                    savePasswordInConfigUseCase = get(),
                 )
             }
 
             scoped {
                 SetupPasswordUseCase(
                     initPasswordUseCase = get(),
-                    savePasswordCheckDataUseCase = get(),
+                    savePasswordInConfigUseCase = get(),
                 )
             }
 
             scoped {
                 InitPasswordUseCase(
-                    context = androidContext(),
-                    logger = get(),
                     storageProvider = get(),
-                    storagesRepo = get(),
                     cryptManager = get(),
                     sensitiveDataProvider = get(),
+                    saveMiddlePasswordHashUseCase = get(),
                 )
             }
 
             scoped {
-                SavePasswordCheckDataUseCase(
+                SavePasswordInConfigUseCase(
                     context = androidContext(),
                     storageProvider = get(),
+                    cryptManager = get(),
+                )
+            }
+
+            scoped {
+                SaveMiddlePasswordHashUseCase(
+                    context = androidContext(),
+                    storageProvider = get(),
+                    storagesRepo = get(),
+                    cryptManager = get(),
                 )
             }
 
@@ -289,18 +297,19 @@ object UseCasesModule {
             }
 
             scoped {
-                CheckPasswordOnDecryptUseCase(
-                    logger = get(),
+                ClearSavedPasswordHashUseCase(
+                    context = androidContext(),
                     storageProvider = get(),
-                    cryptManager = get(),
-                    initPasswordUseCase = get(),
+                    storagesRepo = get(),
                 )
             }
 
             scoped {
-                ClearSavedPasswordUseCase(
+                DropAllPasswordDataUseCase(
                     context = androidContext(),
                     storageProvider = get(),
+                    sensitiveDataProvider = get(),
+                    storagesRepo = get(),
                 )
             }
 

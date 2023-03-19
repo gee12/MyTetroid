@@ -4,6 +4,8 @@ import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.common.onFailure
+import com.gee12.mytetroid.common.onSuccess
 import com.gee12.mytetroid.data.settings.TetroidPreferenceDataStore
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.domain.IFailureHandler
@@ -61,8 +63,8 @@ class StorageSettingsViewModel(
     checkStoragePasswordUseCase: CheckPasswordOrPinAndAskUseCase,
     changePasswordUseCase: ChangePasswordUseCase,
     setupPasswordUseCase : SetupPasswordUseCase,
-    initPasswordUseCase : InitPasswordUseCase,
-    clearSavedPasswordUseCase: ClearSavedPasswordUseCase,
+    private val saveMiddlePasswordHashUseCase: SaveMiddlePasswordHashUseCase,
+    private val clearSavedPasswordHashUseCase: ClearSavedPasswordHashUseCase,
     private val checkPasswordUseCase: CheckPasswordUseCase,
 
     getNodeByIdUseCase: GetNodeByIdUseCase,
@@ -104,8 +106,6 @@ class StorageSettingsViewModel(
     checkPasswordOrPinUseCase = checkStoragePasswordUseCase,
     changePasswordUseCase = changePasswordUseCase,
     setupPasswordUseCase = setupPasswordUseCase,
-    initPasswordUseCase = initPasswordUseCase,
-    clearSavedPasswordUseCase = clearSavedPasswordUseCase,
 
     getNodeByIdUseCase = getNodeByIdUseCase,
     getRecordByIdUseCase = getRecordByIdUseCase,
@@ -160,7 +160,7 @@ class StorageSettingsViewModel(
 
                 // шифрование
                 getString(R.string.pref_key_is_save_pass_hash_local) -> isFieldChanged(key, isSavePassLocal, value) { isSavePassLocal = it }
-                getString(R.string.pref_key_is_decrypt_in_temp) -> isFieldChanged(key, isDecyptToTemp, value) { isDecyptToTemp = it }
+                getString(R.string.pref_key_is_decrypt_in_temp) -> isFieldChanged(key, isDecryptToTemp, value) { isDecryptToTemp = it }
 
                 // синхронизация
                 getString(R.string.pref_key_is_sync_storage) -> isFieldChanged(key, syncProfile.isEnabled, value) { syncProfile.isEnabled = it }
@@ -176,7 +176,9 @@ class StorageSettingsViewModel(
             if (isFieldsChanged) {
                 this@StorageSettingsViewModel.isFieldsChanged = true
                 launchOnMain {
-                    updateStorageInDb(this@apply)
+                    withIo {
+                        updateStorageInDb(storage = this@apply)
+                    }
                     onStorageOptionChanged(key, value)
 
                     if (isStoragePathChanged) {
@@ -224,7 +226,7 @@ class StorageSettingsViewModel(
                 getString(R.string.pref_key_is_keep_selected_node) -> it.isKeepLastNode
                 // шифрование
                 getString(R.string.pref_key_is_save_pass_hash_local) -> it.isSavePassLocal
-                getString(R.string.pref_key_is_decrypt_in_temp) -> it.isDecyptToTemp
+                getString(R.string.pref_key_is_decrypt_in_temp) -> it.isDecryptToTemp
                 // синхронизация
                 getString(R.string.pref_key_is_sync_storage) -> it.syncProfile.isEnabled
                 getString(R.string.pref_key_app_for_sync) -> it.syncProfile.appName
@@ -255,6 +257,9 @@ class StorageSettingsViewModel(
             },
             onRight = { result ->
                 when (result) {
+                    is CheckPasswordUseCase.Result.PasswordNotSet -> {
+                        true
+                    }
                     is CheckPasswordUseCase.Result.Success -> {
                         startChangePassword(curPassword, newPassword)
                         true
@@ -302,6 +307,37 @@ class StorageSettingsViewModel(
                 sendEvent(StorageEvent.SavePassHashLocalChanged(isSaveLocal))
             }
             false
+        }
+    }
+
+    fun saveMiddlePassHashLocalIfCached() {
+        sensitiveDataProvider.getMiddlePasswordHashOrNull()?.let { middlePasswordHash ->
+            launchOnMain {
+                withIo {
+                    // сохраняем хеш локально, если пароль был введен
+                    saveMiddlePasswordHashUseCase.run(
+                        SaveMiddlePasswordHashUseCase.Params(middlePasswordHash)
+                    )
+                }.onFailure {
+                    logFailure(it)
+                }.onSuccess {
+                    log(R.string.log_pass_hash_saved_local, show = true)
+                }
+            }
+        }
+    }
+
+    fun clearSavedPasswordHash(isDropSavePasswordLocal: Boolean) {
+        launchOnMain {
+            withIo {
+                clearSavedPasswordHashUseCase.run(
+                    ClearSavedPasswordHashUseCase.Params(
+                        isDropSavePasswordLocal = isDropSavePasswordLocal,
+                    )
+                )
+            }.onFailure {
+                logFailure(it)
+            }
         }
     }
 

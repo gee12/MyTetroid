@@ -39,7 +39,6 @@ import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.model.permission.TetroidPermission
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.TetroidStorageActivity
-import com.gee12.mytetroid.ui.base.VMEvent
 import com.gee12.mytetroid.ui.base.views.SearchViewXListener
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
 import com.gee12.mytetroid.ui.dialogs.IntentDialog
@@ -914,7 +913,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
     //region Encryption
 
-    private fun showPasswordDialog(callbackEvent: VMEvent) {
+    private fun showPasswordDialog(callbackEvent: BaseEvent) {
         val isSetup = !viewModel.isStorageEncrypted()
         showPasswordEnterDialog(
             isSetup = isSetup,
@@ -930,7 +929,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             })
     }
 
-    private fun showPinCodeDialog(callbackEvent: VMEvent) {
+    private fun showPinCodeDialog(callbackEvent: BaseEvent) {
         showDialog(
             length = CommonSettings.getPinCodeLength(this),
             isSetup = !viewModel.isStorageEncrypted(),
@@ -1180,7 +1179,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             context = this,
             messageResId = R.string.ask_clear_pass_database_ini,
             onApply = {
-                viewModel.clearSavedPassword()
+                viewModel.dropAllPasswordData()
             },
         )
     }
@@ -1191,16 +1190,20 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     private fun showEmptyPassCheckingFieldDialog(
         fieldName: String,
         passHash: String,
-        callbackEvent: VMEvent
+        callbackEvent: BaseEvent
     ) {
-        AskDialogs.showYesNoDialog(
+        AskDialogs.showYesNoCancelDialog(
             context = this,
             message = getString(R.string.log_empty_middle_hash_check_data_field, fieldName),
-            onApply = {
+            noResId = R.string.action_enter_password,
+            onYes = {
                 viewModel.confirmEmptyPasswordCheckingFieldDialog(
                     passHash = passHash,
                     callbackEvent = callbackEvent,
                 )
+            },
+            onNo = {
+                viewModel.askPassword(callbackEvent)
             },
             onCancel = {
                 viewModel.cancelEmptyPasswordCheckingFieldDialog(callbackEvent)

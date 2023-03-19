@@ -29,7 +29,7 @@ sealed class Failure(val ex: Throwable? = null) {
         sealed class Save(ex: Throwable? = null) : Storage(ex) {
             object UpdateInBase : Save()
             class PasswordHash(ex: Throwable) : Save(ex)
-            class PasswordCheckData(ex: Throwable) : Save(ex)
+            class PasswordCheckData(ex: Throwable? = null) : Save(ex)
             data class RenameXmlFileFromTempName(
                 val from: String,
                 val to: String,

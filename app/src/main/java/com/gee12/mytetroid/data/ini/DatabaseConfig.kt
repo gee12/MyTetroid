@@ -1,10 +1,12 @@
 package com.gee12.mytetroid.data.ini
 
 import com.gee12.mytetroid.logs.ITetroidLogger
-import java.io.OutputStream
 import kotlin.Throws
 import java.lang.Exception
 
+/**
+ * Параметры хранилища.
+ */
 class DatabaseConfig(
     logger: ITetroidLogger?
 ) : INIConfig(logger) {
@@ -34,44 +36,60 @@ class DatabaseConfig(
         }
     }
 
+    /**
+     * Хэш пароля для проверки введенного пароля (используется вместе с солью).
+     */
     @get:Throws(EmptyFieldException::class)
     val cryptCheckHash: String
         get() = getWithoutQuotes(INI_CRYPT_CHECK_HASH)
 
+    /**
+     * Соль для проверки введенного пароля (используется вместе с хэшем).
+     */
     @get:Throws(EmptyFieldException::class)
     val cryptCheckSalt: String
         get() = getWithoutQuotes(INI_CRYPT_CHECK_SALT)
 
+    /**
+     * Данные для проверки сохраненного промежуточного хэша пароля.
+     */
     @get:Throws(EmptyFieldException::class)
     val middleHashCheckData: String
         get() = getWithoutQuotes(INI_MIDDLE_HASH_CHECK_DATA)
 
+    /**
+     * Признак того, задан ли пароль у хранилища.
+     */
     @get:Throws(EmptyFieldException::class)
     val isCryptMode: Boolean
         get() = getValueFromGeneral(INI_CRYPT_MODE) == "1"
 
     @Throws(Exception::class)
-    fun savePassword(outputStream: OutputStream, passHash: String?, salt: String?, cryptMode: Boolean) {
+    fun setPasswordHashAndSalt(
+        passHash: String?,
+        salt: String?,
+        cryptMode: Boolean
+    ) {
         setValueToGeneralWithQuotes(INI_CRYPT_CHECK_HASH, passHash)
         setValueToGeneralWithQuotes(INI_CRYPT_CHECK_SALT, salt)
         setValueToGeneral(INI_CRYPT_MODE, if (cryptMode) "1" else "0")
-        save(outputStream)
     }
 
     @Throws(Exception::class)
-    fun saveCheckData(outputStream: OutputStream, checkData: String?) {
+    fun setMiddleHashCheckData(
+        checkData: String?
+    ) {
         setValueToGeneralWithQuotes(INI_MIDDLE_HASH_CHECK_DATA, checkData)
-        save(outputStream)
     }
 
     @Throws(Exception::class)
-    fun saveDefault(outputStream: OutputStream) {
+    fun setDefault(
+    ) {
         setValueToGeneral(INI_CRYPT_CHECK_HASH, null)
         setValueToGeneral(INI_CRYPT_CHECK_SALT, null)
         setValueToGeneral(INI_CRYPT_MODE, "0")
         setValueToGeneral(INI_MIDDLE_HASH_CHECK_DATA, null)
         setValueToGeneral(INI_VERSION, DEF_VERSION)
-        save(outputStream)
     }
 
     /**
@@ -103,6 +121,6 @@ class DatabaseConfig(
     }
 
     fun setValueToGeneralWithQuotes(key: String, value: String?) {
-        setValueToGeneral(key, if (value != null) "\"" + value + "\"" else "")
+        setValueToGeneral(key, value?.let { "\"$value\"" }.orEmpty())
     }
 }

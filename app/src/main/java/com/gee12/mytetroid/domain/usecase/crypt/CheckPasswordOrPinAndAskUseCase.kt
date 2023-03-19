@@ -20,6 +20,7 @@ class CheckPasswordOrPinAndAskUseCase(
     )
 
     sealed class Result {
+        object PasswordNotSet : Result()
         object AskPassword : Result()
         data class AskPin(
             val specialFlag: Boolean,
@@ -30,26 +31,35 @@ class CheckPasswordOrPinAndAskUseCase(
         ) : Result()
     }
 
+    private val databaseConfig: DatabaseConfig
+        get() = storageProvider.databaseConfig
+
     override suspend fun run(params: Params): Either<Failure, Result> {
         val storage = storageProvider.storage
         val isStorageEncrypted = params.isStorageEncrypted
         val isSaveMiddlePassLocal = storage?.isSavePassLocal ?: false
 
-        var middlePassHash: String? = null
+        var middlePassHash = sensitiveDataProvider.getMiddlePasswordHashOrNull()
         return when {
-            sensitiveDataProvider.getMiddlePassHashOrNull()?.also { middlePassHash = it } != null -> {
+            !databaseConfig.isCryptMode -> {
+                Result.PasswordNotSet.toRight()
+            }
+            middlePassHash != null -> {
                 // хэш пароля сохранен в оперативной памяти (вводили до этого и проверяли)
-                cryptManager.setKeyFromMiddleHash(middlePassHash!!)
+                cryptManager.setKeyFromMiddleHash(middlePassHash)
                 // запрос ПИН-кода
                 Result.AskPin(
                     specialFlag = true,
                 ).toRight()
             }
-            isSaveMiddlePassLocal && storage?.middlePassHash.also { middlePassHash = it } != null -> {
+            isSaveMiddlePassLocal && storage?.middlePassHash != null -> {
+                middlePassHash = storage.middlePassHash!!
                 // хэш пароля сохранен локально, проверяем
                 try {
                     if (checkMiddlePassHash(middlePassHash)) {
-                        cryptManager.setKeyFromMiddleHash(middlePassHash!!)
+                        // сохраненный хеш пароля подошел, устанавливаем его
+                        sensitiveDataProvider.saveMiddlePasswordHash(middlePassHash)
+                        cryptManager.setKeyFromMiddleHash(middlePassHash)
                         // запрос ПИН-кода
                         Result.AskPin(
                             specialFlag = true,
@@ -66,11 +76,11 @@ class CheckPasswordOrPinAndAskUseCase(
                         // спрашиваем "continue anyway?"
                         Result.AskForEmptyPassCheckingField(
                             fieldName = ex.fieldName,
-                            passHash = middlePassHash!!,
+                            passHash = middlePassHash,
                         ).toRight()
                     } else {
                         // если нет зашифрованных веток, но пароль сохранен
-                        cryptManager.setKeyFromMiddleHash(middlePassHash!!)
+                        cryptManager.setKeyFromMiddleHash(middlePassHash)
                         Result.AskPin(
                             specialFlag = true,
                         ).toRight()
@@ -90,8 +100,6 @@ class CheckPasswordOrPinAndAskUseCase(
      */
     @Throws(DatabaseConfig.EmptyFieldException::class)
     fun checkMiddlePassHash(passHash: String?): Boolean {
-        val databaseConfig = storageProvider.databaseConfig
-
         val checkData = databaseConfig.middleHashCheckData
         return cryptManager.checkMiddlePassHash(passHash, checkData)
     }

@@ -24,7 +24,7 @@ class StorageSettingsProvider(
     private val storage: TetroidStorage?
         get() = storageProvider.storage
 
-    override fun isDecryptAttachesToTempFolder(): Boolean = storage?.isDecyptToTemp ?: false
+    override fun isDecryptAttachesToTempFolder(): Boolean = storage?.isDecryptToTemp ?: false
 
     override fun getSyncProfile() = storage?.syncProfile
 

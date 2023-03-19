@@ -24,6 +24,7 @@ class CheckPasswordOrPinAndDecryptUseCase(
     )
 
     sealed class Result {
+        object PasswordNotSet : Result()
         object None : Result()
         object AskPassword : Result()
         object AskPin : Result()
@@ -36,27 +37,35 @@ class CheckPasswordOrPinAndDecryptUseCase(
         ) : Result()
     }
 
+    private val databaseConfig: DatabaseConfig
+        get() = storageProvider.databaseConfig
+
     override suspend fun run(params: Params): Either<Failure, Result> {
         val storage = storageProvider.storage
         val isSaveMiddlePassLocal = storage?.isSavePassLocal ?: false
         val isNodeOpening = params.params.isNodeOpening
 
-        var middlePassHash: String? = null
+        var middlePassHash = sensitiveDataProvider.getMiddlePasswordHashOrNull()
         return when {
-            sensitiveDataProvider.getMiddlePassHashOrNull()?.also { middlePassHash = it } != null -> {
+            !databaseConfig.isCryptMode -> {
+                Result.PasswordNotSet.toRight()
+            }
+            middlePassHash != null -> {
                 // хэш пароля уже установлен (вводили до этого и проверяли)
-                cryptManager.setKeyFromMiddleHash(middlePassHash!!)
+                cryptManager.setKeyFromMiddleHash(middlePassHash)
                 // спрашиваем ПИН-код
                 Result.AskPin.toRight()
             }
-            isSaveMiddlePassLocal && storage?.middlePassHash.also { middlePassHash = it } != null -> {
+            isSaveMiddlePassLocal && storage?.middlePassHash != null -> {
+                middlePassHash = storage.middlePassHash!!
                 // хэш пароля сохранен локально, проверяем
                 params.params.passHash = middlePassHash
 
                 try {
                     if (checkMiddlePassHash(middlePassHash)) {
                         // сохраненный хеш пароля подошел, устанавливаем его
-                        cryptManager.setKeyFromMiddleHash(middlePassHash!!)
+                        sensitiveDataProvider.saveMiddlePasswordHash(middlePassHash)
+                        cryptManager.setKeyFromMiddleHash(middlePassHash)
                         // спрашиваем ПИН-код
                         Result.AskPin.toRight()
                     } else if (isNodeOpening) {
@@ -85,7 +94,7 @@ class CheckPasswordOrPinAndDecryptUseCase(
 
                     Result.AskForEmptyPassCheckingField(
                         fieldName = ex.fieldName,
-                        passHash = middlePassHash!!,
+                        passHash = middlePassHash,
                     ).toRight()
                 }
             }
@@ -114,8 +123,6 @@ class CheckPasswordOrPinAndDecryptUseCase(
      */
     @Throws(DatabaseConfig.EmptyFieldException::class)
     fun checkMiddlePassHash(passHash: String?): Boolean {
-        val databaseConfig = storageProvider.databaseConfig
-
         val checkData = databaseConfig.middleHashCheckData
         return cryptManager.checkMiddlePassHash(passHash, checkData)
     }
