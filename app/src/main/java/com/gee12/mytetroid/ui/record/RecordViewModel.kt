@@ -2,6 +2,7 @@ package com.gee12.mytetroid.ui.record
 
 import android.app.Activity
 import android.app.Application
+import android.content.ContentResolver
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
@@ -18,6 +19,8 @@ import com.anggrayudi.storage.file.*
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.buildIntent
+import com.gee12.mytetroid.common.extensions.getFileName
+import com.gee12.mytetroid.common.extensions.orFalse
 import com.gee12.mytetroid.domain.NetworkHelper.IWebImageResult
 import com.gee12.mytetroid.domain.NetworkHelper.IWebPageContentResult
 import com.gee12.mytetroid.model.*
@@ -49,6 +52,7 @@ import com.gee12.mytetroid.domain.usecase.image.SaveImageFromUriUseCase
 import com.gee12.mytetroid.domain.usecase.storage.*
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.model.permission.TetroidPermission
+import java.io.File
 
 
 class RecordViewModel(
@@ -158,6 +162,8 @@ class RecordViewModel(
     var isEdited = false
     var isFromAnotherActivity = false
 
+    private var recordFolder: DocumentFile? = null
+
 
     //region Migration
 
@@ -265,6 +271,23 @@ class RecordViewModel(
         // переключаем режим, если асинхронное сохранение было вызвано в процессе переключения режима
         if (modeToSwitch > 0) {
             switchMode(modeToSwitch, false)
+        }
+    }
+
+    fun loadPageFile(uri: Uri): DocumentFile? {
+        return uri
+            .takeIf { it.scheme in arrayOf(ContentResolver.SCHEME_CONTENT, ContentResolver.SCHEME_FILE)}
+            ?.getFileName(getContext())
+            ?.let { fileName ->
+            val recordFolderPath = recordFolder?.getAbsolutePath(getContext())
+                ?: return null
+            val filePath = FilePath.File(recordFolderPath, fileName)
+
+            recordFolder?.child(
+                context = getContext(),
+                path = filePath.fileName,
+                requiresWriteAccess = !storage?.isReadOnly.orFalse()
+            )
         }
     }
 
@@ -381,6 +404,9 @@ class RecordViewModel(
                 if (record != null) {
                     curRecord.postValue(record!!)
                     setTitle(record.name)
+
+                    initRecordFolder(record)
+
 //                setVisibilityActionHome(!mRecord.isTemp());
                     if (intent.hasExtra(Constants.EXTRA_ATTACHED_FILES)) {
                         // временная запись создана для прикрепления файлов
@@ -431,6 +457,25 @@ class RecordViewModel(
         }
     }
 
+    private suspend fun initRecordFolder(record: TetroidRecord) {
+        recordFolder = withIo {
+            getRecordFolderUseCase.run(
+                GetRecordFolderUseCase.Params(
+                    record = record,
+                    createIfNeed = false,
+                    inTrash = record.isTemp,
+                    showMessage = true,
+                )
+            )
+        }.foldResult(
+            onLeft = {
+                logFailure(it, show = true)
+                null
+            },
+            onRight = { it }
+        )
+    }
+
     /**
      * Отображение записи (свойств и текста).
      */
@@ -451,11 +496,12 @@ class RecordViewModel(
 
     fun loadRecordAfterPermissionsGranted() {
         launchOnMain {
-            val record = curRecord.value!!
-            log(getString(R.string.log_record_loading) + record.id)
-            sendEvent(RecordEvent.LoadFields(record))
-            // текст
-            loadRecordTextFromFile(record)
+            curRecord.value?.also { record ->
+                log(getString(R.string.log_record_loading) + record.id)
+                sendEvent(RecordEvent.LoadFields(record))
+                // текст
+                loadRecordTextFromFile(record)
+            }
         }
     }
 
@@ -1017,7 +1063,6 @@ class RecordViewModel(
             ResultObj.OPEN_TAG -> openTag((resObj.obj as String?)!!, false)
             ResultObj.NONE -> if (resObj.needReloadText) {
                 // перезагружаем baseUrl в WebView
-//                loadRecordText(mRecord, false)
                 loadRecordTextFromFile(curRecord.value!!)
             }
         }
@@ -1097,24 +1142,11 @@ class RecordViewModel(
         val record = curRecord.value!!
         logger.logDebug(resourcesProvider.getString(R.string.log_start_record_folder_opening) + record.id)
 
-        launchOnMain {
-            withIo {
-                getRecordFolderUseCase.run(
-                    GetRecordFolderUseCase.Params(
-                        record = record,
-                        createIfNeed = false,
-                        inTrash = record.isTemp,
-                        showMessage = true,
-                    )
-                )
-            }.onFailure {
-                logFailure(it)
-            }.onSuccess { recordFolder ->
-                val uri = recordFolder.uri
-                if (!interactionManager.openFolder(activity, uri)) {
-                    Utils.writeToClipboard(getContext(), resourcesProvider.getString(R.string.title_record_folder_path), uri.path)
-                    logWarning(R.string.log_missing_file_manager, show = true)
-                }
+        recordFolder?.also {
+            val uri = it.uri
+            if (!interactionManager.openFolder(activity, uri)) {
+                Utils.writeToClipboard(getContext(), resourcesProvider.getString(R.string.title_record_folder_uri), uri.toString())
+                logWarning(R.string.log_missing_file_manager, show = true)
             }
         }
     }
@@ -1319,8 +1351,9 @@ class RecordViewModel(
         }
     }
 
-    fun getUriToRecordFolder(): Uri {
-        return recordPathProvider.getUriToRecordFolder(curRecord.value!!)
+    fun getFileUriToRecordFolder(): Uri? {
+        return recordFolder?.getAbsolutePath(getContext())
+            ?.let { Uri.fromFile(File(it)) }
     }
 
     /**
@@ -1355,7 +1388,7 @@ class RecordViewModel(
 
     fun getRecordName() = curRecord.value?.name
 
-    fun isRecordTemprorary() = curRecord.value?.isTemp ?: true
+    fun isRecordTemporary() = curRecord.value?.isTemp ?: true
 
     fun isViewMode() = curMode == Constants.MODE_VIEW
 

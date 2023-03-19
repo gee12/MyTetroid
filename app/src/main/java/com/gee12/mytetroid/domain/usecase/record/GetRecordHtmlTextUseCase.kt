@@ -56,12 +56,11 @@ class GetRecordHtmlTextUseCase(
             },
             onRight = { it }
         )
-        val recordFolderPath = recordFolder.getAbsolutePath(context)
-        val filePath = FilePath.File(recordFolderPath, record.fileName)
+        val filePath = FilePath.File(recordFolder.getAbsolutePath(context), record.fileName)
 
         val file = recordFolder.child(
             context = context,
-            path = record.fileName,
+            path = filePath.fileName,
             requiresWriteAccess = !storage?.isReadOnly.orFalse()
         ) ?: return Failure.File.Get(filePath).toLeft()
 

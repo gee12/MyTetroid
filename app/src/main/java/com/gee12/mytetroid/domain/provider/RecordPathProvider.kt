@@ -9,10 +9,8 @@ import com.gee12.mytetroid.common.extensions.withExtension
 import com.gee12.mytetroid.model.FilePath
 import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.model.TetroidRecord
-import java.io.File
 
 interface IRecordPathProvider {
-    fun getUriToRecordFolder(record: TetroidRecord): Uri
     fun getPathToRecordFolder(record: TetroidRecord): FilePath.Folder
     fun getRelativePathToRecordFolder(record: TetroidRecord): String
     fun getRelativePathToRecordHtml(record: TetroidRecord): String
@@ -25,20 +23,6 @@ interface IRecordPathProvider {
 class RecordPathProvider(
     private val storagePathProvider: IStoragePathProvider,
 ) : IRecordPathProvider {
-
-    /**
-     * Получение пути к каталогу записи в виде Uri, с учетом того, что это может быть временная запись.
-     * Запись может находиться в хранилище в каталоге base/ или в каталоге корзины.
-     */
-    override fun getUriToRecordFolder(record: TetroidRecord): Uri {
-        val storageUri = if (record.isTemp) {
-            storagePathProvider.getUriToStorageTrashFolder()
-        } else {
-            storagePathProvider.getUriToBaseFolder()
-        }
-        val file = File(makeFolderPath(storageUri.toString(), record.dirName))
-        return Uri.fromFile(file)
-    }
 
     /**
      * Получение пути к каталогу записи, с учетом того, что это может быть временная запись.

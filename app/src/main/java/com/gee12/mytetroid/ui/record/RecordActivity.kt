@@ -20,6 +20,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.widget.ProgressBar
 import android.widget.RelativeLayout
@@ -31,6 +32,8 @@ import androidx.core.view.isVisible
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import com.anggrayudi.storage.file.getAbsolutePath
+import com.anggrayudi.storage.file.mimeType
+import com.anggrayudi.storage.file.openInputStream
 import com.gee12.htmlwysiwygeditor.ActionState
 import com.gee12.htmlwysiwygeditor.IImagePicker
 import com.gee12.htmlwysiwygeditor.INetworkWorker
@@ -76,7 +79,6 @@ import com.lumyjuwon.richwysiwygeditor.WysiwygEditor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.cachapa.expandablelayout.ExpandableLayout
-import java.io.File
 import java.util.*
 
 /**
@@ -86,7 +88,6 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     IPageLoadListener, 
     ILinkLoadListener, 
     IHtmlReceiveListener, 
-    IYoutubeLinkLoadListener, 
     IImagePicker,
     IColorPicker, 
     INetworkWorker,
@@ -148,12 +149,16 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         //mEditor.setOnTouchListener(this)
         editor.setOnPageLoadListener(this)
         editor.setEditorListener(this)
+
         val webView = editor.webView
         webView.setOnTouchListener(this)
-        webView.setOnUrlLoadListener(this)
-        webView.setOnHtmlReceiveListener(this)
-        webView.setYoutubeLoadLinkListener(this)
-        webView.setClipboardListener(TetroidClipboardListener(this))
+        webView.urlLoadListener = this
+        webView.htmlReceiveListener = this
+        webView.clipboardListener = TetroidClipboardListener(this)
+        webView.loadContentListener = { uri ->
+            loadPageContent(uri)
+        }
+
         mTextViewTags = findViewById(R.id.text_view_record_tags)
         mTextViewTags.movementMethod = LinkMovementMethod.getInstance()
         mFieldsExpanderLayout = findViewById(R.id.layout_fields_expander)
@@ -519,8 +524,10 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
     private fun loadRecordText(textHtml: String) {
         mEditTextHtml.reset()
-        //mEditor.getWebView().clearAndFocusEditor();
-        val baseUrl = viewModel.getUriToRecordFolder().toString()
+        // если указывать uri не file:///, или загружать с помощью loadData(),
+        // то ресурсы страницы (картинки) не будут запрашиваться вообще
+        // (событие shouldInterceptRequest не будет вызываться)
+        val baseUrl = viewModel.getFileUriToRecordFolder().toString()
         editor.webView.loadDataWithBaseURL(
             "$baseUrl/",
             textHtml,
@@ -1037,7 +1044,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         activateMenuItem(menu.findItem(R.id.action_record_save), mode == Constants.MODE_EDIT)
         val isLoaded = viewModel.isStorageLoaded()
         val isLoadedFavoritesOnly = viewModel.isLoadedFavoritesOnly()
-        val isTemp = viewModel.isRecordTemprorary()
+        val isTemp = viewModel.isRecordTemporary()
         activateMenuItem(menu.findItem(R.id.action_record_edit_fields), isLoaded && !isLoadedFavoritesOnly, !isTemp)
         activateMenuItem(menu.findItem(R.id.action_record_node), isLoaded && !isLoadedFavoritesOnly, !isTemp)
         activateMenuItem(menu.findItem(R.id.action_delete), isLoaded && !isLoadedFavoritesOnly, !isTemp)
@@ -1508,6 +1515,16 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             else -> {
                 super.onFolderSelected(requestCode, folder)
             }
+        }
+    }
+
+    private fun loadPageContent(uri: Uri): WebResourceResponse? {
+        return viewModel.loadPageFile(uri)?.let { file ->
+            WebResourceResponse(
+                file.mimeType,
+                "utf-8",
+                file.openInputStream(this)
+            )
         }
     }
 

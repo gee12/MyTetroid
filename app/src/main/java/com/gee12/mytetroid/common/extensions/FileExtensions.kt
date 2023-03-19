@@ -1,7 +1,9 @@
 package com.gee12.mytetroid.common.extensions
 
+import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
+import android.provider.OpenableColumns
 import android.text.format.Formatter
 import androidx.documentfile.provider.DocumentFile
 import com.anggrayudi.storage.extension.toDocumentFile
@@ -75,6 +77,23 @@ fun String.splitToBaseAndExtension(): FileName {
             fullName = this
         )
     }
+}
+
+fun Uri.getFileName(context: Context): String? {
+    return when(scheme) {
+        ContentResolver.SCHEME_CONTENT -> this.getContentFileName(context)
+        ContentResolver.SCHEME_FILE -> lastPathSegment // pathSegments.last()
+        else -> null
+    }
+}
+
+private fun Uri.getContentFileName(context: Context): String? {
+    return runCatching {
+        context.contentResolver.query(this, null, null, null, null)?.use { cursor ->
+            cursor.moveToFirst()
+            return@use cursor.getColumnIndexOrThrow(OpenableColumns.DISPLAY_NAME).let(cursor::getString)
+        }
+    }.getOrNull()
 }
 
 fun String.isFileExist(): Boolean {

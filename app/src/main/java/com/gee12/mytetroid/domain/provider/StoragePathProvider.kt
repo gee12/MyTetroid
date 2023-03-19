@@ -14,13 +14,11 @@ interface IStoragePathProvider {
     fun getPathToMyTetraXml(): String
     fun getPathToBaseFolder(): FilePath
     fun getRelativePathToBaseFolder(): String
-    fun getUriToBaseFolder(): Uri
     fun getPathToDatabaseIniConfig(): String
     fun getPathToIconsFolder(): String
     fun getRelativePathToIconsFolder(): String
     fun getPathToFileInIconsFolder(fileName: String): String
     fun getPathToStorageTrashFolder(): FilePath
-    fun getUriToStorageTrashFolder(): Uri
 }
 
 class StoragePathProvider(
@@ -30,11 +28,6 @@ class StoragePathProvider(
     private val storage: TetroidStorage? = null,
     private val appPathProvider: IAppPathProvider,
 ) : IStoragePathProvider {
-
-    companion object {
-        // TODO: убрать
-        const val FILE_URI_PREFIX = "file://"
-    }
 
     override fun getPathToRootFolder(): FilePath {
         val path = storage?.uri?.uriToAbsolutePathIfPossible(context)
@@ -52,10 +45,6 @@ class StoragePathProvider(
 
     override fun getRelativePathToBaseFolder(): String {
         return Constants.BASE_DIR_NAME
-    }
-
-    override fun getUriToBaseFolder(): Uri {
-        return Uri.parse("$FILE_URI_PREFIX${getPathToBaseFolder()}")
     }
 
     override fun getPathToDatabaseIniConfig(): String {
@@ -77,10 +66,6 @@ class StoragePathProvider(
     override fun getPathToStorageTrashFolder(): FilePath {
         val trashFolderPath = appPathProvider.getPathToTrashFolder()
         return FilePath.Folder(trashFolderPath, getStorageId().toString())
-    }
-
-    override fun getUriToStorageTrashFolder(): Uri {
-        return Uri.parse("$FILE_URI_PREFIX${getPathToStorageTrashFolder().fullPath}")
     }
 
     private fun getStorageId(): Int {

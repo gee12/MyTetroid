@@ -149,23 +149,25 @@ open class BaseViewModel(
         }
     }
 
-    // TODO: убрать boolean result
     fun checkCameraPermission(activity: Activity) {
         val permission = TetroidPermission.Camera
 
-        permissionManager.checkPermission(
-            PermissionRequestData(
-                permission = permission,
-                activity = activity,
-                requestCode = PermissionRequestCode.OPEN_CAMERA,
-                onManualPermissionRequest = { requestCallback ->
-                    showManualPermissionRequest(
-                        permission = permission,
-                        requestCallback = requestCallback
-                    )
-                }
+        if (permissionManager.checkPermission(
+                PermissionRequestData(
+                    permission = permission,
+                    activity = activity,
+                    requestCode = PermissionRequestCode.OPEN_CAMERA,
+                    onManualPermissionRequest = { requestCallback ->
+                        showManualPermissionRequest(
+                            permission = permission,
+                            requestCallback = requestCallback
+                        )
+                    }
+                )
             )
-        )
+        ) {
+            onPermissionGranted(permission, PermissionRequestCode.OPEN_CAMERA)
+        }
     }
 
     fun checkAndRequestRecordAudioPermission(activity: Activity) {
