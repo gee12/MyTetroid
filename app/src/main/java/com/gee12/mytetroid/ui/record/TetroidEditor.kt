@@ -196,7 +196,7 @@ class TetroidEditor : WysiwygEditor {
                     },
                     onCancel = {
                         for (fileName in images) {
-                            webView.insertImage(fileName.name, null)
+                            webView.insertImage(url = fileName.name, alt = null)
                         }
                     }
                 )

@@ -8,7 +8,7 @@ import android.os.Build;
 
 import com.gee12.mytetroid.model.TetroidObject;
 import com.gee12.mytetroid.common.utils.UriUtils;
-import com.lumyjuwon.richwysiwygeditor.Utils.YoutubeHelper;
+import com.gee12.htmlwysiwygeditor.YoutubeHelper;
 
 import java.net.URLConnection;
 
