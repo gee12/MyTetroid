@@ -14,7 +14,7 @@
         />
     <item
         android:id="@+id/action_storage_settings"
-        android:title="@string/title_storage_settings"
+        android:title="@string/title_storage_settings_in_list"
         android:orderInCategory="20"
         android:icon="@drawable/ic_storage_settings"
         />

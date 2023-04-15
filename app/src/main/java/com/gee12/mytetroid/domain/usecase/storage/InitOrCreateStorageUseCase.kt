@@ -19,8 +19,8 @@ class InitOrCreateStorageUseCase(
     )
 
     sealed class Result {
-        object InitStorage : Result()
-        object CreateStorage : Result()
+        object Inited : Result()
+        object Created : Result()
     }
 
     override suspend fun run(params: Params): Either<Failure, Result> {
@@ -34,14 +34,14 @@ class InitOrCreateStorageUseCase(
                     storage = storage,
                     databaseConfig = databaseConfig
                 )
-            ).map { Result.CreateStorage }
+            ).map { Result.Created }
         } else {
             initStorageUseCase.run(
                 InitStorageUseCase.Params(
                     storage = storage,
                     databaseConfig = databaseConfig
                 )
-            ).map { Result.InitStorage}
+            ).map { Result.Inited}
         }
     }
 

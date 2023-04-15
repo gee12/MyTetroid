@@ -474,13 +474,30 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     ) {
         when (permission) {
             is TetroidPermission.FileStorage -> {
+                if (requestCode == PermissionRequestCode.OPEN_STORAGE_FOLDER) {
+                    askForPermissionOnStorageFolder(permission, requestCode)
+                }
+            }
+            else -> {}
+        }
+    }
+
+    private fun askForPermissionOnStorageFolder(
+        permission: TetroidPermission.FileStorage,
+        requestCode: PermissionRequestCode,
+    ) {
+        AskDialogs.showOkCancelDialog(
+            context = this,
+            message = getString(R.string.ask_permission_on_storage_folder),
+            isCancelable = false,
+            onYes = {
                 requestFileStorageAccess(
                     root = permission.root,
                     requestCode = requestCode,
                 )
-            }
-            else -> {}
-        }
+            },
+            onCancel = {}
+        )
     }
 
     override fun onPermissionGranted(

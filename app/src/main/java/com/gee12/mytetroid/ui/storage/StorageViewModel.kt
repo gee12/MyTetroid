@@ -7,6 +7,7 @@ import android.content.Intent
 import android.net.Uri
 import android.text.TextUtils
 import androidx.documentfile.provider.DocumentFile
+import com.anggrayudi.storage.file.DocumentFileCompat
 import com.gee12.htmlwysiwygeditor.Dialogs.*
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
@@ -41,6 +42,7 @@ import com.gee12.mytetroid.domain.usecase.node.GetNodeByIdUseCase
 import com.gee12.mytetroid.domain.usecase.record.GetRecordByIdUseCase
 import com.gee12.mytetroid.domain.usecase.storage.*
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
+import com.gee12.mytetroid.model.permission.TetroidPermission
 import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.util.*
@@ -305,13 +307,21 @@ open class StorageViewModel(
     ) {
         launchOnIo {
             storage?.also {
-                it.uri = root.uri.toString()
-                // сохраняем полученный Uri
-                updateStorageInDb(storage = it)
-                // устанавливаем полученный DocumentFile
-                storageProvider.setRootFolder(root)
+                val storageFolderUri = Uri.parse(it.uri)
+                DocumentFileCompat.fromUri(getContext(), storageFolderUri)?.let { storageRoot ->
 
-                syncAndInitStorage(activity)
+                    // перепроверяем доступ к файловому хранилищу
+                    if (checkWriteFileStoragePermission(storageRoot)) {
+                        // устанавливаем полученный DocumentFile
+                        storageProvider.setRootFolder(storageRoot)
+
+                        syncAndInitStorage(activity)
+                    } else {
+                        requestFileStorageAccess(
+                            permission = TetroidPermission.FileStorage.Write(storageRoot),
+                            requestCode = PermissionRequestCode.OPEN_STORAGE_FOLDER,)
+                    }
+                }
             }
         }
     }
@@ -358,11 +368,11 @@ open class StorageViewModel(
                 )
             }.onSuccess { result ->
                 when (result) {
-                    is InitOrCreateStorageUseCase.Result.CreateStorage -> {
+                    is InitOrCreateStorageUseCase.Result.Created -> {
                         logger.log(getString(R.string.log_storage_created_mask, storage.name), show = true)
                         sendEvent(StorageEvent.FilesCreated(storage))
                     }
-                    is InitOrCreateStorageUseCase.Result.InitStorage -> {
+                    is InitOrCreateStorageUseCase.Result.Inited -> {
 
                     }
                 }

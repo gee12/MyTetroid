@@ -55,7 +55,7 @@ class TagsFragment : TetroidFragment<MainViewModel>() {
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val view = super.onCreateView(inflater, container)
+        val view = super.onCreateView(inflater, container, savedInstanceState)
 
         lvTags = view.findViewById(R.id.tags_list_view)
         tvTagsEmpty = view.findViewById(R.id.tags_text_view_empty)
