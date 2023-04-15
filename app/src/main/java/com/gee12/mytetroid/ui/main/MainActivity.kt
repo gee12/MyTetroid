@@ -396,7 +396,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             )
             is MainEvent.SetCurrentNode -> setCurNode(event.node)
             MainEvent.UpdateNodes -> updateNodes()
-            is MainEvent.Record.Open -> openRecord(event.bundle)
+            is MainEvent.Record.Open -> openRecord(event.recordId, event.bundle)
             is MainEvent.Record.Deleted -> mainPage.onDeleteRecordResult(event.record)
             is MainEvent.Record.Cutted -> mainPage.onDeleteRecordResult(event.record)
             is MainEvent.ShowRecords -> {
@@ -1349,8 +1349,9 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     /**
      * Открытие активности RecordActivity.
      */
-    private fun openRecord(bundle: Bundle) {
+    private fun openRecord(recordId: String, bundle: Bundle) {
         RecordActivity.start(this, Intent.ACTION_MAIN, Constants.REQUEST_CODE_RECORD_ACTIVITY, bundle)
+        mainPage.onRecordOpened(recordId)
     }
 
     // endregion Record

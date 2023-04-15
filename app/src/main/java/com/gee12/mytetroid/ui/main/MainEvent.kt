@@ -32,6 +32,7 @@ sealed class MainEvent : StorageEvent() {
 
     sealed class Record : MainEvent() {
         data class Open(
+            val recordId: String,
             val bundle: Bundle,
         ) : MainEvent()
         data class Deleted(

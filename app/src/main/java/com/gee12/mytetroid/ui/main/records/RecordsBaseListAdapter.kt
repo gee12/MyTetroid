@@ -29,6 +29,8 @@ abstract class RecordsBaseListAdapter(
     protected val onClick: (record: TetroidRecord) -> Unit,
 ) : BaseAdapter() {
 
+    var lastOpenedRecordId: String? = null
+
     open class RecordViewHolder {
         lateinit var lineNumView: TextView
         lateinit var iconView: ImageView
@@ -110,20 +112,26 @@ abstract class RecordsBaseListAdapter(
         }
         // прикрепленные файлы
         val nameParams = viewHolder.nameView.layoutParams as RelativeLayout.LayoutParams
-        if (record.attachedFilesCount > 0 && nonCryptedOrDecrypted) {
-            // если установлено в настройках, меняем фон
-            if (isHighlightAttach) {
-                convertView.setBackgroundColor(highlightAttachColor)
+        when {
+            lastOpenedRecordId == record.id -> {
+                convertView.setBackgroundColor(ContextCompat.getColor(context, R.color.colorLastOpenedRecord))
             }
-            viewHolder.attachedView.visibility = View.VISIBLE
-            viewHolder.attachedView.setOnClickListener {
-                onClick(record)
+            record.attachedFilesCount > 0 && nonCryptedOrDecrypted -> {
+                // если установлено в настройках, меняем фон
+                if (isHighlightAttach) {
+                    convertView.setBackgroundColor(highlightAttachColor)
+                }
+                viewHolder.attachedView.visibility = View.VISIBLE
+                viewHolder.attachedView.setOnClickListener {
+                    onClick(record)
+                }
+                nameParams.setMargins(0, 0, context.resources.getDimensionPixelOffset(R.dimen.record_attached_image_width), 0)
             }
-            nameParams.setMargins(0, 0, context.resources.getDimensionPixelOffset(R.dimen.record_attached_image_width), 0)
-        } else {
-            convertView.setBackgroundColor(Color.TRANSPARENT)
-            viewHolder.attachedView.visibility = View.GONE
-            nameParams.setMargins(0, 0, 0, 0)
+            else -> {
+                convertView.setBackgroundColor(Color.TRANSPARENT)
+                viewHolder.attachedView.visibility = View.GONE
+                nameParams.setMargins(0, 0, 0, 0)
+            }
         }
     }
 }

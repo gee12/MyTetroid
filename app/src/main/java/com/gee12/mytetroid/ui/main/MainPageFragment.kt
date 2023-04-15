@@ -274,6 +274,11 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
         viewModel.openRecord(record)
     }
 
+    fun onRecordOpened(recordId: String) {
+        listAdapterRecords.lastOpenedRecordId = recordId
+        listAdapterRecords.notifyDataSetChanged()
+    }
+
     /**
      * Создание новой записи.
      */

@@ -874,7 +874,7 @@ class MainViewModel(
         launchOnMain {
             val bundle = Bundle()
             bundle.putString(Constants.EXTRA_OBJECT_ID, recordId)
-            openRecord(bundle)
+            openRecord(recordId, bundle)
         }
     }
 
@@ -887,7 +887,7 @@ class MainViewModel(
         val bundle = Bundle()
         bundle.putString(Constants.EXTRA_OBJECT_ID, recordId)
         bundle.putParcelableArrayList(Constants.EXTRA_IMAGES_URI, imagesUri)
-        openRecord(bundle)
+        openRecord(recordId, bundle)
     }
 
     /**
@@ -898,17 +898,17 @@ class MainViewModel(
         val bundle = Bundle()
         bundle.putString(Constants.EXTRA_OBJECT_ID, recordId)
         bundle.putString(Constants.EXTRA_ATTACHED_FILES, "")
-        openRecord(bundle)
+        openRecord(recordId, bundle)
     }
 
     /**
      * Открытие активности RecordActivity.
      * @param bundle
      */
-    private fun openRecord(bundle: Bundle) {
+    private fun openRecord(recordId: String, bundle: Bundle) {
         bundle.putInt(Constants.EXTRA_STORAGE_ID, storage?.id.orZero())
         launchOnMain {
-            sendEvent(MainEvent.Record.Open(bundle))
+            sendEvent(MainEvent.Record.Open(recordId, bundle))
         }
     }
 
