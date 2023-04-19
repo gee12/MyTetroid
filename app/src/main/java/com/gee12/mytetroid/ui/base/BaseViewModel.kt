@@ -59,7 +59,7 @@ open class BaseViewModel(
     open fun initialize() {
         // FIXME: перенести в InitAppUseCase ?
         logger.init(
-            path = appPathProvider.getPathToLogsFolder(),
+            path = appPathProvider.getPathToLogsFolder().fullPath,
             isWriteToFile = settingsManager.isWriteLogToFile()
         )
     }

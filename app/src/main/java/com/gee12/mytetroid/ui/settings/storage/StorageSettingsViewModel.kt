@@ -49,7 +49,6 @@ class StorageSettingsViewModel(
     interactionManager: InteractionManager,
     syncInteractor: SyncInteractor,
 
-    initAppUseCase: InitAppUseCase,
     getFolderSizeUseCase: GetFolderSizeInStorageUseCase,
     getFileModifiedDateUseCase: GetFileModifiedDateInStorageUseCase,
 
@@ -92,7 +91,6 @@ class StorageSettingsViewModel(
     interactionManager = interactionManager,
     syncInteractor = syncInteractor,
 
-    initAppUseCase = initAppUseCase,
     getFileModifiedDateUseCase = getFileModifiedDateUseCase,
     getFolderSizeUseCase = getFolderSizeUseCase,
 

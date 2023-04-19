@@ -118,7 +118,7 @@ class StorageProvider(
     }
 
     private fun getPathToTrashFolder(): FilePath {
-        val trashFolderPath = appPathProvider.getPathToTrashFolder()
+        val trashFolderPath = appPathProvider.getPathToTrashFolder().fullPath
         return FilePath.Folder(trashFolderPath, getStorageId().toString())
     }
 

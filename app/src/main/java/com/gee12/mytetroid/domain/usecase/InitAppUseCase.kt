@@ -58,28 +58,36 @@ class InitAppUseCase(
         }
     }
 
-    private fun createFolder(path: String): Either<Failure, DocumentFile> {
-        val folderPath = FilePath.FolderFull(path)
-
+    private fun createFolder(path: FilePath.Folder): Either<Failure, DocumentFile> {
         return try {
-            val folder = DocumentFileCompat.fromFullPath(
+            var folder = DocumentFileCompat.fromFullPath(
                 context = context,
-                fullPath = path,
+                fullPath = path.fullPath,
                 documentType = DocumentFileType.FOLDER,
                 requiresWriteAccess = true,
-            ) ?: return Failure.Folder.Get(folderPath).toLeft()
+            )
 
-            if (!folder.exists()) {
-                if (folder.makeFolder(context, name = "", mode = CreateMode.REUSE) != null) {
-                    logger.log(resourcesProvider.getString(R.string.log_created_folder_mask, path), show = false)
-                } else {
-                    return Failure.Folder.Create(folderPath).toLeft()
-                }
+            if (folder == null || !folder.exists()) {
+
+                val parentFolder = DocumentFileCompat.fromFullPath(
+                    context = context,
+                    fullPath = path.path,
+                    documentType = DocumentFileType.FOLDER,
+                    requiresWriteAccess = true,
+                ) ?: return Failure.Folder.Get(FilePath.FolderFull(path.path)).toLeft()
+
+                folder = parentFolder.makeFolder(
+                    context,
+                    name = path.folderName,
+                    mode = CreateMode.REUSE
+                ) ?: return Failure.Folder.Create(path).toLeft()
+
+                logger.log(resourcesProvider.getString(R.string.log_created_folder_mask, path.fullPath), show = false)
             }
 
             folder.toRight()
         } catch (ex: Exception) {
-            Failure.Folder.Create(folderPath, ex).toLeft()
+            Failure.Folder.Create(path, ex).toLeft()
         }
     }
 

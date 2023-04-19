@@ -24,7 +24,7 @@ class GetStorageTrashFolderUseCase(
 
     override suspend fun run(params: Params): Either<Failure, DocumentFile> {
         val storage = params.storage
-        val trashFolderPath = appPathProvider.getPathToTrashFolder()
+        val trashFolderPath = appPathProvider.getPathToTrashFolder().fullPath
         val storageTrashFolderPath = FilePath.Folder(trashFolderPath, storage.id.toString())
 
         var storageTrashFolder = DocumentFileCompat.fromFullPath(

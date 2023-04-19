@@ -48,7 +48,7 @@ class SettingsStorageFragment : TetroidSettingsFragment() {
             }
         }
 
-        updateSummary(R.string.pref_key_temp_path, baseViewModel.appPathProvider.getPathToTrashFolder())
+        updateSummary(R.string.pref_key_temp_path, baseViewModel.appPathProvider.getPathToTrashFolder().fullPath)
     }
 
 }

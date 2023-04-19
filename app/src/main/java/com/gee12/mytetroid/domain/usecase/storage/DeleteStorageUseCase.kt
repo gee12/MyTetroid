@@ -47,7 +47,7 @@ class DeleteStorageUseCase(
     }
 
     private fun deleteTemporaryFolder(storage: TetroidStorage): Either<Failure, None> {
-        val trashFolderPath = appPathProvider.getPathToTrashFolder()
+        val trashFolderPath = appPathProvider.getPathToTrashFolder().fullPath
         val storageTrashFolderPath = FilePath.Folder(trashFolderPath, storage.id.toString())
 
         val storageTemporaryFolder = DocumentFileCompat.fromFullPath(

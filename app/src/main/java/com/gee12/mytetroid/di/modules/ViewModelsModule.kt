@@ -43,7 +43,6 @@ object ViewModelsModule {
                     interactionManager = get(),
                     syncInteractor = get(),
 
-                    initAppUseCase = get(),
                     initOrCreateStorageUseCase = get(),
                     readStorageUseCase = get(),
                     saveStorageUseCase = get(),
@@ -163,7 +162,6 @@ object ViewModelsModule {
                     interactionManager = get(),
                     syncInteractor = get(),
 
-                    initAppUseCase = get(),
                     initOrCreateStorageUseCase = get(),
                     readStorageUseCase = get(),
                     saveStorageUseCase = get(),
@@ -217,7 +215,6 @@ object ViewModelsModule {
                     interactionManager = get(),
                     syncInteractor = get(),
 
-                    initAppUseCase = get(),
                     initOrCreateStorageUseCase = get(),
                     readStorageUseCase = get(),
                     saveStorageUseCase = get(),
@@ -264,7 +261,6 @@ object ViewModelsModule {
                     interactionManager = get(),
                     syncInteractor = get(),
 
-                    initAppUseCase = get(),
                     initOrCreateStorageUseCase = get(),
                     readStorageUseCase = get(),
                     saveStorageUseCase = get(),

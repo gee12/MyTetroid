@@ -70,7 +70,6 @@ open class StorageViewModel(
     val syncInteractor: SyncInteractor,
     val favoritesManager: FavoritesManager,
 
-    protected val initAppUseCase: InitAppUseCase,
     protected val getFileModifiedDateUseCase: GetFileModifiedDateInStorageUseCase,
     protected val getFolderSizeUseCase: GetFolderSizeInStorageUseCase,
 
@@ -100,14 +99,6 @@ open class StorageViewModel(
 ) {
 
     private var isPinNeedEnter = false
-
-    init {
-        // первоначальная инициализация компонентов приложения
-        initAppUseCase.execute(InitAppUseCase.Params)
-            .onFailure {
-                logFailure(it)
-            }
-    }
 
     var isLoadAllNodesForced = false
     var isAlreadyTryDecrypt = false

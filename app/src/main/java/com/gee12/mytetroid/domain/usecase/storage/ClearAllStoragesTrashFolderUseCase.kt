@@ -21,7 +21,7 @@ class ClearAllStoragesTrashFolderUseCase(
 
         return clearFolderUseCase.run(
             ClearFolderUseCase.Params(
-                folderPath = appPathProvider.getPathToTrashFolder(),
+                folderPath = appPathProvider.getPathToTrashFolder().fullPath,
             )
         )
     }

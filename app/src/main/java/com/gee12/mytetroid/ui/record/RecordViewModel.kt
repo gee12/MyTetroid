@@ -78,7 +78,6 @@ class RecordViewModel(
     interactionManager: InteractionManager,
     syncInteractor: SyncInteractor,
 
-    initAppUseCase: InitAppUseCase,
     getFileModifiedDateUseCase : GetFileModifiedDateInStorageUseCase,
     getFolderSizeUseCase: GetFolderSizeInStorageUseCase,
 
@@ -128,7 +127,6 @@ class RecordViewModel(
     interactionManager = interactionManager,
     syncInteractor = syncInteractor,
 
-    initAppUseCase = initAppUseCase,
     getFileModifiedDateUseCase = getFileModifiedDateUseCase,
     getFolderSizeUseCase = getFolderSizeUseCase,
 

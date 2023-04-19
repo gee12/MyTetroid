@@ -7,9 +7,10 @@ import com.gee12.mytetroid.common.extensions.makeFolderPath
 import com.gee12.mytetroid.model.FilePath
 
 interface IAppPathProvider {
+    fun getPathToExternalFilesFolder(): FilePath
     fun getPathToCacheFolder(): FilePath
-    fun getPathToTrashFolder(): String
-    fun getPathToLogsFolder(): String
+    fun getPathToTrashFolder(): FilePath.Folder
+    fun getPathToLogsFolder(): FilePath.Folder
     fun getPathToDownloadsFolder(): String
 }
 
@@ -17,16 +18,23 @@ class AppPathProvider(
     private val context: Context,
 ) : IAppPathProvider {
 
+    // каталог в приватной области памяти приложения
+    // /Android/data/com.gee12.mytetroid/files
+    // разрешения на чтение/запись не требуются
+    override fun getPathToExternalFilesFolder(): FilePath {
+        return FilePath.FolderFull(context.getExternalFilesDir(null)?.absolutePath.orEmpty())
+    }
+
     override fun getPathToCacheFolder(): FilePath {
         return FilePath.FolderFull(getAppExternalCacheFolder())
     }
 
-    override fun getPathToTrashFolder(): String {
-        return makeFolderPath(getAppExternalFilesFolderPath(), Constants.TRASH_DIR_NAME)
+    override fun getPathToTrashFolder(): FilePath.Folder {
+        return FilePath.Folder(getPathToExternalFilesFolder().fullPath, Constants.TRASH_DIR_NAME)
     }
 
-    override fun getPathToLogsFolder(): String {
-        return makeFolderPath(getAppExternalFilesFolderPath(), Constants.LOG_DIR_NAME)
+    override fun getPathToLogsFolder(): FilePath.Folder {
+        return FilePath.Folder(getPathToExternalFilesFolder().fullPath, Constants.LOG_DIR_NAME)
     }
 
     override fun getPathToDownloadsFolder(): String {
@@ -34,13 +42,6 @@ class AppPathProvider(
         // то нет смысла его использовать
         //return makeFolderPath(getDownloadFolderPath(), Constants.DOWNLOADS_DIR_NAME)
         return getDownloadFolderPath()
-    }
-
-    // каталог корзины в приватной области памяти приложения
-    // /Android/data/com.gee12.mytetroid/files/trash
-    // разрешения на чтение/запись не требуются
-    private fun getAppExternalFilesFolderPath(): String {
-        return context.getExternalFilesDir(null)?.absolutePath.orEmpty()
     }
 
     // каталог кэш-файлов в приватной области памяти приложения

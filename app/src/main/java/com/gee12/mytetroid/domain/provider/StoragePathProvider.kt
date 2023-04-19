@@ -64,7 +64,7 @@ class StoragePathProvider(
     }
 
     override fun getPathToStorageTrashFolder(): FilePath {
-        val trashFolderPath = appPathProvider.getPathToTrashFolder()
+        val trashFolderPath = appPathProvider.getPathToTrashFolder().fullPath
         return FilePath.Folder(trashFolderPath, getStorageId().toString())
     }
 

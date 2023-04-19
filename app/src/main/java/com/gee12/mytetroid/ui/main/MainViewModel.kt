@@ -151,7 +151,6 @@ class MainViewModel(
     interactionManager = interactionManager,
     syncInteractor = syncInteractor,
 
-    initAppUseCase = initAppUseCase,
     getFileModifiedDateUseCase = getFileModifiedDateUseCase,
     getFolderSizeUseCase = getFolderSizeUseCase,
 
@@ -200,6 +199,12 @@ class MainViewModel(
         private set
 
     init {
+        // первоначальная инициализация компонентов приложения
+        initAppUseCase.execute(InitAppUseCase.Params)
+            .onFailure {
+                logFailure(it)
+            }
+
         // FIXME: koin: из-за циклической зависимости вместо инжекта storageDataProcessor в конструкторе,
         //  задаем его вручную позже
         storageProvider.init(storageDataProcessor)
