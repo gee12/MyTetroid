@@ -110,16 +110,19 @@ abstract class RecordsBaseListAdapter(
         } else {
             viewHolder.editedView.visibility = View.GONE
         }
+        // выделение записи
+        var backgroundColor = if (lastOpenedRecordId == record.id) {
+            ContextCompat.getColor(context, R.color.colorLastOpenedRecord)
+        } else {
+            null
+        }
         // прикрепленные файлы
         val nameParams = viewHolder.nameView.layoutParams as RelativeLayout.LayoutParams
         when {
-            lastOpenedRecordId == record.id -> {
-                convertView.setBackgroundColor(ContextCompat.getColor(context, R.color.colorLastOpenedRecord))
-            }
             record.attachedFilesCount > 0 && nonCryptedOrDecrypted -> {
-                // если установлено в настройках, меняем фон
-                if (isHighlightAttach) {
-                    convertView.setBackgroundColor(highlightAttachColor)
+                // если установлено в настройках и запись не была выделена, меняем фон
+                if (isHighlightAttach && backgroundColor == null) {
+                    backgroundColor = highlightAttachColor
                 }
                 viewHolder.attachedView.visibility = View.VISIBLE
                 viewHolder.attachedView.setOnClickListener {
@@ -128,10 +131,10 @@ abstract class RecordsBaseListAdapter(
                 nameParams.setMargins(0, 0, context.resources.getDimensionPixelOffset(R.dimen.record_attached_image_width), 0)
             }
             else -> {
-                convertView.setBackgroundColor(Color.TRANSPARENT)
                 viewHolder.attachedView.visibility = View.GONE
                 nameParams.setMargins(0, 0, 0, 0)
             }
         }
+        convertView.setBackgroundColor(backgroundColor ?: Color.TRANSPARENT)
     }
 }

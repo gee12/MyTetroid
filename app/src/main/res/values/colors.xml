@@ -19,6 +19,7 @@
     <color name="colorGreenDark_50">#AA49780b</color>
     <color name="colorBlue_50">#8000BCD4</color>
     <color name="colorCurNode">#E8EDFF</color>
+    <color name="colorLastOpenedRecord">#E8EDFF</color>
     <color name="colorSelectedTag">#E8EDFF</color>
     <color name="emptySearch">#BBB</color>
     <color name="colorGreenDark">#49780b</color>
