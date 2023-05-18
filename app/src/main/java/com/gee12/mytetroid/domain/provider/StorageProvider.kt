@@ -25,7 +25,7 @@ interface IStorageProvider {
     fun init(storageDataProcessor: IStorageDataProcessor)
     fun setStorage(storage: TetroidStorage)
     fun setRootFolder(root: DocumentFile)
-    fun resetStorage()
+    fun reset()
     fun isLoaded(): Boolean
     fun isLoadedFavoritesOnly(): Boolean
     fun isExistCryptedNodes(): Boolean
@@ -68,15 +68,14 @@ class StorageProvider(
         this.trashFolder = getTrashFolderDirectly()
     }
 
-    override fun resetStorage() {
+    override fun reset() {
         storage = null
         rootFolder = null
         baseFolder = null
         trashFolder = null
         favorites.clear()
-        // TODO
-//         dataProcessor.reset()
-//         crypter.reset()
+        databaseConfig.reset()
+        dataProcessor.reset()
     }
 
     override fun isLoaded(): Boolean {

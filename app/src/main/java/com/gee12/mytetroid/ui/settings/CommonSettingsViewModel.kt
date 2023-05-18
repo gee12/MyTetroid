@@ -42,7 +42,7 @@ class CommonSettingsViewModel(
 
     override val coroutineContext: CoroutineContext = Dispatchers.Main + SupervisorJob()
 
-    val crypter = Crypter(this.logger)
+    private val crypter = Crypter(this.logger)
 
 
     //region Pin
@@ -64,8 +64,7 @@ class CommonSettingsViewModel(
 
     fun setupPinCode(pin: String) {
         // сохраняем хеш
-        val crypter = Crypter(this.logger)
-        val pinHash: String = crypter.passToHash(pin)
+        val pinHash = crypter.passToHash(pin)
         CommonSettings.setPINCodeHash(getContext(), pinHash)
         logger.log(R.string.log_pin_code_setup, true)
     }

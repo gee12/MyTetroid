@@ -149,8 +149,7 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment(), ITetroidFi
     override fun onFolderSelected(requestCode: Int, folder: DocumentFile) {
         when (PermissionRequestCode.fromCode(requestCode)) {
             PermissionRequestCode.CHANGE_STORAGE_FOLDER -> {
-                val path = folder.uri.toString()
-                viewModel.updateStorageOption(getString(R.string.pref_key_storage_path), path)
+                viewModel.updateStorageFolder(folder)
             }
             else -> Unit
         }

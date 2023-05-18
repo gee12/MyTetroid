@@ -5,6 +5,7 @@ import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.domain.Notificator
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
+import com.gee12.mytetroid.domain.manager.FileStorageManager
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.TetroidLogger
@@ -66,6 +67,12 @@ object ManagersModule {
 
         single<IAppPathProvider> {
             AppPathProvider(
+                context = androidContext(),
+            )
+        }
+
+        single {
+            FileStorageManager(
                 context = androidContext(),
             )
         }

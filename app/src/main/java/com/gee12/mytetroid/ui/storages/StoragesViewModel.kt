@@ -4,8 +4,7 @@ import android.app.Application
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.anggrayudi.storage.file.getAbsolutePath
-import com.anggrayudi.storage.file.isEmpty
+import com.anggrayudi.storage.file.*
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.di.ScopeSource
@@ -155,23 +154,27 @@ class StoragesViewModel(
     }
 
     fun checkFolderForNewStorage(folder: DocumentFile, isNew: Boolean) {
-        val folderPath = FilePath.FolderFull(folder.getAbsolutePath(getContext()))
-        if (folder.exists()) {
-            if (isNew) {
-                if (folder.isEmpty(getContext())) {
-                    launchOnMain {
-                        sendEvent(StoragesEvent.SetStorageFolder(folder))
+        launchOnIo {
+            fileStorageManager.checkFolder(folder)?.also { folder ->
+                val folderPath = FilePath.FolderFull(folder.getAbsolutePath(getContext()))
+                if (folder.exists()) {
+                    if (isNew) {
+                        if (folder.isEmpty(getContext())) {
+                            launchOnMain {
+                                sendEvent(StoragesEvent.SetStorageFolder(folder))
+                            }
+                        } else {
+                            showFailure(Failure.Storage.Create.FolderNotEmpty(folderPath))
+                        }
+                    } else {
+                        launchOnMain {
+                            sendEvent(StoragesEvent.SetStorageFolder(folder))
+                        }
                     }
                 } else {
-                    showFailure(Failure.Storage.Create.FolderNotEmpty(folderPath))
-                }
-            } else {
-                launchOnMain {
-                    sendEvent(StoragesEvent.SetStorageFolder(folder))
+                    showFailure(Failure.Folder.NotExist(folderPath))
                 }
             }
-        } else {
-            showFailure(Failure.Folder.NotExist(folderPath))
         }
     }
 

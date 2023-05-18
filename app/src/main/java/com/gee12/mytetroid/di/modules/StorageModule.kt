@@ -59,16 +59,9 @@ object StorageModule {
                 )
             }
 
-            scoped {
-                Crypter(
-                    get()
-                )
-            }
-
             scoped<IStorageCryptManager> {
                 StorageCryptManager(
                     logger = get(),
-                    crypter = get(),
                 )
             }
 

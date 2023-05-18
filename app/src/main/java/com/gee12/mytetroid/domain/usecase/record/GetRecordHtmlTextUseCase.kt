@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.domain.usecase.record
 
 import android.content.Context
+import androidx.documentfile.provider.DocumentFile
 import com.anggrayudi.storage.file.child
 import com.anggrayudi.storage.file.getAbsolutePath
 import com.anggrayudi.storage.file.openInputStream
@@ -33,6 +34,7 @@ class GetRecordHtmlTextUseCase(
 
     data class Params(
         val record: TetroidRecord,
+        val recordFolder: DocumentFile?,
         val showMessage: Boolean,
     )
 
@@ -43,7 +45,7 @@ class GetRecordHtmlTextUseCase(
 
         logger.logDebug(resourcesProvider.getString(R.string.start_record_file_reading_mask, record.id))
 
-        val recordFolder = getRecordFolderUseCase.run(
+        val recordFolder = params.recordFolder ?: getRecordFolderUseCase.run(
             GetRecordFolderUseCase.Params(
                 record = record,
                 createIfNeed = true,

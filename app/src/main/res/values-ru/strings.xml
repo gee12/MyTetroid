@@ -563,7 +563,7 @@
     <string name="log_storage_loaded_decrypted_mask">Хранилище «%s» загружено и расшифровано</string>
     <string name="log_storage_favor_loaded_mask">Избранные записи хранилища «%s» загружены</string>
     <string name="log_show_pass_dialog">Запуск диалога ввода пароля</string>
-    <string name="log_storage_config_loaded_mask">Конфигурация хранилища загружены: %s</string>
+    <string name="log_storage_config_loaded_mask">Конфигурация хранилища загружена: %s</string>
     <string name="log_tags_is_missing">Метки отсутствуют</string>
 <!--    <string name="log_global_search_return_null">В процессе поиска что-то пошло не так…</string>-->
     <string name="log_cur_node_is_not_selected">Текущая ветка не выбрана.\nВозможен поиск только по всей базе или в другой ветке</string>
@@ -812,5 +812,5 @@
     <string name="error_incorrent_initial_path_for_picker_mask">Некорректный путь по-умолчанию для диалога выбора файла/каталога: %s</string>
     <string name="error_open_file_folder_picker">Ошибка открытия диалога выбора файла/каталога SAF</string>
     <string name="state_storage_files_creating">Создание файлов хранилища…</string>
-    <string name="ask_permission_on_storage_folder">Требуется разрешение на доступ к каталогу хранилища в файловой системе устройства.\nВыберите каталог хранилища в следующем окне</string>
+    <string name="ask_permission_on_storage_folder">Требуется разрешение на доступ к каталогу хранилища в файловой системе устройства\nВыберите каталог хранилища в следующем окне</string>
 </resources>

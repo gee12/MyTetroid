@@ -28,7 +28,6 @@ import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.domain.NetworkHelper
 import com.gee12.mytetroid.domain.manager.*
 import com.gee12.mytetroid.domain.provider.*
-import com.gee12.mytetroid.domain.usecase.InitAppUseCase
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.TaskStage
 import com.gee12.mytetroid.domain.repo.StoragesRepo
@@ -107,6 +106,15 @@ open class StorageViewModel(
 
 
     // region Init
+
+    protected fun clearStorageDataFromMemory() {
+        // удаляем сохраненный хэш пароля из памяти
+        sensitiveDataProvider.resetMiddlePasswordHash()
+        // сбрасываем данные шифровальщика
+        cryptManager.reset()
+        // удаляем загруженные данные хранилища из памяти
+        storageProvider.reset()
+    }
 
     fun checkStorageIsReady(checkIsFavorMode: Boolean, showMessage: Boolean): Boolean {
         return when {
@@ -267,6 +275,9 @@ open class StorageViewModel(
      * Начинается с проверки и предоставления разрешения на доступ к хранилищу устройства.
      */
     fun checkPermissionsAndInitStorage(storage: TetroidStorage) {
+        // сразу сбрасываем все данные о предыдущем хранилище, сохраненные в памяти (если было загружено)
+        clearStorageDataFromMemory()
+
         storageProvider.setStorage(storage)
 
         CommonSettings.setLastStorageId(getContext(), storage.id)
@@ -298,11 +309,11 @@ open class StorageViewModel(
     ) {
         launchOnIo {
             storage?.also {
-                val storageFolderUri = Uri.parse(it.uri)
-                DocumentFileCompat.fromUri(getContext(), storageFolderUri)?.let { storageRoot ->
+                val storageRootUri = Uri.parse(it.uri)
+                DocumentFileCompat.fromUri(getContext(), storageRootUri)?.let { storageRoot ->
 
                     // перепроверяем доступ к файловому хранилищу
-                    if (checkWriteFileStoragePermission(storageRoot)) {
+                    if (fileStorageManager.checkWriteFileStoragePermission(storageRoot)) {
                         // устанавливаем полученный DocumentFile
                         storageProvider.setRootFolder(storageRoot)
 

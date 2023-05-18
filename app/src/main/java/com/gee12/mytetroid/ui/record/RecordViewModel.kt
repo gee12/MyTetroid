@@ -40,7 +40,6 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.TetroidActivity
 import com.gee12.mytetroid.ui.storage.StorageViewModel
-import com.gee12.mytetroid.domain.usecase.InitAppUseCase
 import com.gee12.mytetroid.domain.usecase.attach.AttachFileToRecordUseCase
 import com.gee12.mytetroid.domain.usecase.crypt.*
 import com.gee12.mytetroid.domain.usecase.file.GetFileModifiedDateInStorageUseCase
@@ -396,10 +395,10 @@ class RecordViewModel(
                 // получаем запись
                 val record = getRecord(recordId)
                 if (record != null) {
+                    initRecordFolder(record)
+
                     curRecord.postValue(record!!)
                     setTitle(record.name)
-
-                    initRecordFolder(record)
 
 //                setVisibilityActionHome(!mRecord.isTemp());
                     if (intent.hasExtra(Constants.EXTRA_ATTACHED_FILES)) {
@@ -474,18 +473,20 @@ class RecordViewModel(
      * Отображение записи (свойств и текста).
      */
     fun checkPermissionsAndLoadRecord(record: TetroidRecord) {
-        val htmlFilePath = recordPathProvider.getRelativePathToFileInRecordFolder(record, record.fileName)
-        storageFolder?.child(
-            context = getContext(),
-            path = htmlFilePath,
-            requiresWriteAccess = isStorageReadOnly()
-        )?.let { htmlFile ->
-            checkAndRequestFileStoragePermission(
-                storage = storage!!,
-                uri = htmlFile.uri,
-                requestCode = PermissionRequestCode.OPEN_RECORD_FILE,
-            )
-        } ?: logFailure(Failure.File.Get(FilePath.File(storageFolderPath, htmlFilePath)))
+        launchOnIo {
+            val htmlFilePath = recordPathProvider.getRelativePathToFileInRecordFolder(record, record.fileName)
+            recordFolder?.child(
+                context = getContext(),
+                path = record.fileName,
+                requiresWriteAccess = isStorageReadOnly()
+            )?.let { htmlFile ->
+                checkAndRequestFileStoragePermission(
+                    storage = storage!!,
+                    uri = htmlFile.uri,
+                    requestCode = PermissionRequestCode.OPEN_RECORD_FILE,
+                )
+            } ?: logFailure(Failure.File.Get(FilePath.File(storageFolderPath, htmlFilePath)))
+        }
     }
 
     fun loadRecordAfterPermissionsGranted() {
@@ -507,6 +508,7 @@ class RecordViewModel(
                     getRecordHtmlTextDecryptedUseCase.run(
                         GetRecordHtmlTextUseCase.Params(
                             record = record,
+                            recordFolder = recordFolder,
                             showMessage = true,
                         )
                     ).foldResult(

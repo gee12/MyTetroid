@@ -28,6 +28,7 @@ interface IStorageDataProcessor : IStorageInfoProvider {
     var isExistCryptedNodes: Boolean
 
     fun init()
+    fun reset()
     @Throws(XmlPullParserException::class, IOException::class)
     suspend fun parse(
         fis: InputStream,
@@ -120,6 +121,9 @@ open class StorageDataXmlProcessor(
         tagsMap.clear()
         formatVersion = DEF_VERSION
         isLoaded = false
+        isLoadFavoritesOnly = false
+        isExistCryptedNodes = false
+        isNeedDecrypt = false
         // счетчики
         nodesCount = 0
         cryptedNodesCount = 0
@@ -132,6 +136,10 @@ open class StorageDataXmlProcessor(
         maxSubnodesCount = 0
         maxDepthLevel = 0
         rootNode.subNodes = rootNodes
+    }
+
+    override fun reset() {
+        init()
     }
 
     /**
@@ -147,10 +155,10 @@ open class StorageDataXmlProcessor(
         isNeedDecrypt: Boolean,
         isLoadFavoritesOnly: Boolean
     ): Boolean {
+        init()
+
         this.isNeedDecrypt = isNeedDecrypt
         this.isLoadFavoritesOnly = isLoadFavoritesOnly
-
-        init()
 
         val parser = Xml.newPullParser().apply {
             setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)

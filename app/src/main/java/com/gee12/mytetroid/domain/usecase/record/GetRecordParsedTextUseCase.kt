@@ -21,6 +21,7 @@ class GetRecordParsedTextUseCase(
         return getRecordHtmlTextDecryptedUseCase.run(
             GetRecordHtmlTextUseCase.Params(
                 record = params.record,
+                recordFolder = null,
                 showMessage = params.showMessage,
             )
         ).flatMap { html ->

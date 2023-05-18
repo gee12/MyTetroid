@@ -23,6 +23,10 @@ open class INIConfig(
         config.store(outputStream)
     }
 
+    fun reset() {
+        config = Ini()
+    }
+
     protected fun getSection(key: String): MutableMap<String, String>? {
         return config[key]
     }

@@ -913,5 +913,5 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="error_incorrent_initial_path_for_picker_mask">Incorrect initial path for file/folder picker: %s</string>
     <string name="error_open_file_folder_picker">Error with open SAF file/folder picker</string>
     <string name="state_storage_files_creating">Creating storage files…</string>
-    <string name="ask_permission_on_storage_folder">Permission is required to access the storage directory in the device\'s file system.\nSelect the storage directory in the next window</string>
+    <string name="ask_permission_on_storage_folder">Permission is required to access the storage directory in the device\'s file system\nSelect the storage directory in the next window</string>
 </resources>

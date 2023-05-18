@@ -189,7 +189,9 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
             }
         }
 
-        showProgress(R.string.state_storage_files_creating)
+        if (storage.isNew) {
+            showProgress(R.string.state_storage_files_creating)
+        }
         storageViewModel.checkPermissionsAndInitStorage(storage)
     }
 

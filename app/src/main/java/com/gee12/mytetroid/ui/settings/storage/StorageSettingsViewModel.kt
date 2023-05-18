@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.ui.settings.storage
 
 import android.app.Application
+import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.gee12.mytetroid.R
@@ -15,7 +16,6 @@ import com.gee12.mytetroid.domain.manager.*
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.domain.repo.StoragesRepo
-import com.gee12.mytetroid.domain.usecase.InitAppUseCase
 import com.gee12.mytetroid.domain.usecase.crypt.*
 import com.gee12.mytetroid.domain.usecase.file.GetFileModifiedDateInStorageUseCase
 import com.gee12.mytetroid.domain.usecase.file.GetFolderSizeInStorageUseCase
@@ -127,6 +127,8 @@ class StorageSettingsViewModel(
     init {
         storageProvider.init(storageDataProcessor)
     }
+
+    // region Options
 
     /**
      * Установка отдельного параметра хранилища и сохранение в бд.
@@ -242,6 +244,19 @@ class StorageSettingsViewModel(
     private fun onStorageOptionChanged(key: String, value: Any) {
         _updateStorageField.postValue(Pair(key, value))
     }
+
+    // endregion Options
+
+    // region Storage
+
+    fun updateStorageFolder(folder: DocumentFile) {
+        fileStorageManager.checkFolder(folder)?.also {
+            val path = it.uri.toString()
+            updateStorageOption(getString(R.string.pref_key_storage_path), path)
+        }
+    }
+
+    // endregion Storage
 
     // region Password
 

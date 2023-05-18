@@ -18,6 +18,8 @@ interface IStorageCryptManager {
         parseRecordTagsUseCase: ParseRecordTagsUseCase,
     )
 
+    fun reset()
+
     fun setKeyFromPassword(pass: String)
     fun setKeyFromMiddleHash(passHash: String)
 
@@ -172,7 +174,7 @@ interface IStorageCryptManager {
 
 class StorageCryptManager(
     private val logger: ITetroidLogger,
-    private val crypter: Crypter,
+    private var crypter: Crypter = Crypter(logger),
 ) : IStorageCryptManager {
 
 
@@ -185,6 +187,10 @@ class StorageCryptManager(
     ) {
         this.cryptRecordFilesIfNeedUseCase = cryptRecordFilesIfNeedUseCase
         this.parseRecordTagsUseCase = parseRecordTagsUseCase
+    }
+
+    override fun reset() {
+        crypter = Crypter(logger)
     }
 
     override fun setKeyFromPassword(pass: String) {

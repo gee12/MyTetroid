@@ -2344,11 +2344,8 @@ class MainViewModel(
         // останавливаем отслеживание изменения структуры хранилища
         storageTreeInteractor.stopObserver()
 
-        // удаляем сохраненный хэш пароля из памяти
-        sensitiveDataProvider.resetMiddlePasswordHash()
-
-        // удаляем загруженное хранилище из памяти
-        storageProvider.resetStorage()
+        // удаляем загруженные данные хранилища из памяти
+        clearStorageDataFromMemory()
     }
 
     // endregion Main view

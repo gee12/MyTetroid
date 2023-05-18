@@ -10,25 +10,25 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.anggrayudi.storage.file.DocumentFileCompat
-import com.anggrayudi.storage.file.isWritable
 import com.gee12.mytetroid.common.Failure
 import com.gee12.mytetroid.common.extensions.getIdNameString
-import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
-import com.gee12.mytetroid.domain.provider.IResourcesProvider
+import com.gee12.mytetroid.domain.manager.CommonSettingsManager
+import com.gee12.mytetroid.domain.manager.FileStorageManager
 import com.gee12.mytetroid.domain.manager.PermissionManager
 import com.gee12.mytetroid.domain.provider.IAppPathProvider
-import com.gee12.mytetroid.model.permission.PermissionRequestData
+import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.*
 import com.gee12.mytetroid.model.TetroidObject
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
+import com.gee12.mytetroid.model.permission.PermissionRequestData
 import com.gee12.mytetroid.model.permission.TetroidPermission
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
-open class BaseViewModel(
+abstract class BaseViewModel(
     application: Application,
     val resourcesProvider: IResourcesProvider,
     val logger: ITetroidLogger,
@@ -51,6 +51,7 @@ open class BaseViewModel(
 
     // TODO: inject
     val permissionManager = PermissionManager(resourcesProvider, this.logger)
+    val fileStorageManager = FileStorageManager(context = application)
 
     private val _messageEventFlow = MutableSharedFlow<Message>(extraBufferCapacity = 0)
     val messageEventFlow = _messageEventFlow.asSharedFlow()
@@ -88,14 +89,6 @@ open class BaseViewModel(
 
     //region Permission
 
-    fun checkReadFileStoragePermission(root: DocumentFile): Boolean {
-        return root.canRead() //TODO || Build.VERSION.SDK_INT < 21 ?
-    }
-
-    fun checkWriteFileStoragePermission(root: DocumentFile): Boolean {
-        return root.isWritable(getContext()) //TODO || Build.VERSION.SDK_INT < 21 ?
-    }
-
     fun requestFileStorageAccess(
         permission: TetroidPermission,
         requestCode: PermissionRequestCode
@@ -111,7 +104,7 @@ open class BaseViewModel(
     ) {
         val permission = TetroidPermission.FileStorage.Read(file)
 
-        if (checkReadFileStoragePermission(file)) {
+        if (fileStorageManager.checkReadFileStoragePermission(file)) {
             onPermissionGranted(permission, requestCode)
         } else {
             requestFileStorageAccess(permission, requestCode)
@@ -133,7 +126,7 @@ open class BaseViewModel(
     ) {
         val permission = TetroidPermission.FileStorage.Write(file)
 
-        if (checkWriteFileStoragePermission(file)) {
+        if (fileStorageManager.checkWriteFileStoragePermission(file)) {
             onPermissionGranted(permission, requestCode)
         } else {
             requestFileStorageAccess(permission, requestCode)
@@ -300,9 +293,18 @@ open class BaseViewModel(
 
     fun logFailure(failure: Failure, show: Boolean = true) {
         val message = failureHandler.getFailureMessage(failure)
-        // TODO: сделать многострочные уведомления
 
-        logger.logError(message.title, show)
+        // TODO: сделать многострочные уведомления
+        if (show) {
+            showError(message.title)
+        }
+        val messageString = buildString {
+            appendLine(message.title)
+            if (!message.message.isNullOrBlank()) {
+                append(message.message)
+            }
+        }
+        logger.logError(messageString, show = false)
     }
 
     // common
