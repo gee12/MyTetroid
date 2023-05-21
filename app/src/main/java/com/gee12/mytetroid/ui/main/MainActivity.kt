@@ -301,7 +301,9 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             BaseEvent.TaskFinished -> {
                 taskMainPostExecute()
             }
-            else -> super.onBaseEvent(event)
+            else -> {
+                super.onBaseEvent(event)
+            }
         }
     }
 
@@ -310,8 +312,12 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      */
     override fun onStorageEvent(event: StorageEvent) {
         when (event) {
-            is StorageEvent.FoundInBase -> onStorageUpdated()
-            is StorageEvent.Inited -> onStorageInited()
+            is StorageEvent.FoundInBase -> {
+                onStorageUpdated()
+            }
+            is StorageEvent.Inited -> {
+                onStorageInited()
+            }
             is StorageEvent.AskBeforeClearTrashOnExit -> {
                 showClearTrashDialog(event.callback)
             }
@@ -355,13 +361,21 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             is StorageEvent.LoadOrDecrypt -> {
                 viewModel.loadOrDecryptStorage(event.params)
             }
-            is StorageEvent.AskPassword -> showPasswordDialog(event.callbackEvent)
-            is StorageEvent.AskPinCode -> showPinCodeDialog(event.callbackEvent)
-            is StorageEvent.ChangePassDirectly -> viewModel.startChangePassword(
-                curPass = event.curPass,
-                newPass = event.newPass
-            )
-            StorageEvent.AskForClearStoragePass -> showNoCryptedNodesLeftDialog()
+            is StorageEvent.AskPassword -> {
+                showPasswordDialog(event.callbackEvent)
+            }
+            is StorageEvent.AskPinCode -> {
+                showPinCodeDialog(event.callbackEvent)
+            }
+            is StorageEvent.ChangePassDirectly -> {
+                viewModel.startChangePassword(
+                    curPass = event.curPass,
+                    newPass = event.newPass
+                )
+            }
+            StorageEvent.AskForClearStoragePass -> {
+                showNoCryptedNodesLeftDialog()
+            }
             is StorageEvent.AskForEmptyPassCheckingField -> {
                 showEmptyPassCheckingFieldDialog(
                     fieldName = event.fieldName,
@@ -369,9 +383,15 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                     callbackEvent = event.callbackEvent,
                 )
             }
-            StorageEvent.TreeChangedOutside -> showStorageTreeChangedOutsideDialog()
-            StorageEvent.TreeDeletedOutside -> showStorageTreeDeletedOutsideDialog()
-            else -> super.onStorageEvent(event)
+            StorageEvent.TreeChangedOutside -> {
+                showStorageTreeChangedOutsideDialog()
+            }
+            StorageEvent.TreeDeletedOutside -> {
+                showStorageTreeDeletedOutsideDialog()
+            }
+            else -> {
+                super.onStorageEvent(event)
+            }
         }
     }
 
@@ -380,26 +400,58 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      */
     private fun onMainEvent(event: MainEvent) {
         when (event) {
-            MainEvent.Migrated -> showMigrationDialog()
-            is MainEvent.Node.Encrypt -> viewModel.encryptNode(event.node)
-            is MainEvent.Node.DropEncrypt -> viewModel.dropEncryptNode(event.node)
-            is MainEvent.Node.Show -> viewModel.showNode(event.node)
-            is MainEvent.Node.Created -> onNodeCreated(event.node)
-            is MainEvent.Node.Inserted -> onNodeInserted(event.node)
-            is MainEvent.Node.Renamed -> onNodeRenamed(event.node)
-            is MainEvent.Node.AskForDelete -> showDeleteNodeDialog(event.node)
-            is MainEvent.Node.Cutted -> onNodeDeleted(event.node, true)
-            is MainEvent.Node.Deleted -> onNodeDeleted(event.node, false)
-            is MainEvent.Node.Reordered -> onNodeReordered(
-                flatPosition = event.flatPosition,
-                positionInNode = event.positionInNode,
-                newPositionInNode = event.newPositionInNode,
-            )
-            is MainEvent.SetCurrentNode -> setCurNode(event.node)
-            MainEvent.UpdateNodes -> updateNodes()
-            is MainEvent.Record.Open -> openRecord(event.recordId, event.bundle)
-            is MainEvent.Record.Deleted -> mainPage.onDeleteRecordResult(event.record)
-            is MainEvent.Record.Cutted -> mainPage.onDeleteRecordResult(event.record)
+            MainEvent.Migrated -> {
+                showMigrationDialog()
+            }
+            is MainEvent.Node.Encrypt -> {
+                viewModel.encryptNode(event.node)
+            }
+            is MainEvent.Node.DropEncrypt -> {
+                viewModel.dropEncryptNode(event.node)
+            }
+            is MainEvent.Node.Show -> {
+                viewModel.showNode(event.node)
+            }
+            is MainEvent.Node.Created -> {
+                onNodeCreated(event.node)
+            }
+            is MainEvent.Node.Inserted -> {
+                onNodeInserted(event.node)
+            }
+            is MainEvent.Node.Renamed -> {
+                onNodeRenamed(event.node)
+            }
+            is MainEvent.Node.AskForDelete -> {
+                showDeleteNodeDialog(event.node)
+            }
+            is MainEvent.Node.Cutted -> {
+                onNodeDeleted(event.node, true)
+            }
+            is MainEvent.Node.Deleted -> {
+                onNodeDeleted(event.node, false)
+            }
+            is MainEvent.Node.Reordered -> {
+                onNodeReordered(
+                    flatPosition = event.flatPosition,
+                    positionInNode = event.positionInNode,
+                    newPositionInNode = event.newPositionInNode,
+                )
+            }
+            is MainEvent.SetCurrentNode -> {
+                setCurrentNode(event.node)
+            }
+            MainEvent.UpdateNodes -> {
+                updateNodes()
+            }
+            is MainEvent.Record.Open -> {
+                openRecord(event.recordId, event.bundle)
+            }
+            is MainEvent.Record.Deleted -> {
+                mainPage.onDeleteRecordResult(event.record)
+            }
+            is MainEvent.Record.Cutted -> {
+                mainPage.onDeleteRecordResult(event.record)
+            }
             is MainEvent.ShowRecords -> {
                 showRecords(
                     records = event.records,
@@ -438,12 +490,24 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             is MainEvent.AttachesFiltered -> {
                 mainPage.onAttachesFiltered(event.query, event.attaches)
             }
-            is MainEvent.AttachDeleted -> mainPage.onDeleteAttachResult(event.attach)
-            MainEvent.UpdateAttaches -> mainPage.updateAttachesList()
-            is MainEvent.ReloadAttaches -> mainPage.setAttachesList(event.attaches)
-            MainEvent.UpdateFavoritesNodeTitle -> updateFavoritesNodeTitle()
-            is MainEvent.GlobalSearchStart -> showGlobalSearchActivity(event.query)
-            MainEvent.GlobalResearch -> research()
+            is MainEvent.AttachDeleted -> {
+                mainPage.onDeleteAttachResult(event.attach)
+            }
+            MainEvent.UpdateAttaches -> {
+                mainPage.updateAttachesList()
+            }
+            is MainEvent.ReloadAttaches -> {
+                mainPage.setAttachesList(event.attaches)
+            }
+            MainEvent.UpdateFavoritesNodeTitle -> {
+                updateFavoritesNodeTitle()
+            }
+            is MainEvent.GlobalSearchStart -> {
+                showGlobalSearchActivity(event.query)
+            }
+            MainEvent.GlobalResearch -> {
+                research()
+            }
             is MainEvent.GlobalSearchFinished -> {
                 onGlobalSearchFinished(event.found, event.profile)
             }
@@ -542,6 +606,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     ) {
         val rootNodes: List<TetroidNode?> = viewModel.getRootNodes()
         val isEmpty = rootNodes.isEmpty()
+        var nodeToSelect: TetroidNode? = null
 
         // избранные записи
         val isVisibleLoadButtons = isLoaded && isOnlyFavorites
@@ -594,7 +659,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             if (isLoaded) {
                 // выбираем ветку, выбранную в прошлый раз
                 var nodesAdapterInited = false
-                var nodeToSelect: TetroidNode? = null
                 if (viewModel.isKeepLastNode() && !isEmpty && isOpenLastNode) {
                     val nodeId = viewModel.getLastNodeId()
                     if (nodeId != null) {
@@ -640,6 +704,9 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 mainPage.clearView()
                 setEmptyTextViews(R.string.title_storage_not_loaded)
             }
+        }
+        if (isLoaded && nodeToSelect == null) {
+            drawerLayout.openDrawer(GravityCompat.START)
         }
         updateOptionsMenu()
     }
@@ -969,7 +1036,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     /**
      * Установка и выделение текущей ветки.
      */
-    private fun setCurNode(node: TetroidNode?) {
+    private fun setCurrentNode(node: TetroidNode?) {
         listAdapterNodes.curNode = node
         listAdapterNodes.notifyDataSetChanged()
         if (viewModel.buildInfoProvider.isFullVersion()) {
@@ -1331,7 +1398,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         if (dropSearch && !searchViewRecords.isIconified) {
             // сбрасываем SearchView;
             // но т.к. при этом срабатывает событие onClose, нужно избежать повторной загрузки
-            // полного списка записей в его обработчике с помощью проверки mIsDropRecordsFiltering
+            // полного списка записей в его обработчике с помощью проверки isDropRecordsFiltering
             viewModel.isDropRecordsFiltering = false
 //          mSearchViewRecords.onActionViewCollapsed();
             searchViewRecords.setQuery("", false)
@@ -2197,7 +2264,13 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     fun taskMainPreExecute(progressTextResId: Int): Int {
         super.taskPreExecute(progressTextResId)
         val openedDrawer =
-            if (drawerLayout.isDrawerOpen(GravityCompat.START)) GravityCompat.START else if (drawerLayout.isDrawerOpen(GravityCompat.END)) GravityCompat.END else Gravity.NO_GRAVITY
+            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                GravityCompat.START
+            } else if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
+                GravityCompat.END
+            } else {
+                Gravity.NO_GRAVITY
+            }
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         return openedDrawer
     }
