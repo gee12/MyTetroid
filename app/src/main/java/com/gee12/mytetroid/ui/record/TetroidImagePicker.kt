@@ -7,7 +7,6 @@ import com.esafirm.imagepicker.features.cameraonly.CameraOnlyConfig
 import com.esafirm.imagepicker.features.registerImagePicker
 import com.esafirm.imagepicker.model.Image
 import com.gee12.mytetroid.R
-import java.io.File
 
 /**
  * Выбор изображений из памяти / захват с камеры с помощью библиотеки [com.esafirm.imagepicker].
@@ -92,6 +91,6 @@ class TetroidImagePicker(
         launcher.launch(createCameraConfig())
     }
 
-    private fun mapToUris(images: List<Image>) = images.map { Uri.fromFile(File(it.path)) }
+    private fun mapToUris(images: List<Image>) = images.map { it.uri }
 
 }
