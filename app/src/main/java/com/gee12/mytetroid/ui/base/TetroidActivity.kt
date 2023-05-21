@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.ui.base
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -9,6 +10,8 @@ import android.os.Bundle
 import android.view.*
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
@@ -19,12 +22,19 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import com.anggrayudi.storage.SimpleStorageHelper
 import com.anggrayudi.storage.file.FileFullPath
+import com.anggrayudi.storage.file.StorageType
+import com.anggrayudi.storage.permission.ActivityPermissionRequest
+import com.anggrayudi.storage.permission.PermissionCallback
+import com.anggrayudi.storage.permission.PermissionReport
+import com.anggrayudi.storage.permission.PermissionResult
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.extensions.hideKeyboard
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.di.ScopeSource
+import com.gee12.mytetroid.domain.ComponentActivityWrapper
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
+import com.gee12.mytetroid.domain.manager.FileStorageManager
 import com.gee12.mytetroid.domain.provider.IAppPathProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.LogType
@@ -75,6 +85,14 @@ abstract class TetroidActivity<VM : BaseViewModel>
 
     lateinit var fileStorageHelper: SimpleStorageHelper
 
+    private var requestCodeForStorageAccess: PermissionRequestCode? = null
+
+    protected val componentWrapper = ComponentActivityWrapper(
+        activity = this,
+        activityResultCallback = { requestCode, uri ->
+            viewModel.fileStorageManager.handleActivityResultForFolderPicker(requestCode, uri)
+        },
+    )
 
     // region Create
 
@@ -251,7 +269,9 @@ abstract class TetroidActivity<VM : BaseViewModel>
         root: DocumentFile,
         requestCode: PermissionRequestCode,
     ) {
-        fileStorageHelper.requestStorageAccess(
+        requestCodeForStorageAccess = requestCode
+        //fileStorageHelper.requestStorageAccess(
+        openFolderPicker(
             requestCode = requestCode.code,
             initialPath = FileFullPath(this, fullPath = root.uri.toString()),
         )
@@ -281,12 +301,16 @@ abstract class TetroidActivity<VM : BaseViewModel>
         fileStorageHelper.onFileSelected = { requestCode, files ->
             onFileSelected(requestCode, files)
         }
-        fileStorageHelper.onFolderSelected = { requestCode, folder ->
+        /*fileStorageHelper.onFolderSelected = { requestCode, folder ->
             // сохраняем путь
             settingsManager.setLastSelectedFolderPath(path = folder.uri.toString())
 
-            onFolderSelected(requestCode, folder)
-        }
+            if (requestCodeForStorageAccess?.code == requestCode) {
+                onStorageAccessGranted(requestCode, folder)
+            } else {
+                onFolderSelected(requestCode, folder)
+            }
+        }*/
         /*fileStorageHelper.onFileCreated = { requestCode, file ->
             onFileCreated(requestCode, file)
         }
@@ -313,7 +337,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
 
     //override fun onFileCreated(requestCode: Int, file: DocumentFile) {}
 
-    // TODO: в отдельный FileStorageManager
+    // TODO: в отдельный FileStorageManager или TetroidActivityComponent (для android-зависимой логики)
     fun openFilePicker(
         requestCode: PermissionRequestCode,
         allowMultiple: Boolean = false,
@@ -349,13 +373,13 @@ abstract class TetroidActivity<VM : BaseViewModel>
     ) {
         val path = initialPath ?: settingsManager.getLastSelectedFolderPathOrDefault(true)
         try {
-            fileStorageHelper.openFolderPicker(
+            openFolderPicker(
                 requestCode = requestCode.code,
                 initialPath = path?.let { FileFullPath(this, fullPath = it) },
             )
         } catch (ex: Exception) {
             try {
-                fileStorageHelper.openFolderPicker(
+                openFolderPicker(
                     requestCode = requestCode.code,
                     initialPath = null,
                 )
@@ -364,6 +388,81 @@ abstract class TetroidActivity<VM : BaseViewModel>
                 viewModel.logError(getString(R.string.error_open_file_folder_picker), show = true)
             }
         }
+    }
+
+    /**
+     * Переопределяем механизм, чтобы не вызывался метод `SimpleStorage.cleanupRedundantUriPermissions()`,
+     *  в котором ради оптимизации удаляются "повторные" persistable uri, к которым юзер предоставил доступ в SAF,
+     *  и оставляются только "родительские", из-за чего происходит циклический запрос доступа на Android >= 11 и др.
+     **/
+    private fun openFolderPicker(
+        requestCode: Int,
+        initialPath: FileFullPath? = null
+    ) {
+        /*fileStorageHelper.openFolderPicker(
+            requestCode = requestCode,
+            initialPath = initialPath,
+        )*/
+        val context = this@TetroidActivity
+        val fileStorageManager = viewModel.fileStorageManager
+
+        fileStorageManager.folderPickerCallback = object : FileStorageManager.FolderPickerCallback {
+            override fun onStoragePermissionDenied(requestCode: Int) {
+                ActivityPermissionRequest.Builder(context)
+                    .withPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)
+                    .withCallback(object : PermissionCallback {
+                        override fun onPermissionsChecked(result: PermissionResult, fromSystemDialog: Boolean) {
+                            val granted = result.areAllPermissionsGranted
+                            if (!granted) {
+                                Toast.makeText(context, R.string.ss_please_grant_storage_permission, Toast.LENGTH_SHORT).show()
+                            }
+                            openFolderPicker(requestCode, initialPath)
+                        }
+
+                        override fun onShouldRedirectToSystemSettings(blockedPermissions: List<PermissionReport>) {
+                            SimpleStorageHelper.redirectToSystemSettings(context)
+                        }
+                    })
+                    .build()
+            }
+
+            override fun onStorageAccessDenied(requestCode: Int, folder: DocumentFile?, storageType: StorageType, storageId: String) {
+                if (storageType == StorageType.UNKNOWN) {
+                    onStoragePermissionDenied(requestCode)
+                    return
+                }
+                AlertDialog.Builder(context)
+                    .setCancelable(false)
+                    .setMessage(R.string.ss_storage_access_denied_confirm)
+                    .setNegativeButton(android.R.string.cancel) { _, _ -> }
+                    .setPositiveButton(android.R.string.ok) { _, _ ->
+                        fileStorageHelper.requestStorageAccess(
+                            initialPath = FileFullPath(context, storageId, basePath = "")
+                        )
+                    }.show()
+            }
+
+            override fun onActivityHandlerNotFound(requestCode: Int, intent: Intent) {
+                Toast.makeText(context, R.string.ss_missing_saf_activity_handler, Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onFolderSelected(requestCode: Int, folder: DocumentFile) {
+                // сохраняем путь
+                settingsManager.setLastSelectedFolderPath(path = folder.uri.toString())
+
+                if (requestCodeForStorageAccess?.code == requestCode) {
+                    onStorageAccessGranted(requestCode, folder)
+                } else {
+                    onFolderSelected(requestCode, folder)
+                }
+            }
+        }
+
+        fileStorageManager.openFolderPicker(
+            wrapper = componentWrapper,
+            requestCode = requestCode,
+            initialPath = initialPath,
+        )
     }
 
     // endregion File
@@ -504,6 +603,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
+        // TODO: ?
         // разрешение на запись в память на Android 11 запрашивается с помощью Intent
         if (requestCode == PermissionRequestCode.OPEN_STORAGE_FOLDER.code) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {

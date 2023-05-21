@@ -10,6 +10,7 @@ object BaseAskDialog {
 
     fun show(
         context: Context,
+        title: CharSequence? = null,
         message: CharSequence,
         isCancelable: Boolean,
         @StringRes applyResId: Int,
@@ -21,6 +22,7 @@ object BaseAskDialog {
         onDismiss: (() -> Unit)? = null,
     ) {
         val builder = AlertDialog.Builder(context).apply {
+            title?.also { setTitle(it) }
             setMessage(message)
             setCancelable(isCancelable)
             setPositiveButton(applyResId) { _: DialogInterface?, _: Int ->

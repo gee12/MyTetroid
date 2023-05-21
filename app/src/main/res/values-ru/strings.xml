@@ -816,5 +816,6 @@
     <string name="error_incorrent_initial_path_for_picker_mask">Некорректный путь по-умолчанию для диалога выбора файла/каталога: %s</string>
     <string name="error_open_file_folder_picker">Ошибка открытия диалога выбора файла/каталога SAF</string>
     <string name="state_storage_files_creating">Создание файлов хранилища…</string>
-    <string name="ask_permission_on_storage_folder">Требуется разрешение на доступ к каталогу хранилища в файловой системе устройства\nВыберите каталог хранилища в следующем окне</string>
+    <string name="ask_permission_on_storage_folder_mask">Требуется разрешение на доступ к каталогу хранилища «%s» в файловой системе устройства.\nВыберите каталог хранилища в следующем окне</string>
+    <string name="ask_permission_on_storage_folder_title">Разрешите доступ к каталогу</string>
 </resources>

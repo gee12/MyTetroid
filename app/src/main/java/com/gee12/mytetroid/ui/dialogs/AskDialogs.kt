@@ -9,6 +9,7 @@ object AskDialogs {
     fun showYesNoDialog(
         context: Context,
         isCancelable: Boolean = true,
+        @StringRes titleResId: Int? = null,
         @StringRes messageResId: Int,
         onApply: () -> Unit,
         onCancel: () -> Unit,
@@ -17,6 +18,7 @@ object AskDialogs {
         showYesNoDialog(
             context = context,
             isCancelable = isCancelable,
+            title = titleResId?.let { context.getString(titleResId) },
             message = context.getString(messageResId),
             onApply = onApply,
             onCancel = onCancel,
@@ -27,6 +29,7 @@ object AskDialogs {
     fun showYesNoDialog(
         context: Context,
         isCancelable: Boolean = true,
+        title: CharSequence? = null,
         message: CharSequence,
         onApply: () -> Unit,
         onCancel: () -> Unit,
@@ -35,6 +38,7 @@ object AskDialogs {
         showDialog(
             context = context,
             isCancelable = isCancelable,
+            title = title,
             message = message,
             applyResId = R.string.answer_yes,
             cancelResId = R.string.answer_no,
@@ -46,11 +50,13 @@ object AskDialogs {
 
     fun showYesDialog(
         context: Context,
+        @StringRes titleResId: Int? = null,
         @StringRes messageResId: Int,
         onApply: () -> Unit,
     ) {
         showYesDialog(
             context = context,
+            title = titleResId?.let { context.getString(titleResId) },
             message = context.getString(messageResId),
             onApply = onApply,
         )
@@ -59,11 +65,13 @@ object AskDialogs {
     @JvmStatic
     fun showYesDialog(
         context: Context,
+        title: CharSequence? = null,
         message: String,
         onApply: () -> Unit,
     ) {
         showDialog(
             context = context,
+            title = title,
             message = message,
             isCancelable = true,
             applyResId = R.string.answer_yes,
@@ -74,6 +82,7 @@ object AskDialogs {
 
     fun showOkDialog(
         context: Context,
+        @StringRes titleResId: Int? = null,
         @StringRes messageRes: Int,
         @StringRes applyResId: Int,
         isCancelable: Boolean,
@@ -81,6 +90,7 @@ object AskDialogs {
     ) {
         showDialog(
             context = context,
+            title = titleResId?.let { context.getString(titleResId) },
             message = context.getString(messageRes),
             isCancelable = isCancelable,
             applyResId = applyResId,
@@ -90,6 +100,7 @@ object AskDialogs {
 
     fun showOkCancelDialog(
         context: Context,
+        title: CharSequence? = null,
         message: CharSequence,
         isCancelable: Boolean = true,
         @StringRes okResId: Int = R.string.answer_ok,
@@ -101,6 +112,7 @@ object AskDialogs {
         showDialog(
             context = context,
             isCancelable = isCancelable,
+            title = title,
             message = message,
             applyResId = okResId,
             cancelResId = cancelResId,
@@ -114,6 +126,7 @@ object AskDialogs {
 
     fun showYesNoCancelDialog(
         context: Context,
+        title: CharSequence? = null,
         message: CharSequence,
         isCancelable: Boolean = true,
         @StringRes yesResId: Int = R.string.answer_yes,
@@ -127,6 +140,7 @@ object AskDialogs {
         showDialog(
             context = context,
             isCancelable = isCancelable,
+            title = title,
             message = message,
             applyResId = yesResId,
             cancelResId = cancelResId,
@@ -140,6 +154,7 @@ object AskDialogs {
 
     fun showDialog(
         context: Context,
+        title: CharSequence? = null,
         message: CharSequence,
         isCancelable: Boolean,
         @StringRes applyResId: Int,
@@ -152,6 +167,7 @@ object AskDialogs {
     ) {
         BaseAskDialog.show(
             context = context,
+            title = title,
             message = message,
             isCancelable = isCancelable,
             applyResId = applyResId,

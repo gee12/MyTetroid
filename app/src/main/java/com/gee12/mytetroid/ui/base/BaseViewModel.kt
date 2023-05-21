@@ -51,7 +51,7 @@ abstract class BaseViewModel(
 
     // TODO: inject
     val permissionManager = PermissionManager(resourcesProvider, this.logger)
-    val fileStorageManager = FileStorageManager(context = application)
+    val fileStorageManager = FileStorageManager(context = application, folderPickerCallback = null)
 
     private val _messageEventFlow = MutableSharedFlow<Message>(extraBufferCapacity = 0)
     val messageEventFlow = _messageEventFlow.asSharedFlow()

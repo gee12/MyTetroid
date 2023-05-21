@@ -553,7 +553,8 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     ) {
         AskDialogs.showOkCancelDialog(
             context = this,
-            message = getString(R.string.ask_permission_on_storage_folder),
+            title = getString(R.string.ask_permission_on_storage_folder_title),
+            message = getString(R.string.ask_permission_on_storage_folder_mask, viewModel.storage?.name.orEmpty()),
             isCancelable = false,
             onYes = {
                 requestFileStorageAccess(
