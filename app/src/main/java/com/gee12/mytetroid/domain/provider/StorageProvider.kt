@@ -75,7 +75,9 @@ class StorageProvider(
         trashFolder = null
         favorites.clear()
         databaseConfig.reset()
-        dataProcessor.reset()
+        if (::dataProcessor.isInitialized) {
+            dataProcessor.reset()
+        }
     }
 
     override fun isLoaded(): Boolean {

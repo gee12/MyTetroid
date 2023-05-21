@@ -98,6 +98,7 @@ object Constants {
     const val EXTRA_IS_LOAD_STORAGE = "EXTRA_IS_LOAD_STORAGE"
     const val EXTRA_IS_LOAD_ALL_NODES = "EXTRA_IS_LOAD_ALL_NODES"
     const val EXTRA_IS_PASS_CHANGED = "EXTRA_IS_PASS_CHANGED"
+    const val EXTRA_IS_CLOSE_STORAGE = "EXTRA_IS_CLOSE_STORAGE"
 
     enum class TetroidView {
         Main,

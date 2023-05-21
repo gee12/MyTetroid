@@ -14,6 +14,12 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <TextView
+            android:id="@+id/text_view_message"
+            style="@style/label"
+            android:textSize="16sp"
+            tools:text="Удалить хранилище?"/>
+
         <CheckedTextView
             android:id="@+id/check_box_is_with_files"
             android:layout_width="match_parent"
@@ -22,6 +28,8 @@
             android:gravity="end|center_vertical"
             android:checkMark="?android:attr/listChoiceIndicatorMultiple"
             android:text="@string/label_delete_storage_with_files"
+            android:textColor="@color/colorRed"
+            android:textSize="16sp"
             style="@style/dialog_labels"/>
 
     </LinearLayout>

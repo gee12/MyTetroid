@@ -3,7 +3,10 @@ package com.gee12.mytetroid.ui.dialogs.storage
 import android.content.DialogInterface
 import android.view.View
 import android.widget.CheckedTextView
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.text.bold
+import androidx.core.text.buildSpannedString
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.ui.dialogs.TetroidDialogFragment
@@ -11,6 +14,7 @@ import com.gee12.mytetroid.ui.storage.StorageViewModel
 
 class DeleteStorageDialog(
     private val storage: TetroidStorage,
+    private val isCurrentStorage: Boolean,
     private val onApply: (Boolean) -> Unit,
 ) : TetroidDialogFragment<StorageViewModel>() {
 
@@ -25,7 +29,16 @@ class DeleteStorageDialog(
     override fun getViewModelClazz() = StorageViewModel::class.java
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
-        setTitle(getString(R.string.ask_delete_storage_mask, storage.name))
+        setTitle(R.string.ask_delete_storage_title)
+        val message = buildSpannedString {
+            if (isCurrentStorage) {
+                bold { appendLine(getString(R.string.title_storage_currently_in_use_mask, storage.name)) }
+                append(getString(R.string.ask_delete_storage_anyway))
+            } else {
+                append(getString(R.string.ask_delete_storage_mask, storage.name))
+            }
+        }
+        view.findViewById<TextView>(R.id.text_view_message)?.setText(message)
 
         cbIsDeleteFiles = view.findViewById(R.id.check_box_is_with_files)
         cbIsDeleteFiles.setOnClickListener { cbIsDeleteFiles.isChecked = !cbIsDeleteFiles.isChecked }

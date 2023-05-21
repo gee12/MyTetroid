@@ -79,20 +79,6 @@ public class Utils {
     }
 
     /**
-     * Преобразование html-кода в текст.
-     * @param htmlText
-     * @return
-     */
-    public static Spanned fromHtml(String htmlText) {
-//        if (Build.VERSION.SDK_INT >= 24) {
-//            return Html.fromHtml(htmlText, Html.FROM_HTML_MODE_LEGACY);
-//        } else {
-//            return Html.fromHtml(htmlText);
-//        }
-        return HtmlCompat.fromHtml(htmlText, HtmlCompat.FROM_HTML_MODE_LEGACY);
-    }
-
-    /**
      * Преобразование текста в MD5.
      * @param data Массив байт данных (можно signed, не имеет значение)
      * @return

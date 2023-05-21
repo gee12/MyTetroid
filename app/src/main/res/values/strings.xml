@@ -610,7 +610,10 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="ask_load_storage">The storage is not loaded. Load?</string>
     <string name="ask_load_all_nodes">You need to load all nodes of the storage. Load?</string>
     <string name="ask_open_attaches">Open list of attached files ?</string>
+    <string name="ask_delete_storage_title">Removing a storage</string>
     <string name="ask_delete_storage_mask">Remove storage «%s» from the list and clear his trash?</string>
+    <string name="title_storage_currently_in_use_mask">Storage «%s» is currently in use</string>
+    <string name="ask_delete_storage_anyway">Remove storage from the list and clear his trash anyway?</string>
     <string name="ask_load_storage_mask">Load storage «%s» ?</string>
     <string name="ask_open_storage_settings">Open storage settings?</string>
     <string name="action_settings">Settings</string>
@@ -866,6 +869,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_storage_added_mask">Storage «%s» was added</string>
     <string name="log_storage_set_is_default_mask">Storage «%s» is default</string>
     <string name="log_storage_deleted_mask">Storage «%s» was deleted</string>
+    <string name="log_storage_deleted_detailed_mask">Storage «%s» was deleted by path [%s], deleted with files=%b</string>
     <string name="log_cannot_delete_undecrypted_node">Undecrypted node cannot be deleted</string>
     <string name="log_storage_path_changed_mask">Storage path was changed: %s</string>
     <string name="log_storage_trash_path_changed_mask">Storage trash path was changed: %s</string>

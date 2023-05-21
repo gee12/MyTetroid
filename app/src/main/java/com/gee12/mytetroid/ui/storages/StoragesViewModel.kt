@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import com.anggrayudi.storage.file.*
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
+import com.gee12.mytetroid.common.extensions.uriToAbsolutePath
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
@@ -14,11 +15,9 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidStorage
-import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
-import com.gee12.mytetroid.domain.provider.IAppPathProvider
-import com.gee12.mytetroid.domain.provider.IResourcesProvider
-import com.gee12.mytetroid.domain.provider.IStorageProvider
+import com.gee12.mytetroid.domain.manager.IStorageCryptManager
+import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.domain.repo.StoragesRepo
 import com.gee12.mytetroid.ui.base.BaseViewModel
 import com.gee12.mytetroid.domain.usecase.storage.CheckStorageFilesExistingUseCase
@@ -68,8 +67,12 @@ class StoragesViewModel(
     }
 
     fun getCurrentStorageId(): Int? {
-        val currentStorageProvider = ScopeSource.current.scope.get<IStorageProvider>()
+        val currentStorageProvider = getCurrentStorageProvider()
         return currentStorageProvider.storage?.id
+    }
+
+    private fun getCurrentStorageProvider(): IStorageProvider {
+        return ScopeSource.current.scope.get()
     }
 
     private suspend fun checkStorageFilesExisting(storage: TetroidStorage) {
@@ -134,7 +137,11 @@ class StoragesViewModel(
         }
     }
 
-    fun deleteStorage(storage: TetroidStorage, withFiles: Boolean) {
+    fun deleteStorage(
+        storage: TetroidStorage,
+        withFiles: Boolean,
+        deleteIfAlreadyLoaded: Boolean
+    ) {
         launchOnMain {
             withIo {
                 deleteStorageUseCase.run(
@@ -142,15 +149,34 @@ class StoragesViewModel(
                         storage = storage,
                         withFiles = withFiles,
                     )
-                )
+                ).map {
+                    if (storage.id == getCurrentStorageId() && deleteIfAlreadyLoaded) {
+                        clearCurrentStorageDataFromMemory()
+                    }
+                }
             }.onComplete {
                 loadStorages()
             }.onFailure {
                 logFailure(it)
             }.onSuccess {
-                log(getString(R.string.log_storage_deleted_mask, storage.name), show = true)
+                showMessage(getString(R.string.log_storage_deleted_mask, storage.name))
+                log(getString(R.string.log_storage_deleted_detailed_mask,
+                    storage.name,
+                    storage.uri.uriToAbsolutePath(getContext()),
+                    withFiles
+                ), show = false)
             }
         }
+    }
+
+    private fun clearCurrentStorageDataFromMemory() {
+        val currentScope = ScopeSource.current.scope
+        val sensitiveDataProvider = currentScope.getOrNull<ISensitiveDataProvider>()
+        sensitiveDataProvider?.resetMiddlePasswordHash()
+        val storageCryptManager = currentScope.getOrNull<IStorageCryptManager>()
+        storageCryptManager?.reset()
+        val currentStorageProvider = currentScope.getOrNull<IStorageProvider>()
+        currentStorageProvider?.reset()
     }
 
     fun checkFolderForNewStorage(folder: DocumentFile, isNew: Boolean) {

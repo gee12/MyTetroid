@@ -24,6 +24,7 @@ import com.gee12.mytetroid.BuildConfig
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.ICallback
+import com.gee12.mytetroid.common.extensions.fromHtml
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
@@ -1587,24 +1588,17 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
     private fun onStorageChangedIntent(data: Intent?) {
         if (data != null) {
-            // перезагружаем хранилище, если изменили путь
-//            if (data.getBooleanExtra(Constants.EXTRA_IS_REINIT_STORAGE, false)) {
-//                boolean toCreate = data.getBooleanExtra(Constants.EXTRA_IS_CREATE_STORAGE, false);
-//                AskDialogs.showReloadStorageDialog(this, toCreate, true, () -> {
-//                    if (toCreate) {
-//                        createStorage(SettingsManager.getStoragePath(this)/*, true*/);
-//                    } else {
-//                        reinitStorage();
-//                    }
-//                });
-//            } else
-            /*if (data.getBooleanExtra(Constants.EXTRA_IS_RELOAD_STORAGE_ENTITY, false)) {
-                viewModel.startReloadStorageEntity();
-            } else*/
             if (data.getBooleanExtra(Constants.EXTRA_IS_LOAD_STORAGE, false)) {
                 val storageId = data.getIntExtra(Constants.EXTRA_STORAGE_ID, 0)
                 val isLoadAllNodes = data.getBooleanExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, false)
                 viewModel.checkPermissionsAndInitStorage(storageId, isLoadAllNodes)
+            } else if (data.getBooleanExtra(Constants.EXTRA_IS_CLOSE_STORAGE, false)) {
+                initUI(
+                    isLoaded = false,
+                    isOnlyFavorites = false,
+                    isOpenLastNode = false,
+                    isAllNodesOpening = false,
+                )
             } else {
                 if (data.getBooleanExtra(Constants.EXTRA_IS_RELOAD_STORAGE_ENTITY, false)) {
                     // перезагрузить свойства хранилища из базы
@@ -1823,9 +1817,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             )
             AskDialogs.showYesNoDialog(
                 context = this,
-                message = Utils.fromHtml(
-                    getString(R.string.text_load_nodes_before_receive_mask, title)
-                ),
+                message = getString(R.string.text_load_nodes_before_receive_mask, title).fromHtml(),
                 onApply = {
                     // сохраняем Intent и загружаем хранилище
                     receivedIntent = intent

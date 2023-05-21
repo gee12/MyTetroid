@@ -34,7 +34,11 @@ class DeleteStorageUseCase(
         return deleteFromDb(storage).flatMap {
             deleteTemporaryFolder(storage)
         }.flatMap {
-            deleteStorageFolder(storage)
+            if (params.withFiles) {
+                deleteStorageFolder(storage)
+            } else {
+                None.toRight()
+            }
         }
     }
 

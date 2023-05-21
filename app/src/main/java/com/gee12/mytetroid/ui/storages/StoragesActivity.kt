@@ -142,18 +142,26 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
             context = this,
             message = getString(R.string.ask_load_storage_mask, storage.name),
             onApply = {
-                finishWithResult(storage)
+                finishWithLoadStorageResult(storage)
             },
         )
     }
 
-    private fun finishWithResult(storage: TetroidStorage) {
+    private fun finishWithLoadStorageResult(storage: TetroidStorage) {
         val intent = buildIntent {
             putExtra(Constants.EXTRA_IS_LOAD_STORAGE, true)
             putExtra(Constants.EXTRA_STORAGE_ID, storage.id)
         }
         setResult(RESULT_OK, intent)
         finish()
+    }
+
+    private fun setCloseStorageResult(storage: TetroidStorage) {
+        val intent = buildIntent {
+            putExtra(Constants.EXTRA_IS_CLOSE_STORAGE, true)
+            putExtra(Constants.EXTRA_STORAGE_ID, storage.id)
+        }
+        setResult(RESULT_OK, intent)
     }
 
     private fun createStorageFiles(storage: TetroidStorage) {
@@ -205,7 +213,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
             noResId = R.string.action_cancel,
             cancelResId = R.string.action_settings,
             onYes = {
-                finishWithResult(storage)
+                finishWithLoadStorageResult(storage)
             },
             onNo = {},
             onCancel = {
@@ -230,10 +238,15 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
     }
 
     private fun deleteStorage(storage: TetroidStorage) {
+        val isCurrentStorage = storage.id == viewModel.getCurrentStorageId()
         DeleteStorageDialog(
             storage = storage,
+            isCurrentStorage = isCurrentStorage,
             onApply = { withFiles ->
-                viewModel.deleteStorage(storage, withFiles)
+                viewModel.deleteStorage(storage, withFiles, deleteIfAlreadyLoaded = true)
+                if (isCurrentStorage) {
+                    setCloseStorageResult(storage)
+                }
             }
         ).showIfPossible(supportFragmentManager)
     }

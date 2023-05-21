@@ -42,6 +42,7 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.Failure
 import com.gee12.mytetroid.common.extensions.focusAndShowKeyboard
+import com.gee12.mytetroid.common.extensions.fromHtml
 import com.gee12.mytetroid.common.extensions.hideKeyboard
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.common.utils.ViewUtils
@@ -454,13 +455,13 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         // метки
         val tagsHtml = HtmlHelper.createTagsHtmlString(record)
         if (tagsHtml != null) {
-            val sequence: CharSequence = Utils.fromHtml(tagsHtml)
-            val spannable = SpannableString(sequence)
-            val urls = spannable.getSpans(0, sequence.length, URLSpan::class.java)
+            val charSequence = tagsHtml.fromHtml()
+            val spannable = SpannableString(charSequence)
+            val urls = spannable.getSpans(0, charSequence.length, URLSpan::class.java)
             for (span in urls) {
                 val start = spannable.getSpanStart(span)
                 val end = spannable.getSpanEnd(span)
-                val clickableSpan: ClickableSpan = object : ClickableSpan() {
+                val clickableSpan = object : ClickableSpan() {
                     override fun onClick(view: View) {
                         viewModel.onTagUrlLoad(span.url)
                     }
@@ -804,9 +805,11 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
      * Отправка записи.
      */
     private fun shareRecord() {
-        val text = if (viewModel.isHtmlMode()) mEditTextHtml.text.toString() else Utils.fromHtml(
-            editor.webView.editableHtml
-        ).toString()
+        val text = if (viewModel.isHtmlMode()) {
+            mEditTextHtml.text.toString()
+        } else {
+            editor.webView.editableHtml?.fromHtml().toString()
+        }
         viewModel.shareRecord(text)
     }
 
