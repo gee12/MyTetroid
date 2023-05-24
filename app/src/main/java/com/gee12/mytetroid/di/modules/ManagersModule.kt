@@ -74,7 +74,6 @@ object ManagersModule {
         single {
             FileStorageManager(
                 context = androidContext(),
-                folderPickerCallback = null,
             )
         }
 

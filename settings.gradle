@@ -7,3 +7,5 @@ include ':pinlock-view'
 project(':pinlock-view').projectDir = new File(settingsDir, '../../Android-PinLockView/pinlockview/')
 include ':image-picker'
 project(':image-picker').projectDir = new File(settingsDir, '../../android-image-picker/imagepicker/')
+include ':simple-storage'
+project(':simple-storage').projectDir = new File(settingsDir, '../../SimpleStorage/storage/')

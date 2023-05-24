@@ -1,6 +1,8 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
+    apply from: 'versions.gradle'
+
     ext.kotlin_version = '1.7.0'
     ext.core_ktx_version = '1.7.0'
     ext.coroutines = '1.6.3'
