@@ -1,27 +1,16 @@
 package com.gee12.mytetroid.common.utils;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 
 import com.gee12.mytetroid.R;
-import com.larvalabs.svgandroid.SVG;
-import com.larvalabs.svgandroid.SVGParseException;
-import com.larvalabs.svgandroid.SVGParser;
 
 import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
@@ -29,41 +18,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class FileUtils {
-
-    /**
-     * Загрузка .svg файла в объект Drawable.
-     * @param fullFileName
-     * @return
-     * @throws FileNotFoundException
-     * @throws SVGParseException
-     * @throws NullPointerException
-     */
-    public static Drawable loadSVGFromFile(String fullFileName) throws FileNotFoundException, SVGParseException, NullPointerException {
-        File file = new File(fullFileName);
-        FileInputStream fileInputStream = new FileInputStream(file);
-        SVG svg = SVGParser.getSVGFromInputStream(fileInputStream);
-        return svg.createPictureDrawable();
-    }
-
-    /**
-     * Построчное чтение текстового файла.
-     * @param fileUri
-     * @return
-     * @throws IOException
-     */
-    public static String readTextFile(Uri fileUri) throws IOException {
-        if (fileUri == null)
-            return null;
-        StringBuilder sb = new StringBuilder();
-        BufferedReader br = new BufferedReader(new FileReader(new File(fileUri.getPath())));
-        String line;
-        while ((line = br.readLine()) != null) {
-            sb.append(line);
-            sb.append('\n');
-        }
-        br.close();
-        return sb.toString();
-    }
 
     /**
      * Построчное чтение текстового файла с формированием результата в виде блоков.
@@ -138,194 +92,6 @@ public class FileUtils {
         }
         br.close();
         return blocks;
-    }
-
-    /**
-     * Чтение файла.
-     * @param fileUri
-     * @return
-     * @throws IOException
-     */
-    public static byte[] readFile(Uri fileUri) throws IOException {
-        if (fileUri == null)
-            return null;
-        File file = new File(fileUri.getPath());
-        byte[] data = new byte[(int) file.length()];
-        DataInputStream dis = new DataInputStream(new FileInputStream(file));
-        dis.readFully(data);
-        dis.close();
-        return data;
-    }
-
-    /**
-     * Запись файла.
-     * @param fileUri
-     * @param text
-     * @return
-     * @throws IOException
-     */
-    public static boolean writeFile(Uri fileUri, String text) throws IOException {
-        if (fileUri == null || text == null)
-            return false;
-        return writeFile(fileUri, text.getBytes());
-    }
-
-    /**
-     * Запись файла.
-     * @param fileUri
-     * @param bytes
-     * @return
-     * @throws IOException
-     */
-    public static boolean writeFile(Uri fileUri, byte[] bytes) throws IOException {
-        if (fileUri == null || bytes == null)
-            return false;
-        File file = new File(fileUri.getPath());
-        DataOutputStream dos = new DataOutputStream(new FileOutputStream(file));
-        dos.write(bytes);
-        dos.flush();
-        dos.close();
-        return true;
-    }
-
-    /**
-     * Побайтовое копирование файла.
-     * @param srcFileUri
-     * @param destFileUri
-     * @return
-     * @throws IOException
-     */
-    public static boolean copyFile(Uri srcFileUri, Uri destFileUri) throws IOException {
-        if (srcFileUri == null || destFileUri == null)
-            return false;
-        return copyFile(new File(srcFileUri.getPath()), new File(destFileUri.getPath()));
-    }
-
-    public static boolean copyFile(File srcFile, File destFile) throws IOException {
-        if (srcFile == null || destFile == null)
-            return false;
-        try (FileInputStream fis = new FileInputStream(srcFile);
-             FileOutputStream fos = new FileOutputStream(destFile)) {
-
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = fis.read(buffer)) > 0) {
-                fos.write(buffer, 0, length);
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Удаление файла или каталога с файлами/подкаталогами.
-     * @param fileOrDirectory
-     */
-    public static boolean deleteRecursive(File fileOrDirectory) {
-        if (fileOrDirectory == null)
-            return false;
-        if (fileOrDirectory.isDirectory()) {
-            for (File child : fileOrDirectory.listFiles())
-                if (!deleteRecursive(child))
-                    return false;
-        }
-        return fileOrDirectory.delete();
-    }
-
-    /**
-     * Очистка содержимого каталога.
-     * @param dir
-     * @return
-     */
-    public static boolean clearDir(File dir) {
-        if (dir == null)
-            return false;
-        if (dir.isDirectory()) {
-            for (File child : dir.listFiles())
-                if (!deleteRecursive(child))
-                    return false;
-        }
-        return true;
-    }
-
-    /**
-     * Перемещение файла или каталога с файлами/подкаталогами в указанный каталог (родительский).
-     * @param srcFile Исходный файл/каталог
-     * @param destDir Каталог назначения (родительский)
-     */
-    public static boolean moveToDirRecursive(File srcFile, File destDir) /*throws IOException*/ {
-        if (srcFile == null || destDir == null)
-            return false;
-        if (srcFile.isDirectory()) {
-            if (!destDir.exists() && !destDir.mkdirs()) {
-//            throw new IOException("Cannot create directory " + destDir.getAbsolutePath());
-                return false;
-            }
-            for (String child : srcFile.list())
-                if (!moveToDirRecursive(new File(srcFile, child), new File(destDir, srcFile.getName())))
-                    return false;
-            return srcFile.delete();
-        } else {
-            if (!destDir.exists() && !destDir.mkdirs()) {
-//            throw new IOException("Cannot create directory " + destDir.getAbsolutePath());
-                return false;
-            }
-//        Files.move(srcFile.toPath(), destDir.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            File destFile = new File(destDir, srcFile.getName());
-            return srcFile.renameTo(destFile);
-        }
-    }
-
-    /**
-     * Копирование файла или каталога с файлами/подкаталогами в указанный файл/каталог (не родительский).
-     * @param srcFile Исходный файл/каталог
-     * @param destFile Файл/каталог назначения (не родительский)
-     * @throws IOException
-     */
-    public static boolean copyDirRecursive(File srcFile , File destFile) throws IOException {
-        if (srcFile == null || destFile == null)
-            return false;
-        if (srcFile.isDirectory()) {
-            if (!destFile.exists() && !destFile.mkdirs()) {
-                throw new IOException("Cannot create directory " + destFile.getAbsolutePath());
-            }
-            for (String child : srcFile.list()) {
-                if (!copyDirRecursive(new File(srcFile, child), new File(destFile, child)))
-                    return false;
-            }
-        } else {
-            File dir = destFile.getParentFile();
-            if (dir != null && !dir.exists() && !dir.mkdirs()) {
-                throw new IOException("Cannot create directory " + dir.getAbsolutePath());
-            }
-            InputStream in = new FileInputStream(srcFile);
-            OutputStream out = new FileOutputStream(destFile);
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = in.read(buf)) > 0) {
-                out.write(buf, 0, len);
-            }
-            in.close();
-            out.close();
-        }
-        return true;
-    }
-
-    /**
-     * Создание каталога, если его еще не существует.
-     * @param dir
-     * @return
-     */
-    public static int createDirsIfNeed(File dir) {
-        if (dir == null)
-            return -1;
-        if (!dir.exists()) {
-            if (dir.mkdirs()) {
-                return 1;
-            } else {
-                return -1;
-            }
-        }
-        return 0;
     }
 
     /**

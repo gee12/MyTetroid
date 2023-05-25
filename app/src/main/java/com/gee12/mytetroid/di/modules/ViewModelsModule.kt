@@ -315,6 +315,7 @@ object ViewModelsModule {
                     storagePathProvider = get(),
                     getIconsFolderNamesUseCase = get(),
                     getNodesIconsFromFolderUseCase = get(),
+                    loadDrawableFromFileUseCase = get(),
                 )
             }
 

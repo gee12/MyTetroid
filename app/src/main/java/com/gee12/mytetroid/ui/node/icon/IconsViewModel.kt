@@ -1,9 +1,9 @@
 package com.gee12.mytetroid.ui.node.icon
 
 import android.app.Application
+import android.graphics.drawable.Drawable
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.makePath
-import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -13,6 +13,7 @@ import com.gee12.mytetroid.domain.provider.IAppPathProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.domain.provider.IStoragePathProvider
 import com.gee12.mytetroid.domain.provider.IStorageProvider
+import com.gee12.mytetroid.domain.usecase.image.LoadDrawableFromFileUseCase
 import com.gee12.mytetroid.domain.usecase.node.icon.GetIconsFolderNamesUseCase
 import com.gee12.mytetroid.domain.usecase.node.icon.GetNodesIconsFromFolderUseCase
 import com.gee12.mytetroid.ui.base.BaseStorageViewModel
@@ -30,6 +31,7 @@ class IconsViewModel(
     storagePathProvider: IStoragePathProvider,
     private val getIconsFolderNamesUseCase: GetIconsFolderNamesUseCase,
     private val getNodesIconsFromFolderUseCase: GetNodesIconsFromFolderUseCase,
+    private val loadDrawableFromFileUseCase: LoadDrawableFromFileUseCase,
 ) : BaseStorageViewModel(
     app = app,
     resourcesProvider = resourcesProvider,
@@ -84,27 +86,44 @@ class IconsViewModel(
 
     fun getIconsFromFolder(folderName: String) {
         launchOnMain {
+            sendEvent(IconsEvent.LoadIconsFromFolder.InProcess)
             withIo {
                 getNodesIconsFromFolderUseCase.run(
                     GetNodesIconsFromFolderUseCase.Params(folderName)
                 )
-            }.onFailure {
-                logFailure(it)
-                sendEvent(IconsEvent.IconsFromFolder(folderName, icons = null))
+            }.onFailure { failure ->
+                logFailure(failure)
+                sendEvent(IconsEvent.LoadIconsFromFolder.Failed(folderName, failure))
             }.onSuccess { icons ->
-                sendEvent(IconsEvent.IconsFromFolder(folderName, icons))
+                sendEvent(IconsEvent.LoadIconsFromFolder.Success(folderName, icons))
             }
         }
     }
 
-    fun loadIconIfNeed(icon: TetroidIcon) {
-        if (icon.icon == null) {
-            try {
-                val pathToIcons = storagePathProvider.getPathToIconsFolder()
-                val fullFileName = makePath(pathToIcons, icon.folder, icon.name)
-                icon.icon = FileUtils.loadSVGFromFile(fullFileName)
-            } catch (ex: Exception) {
-                logger.logError(ex, show = true)
+    fun loadIconIfNeed(icon: TetroidIcon, onLoadedCallback: (Drawable) -> Unit) {
+        launchOnIo {
+            if (icon.icon == null) {
+                try {
+                    icon.icon = if (!icon.name.isNullOrEmpty()) {
+                        loadDrawableFromFileUseCase.run(
+                            LoadDrawableFromFileUseCase.Params(
+                                relativeIconPath = makePath(icon.folder, icon.name)
+                            )
+                        ).foldResult(
+                            onLeft = { null },
+                            onRight = { it }
+                        )
+                    } else {
+                        null
+                    }
+                } catch (ex: Exception) {
+                    logger.logError(ex, show = false)
+                }
+            }
+            withMain {
+                icon.icon?.let {
+                    onLoadedCallback(it)
+                }
             }
         }
     }

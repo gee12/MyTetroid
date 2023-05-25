@@ -8,12 +8,13 @@ import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.model.TetroidIcon
 
 class IconsListAdapter(
     private val context: Context,
-    private val onLoadIconIfNeed: (TetroidIcon) -> Unit,
+    private val onLoadIconIfNeedCallback: (Int, TetroidIcon, ImageView) -> Unit,
 ) : BaseAdapter() {
     private inner class IconViewHolder {
         lateinit var iconView: ImageView
@@ -70,8 +71,8 @@ class IconsListAdapter(
         }
         val icon = dataSet[position]
         // иконка
-        onLoadIconIfNeed(icon)
-        viewHolder.iconView.setImageDrawable(icon.icon)
+        viewHolder.iconView.setImageDrawable(null)
+        onLoadIconIfNeedCallback(position, icon, viewHolder.iconView)
         // имя
         viewHolder.nameView.text = icon.name
 
@@ -86,7 +87,11 @@ class IconsListAdapter(
     }
 
     private fun setSelected(view: View, isSelected: Boolean) {
-        val color = if (isSelected) context.getColor(R.color.colorCurNode) else Color.TRANSPARENT
+        val color = if (isSelected) {
+            ContextCompat.getColor(context, R.color.colorCurNode)
+        } else {
+            Color.TRANSPARENT
+        }
         view.setBackgroundColor(color)
     }
 

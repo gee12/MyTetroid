@@ -15,7 +15,6 @@ import com.gee12.mytetroid.model.TetroidIcon
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.ui.base.TetroidStorageActivity
 import com.gee12.mytetroid.ui.base.BaseEvent
-import java.util.stream.IntStream
 
 /**
  * Активность для выбора иконки ветки.
@@ -91,7 +90,11 @@ class IconsActivity : TetroidStorageActivity<IconsViewModel>() {
             is IconsEvent.CurrentIcon -> {
                 selectIcon(event.icon)
             }
-            is IconsEvent.IconsFromFolder -> {
+            is IconsEvent.LoadIconsFromFolder.InProcess -> {
+                showProgress()
+            }
+            is IconsEvent.LoadIconsFromFolder.Success -> {
+                hideProgress()
                 loadIconsFromFolder(event.folder, event.icons)
             }
             else -> super.onBaseEvent(event)
@@ -108,7 +111,6 @@ class IconsActivity : TetroidStorageActivity<IconsViewModel>() {
         spFolders.adapter = foldersAdapter
 
         if (folders.isEmpty()) {
-//            viewModel.logWarning(getString(R.string.log_icons_dir_absent_mask, Constants.ICONS_DIR_NAME), show = true)
             viewModel.logWarning(R.string.log_icons_dirs_absent)
         }
     }
@@ -119,32 +121,22 @@ class IconsActivity : TetroidStorageActivity<IconsViewModel>() {
             // с помощью reset(icons)
             // не сбрасывалось выделение от предыдущего списка icons (из другого раздела)
             initIconsList()
-            if (selectedIcon != null && folder == selectedIcon!!.folder) {
-                val selectedIconName = selectedIcon!!.name
-                // TODO: переписать с использованием Kotlin
-                val iconPosition = IntStream.range(0, icons.size)
-                    .filter { i: Int -> selectedIconName == icons[i].name }
-                    .findFirst()
-                if (iconPosition.isPresent) {
+            if (selectedIcon?.folder == folder) {
+                val selectedIconName = selectedIcon?.name
+                val iconPosition = icons.indexOfFirst { it.name == selectedIconName }
+                if (iconPosition != -1) {
                     // выделяем существующую иконку
-                    val pos = iconPosition.asInt
-                    val icon = icons[pos]
+                    val icon = icons[iconPosition]
                     selectedIcon = icon
                     iconsAdapter.selectedIcon = icon
                     btnSubmit.isEnabled = true
                 }
                 iconsAdapter.setData(icons)
-                if (iconPosition.isPresent) {
-                    val pos = iconPosition.asInt
-                    iconsListView.setSelection(pos)
+                if (iconPosition != -1) {
+                    iconsListView.setSelection(iconPosition)
                 }
             } else {
-//              mIconsAdapter.setSelectedIcon(null);
-//              mIconsAdapter.setSelectedView(null);
                 iconsAdapter.setData(icons)
-//              mListView.setItemChecked(-1, true);
-//              mListView.setSelection(-1);
-//              mListView.setSelectionAfterHeaderView();
             }
         }
     }
@@ -152,8 +144,17 @@ class IconsActivity : TetroidStorageActivity<IconsViewModel>() {
     private fun initIconsList() {
         iconsAdapter = IconsListAdapter(
             context = this,
-            onLoadIconIfNeed = { icon ->
-                viewModel.loadIconIfNeed(icon)
+            onLoadIconIfNeedCallback = { position, icon, imageView ->
+                viewModel.loadIconIfNeed(
+                    icon = icon,
+                    onLoadedCallback = { drawable ->
+                        // после загрузки устанавливаем значок у данного ImageView, но только если элемент еще виден на экране,
+                        // т.к. его уже могли пролистать
+                        if (position in iconsListView.firstVisiblePosition..iconsListView.lastVisiblePosition) {
+                            imageView.setImageDrawable(drawable)
+                        }
+                    }
+                )
             }
         )
         iconsListView.adapter = iconsAdapter
