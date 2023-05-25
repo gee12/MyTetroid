@@ -49,7 +49,7 @@ class GetRecordHtmlTextUseCase(
             GetRecordFolderUseCase.Params(
                 record = record,
                 createIfNeed = true,
-                inTrash = false,
+                inTrash = record.isTemp,
                 showMessage = showMessage,
             )
         ).foldResult(

@@ -589,8 +589,8 @@ abstract class TetroidActivity<VM : BaseViewModel>
         tvProgress.text = text
     }
 
-    override fun showProgress(textResId: Int?) {
-        showProgress(text = textResId?.let { getString(it) })
+    override fun showProgress(textResId: Int) {
+        showProgress(text = getString(textResId))
     }
 
     override fun showProgress(text: String?) {

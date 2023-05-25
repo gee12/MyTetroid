@@ -48,6 +48,10 @@ class CommonSettingsManager(
         }
     }
 
+    fun getLastStorageId(): Int {
+        return CommonSettings.getLastStorageId(context)
+    }
+
     fun getLastSelectedFolderPathOrDefault(forWrite: Boolean): String? {
         val lastFolder = CommonSettings.getLastSelectedFolderPath(context)
         return if (!lastFolder.isNullOrEmpty() /*&& lastFolder.isFileExist()*/) {

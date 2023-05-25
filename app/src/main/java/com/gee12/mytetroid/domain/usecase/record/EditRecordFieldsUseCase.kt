@@ -91,9 +91,6 @@ class EditRecordFieldsUseCase(
         }
         // удаляем пометку временной записи
         if (isTemporary) {
-
-            // TODO: проверить
-
             val trashFolderPath = storagePathProvider.getPathToStorageTrashFolder()
             val baseFolderPath = storagePathProvider.getPathToBaseFolder()
 
@@ -103,13 +100,20 @@ class EditRecordFieldsUseCase(
             val trashFolder = storageProvider.trashFolder
                 ?: return Failure.Folder.Get(trashFolderPath).toLeft()
 
+            val recordFolderInTrashPath = recordPathProvider.getPathToRecordFolderInTrash(record)
+            val recordFolderInTrash = trashFolder.child(
+                context = context,
+                path = oldFolderName,
+                requiresWriteAccess = true,
+            ) ?: return Failure.Folder.Get(recordFolderInTrashPath).toLeft()
+
             val baseFolder = storageProvider.baseFolder
                 ?: return Failure.Folder.Get(baseFolderPath).toLeft()
 
             // перемещаем каталог записи из корзины
             moveFileUseCase.run(
                 MoveFileOrFolderUseCase.Params(
-                    srcFileOrFolder = trashFolder,
+                    srcFileOrFolder = recordFolderInTrash,
                     destFolder = baseFolder,
                     newName = folderNameWithoutPrefix,
                 )

@@ -331,8 +331,8 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             RecordEvent.NeedMigration -> {
                 showNeedMigrationDialog()
             }
-            RecordEvent.Save -> {
-                saveRecord()
+            is RecordEvent.GetHtmlTextAndSave -> {
+                saveRecord(obj = event.obj)
             }
             is RecordEvent.LoadFields -> {
                 loadFields(event.record)
@@ -786,7 +786,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         editor.beforeSaveAsync(true)
     }
 
-    private fun saveRecord() {
+    private fun saveRecord(obj: ResultObj?) {
         // если сохраняем запись перед выходом, то учитываем, что можем находиться в режиме HTML
         val bodyHtml = if (viewModel.isHtmlMode()) {
             mEditTextHtml.text.toString()
@@ -794,7 +794,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             editor.webView.editableHtml
         }
         val htmlText = TetroidEditor.getDocumentHtml(bodyHtml)
-        viewModel.saveRecordText(htmlText)
+        viewModel.saveRecordText(htmlText, obj)
     }
 
     // endregion Save record
@@ -1186,15 +1186,15 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             chooseNode = true,
             node = viewModel.quicklyNode,
             storageId = viewModel.getStorageId()
-        ) { name: String, tags: String, author: String, url: String, node: TetroidNode, isFavor: Boolean ->
+        ) { name: String, tags: String, author: String, url: String, node: TetroidNode, isFavorite: Boolean ->
             viewModel.editFields(
-                obj,
-                name,
-                tags,
-                author,
-                url,
-                node,
-                isFavor
+                obj = obj,
+                name = name,
+                tags = tags,
+                author = author,
+                url = url,
+                node = node,
+                isFavorite = isFavorite,
             )
         }
             .showIfPossible(supportFragmentManager)
@@ -1479,6 +1479,14 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         requestCode: PermissionRequestCode,
     ) {
         when (requestCode) {
+            PermissionRequestCode.OPEN_STORAGE_FOLDER -> {
+                if (permission is TetroidPermission.FileStorage) {
+                    viewModel.startInitStorageAfterPermissionsGranted(
+                        activity = this,
+                        root = permission.root,
+                    )
+                }
+            }
             PermissionRequestCode.OPEN_RECORD_FILE -> {
                 viewModel.loadRecordAfterPermissionsGranted()
             }

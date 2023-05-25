@@ -66,8 +66,8 @@
     <string name="title_collapse_node_subnodes">Свернуть все подветки</string>
     <string name="title_create_subnode">Добавить подветку</string>
     <string name="title_create_node">Добавить ветку рядом</string>
-    <string name="title_move_up">Переместить вверх</string>
-    <string name="title_move_down">Переместить вниз</string>
+    <string name="title_move_up">Переместить выше</string>
+    <string name="title_move_down">Переместить ниже</string>
     <string name="title_copy_link">Копировать ссылку</string>
     <string name="title_delete">Удалить</string>
     <string name="title_storage_sync">Синхронизация</string>
@@ -643,7 +643,7 @@
     <string name="log_node_move_list_error">Ветка была перемещена, но произошла ошибка при обновлении списка. Перезагрузите хранилище</string>
     <string name="log_create_node_list_error">Ветка была создана, но произошла ошибка при обновлении списка. Перезагрузите хранилище</string>
     <string name="log_create_record_folder_mask">Отсутствует каталог записи \"%s\". Создаем…</string>
-    <string name="log_create_trash_folder_mask">Отсутствует каталог корзины хранилища \"%s\". Создаем…</string>
+    <string name="log_create_trash_folder_mask">Отсутствует каталог записи в корзине хранилища \"%s\". Создаем…</string>
     <string name="log_oper_error_mask">Не удалось %1$s %2$s%3$s</string>
 <!--    <string name="log_during_oper_errors_mask">В процессе %1$s %2$s произошли ошибки (подробнее в логах)</string>-->
     <string name="log_during_oper_errors_mask">В процессе %1$s %2$s произошли ошибки</string>

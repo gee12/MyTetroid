@@ -46,7 +46,7 @@ class CreateTempRecordUseCase(
         val id = dataNameProvider.createUniqueId()
         // имя каталога с добавлением префикса в виде текущей даты и времени
         val folderNameInTrash = "${dataNameProvider.createDateTimePrefix()}_${dataNameProvider.createUniqueId()}"
-        val name = params.srcName?.ifEmpty {
+        val name = params.srcName.orEmpty().ifEmpty {
 //            name = String.format("%s - %s", resourcesProvider.getString(R.string.title_new_record),
 //                    Utils.dateToString(new Date(), "yyyy.MM.dd HH:mm:ss"));
 //            name = String.format(Locale.getDefault(), "%1$te %1$tb %1$tY %1$tR", new Date());

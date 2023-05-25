@@ -5,7 +5,6 @@ import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.model.TetroidImage
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.ui.storage.StorageEvent
-import java.io.File
 
 sealed class RecordEvent : StorageEvent() {
     object NeedMigration : RecordEvent()
@@ -55,5 +54,7 @@ sealed class RecordEvent : StorageEvent() {
     data class AskToOpenExportedPdf(
         val pdfFile: DocumentFile,
     ) : RecordEvent()
-    object Save : RecordEvent()
+    data class GetHtmlTextAndSave(
+        val obj: ResultObj?
+    ) : RecordEvent()
 }

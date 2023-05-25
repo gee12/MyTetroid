@@ -37,7 +37,7 @@ class MoveFileOrFolderUseCase(
 
         // перемещаем файл или каталог
         return if (srcFile.isDirectory) {
-            moveFolder(srcFile = srcFile, destFolder = destFolder, newFileName = newFileName)
+            moveFolder(srcFile, destFolder, newFileName)
         } else if (srcFile.isFile) {
             moveFile(srcFile, destFolder, newFileName)
         } else {

@@ -145,47 +145,6 @@ open class StorageViewModel(
         }
     }
 
-    /**
-     * Инициализация хранилища по ID, переданному в Intent.
-     */
-    open fun initStorage(intent: Intent): Boolean {
-        val storageId = intent.getIntExtra(Constants.EXTRA_STORAGE_ID, 0)
-
-        return if (storage != null && storage?.id == storageId) {
-            launchOnMain {
-                storage?.let {
-                    sendEvent(StorageEvent.FoundInBase(it))
-                    sendEvent(StorageEvent.Inited(it))
-                }
-            }
-            true
-        } else {
-            if (storageId > 0) {
-                startInitStorageFromBase(storageId)
-                true
-            } else {
-                initStorageFromLastStorageId()
-            }
-        }
-    }
-
-    /**
-     * Инициализация хранилища по ID хранилища, загруженному в последний раз.
-     */
-    fun initStorageFromLastStorageId(): Boolean {
-        val storageId = CommonSettings.getLastStorageId(getContext())
-        return if (storageId > 0) {
-            startInitStorageFromBase(storageId)
-            true
-        } else {
-            logError(getString(R.string.log_not_transferred_storage_id), true)
-            launchOnMain {
-                sendEvent(BaseEvent.FinishActivity)
-            }
-            false
-        }
-    }
-
     fun startReloadStorageEntity() {
         storage?.let { currentStorage ->
             launchOnIo {
@@ -1008,7 +967,7 @@ open class StorageViewModel(
             return null
         }
         val ext = attach.name.getExtensionWithoutComma()
-        return recordPathProvider.getPathToFileInRecordFolder(record, attach.id.withExtension(ext))
+        return recordPathProvider.getPathToFileInRecordFolder(record, attach.id.withExtension(ext)).fullPath
     }
 
     fun getAttachEditedDate(context: Context, attach: TetroidFile): Date? {

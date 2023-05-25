@@ -104,7 +104,7 @@ class SearchActivity : TetroidStorageActivity<StorageViewModel>() {
             }
         }
 
-        viewModel.startInitStorageFromBase(storageId ?: CommonSettings.getLastStorageId(this))
+        viewModel.startInitStorageFromBase(storageId ?: settingsManager.getLastStorageId())
     }
 
     override fun onStorageEvent(event: StorageEvent) {

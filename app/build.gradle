@@ -81,6 +81,7 @@ dependencies {
     implementation project(path: ':multi-listview')
     implementation project(path: ':pinlock-view')
     implementation project(path: ':image-picker')
+    implementation project(path: ':simple-storage')
     implementation 'org.ini4j:ini4j:0.5.4'
     implementation 'net.cachapa.expandablelayout:expandablelayout:2.9.2'
     implementation 'org.jdom:jdom2:2.0.6'

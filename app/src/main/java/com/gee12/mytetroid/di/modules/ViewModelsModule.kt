@@ -157,6 +157,7 @@ object ViewModelsModule {
 
                     storagesRepo = get(),
                     cryptManager = get(),
+                    storageDataProcessor = get(),
 
                     favoritesManager = get(),
                     interactionManager = get(),

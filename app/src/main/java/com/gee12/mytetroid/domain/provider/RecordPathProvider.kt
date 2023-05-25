@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.domain.provider
 
-import android.net.Uri
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.extensions.getExtensionWithoutComma
 import com.gee12.mytetroid.common.extensions.makeFolderPath
@@ -15,7 +14,7 @@ interface IRecordPathProvider {
     fun getRelativePathToRecordFolder(record: TetroidRecord): String
     fun getRelativePathToRecordHtml(record: TetroidRecord): String
     fun getPathToRecordFolderInTrash(record: TetroidRecord): FilePath
-    fun getPathToFileInRecordFolder(record: TetroidRecord, fileName: String): String
+    fun getPathToFileInRecordFolder(record: TetroidRecord, fileName: String): FilePath.File
     fun getRelativePathToRecordAttach(attach: TetroidFile): String
     fun getRelativePathToFileInRecordFolder(record: TetroidRecord, fileName: String): String
 }
@@ -49,8 +48,8 @@ class RecordPathProvider(
         return FilePath.Folder(storagePathProvider.getPathToStorageTrashFolder().fullPath, record.dirName)
     }
 
-    override fun getPathToFileInRecordFolder(record: TetroidRecord, fileName: String): String {
-        return makePath(getPathToRecordFolder(record).fullPath, fileName)
+    override fun getPathToFileInRecordFolder(record: TetroidRecord, fileName: String): FilePath.File {
+        return FilePath.File(getPathToRecordFolder(record).fullPath, fileName)
     }
 
     override fun getRelativePathToRecordAttach(attach: TetroidFile): String {

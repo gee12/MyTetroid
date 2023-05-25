@@ -30,6 +30,7 @@ import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.util.*
 import com.gee12.mytetroid.data.settings.CommonSettings
+import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.domain.*
 import com.gee12.mytetroid.domain.interactor.*
 import com.gee12.mytetroid.domain.manager.*
@@ -51,6 +52,7 @@ import com.gee12.mytetroid.domain.usecase.image.SaveImageFromUriUseCase
 import com.gee12.mytetroid.domain.usecase.storage.*
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.model.permission.TetroidPermission
+import com.gee12.mytetroid.ui.storage.StorageEvent
 import java.io.File
 
 
@@ -72,6 +74,7 @@ class RecordViewModel(
 
     storagesRepo: StoragesRepo,
     cryptManager: IStorageCryptManager,
+    storageDataProcessor: IStorageDataProcessor,
 
     favoritesManager: FavoritesManager,
     interactionManager: InteractionManager,
@@ -158,6 +161,10 @@ class RecordViewModel(
     private var recordFolder: DocumentFile? = null
 
 
+    init {
+        storageProvider.init(storageDataProcessor)
+    }
+
     //region Migration
 
     fun checkMigration() {
@@ -171,6 +178,38 @@ class RecordViewModel(
     //endregion Migration
 
     //region Storage
+
+    /**
+     * Инициализация хранилища по ID, переданному в Intent.
+     */
+    fun initStorage(intent: Intent): Boolean {
+        var storageId = intent.getIntExtra(Constants.EXTRA_STORAGE_ID, 0)
+
+        return if (storage?.let { it.id == storageId } == true) {
+            launchOnMain {
+                storage?.let {
+                    sendEvent(StorageEvent.FoundInBase(it))
+                    sendEvent(StorageEvent.Inited(it))
+                }
+            }
+            true
+        } else {
+            if (storageId > 0) {
+                startInitStorageFromBase(storageId)
+                true
+            } else {
+                // инициализация хранилища по ID хранилища, загруженному в последний раз.
+                storageId = settingsManager.getLastStorageId()
+                if (storageId > 0) {
+                    checkPermissionsAndInitStorageById(storageId)
+                    true
+                } else {
+                    logError(getString(R.string.log_not_transferred_storage_id), show = true)
+                    false
+                }
+            }
+        }
+    }
 
     fun onStorageInited(intent: Intent?) {
         when (intent?.action) {
@@ -444,6 +483,7 @@ class RecordViewModel(
                 logFailure(it)
                 sendEvent(BaseEvent.FinishActivity)
             }.onSuccess { record ->
+                initRecordFolder(record)
                 curRecord.postValue(record)
                 setTitle(record.name)
             }
@@ -474,7 +514,7 @@ class RecordViewModel(
      */
     fun checkPermissionsAndLoadRecord(record: TetroidRecord) {
         launchOnIo {
-            val htmlFilePath = recordPathProvider.getRelativePathToFileInRecordFolder(record, record.fileName)
+            val htmlFilePath = recordPathProvider.getPathToFileInRecordFolder(record, record.fileName)
             recordFolder?.child(
                 context = getContext(),
                 path = record.fileName,
@@ -485,7 +525,7 @@ class RecordViewModel(
                     uri = htmlFile.uri,
                     requestCode = PermissionRequestCode.OPEN_RECORD_FILE,
                 )
-            } ?: logFailure(Failure.File.Get(FilePath.File(storageFolderPath, htmlFilePath)))
+            } ?: logFailure(Failure.File.Get(htmlFilePath))
         }
     }
 
@@ -970,24 +1010,19 @@ class RecordViewModel(
                 }
                 return true
             } else {
-                saveRecord()
-                onAfterSaving(obj)
+                launchOnMain {
+                    // запрашиваем у View html-текст записи и сохраняем
+                    sendEvent(RecordEvent.GetHtmlTextAndSave(obj))
+                }
             }
         }
         return false
     }
 
-    private fun saveRecord() {
-        // запрашиваем у View html-текст записи и сохраняем
-        launchOnMain {
-            sendEvent(RecordEvent.Save)
-        }
-    }
-
     /**
      * Получение актуального html-текста записи из WebView и непосредственное сохранение в файл.
      */
-    fun saveRecordText(htmlText: String) {
+    fun saveRecordText(htmlText: String, obj: ResultObj?) {
         launchOnMain {
             curRecord.value?.let { record ->
                 log(resourcesProvider.getString(R.string.log_start_record_file_saving) + record.id)
@@ -1008,6 +1043,7 @@ class RecordViewModel(
                     // сбрасываем пометку изменения записи
                     dropIsEdited()
                     updateEditedDate()
+                    onAfterSaving(obj)
                 }
             }
         }
@@ -1041,25 +1077,33 @@ class RecordViewModel(
      * Обработчик события после сохранения записи, вызванное при ответе на запрос сохранения в диалоге.
      */
     fun onAfterSaving(srcResObj: ResultObj?) {
-        var resObj = srcResObj
-        if (resObj == null) {
-            resObj = ResultObj(null)
-        }
+        val resObj = srcResObj ?: ResultObj(null)
         when (resObj.type) {
             ResultObj.EXIT,
-            ResultObj.START_MAIN_ACTIVITY ->
+            ResultObj.START_MAIN_ACTIVITY -> {
                 if (!onRecordFieldsIsEdited(resObj.type == ResultObj.START_MAIN_ACTIVITY)) {
                     launchOnMain {
                         sendEvent(BaseEvent.FinishActivity)
                     }
                 }
-            ResultObj.OPEN_RECORD -> openAnotherRecord(resObj, false)
-            ResultObj.OPEN_NODE -> openAnotherNode(resObj, false)
-            ResultObj.OPEN_FILE -> openRecordAttaches(curRecord.value, false)
-            ResultObj.OPEN_TAG -> openTag((resObj.obj as String?)!!, false)
-            ResultObj.NONE -> if (resObj.needReloadText) {
-                // перезагружаем baseUrl в WebView
-                loadRecordTextFromFile(curRecord.value!!)
+            }
+            ResultObj.OPEN_RECORD -> {
+                openAnotherRecord(resObj, false)
+            }
+            ResultObj.OPEN_NODE -> {
+                openAnotherNode(resObj, false)
+            }
+            ResultObj.OPEN_FILE -> {
+                openRecordAttaches(curRecord.value, false)
+            }
+            ResultObj.OPEN_TAG -> {
+                openTag((resObj.obj as String?)!!, false)
+            }
+            ResultObj.NONE -> {
+                if (resObj.needReloadText) {
+                    // перезагружаем baseUrl в WebView
+                    loadRecordTextFromFile(curRecord.value!!)
+                }
             }
         }
     }
@@ -1299,20 +1343,21 @@ class RecordViewModel(
         author: String,
         url: String,
         node: TetroidNode,
-        isFavor: Boolean
+        isFavorite: Boolean
     ) {
         launchOnMain {
-            val wasTemp = curRecord.value!!.isTemp
+            val record = curRecord.value!!
+            val wasTemp = record.isTemp
             withIo {
                 editRecordFieldsUseCase.run(
                     EditRecordFieldsUseCase.Params(
-                        record = curRecord.value!!,
+                        record = record,
                         name = name,
                         tagsString = tags,
                         author = author,
                         url = url,
                         node = node,
-                        isFavor = isFavor
+                        isFavor = isFavorite
                     )
                 )
             }.onFailure {
@@ -1325,8 +1370,12 @@ class RecordViewModel(
 //                }
             }.onSuccess {
                 isFieldsEdited = true
+                if (wasTemp) {
+                    // обновляем путь к записи, если изначально она была временная (в корзине)
+                    initRecordFolder(record)
+                }
                 setTitle(name)
-                sendEvent(RecordEvent.LoadFields(record = curRecord.value!!))
+                sendEvent(RecordEvent.LoadFields(record = record))
                 if (wasTemp) {
                     // сохраняем текст записи
                     val resObj = if (obj == null) {
