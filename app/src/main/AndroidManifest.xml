@@ -26,6 +26,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:requestLegacyExternalStorage="true"
+        android:hasFragileUserData="true"
         tools:ignore="GoogleAppIndexingWarning">
 
         <receiver android:name=".widgets.AddRecordWidget"
