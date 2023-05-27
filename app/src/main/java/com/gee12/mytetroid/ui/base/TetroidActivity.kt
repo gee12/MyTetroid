@@ -114,6 +114,9 @@ abstract class TetroidActivity<VM : BaseViewModel>
 
         if (isUseFileStorage()) {
             fileStorageHelper = SimpleStorageHelper(this, savedInstanceState)
+            // ради оптимизации удаляются "повторные" persistable uri, к которым юзер предоставил доступ в SAF,
+            // и оставляются только "родительские", из-за чего происходит циклический запрос доступа на Android >= 11
+            fileStorageHelper.storage.isCleanupRedundantUriPermissions = false
             initFileStorage(savedInstanceState)
         }
 
