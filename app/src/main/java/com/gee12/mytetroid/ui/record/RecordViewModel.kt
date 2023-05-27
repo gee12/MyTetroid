@@ -1062,7 +1062,7 @@ class RecordViewModel(
         launchOnMain {
             curRecord.value?.let { record ->
                 log(resourcesProvider.getString(R.string.log_start_record_file_saving) + record.id)
-                sendEvent(BaseEvent.ShowProgressWithText(message = resourcesProvider.getString(R.string.progress_save_record)))
+                sendEvent(BaseEvent.ShowProgressWithText(message = resourcesProvider.getString(R.string.state_record_saving)))
                 withIo {
                     saveRecordHtmlTextUseCase.run(
                         SaveRecordHtmlTextUseCase.Params(

@@ -201,7 +201,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
                 requestCallback = event.requestCallback,
             )
             is BaseEvent.TaskStarted -> {
-                taskPreExecute(event.titleResId ?: R.string.progress_loading)
+                taskPreExecute(event.titleResId ?: R.string.state_loading)
             }
             BaseEvent.TaskFinished -> taskPostExecute()
             BaseEvent.ShowMoreInLogs -> showSnackMoreInLogs()

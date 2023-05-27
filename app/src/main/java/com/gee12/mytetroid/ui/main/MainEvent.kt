@@ -9,6 +9,7 @@ sealed class MainEvent(
     val startTaskEvent: Boolean = false,
     val endTaskEvent: Boolean = false,
 ) : StorageEvent() {
+
     // migration
     object Migrated : MainEvent()
 
@@ -19,9 +20,13 @@ sealed class MainEvent(
     ) : MainEvent(startTaskEvent, endTaskEvent) {
 
         class Encrypt(node: TetroidNode) : Node(node)
+
         class DropEncrypt(node: TetroidNode) : Node(node)
+
         class Show(node: TetroidNode) : Node(node)
+
         class Created(node: TetroidNode) : Node(node)
+
         sealed class Insert(
             node: TetroidNode,
             startTaskEvent: Boolean = false,
@@ -29,28 +34,33 @@ sealed class MainEvent(
         ) : Node(node, startTaskEvent, endTaskEvent) {
             class InProcess(node: TetroidNode) : Insert(node, startTaskEvent = true)
             class Failed(node: TetroidNode, failure: Failure) : Insert(node, endTaskEvent = true)
-            class Success(node: TetroidNode) : Insert(node)
+            class Success(node: TetroidNode) : Insert(node, endTaskEvent = true)
         }
+
         class Renamed(node: TetroidNode) : Node(node)
+
         class AskForDelete(node: TetroidNode) : Node(node)
+
         sealed class Cut(
             node: TetroidNode,
             startTaskEvent: Boolean = false,
             endTaskEvent: Boolean = false,
         ) : Node(node, startTaskEvent, endTaskEvent) {
             class InProcess(node: TetroidNode) : Cut(node, startTaskEvent = true)
-            class Failed(node: TetroidNode, failure: Failure) : Insert(node, endTaskEvent = true)
-            class Success(node: TetroidNode) : Cut(node)
+            class Failed(node: TetroidNode, failure: Failure) : Cut(node, endTaskEvent = true)
+            class Success(node: TetroidNode) : Cut(node, endTaskEvent = true)
         }
+
         sealed class Delete(
             node: TetroidNode,
             startTaskEvent: Boolean = false,
             endTaskEvent: Boolean = false,
         ) : Node(node, startTaskEvent, endTaskEvent) {
             class InProcess(node: TetroidNode) : Delete(node, startTaskEvent = true)
-            class Failed(node: TetroidNode, failure: Failure) : Insert(node, endTaskEvent = true)
-            class Success(node: TetroidNode) : Delete(node)
+            class Failed(node: TetroidNode, failure: Failure) : Delete(node, endTaskEvent = true)
+            class Success(node: TetroidNode) : Delete(node, endTaskEvent = true)
         }
+
         class Reordered(
             node: TetroidNode,
             val flatPosition: Int,
@@ -58,33 +68,75 @@ sealed class MainEvent(
             val newPositionInNode: Int
         ) : Node(node)
     }
+
     data class SetCurrentNode(
         val node: TetroidNode?
     ) : MainEvent()
+
     object UpdateNodes : MainEvent()
 
-    sealed class Record : MainEvent() {
+    sealed class Record(
+        startTaskEvent: Boolean = false,
+        endTaskEvent: Boolean = false,
+    ) : MainEvent(startTaskEvent, endTaskEvent) {
+
         data class Open(
             val recordId: String,
             val bundle: Bundle,
         ) : Record()
-        data class Deleted(
+
+        sealed class Create(
+            startTaskEvent: Boolean = false,
+            endTaskEvent: Boolean = false,
+        ) : Record(startTaskEvent, endTaskEvent) {
+            class InProcess(val name: String) : Create(startTaskEvent = true)
+            class Failed(val name: String, failure: Failure) : Create(endTaskEvent = true)
+            class Success(val record: TetroidRecord) : Create(endTaskEvent = true)
+        }
+
+        sealed class Insert(
             val record: TetroidRecord,
-        ) : Record()
-        data class Cutted(
+            startTaskEvent: Boolean = false,
+            endTaskEvent: Boolean = false,
+        ) : Record(startTaskEvent, endTaskEvent) {
+            class InProcess(record: TetroidRecord) : Insert(record, startTaskEvent = true)
+            class Failed(record: TetroidRecord, failure: Failure) : Insert(record, endTaskEvent = true)
+            class Success(record: TetroidRecord) : Insert(record, endTaskEvent = true)
+        }
+
+        sealed class Cut(
             val record: TetroidRecord,
-        ) : Record()
+            startTaskEvent: Boolean = false,
+            endTaskEvent: Boolean = false,
+        ) : Record(startTaskEvent, endTaskEvent) {
+            class InProcess(record: TetroidRecord) : Cut(record, startTaskEvent = true)
+            class Failed(record: TetroidRecord, failure: Failure) : Cut(record, endTaskEvent = true)
+            class Success(record: TetroidRecord) : Cut(record, endTaskEvent = true)
+        }
+
+        sealed class Delete(
+            val record: TetroidRecord,
+            startTaskEvent: Boolean = false,
+            endTaskEvent: Boolean = false,
+        ) : Record(startTaskEvent, endTaskEvent) {
+            class InProcess(record: TetroidRecord) : Delete(record, startTaskEvent = true)
+            class Failed(record: TetroidRecord, failure: Failure) : Delete(record, endTaskEvent = true)
+            class Success(record: TetroidRecord) : Delete(record, endTaskEvent = true)
+        }
     }
+
     data class ShowRecords(
         val records: List<TetroidRecord>,
         val viewId: Int,
         val dropSearch: Boolean = true,
     ) : MainEvent()
+
     data class RecordsFiltered(
         val query: String,
         val records: List<TetroidRecord>,
         val viewId: Int,
     ) : MainEvent()
+
     data class UpdateRecordsList(
         val records: List<TetroidRecord>,
         val curMainViewId: Int,
@@ -104,19 +156,25 @@ sealed class MainEvent(
     data class ShowAttaches(
         val attaches: List<TetroidFile>,
     ) : MainEvent()
+
     data class AttachesFiltered(
         val query: String,
         val attaches: List<TetroidFile>,
         val viewId: Int,
     ) : MainEvent()
+
     object UpdateAttaches : MainEvent()
+
     data class ReloadAttaches(
         val attaches: List<TetroidFile>,
     ) : MainEvent()
+
     data class AttachDeleted(
         val attach: TetroidFile,
     ) : MainEvent()
+
     object PickAttach : MainEvent()
+
     data class PickFolderForAttach(val attach: TetroidFile) : MainEvent()
 
     // favorites
@@ -126,7 +184,9 @@ sealed class MainEvent(
     data class GlobalSearchStart(
         val query: String?,
     ) : MainEvent()
+
     object GlobalResearch : MainEvent()
+
     data class GlobalSearchFinished(
         val found: Map<ITetroidObject, FoundType>,
         val profile: SearchProfile,
@@ -136,6 +196,7 @@ sealed class MainEvent(
     data class AskForOperationWithoutFolder(
         val clipboardParams: ClipboardParams,
     ) : MainEvent()
+
     data class AskForOperationWithoutFile(
         val clipboardParams: ClipboardParams,
     ) : MainEvent()

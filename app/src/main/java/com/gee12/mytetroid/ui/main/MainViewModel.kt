@@ -489,11 +489,8 @@ class MainViewModel(
 
     private fun insertRecord(record: TetroidRecord, isCutting: Boolean, withoutDir: Boolean) {
         launchOnMain {
-            sendEvent(
-                BaseEvent.ShowProgressWithText(
-                    message = getString(if (isCutting) R.string.progress_insert_record else R.string.progress_copy_record)
-                )
-            )
+            sendEvent(MainEvent.Record.Insert.InProcess(record))
+
             withIo {
                 insertRecordUseCase.run(
                     InsertRecordUseCase.Params(
@@ -505,22 +502,22 @@ class MainViewModel(
                 )
             }.onComplete {
                 sendEvent(BaseEvent.HideProgress)
-            }.onFailure {
-                when (it) {
+            }.onFailure { failure ->
+                sendEvent(MainEvent.Record.Insert.Failed(record, failure))
+                when (failure) {
                     is Failure.File -> {
-                        logFailure(it)
-//                    logOperErrorMore(LogObj.RECORD_DIR, LogOper.INSERT)
+                        logFailure(failure)
                     }
                     is Failure.Folder -> {
                         sendEvent(MainEvent.AskForOperationWithoutFolder(ClipboardParams(LogOper.INSERT, record, isCutting)))
                     }
                     else -> {
-                        logFailure(it)
-//                    logOperErrorMore(LogObj.RECORD, LogOper.INSERT)
+                        logFailure(failure)
                     }
                 }
             }.onSuccess { insertedRecord ->
                 logOperRes(LogObj.RECORD, LogOper.INSERT)
+                sendEvent(MainEvent.Record.Insert.Success(record))
 
                 showNode(insertedRecord.node)
                 updateNodes()
@@ -539,7 +536,8 @@ class MainViewModel(
      */
     fun createRecord(name: String, tags: String, author: String, url: String, node: TetroidNode, isFavor: Boolean) {
         launchOnMain {
-            sendEvent(BaseEvent.ShowProgressWithText(message = getString(R.string.progress_create_record)))
+            sendEvent(MainEvent.Record.Create.InProcess(name))
+
             withIo {
                 createRecordUseCase.run(
                     CreateRecordUseCase.Params(
@@ -553,10 +551,12 @@ class MainViewModel(
                 )
             }.onComplete {
                 sendEvent(BaseEvent.HideProgress)
-            }.onFailure {
-                logFailure(it)
+            }.onFailure { failure ->
+                logFailure(failure)
+                sendEvent(MainEvent.Record.Create.Failed(name, failure))
             }.onSuccess { record ->
-                logOperRes(LogObj.RECORD, LogOper.CREATE, record, false)
+                logOperRes(LogObj.RECORD, LogOper.CREATE, record, show = false)
+                sendEvent(MainEvent.Record.Create.Success(record))
                 reloadTags()
                 updateNodes()
                 updateFavoritesNodeTitleAndListIfNeed(record)
@@ -786,6 +786,8 @@ class MainViewModel(
 
     private fun cutOrDeleteRecord(record: TetroidRecord, isCutting: Boolean, withoutDir: Boolean) {
         launchOnMain {
+            sendEvent(if (isCutting) MainEvent.Record.Cut.InProcess(record) else MainEvent.Record.Delete.InProcess(record))
+
             withIo {
                 cutOrDeleteRecordUseCase.run(
                     CutOrDeleteRecordUseCase.Params(
@@ -794,11 +796,11 @@ class MainViewModel(
                         isCutting = isCutting,
                     )
                 )
-            }.onFailure {
-                when (it) {
+            }.onFailure { failure ->
+                sendEvent(if (isCutting) MainEvent.Record.Cut.Failed(record, failure) else MainEvent.Record.Delete.Failed(record, failure))
+                when (failure) {
                     is Failure.File -> {
-                        logFailure(it)
-//                        logWarning(R.string.log_erorr_move_record_dir_when_del, true)
+                        logFailure(failure)
                         sendEvent(BaseEvent.ShowMoreInLogs)
                     }
                     is Failure.Folder -> {
@@ -809,12 +811,12 @@ class MainViewModel(
                         }
                     }
                     else -> {
-                        logFailure(it)
+                        logFailure(failure)
                     }
                 }
             }.onSuccess {
                 curRecords.remove(record)
-                sendEvent(MainEvent.Record.Deleted(record))
+                sendEvent(if (isCutting) MainEvent.Record.Cut.Success(record) else MainEvent.Record.Delete.Success(record))
                 reloadTags()
                 updateNodes()
                 updateFavoritesNodeTitleAndListIfNeed(record)

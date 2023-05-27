@@ -206,14 +206,6 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="title_multiple_tags">TAGS</string>
     <string name="title_tags_search_mode_subtitle">Search by tags:</string>
 
-    <string name="progress_loading">Loading…</string>
-    <string name="progress_copy_record">Record copying…</string>
-    <string name="progress_create_record">Record creating…</string>
-    <string name="progress_save_record">Record saving…</string>
-    <string name="progress_insert_record">Record inserting…</string>
-    <string name="progress_images_loading">Images loading…</string>
-    <string name="progress_camera_capture">Image loading from camera…</string>
-
     <string name="text_intent_create_text">Insert into a new record; Create a new record and add the transferred text</string>
     <string name="text_intent_create_image">Insert into a new record; Create a new record and add the transferred image (s) to its text</string>
     <string name="text_intent_create_image_attach">Attach to a new record; Create a new record and attach the transferred image (s) as file (s)</string>
@@ -469,6 +461,23 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="stage_old_pass_decrypting">Storage decryption with old password…</string>
     <string name="stage_new_pass_reencrypting">Storage re-encryption with new password…</string>
     <string name="stage_storage_saving">Saving storage structure…</string>
+
+    <string name="state_loading">Loading…</string>
+    <string name="state_storage_files_creating">Creating storage files…</string>
+    <string name="state_record_copying">Record copying…</string>
+    <string name="state_record_creating">Record creating…</string>
+    <string name="state_record_saving">Record saving…</string>
+    <string name="state_record_inserting">Record inserting…</string>
+    <string name="state_record_cutting">Record cutting…</string>
+    <string name="state_record_deleting">Record deleting…</string>
+    <string name="state_node_cutting">Node cutting…</string>
+    <string name="state_node_deleting">Node deleing…</string>
+    <string name="state_node_inserting">Node inserting…</string>
+    <string name="state_images_loading">Images loading…</string>
+    <string name="state_camera_capturing">Image loading from camera…</string>
+    <string name="state_voice_input_start">Starting voice input…</string>
+    <string name="state_voice_input_recognition">Voice input recognition…</string>
+    <string name="state_export_to_pdf">Export to pdf…</string>
 
     <string name="filter_records_in_node_by_query">Filter records in node [%1$s] by query "%2$s"</string>
     <string name="filter_records_in_tag_by_query">Filter records in tag records [%1$s] by query "%2$s"</string>
@@ -906,11 +915,8 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_pass_hash_saved_local">Password hash is saved locally</string>
     <string name="title_voice_input">Voice input</string>
     <string name="error_recognize_text">Failed to recognize text</string>
-    <string name="state_voice_input_start">Starting voice input…</string>
-    <string name="state_voice_input_recognition">Voice input recognition…</string>
     <string name="title_voice_input_started">Speak…</string>
     <string name="title_voice_input_finished">Voice input is finished</string>
-    <string name="state_export_to_pdf">Export to pdf…</string>
     <string name="error_export_to_pdf">Failed to export to pdf</string>
     <string name="ask_open_exported_pdf">File saved to «%s». Do you want to open file?</string>
     <string name="error_required_api_version_mask">API level required >= %d</string>
@@ -919,10 +925,6 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="error_storage_not_initialized">Storage not initialized</string>
     <string name="error_incorrent_initial_path_for_picker_mask">Incorrect initial path for file/folder picker: %s</string>
     <string name="error_open_file_folder_picker">Error with open SAF file/folder picker</string>
-    <string name="state_storage_files_creating">Creating storage files…</string>
     <string name="ask_permission_on_storage_folder_mask">Permission is required to access the directory of storage «%s» in the device\'s file system.\nSelect the storage directory in the next window</string>
     <string name="ask_permission_on_storage_folder_title">Allow access to the directory</string>
-    <string name="state_node_cutting">Node cutting…</string>
-    <string name="state_node_deleting">Node deleing…</string>
-    <string name="state_node_inserting">Node inserting…</string>
 </resources>

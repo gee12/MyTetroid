@@ -557,11 +557,43 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             is MainEvent.Record.Open -> {
                 openRecord(event.recordId, event.bundle)
             }
-            is MainEvent.Record.Deleted -> {
+            // create
+            is MainEvent.Record.Create.InProcess -> {
+                showProgress(R.string.state_record_creating)
+            }
+            is MainEvent.Record.Create.Success,
+            is MainEvent.Record.Create.Failed -> {
+                hideProgress()
+            }
+            // insert
+            is MainEvent.Record.Insert.InProcess -> {
+                showProgress(R.string.state_record_inserting)
+            }
+            is MainEvent.Record.Insert.Success,
+            is MainEvent.Record.Insert.Failed -> {
+                hideProgress()
+            }
+            // cut
+            is MainEvent.Record.Cut.InProcess -> {
+                showProgress(R.string.state_record_cutting)
+            }
+            is MainEvent.Record.Cut.Success -> {
+                hideProgress()
                 mainPage.onDeleteRecordResult(event.record)
             }
-            is MainEvent.Record.Cutted -> {
+            is MainEvent.Record.Cut.Failed -> {
+                hideProgress()
+            }
+            // delete
+            is MainEvent.Record.Delete.InProcess -> {
+                showProgress(R.string.state_record_deleting)
+            }
+            is MainEvent.Record.Delete.Success -> {
+                hideProgress()
                 mainPage.onDeleteRecordResult(event.record)
+            }
+            is MainEvent.Record.Delete.Failed -> {
+                hideProgress()
             }
         }
     }
@@ -1389,35 +1421,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
     // endregion Favorites
 
-    // region Tag
-
-    /**
-     * Переименование метки в записях.
-     */
-    private fun renameTag(tag: TetroidTag) {
-        TagFieldsDialog(
-            tag = tag
-        ) { name: String -> 
-            viewModel.renameTag(tag, name) 
-        }
-            .showIfPossible(supportFragmentManager)
-    }
-
-    /**
-     * Копирование ссылки на метку в буфер обмена.
-     */
-    private fun copyTagLink(tag: TetroidTag?) {
-        if (tag != null) {
-            val url = tag.createUrl()
-            Utils.writeToClipboard(this, getString(R.string.link_to_tag), url)
-            viewModel.log(getString(R.string.title_link_was_copied) + url, true)
-        } else {
-            viewModel.log(getString(R.string.log_get_item_is_null), true)
-        }
-    }
-
-    // endregion Tag
-
     // region Records
 
     /**
@@ -1526,7 +1529,8 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         visibleMenuItem(menu.findItem(R.id.action_insert), canInsert)
         visibleMenuItem(menu.findItem(R.id.action_insert_subnode), canInsert && isNonCrypted)
         visibleMenuItem(menu.findItem(R.id.action_copy), isNonCrypted)
-        val canCutDel = (node.level > 0 || viewModel.getRootNodes().size > 1) && isNonCrypted
+        // отображаем cut/delete для зашифрованных веток, т.к. дальше есть проверка
+        val canCutDel = (node.level > 0 || viewModel.getRootNodes().size > 1)
         visibleMenuItem(menu.findItem(R.id.action_cut), canCutDel)
         visibleMenuItem(menu.findItem(R.id.action_delete), canCutDel)
         visibleMenuItem(menu.findItem(R.id.action_encrypt_node), !node.isCrypted)

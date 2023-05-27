@@ -202,14 +202,6 @@
     <string name="title_multiple_tags">МЕТКИ</string>
     <string name="title_tags_search_mode_subtitle">Искать по меткам:</string>
 
-    <string name="progress_loading">Загрузка…</string>
-    <string name="progress_copy_record">Копирование записи…</string>
-    <string name="progress_create_record">Создание записи…</string>
-    <string name="progress_save_record">Сохранение записи…</string>
-    <string name="progress_insert_record">Вставка записи…</string>
-    <string name="progress_images_loading">Загрузка изображения(-й)…</string>
-    <string name="progress_camera_capture">Загрузка изображения с камеры…</string>
-
     <string name="text_intent_create_text">Вставить в новую запись;Создать новую запись и добавить переданный текст</string>
     <string name="text_intent_create_image">Вставить в новую запись;Создать новую запись и добавить переданное(ые) изображение(я) в ее текст</string>
     <string name="text_intent_create_image_attach">Прикрепить к новой записи;Создать новую запись и прикрепить переданное(ые) изображение(я) как файл(ы)</string>
@@ -383,6 +375,23 @@
     <string name="stage_old_pass_decrypting">Расшифровка хранилища старым паролем…</string>
     <string name="stage_new_pass_reencrypting">Перешифровка хранилища новым паролем…</string>
     <string name="stage_storage_saving">Сохранение структуры хранилища…</string>
+
+    <string name="state_loading">Загрузка…</string>
+    <string name="state_storage_files_creating">Создание файлов хранилища…</string>
+    <string name="state_record_copying">Копирование записи…</string>
+    <string name="state_record_creating">Создание записи…</string>
+    <string name="state_record_saving">Сохранение записи…</string>
+    <string name="state_record_inserting">Вставка записи…</string>
+    <string name="state_record_cutting">Вырезание записи…</string>
+    <string name="state_record_deleting">Удаление записи…</string>
+    <string name="state_images_loading">Загрузка изображения(-й)…</string>
+    <string name="state_camera_capturing">Загрузка изображения с камеры…</string>
+    <string name="state_node_cutting">Вырезание ветки…</string>
+    <string name="state_node_deleting">Удаление ветки…</string>
+    <string name="state_node_inserting">Вставка ветки…</string>
+    <string name="state_voice_input_start">Запуск голосового ввода…</string>
+    <string name="state_voice_input_recognition">Распознавание текста…</string>
+    <string name="state_export_to_pdf">Экспорт в pdf…</string>
 
     <string name="label_name">Название:</string>
     <string name="label_tags">Метки:</string>
@@ -805,11 +814,8 @@
     <string name="log_pass_hash_saved_local">Хэш пароля сохранен локально</string>
     <string name="title_voice_input">Голосовой ввод</string>
     <string name="error_recognize_text">Не удалось распознать текст</string>
-    <string name="state_voice_input_start">Запуск голосового ввода…</string>
-    <string name="state_voice_input_recognition">Распознавание текста…</string>
     <string name="title_voice_input_started">Говорите…</string>
     <string name="title_voice_input_finished">Голосовой ввод закончен</string>
-    <string name="state_export_to_pdf">Экспорт в pdf…</string>
     <string name="error_export_to_pdf">Ошибка экспорта pdf</string>
     <string name="ask_open_exported_pdf">Файл сохранен в «%s». Открыть?</string>
     <string name="error_required_api_version_mask">Требуется уровень API >= %d</string>
@@ -818,10 +824,6 @@
     <string name="error_storage_not_initialized">Хранилище не инициализированно</string>
     <string name="error_incorrent_initial_path_for_picker_mask">Некорректный путь по-умолчанию для диалога выбора файла/каталога: %s</string>
     <string name="error_open_file_folder_picker">Ошибка открытия диалога выбора файла/каталога SAF</string>
-    <string name="state_storage_files_creating">Создание файлов хранилища…</string>
     <string name="ask_permission_on_storage_folder_mask">Требуется разрешение на доступ к каталогу хранилища «%s» в файловой системе устройства.\nВыберите каталог хранилища в следующем окне</string>
     <string name="ask_permission_on_storage_folder_title">Разрешите доступ к каталогу</string>
-    <string name="state_node_cutting">Вырезание ветки…</string>
-    <string name="state_node_deleting">Удаление ветки…</string>
-    <string name="state_node_inserting">Вставка ветки…</string>
 </resources>

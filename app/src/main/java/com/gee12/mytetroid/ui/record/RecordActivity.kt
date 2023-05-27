@@ -382,10 +382,10 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 (findViewById<View>(R.id.text_view_record_edited) as TextView).text = event.dateString
             }
             RecordEvent.StartCaptureCamera -> {
-                showProgress(getString(R.string.progress_camera_capture))
+                showProgress(getString(R.string.state_camera_capturing))
             }
             RecordEvent.StartLoadImages -> {
-                showProgress(getString(R.string.progress_images_loading))
+                showProgress(getString(R.string.state_images_loading))
             }
             is RecordEvent.InsertImages -> {
                 editor.insertImages(images = event.images)
@@ -404,7 +404,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 showDialogForOpenExportedPdf(event.pdfFile)
             }
             RecordEvent.SaveFields.InProcess -> {
-                showProgress(getString(R.string.progress_save_record))
+                showProgress(getString(R.string.state_record_saving))
             }
             RecordEvent.SaveFields.Success -> {
                 hideProgress()

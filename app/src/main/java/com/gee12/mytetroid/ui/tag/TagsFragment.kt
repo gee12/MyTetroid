@@ -90,14 +90,17 @@ class TagsFragment : TetroidFragment<MainViewModel>() {
             viewModel.unselectAllTags()
         }
 
+        // onViewCreated не всегда вызывается
+        createListAdapters()
+
         return view
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    /*override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         createListAdapters()
-    }
+    }*/
 
     private fun createListAdapters() {
         adapterTags = TagsListAdapter(
@@ -131,6 +134,7 @@ class TagsFragment : TetroidFragment<MainViewModel>() {
     }
 
     fun setTagsDataItems(tags: Map<String, TetroidTag>) {
+        //FIXME: lateinit property adapterTags has not been initialized
         adapterTags.setDataItems(
             data = tags,
             sortHelper = SortHelper(settingsManager.getTagsSortOrder())
