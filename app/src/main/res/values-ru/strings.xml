@@ -642,8 +642,8 @@
     <string name="log_node_delete_list_error">Ветка удалена из хранилища, но произогла ошибка удаления ветки из списка</string>
     <string name="log_node_move_list_error">Ветка была перемещена, но произошла ошибка при обновлении списка. Перезагрузите хранилище</string>
     <string name="log_create_node_list_error">Ветка была создана, но произошла ошибка при обновлении списка. Перезагрузите хранилище</string>
-    <string name="log_create_record_folder_mask">Отсутствует каталог записи \"%s\". Создаем…</string>
-    <string name="log_create_trash_folder_mask">Отсутствует каталог записи в корзине хранилища \"%s\". Создаем…</string>
+    <string name="log_create_record_folder_mask">Создание каталога записи \"%s\"</string>
+    <string name="log_create_record_folder_in_trash_mask">Создание каталога записи в корзине хранилища \"%s\"</string>
     <string name="log_oper_error_mask">Не удалось %1$s %2$s%3$s</string>
 <!--    <string name="log_during_oper_errors_mask">В процессе %1$s %2$s произошли ошибки (подробнее в логах)</string>-->
     <string name="log_during_oper_errors_mask">В процессе %1$s %2$s произошли ошибки</string>
@@ -818,4 +818,7 @@
     <string name="state_storage_files_creating">Создание файлов хранилища…</string>
     <string name="ask_permission_on_storage_folder_mask">Требуется разрешение на доступ к каталогу хранилища «%s» в файловой системе устройства.\nВыберите каталог хранилища в следующем окне</string>
     <string name="ask_permission_on_storage_folder_title">Разрешите доступ к каталогу</string>
+    <string name="state_node_cutting">Вырезание ветки…</string>
+    <string name="state_node_deleting">Удаление ветки…</string>
+    <string name="state_node_inserting">Вставка ветки…</string>
 </resources>

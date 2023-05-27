@@ -47,7 +47,6 @@ class CutOrDeleteNodeUseCase(
             storageProvider.getRootNodes()
         }) as MutableList<TetroidNode>
         if (!parentNodes.remove(node)) {
-//            logger.logError(resourcesProvider.getString(R.string.error_node_not_found_with_id_mask) + node.id)
             return Failure.Node.NotFound(nodeId = node.id).toLeft()
         }
 
@@ -55,17 +54,21 @@ class CutOrDeleteNodeUseCase(
         return saveStorageUseCase.run()
             .flatMap {
                 // удаление всех объектов ветки рекурсивно
-                deleteNodeRecursively(params, breakOnFsErrors = false)
+                deleteNodeRecursively(
+                    node = node,
+                    isCutting = isCutting,
+                    breakOnFsErrors = false,
+                )
             }.onFailure {
                 logger.logOperCancel(LogObj.NODE, if (isCutting) LogOper.CUT else LogOper.DELETE)
             }.map { None }
     }
 
     private suspend fun deleteNodeRecursively(
-        params: Params,
+        node: TetroidNode,
+        isCutting: Boolean,
         breakOnFsErrors: Boolean,
     ): Either<Failure, None> {
-        val node = params.node
 
         if (node.recordsCount > 0) {
             for (record in node.records) {
@@ -104,7 +107,11 @@ class CutOrDeleteNodeUseCase(
         }
 
         for (subNode in node.subNodes) {
-            deleteNodeRecursively(params, breakOnFsErrors)
+            deleteNodeRecursively(
+                node = subNode,
+                isCutting = isCutting,
+                breakOnFsErrors = breakOnFsErrors,
+            )
                 .onFailure {
                     if (breakOnFsErrors) {
                         return it.toLeft()

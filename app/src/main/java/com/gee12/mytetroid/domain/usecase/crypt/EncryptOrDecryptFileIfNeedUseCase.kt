@@ -2,9 +2,7 @@ package com.gee12.mytetroid.domain.usecase.crypt
 
 import android.content.Context
 import androidx.documentfile.provider.DocumentFile
-import com.anggrayudi.storage.file.getAbsolutePath
-import com.anggrayudi.storage.file.openInputStream
-import com.anggrayudi.storage.file.openOutputStream
+import com.anggrayudi.storage.file.*
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -31,7 +29,7 @@ class EncryptOrDecryptFileIfNeedUseCase(
     override suspend fun run(params: Params): Either<Failure, None> {
         return when {
             params.isEncrypt -> {
-                logger.logOperStart(LogObj.FILE, LogOper.DECRYPT)
+                logger.logOperStart(LogObj.FILE, LogOper.ENCRYPT)
                 encryptOrDecryptFile(params, isEncrypt = true)
             }
             params.isDecrypt -> {
@@ -46,8 +44,21 @@ class EncryptOrDecryptFileIfNeedUseCase(
 
     private fun encryptOrDecryptFile(params: Params, isEncrypt: Boolean): Either<Failure, None> {
         val srcFile = params.srcFile
-        val srcFilePath = FilePath.FileFull(srcFile.getAbsolutePath(context))
         val destFile = params.destFile
+
+        return if (srcFile.id == destFile.id) {
+            encryptOrDecryptOneFile(srcFile, isEncrypt)
+        } else {
+            encryptOrDecryptDifferentFiles(srcFile, destFile, isEncrypt)
+        }
+    }
+
+    private fun encryptOrDecryptDifferentFiles(
+        srcFile: DocumentFile,
+        destFile: DocumentFile,
+        isEncrypt: Boolean,
+    ): Either<Failure, None> {
+        val srcFilePath = FilePath.FileFull(srcFile.getAbsolutePath(context))
         val destFilePath = FilePath.FileFull(destFile.getAbsolutePath(context))
 
         return try {
@@ -63,19 +74,56 @@ class EncryptOrDecryptFileIfNeedUseCase(
             if (result) {
                 None.toRight()
             } else {
-                getFailure(params, srcFilePath).toLeft()
+                getFailure(isEncrypt, srcFilePath).toLeft()
             }
         } catch (ex: Exception) {
-            getFailure(params, srcFilePath,ex).toLeft()
+            getFailure(isEncrypt, srcFilePath, ex).toLeft()
+        }
+    }
+
+    private fun encryptOrDecryptOneFile(srcFile: DocumentFile, isEncrypt: Boolean): Either<Failure, None> {
+        val srcFilePath = FilePath.FileFull(srcFile.getAbsolutePath(context))
+
+        return try {
+            val srcFileFolder = srcFile.findParent(
+                context = context,
+                requiresWriteAccess = true,
+            ) ?: return Failure.Folder.Get(path = srcFilePath).toLeft()
+            val srcFileName = srcFile.name!!
+            val tempFileName = "${srcFileName}_temp"
+            val tempFilePath = FilePath.File(srcFileFolder.getAbsolutePath(context), tempFileName)
+
+            // создаем временный файл, в который будем зашифровывать/расшифровывать данные исходного файла
+            val tempFile = srcFileFolder.makeFile(
+                context = context,
+                name = tempFileName,
+                mimeType = MimeType.UNKNOWN,
+                mode = CreateMode.CREATE_NEW,
+            ) ?: return Failure.File.Create(tempFilePath).toLeft()
+
+            return encryptOrDecryptDifferentFiles(
+                srcFile = srcFile,
+                destFile = tempFile,
+                isEncrypt = isEncrypt,
+            ).map {
+                // удаляем исходный файл
+                srcFile.delete()
+            }.flatMap {
+                // переименовываем временный файл в исходный
+                tempFile.renameTo(srcFileName)
+                None.toRight()
+            }
+        } catch (ex: Exception) {
+            getFailure(isEncrypt, srcFilePath, ex).toLeft()
         }
     }
 
     private fun getFailure(
-        params: Params,
+        isEncrypt: Boolean,
         srcFilePath: FilePath,
         ex: Exception? = null
     ): Failure {
-        return if (params.isEncrypt) {
+        return if (isEncrypt) {
             Failure.Encrypt.File(srcFilePath, ex)
         } else {
             Failure.Decrypt.File(srcFilePath, ex)

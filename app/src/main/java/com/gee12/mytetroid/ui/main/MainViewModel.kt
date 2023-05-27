@@ -1107,6 +1107,8 @@ class MainViewModel(
         val trueParentNode = if (isSubNode) parentNode else parentNode.parentNode
 
         launchOnMain {
+            sendEvent(MainEvent.Node.Insert.InProcess(node))
+
             withIo {
                 insertNodeUseCase.run(
                     InsertNodeUseCase.Params(
@@ -1115,13 +1117,14 @@ class MainViewModel(
                         isCutting = isCutting,
                     )
                 )
-            }.onFailure {
-                logFailure(it, show = false)
+            }.onFailure { failure ->
+                logFailure(failure, show = false)
+                sendEvent(MainEvent.Node.Insert.Failed(node, failure))
                 logOperErrorMore(LogObj.NODE, LogOper.INSERT)
             }.onSuccess { newNode ->
                 // ищем вновь созданную ветку - копию node
                 //  (даже при вставке ВЫРЕЗАННОЙ ветки вставляется ее копия, а не оригинальная из буфера обмена)
-                sendEvent(MainEvent.Node.Inserted(newNode))
+                sendEvent(MainEvent.Node.Insert.Success(newNode))
             }
         }
     }
@@ -1171,6 +1174,8 @@ class MainViewModel(
 
     fun deleteOrCutNode(node: TetroidNode, isCutting: Boolean) {
         launchOnMain {
+            sendEvent(if (isCutting) MainEvent.Node.Cut.InProcess(node) else MainEvent.Node.Delete.InProcess(node))
+
             withIo {
                 cutOrDeleteNodeUseCase.run(
                     CutOrDeleteNodeUseCase.Params(
@@ -1178,23 +1183,17 @@ class MainViewModel(
                         isCutting = isCutting,
                     )
                 )
-            }.onFailure {
-                logFailure(it)
+            }.onFailure { failure ->
+                logFailure(failure)
+                sendEvent(if (isCutting) MainEvent.Node.Cut.Failed(node, failure) else MainEvent.Node.Delete.Failed(node, failure))
             }.onSuccess {
-                sendEvent(if (isCutting) MainEvent.Node.Cutted(node) else MainEvent.Node.Deleted(node))
-                // удаляем элемент внутри списка
-//            if (mListAdapterNodes.deleteItem(pos)) {
-//                logOperRes(this, LogObj.NODE, if (!isCutting) LogOper.DELETE else LogOper.CUT)
-//            } else {
-//                LogManager.log(this, getString(R.string.log_node_delete_list_error), ILogger.Types.ERROR, Toast.LENGTH_LONG)
-//            }
+                sendEvent(if (isCutting) MainEvent.Node.Cut.Success(node) else MainEvent.Node.Delete.Success(node))
                 // обновляем label с количеством избранных записей
                 if (buildInfoProvider.isFullVersion()) {
                     updateFavoritesNodeTitle()
                 }
                 // убираем список записей удаляемой ветки
                 if (curNode == node || isNodeInNode(curNode, node)) {
-//                getMainPage().clearView()
                     curRecord = null
                     curNode = null
                     launchOnMain {
@@ -1205,9 +1204,6 @@ class MainViewModel(
                     // проверяем существование зашифрованных веток
                     checkExistenceCryptedNodes()
                 }
-//        } else {
-//            logOperErrorMore(LogObj.NODE, if (!isCutting) LogOper.DELETE else LogOper.CUT)
-//        }
             }
         }
     }
@@ -1949,6 +1945,9 @@ class MainViewModel(
                 val mes = getString(R.string.log_deleted_from_favor)
                 showMessage(mes)
                 log(mes + ": " + record.getIdString(resourcesProvider), false)
+                if (!record.isFavorite && curMainViewId == Constants.MAIN_VIEW_FAVORITES) {
+                    curRecords.remove(record)
+                }
                 updateFavoritesNodeTitle()
                 updateRecordsList()
             } else {

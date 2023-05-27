@@ -403,39 +403,8 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             MainEvent.Migrated -> {
                 showMigrationDialog()
             }
-            is MainEvent.Node.Encrypt -> {
-                viewModel.encryptNode(event.node)
-            }
-            is MainEvent.Node.DropEncrypt -> {
-                viewModel.dropEncryptNode(event.node)
-            }
-            is MainEvent.Node.Show -> {
-                viewModel.showNode(event.node)
-            }
-            is MainEvent.Node.Created -> {
-                onNodeCreated(event.node)
-            }
-            is MainEvent.Node.Inserted -> {
-                onNodeInserted(event.node)
-            }
-            is MainEvent.Node.Renamed -> {
-                onNodeRenamed(event.node)
-            }
-            is MainEvent.Node.AskForDelete -> {
-                showDeleteNodeDialog(event.node)
-            }
-            is MainEvent.Node.Cutted -> {
-                onNodeDeleted(event.node, true)
-            }
-            is MainEvent.Node.Deleted -> {
-                onNodeDeleted(event.node, false)
-            }
-            is MainEvent.Node.Reordered -> {
-                onNodeReordered(
-                    flatPosition = event.flatPosition,
-                    positionInNode = event.positionInNode,
-                    newPositionInNode = event.newPositionInNode,
-                )
+            is MainEvent.Node -> {
+                onNodeEvent(event)
             }
             is MainEvent.SetCurrentNode -> {
                 setCurrentNode(event.node)
@@ -443,14 +412,8 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             MainEvent.UpdateNodes -> {
                 updateNodes()
             }
-            is MainEvent.Record.Open -> {
-                openRecord(event.recordId, event.bundle)
-            }
-            is MainEvent.Record.Deleted -> {
-                mainPage.onDeleteRecordResult(event.record)
-            }
-            is MainEvent.Record.Cutted -> {
-                mainPage.onDeleteRecordResult(event.record)
+            is MainEvent.Record -> {
+                onRecordEvent(event)
             }
             is MainEvent.ShowRecords -> {
                 showRecords(
@@ -525,6 +488,80 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             }
             MainEvent.Exit -> {
                 finish()
+            }
+        }
+    }
+
+    private fun onNodeEvent(event: MainEvent.Node) {
+        when (event) {
+            is MainEvent.Node.Encrypt -> {
+                viewModel.encryptNode(event.node)
+            }
+            is MainEvent.Node.DropEncrypt -> {
+                viewModel.dropEncryptNode(event.node)
+            }
+            is MainEvent.Node.Show -> {
+                viewModel.showNode(event.node)
+            }
+            is MainEvent.Node.Created -> {
+                onNodeCreated(event.node)
+            }
+            is MainEvent.Node.Insert.InProcess -> {
+                showProgress(R.string.state_node_inserting)
+            }
+            is MainEvent.Node.Insert.Success -> {
+                hideProgress()
+                onNodeInserted(event.node)
+            }
+            is MainEvent.Node.Insert.Failed -> {
+                hideProgress()
+            }
+            is MainEvent.Node.Renamed -> {
+                onNodeRenamed(event.node)
+            }
+            is MainEvent.Node.AskForDelete -> {
+                showDeleteNodeDialog(event.node)
+            }
+            is MainEvent.Node.Cut.InProcess -> {
+                showProgress(R.string.state_node_cutting)
+            }
+            is MainEvent.Node.Cut.Success -> {
+                hideProgress()
+                onNodeDeleted(event.node, isCutting = true)
+            }
+            is MainEvent.Node.Cut.Failed -> {
+                hideProgress()
+            }
+            is MainEvent.Node.Delete.InProcess -> {
+                showProgress(R.string.state_node_deleting)
+            }
+            is MainEvent.Node.Delete.Success -> {
+                hideProgress()
+                onNodeDeleted(event.node, isCutting = false)
+            }
+            is MainEvent.Node.Delete.Failed -> {
+                hideProgress()
+            }
+            is MainEvent.Node.Reordered -> {
+                onNodeReordered(
+                    flatPosition = event.flatPosition,
+                    positionInNode = event.positionInNode,
+                    newPositionInNode = event.newPositionInNode,
+                )
+            }
+        }
+    }
+
+    private fun onRecordEvent(event: MainEvent.Record) {
+        when (event) {
+            is MainEvent.Record.Open -> {
+                openRecord(event.recordId, event.bundle)
+            }
+            is MainEvent.Record.Deleted -> {
+                mainPage.onDeleteRecordResult(event.record)
+            }
+            is MainEvent.Record.Cutted -> {
+                mainPage.onDeleteRecordResult(event.record)
             }
         }
     }

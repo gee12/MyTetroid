@@ -8,7 +8,6 @@ import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.orFalse
 import com.gee12.mytetroid.domain.provider.IRecordPathProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
-import com.gee12.mytetroid.domain.provider.IStoragePathProvider
 import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.FilePath
@@ -56,7 +55,10 @@ class GetRecordFolderUseCase(
 
             if (recordFolderInTrash == null || !recordFolderInTrash.exists()) {
                 if (params.createIfNeed) {
-                    logger.logWarning(resourcesProvider.getString(R.string.log_create_trash_folder_mask, recordFolderPath.fullPath), showMessage)
+                    logger.logWarning(
+                        resourcesProvider.getString(R.string.log_create_record_folder_in_trash_mask, recordFolderPath.fullPath),
+                        show = showMessage
+                    )
 
                     recordFolderInTrash = trashFolder?.makeFolder(
                         context = context,
@@ -91,7 +93,10 @@ class GetRecordFolderUseCase(
 
             if (folder == null || !folder.exists()) {
                 if (params.createIfNeed) {
-                    logger.logWarning(resourcesProvider.getString(R.string.log_create_record_folder_mask, recordFolderPath.fullPath), showMessage)
+                    logger.logWarning(
+                        resourcesProvider.getString(R.string.log_create_record_folder_mask, recordFolderPath.fullPath),
+                        show = showMessage
+                    )
 
                     folder = baseFolder?.makeFolder(
                         context = context,

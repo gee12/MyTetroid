@@ -62,7 +62,6 @@ class CutOrDeleteRecordUseCase(
         val node = record.node
         if (node != null) {
             if (!node.deleteRecord(record)) {
-//                logger.logError(resourcesProvider.getString(R.string.error_record_not_exist_in_node_mask))
                 return Failure.Record.NotFoundInNode(recordId = record.id).toLeft()
             }
         } else {

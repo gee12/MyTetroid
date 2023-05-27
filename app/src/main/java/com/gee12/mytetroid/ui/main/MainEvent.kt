@@ -1,23 +1,56 @@
 package com.gee12.mytetroid.ui.main
 
 import android.os.Bundle
+import com.gee12.mytetroid.common.Failure
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.ui.storage.StorageEvent
 
-sealed class MainEvent : StorageEvent() {
+sealed class MainEvent(
+    val startTaskEvent: Boolean = false,
+    val endTaskEvent: Boolean = false,
+) : StorageEvent() {
     // migration
     object Migrated : MainEvent()
 
-    sealed class Node(val node: TetroidNode) : MainEvent() {
+    sealed class Node(
+        val node: TetroidNode,
+        startTaskEvent: Boolean = false,
+        endTaskEvent: Boolean = false,
+    ) : MainEvent(startTaskEvent, endTaskEvent) {
+
         class Encrypt(node: TetroidNode) : Node(node)
         class DropEncrypt(node: TetroidNode) : Node(node)
         class Show(node: TetroidNode) : Node(node)
         class Created(node: TetroidNode) : Node(node)
-        class Inserted(node: TetroidNode) : Node(node)
+        sealed class Insert(
+            node: TetroidNode,
+            startTaskEvent: Boolean = false,
+            endTaskEvent: Boolean = false,
+        ) : Node(node, startTaskEvent, endTaskEvent) {
+            class InProcess(node: TetroidNode) : Insert(node, startTaskEvent = true)
+            class Failed(node: TetroidNode, failure: Failure) : Insert(node, endTaskEvent = true)
+            class Success(node: TetroidNode) : Insert(node)
+        }
         class Renamed(node: TetroidNode) : Node(node)
         class AskForDelete(node: TetroidNode) : Node(node)
-        class Cutted(node: TetroidNode) : Node(node)
-        class Deleted(node: TetroidNode) : Node(node)
+        sealed class Cut(
+            node: TetroidNode,
+            startTaskEvent: Boolean = false,
+            endTaskEvent: Boolean = false,
+        ) : Node(node, startTaskEvent, endTaskEvent) {
+            class InProcess(node: TetroidNode) : Cut(node, startTaskEvent = true)
+            class Failed(node: TetroidNode, failure: Failure) : Insert(node, endTaskEvent = true)
+            class Success(node: TetroidNode) : Cut(node)
+        }
+        sealed class Delete(
+            node: TetroidNode,
+            startTaskEvent: Boolean = false,
+            endTaskEvent: Boolean = false,
+        ) : Node(node, startTaskEvent, endTaskEvent) {
+            class InProcess(node: TetroidNode) : Delete(node, startTaskEvent = true)
+            class Failed(node: TetroidNode, failure: Failure) : Insert(node, endTaskEvent = true)
+            class Success(node: TetroidNode) : Delete(node)
+        }
         class Reordered(
             node: TetroidNode,
             val flatPosition: Int,
@@ -34,13 +67,13 @@ sealed class MainEvent : StorageEvent() {
         data class Open(
             val recordId: String,
             val bundle: Bundle,
-        ) : MainEvent()
+        ) : Record()
         data class Deleted(
             val record: TetroidRecord,
-        ) : MainEvent()
+        ) : Record()
         data class Cutted(
             val record: TetroidRecord,
-        ) : MainEvent()
+        ) : Record()
     }
     data class ShowRecords(
         val records: List<TetroidRecord>,

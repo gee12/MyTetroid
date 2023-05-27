@@ -12,9 +12,11 @@ fun Int?.orZero(): Int {
     return this ?: 0
 }
 
-fun String.ifNotEmpty(block: (String) -> Unit) {
-    if (this.isNotEmpty()) {
+fun <T> String?.ifNotEmpty(block: (String) -> T) : T? {
+    return if (!this.isNullOrEmpty()) {
         block(this)
+    } else {
+        null
     }
 }
 

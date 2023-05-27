@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.domain.usecase.node
 
 import com.gee12.mytetroid.common.*
+import com.gee12.mytetroid.common.extensions.ifNotEmpty
 import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.domain.provider.IDataNameProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -35,11 +36,14 @@ class InsertNodeUseCase(
     override suspend fun run(params: Params): Either<Failure, TetroidNode> {
         val srcNode = params.srcNode
         val parentNode = params.parentNode
+        val isCutting = params.isCutting
 
         logger.logOperStart(LogObj.NODE, LogOper.INSERT, srcNode)
 
         return insertNodeRecursively(
-            params = params,
+            srcNode = srcNode,
+            parentNode = parentNode,
+            isCutting = isCutting,
             breakOnFSErrors = false,
         ).flatMap { newNode ->
             // перезаписываем структуру хранилища в файл
@@ -56,13 +60,11 @@ class InsertNodeUseCase(
     }
 
     private suspend fun insertNodeRecursively(
-        params: Params,
+        srcNode: TetroidNode,
+        parentNode: TetroidNode,
+        isCutting: Boolean,
         breakOnFSErrors: Boolean
     ): Either<Failure, TetroidNode> {
-        val srcNode = params.srcNode
-        val parentNode = params.parentNode
-        val isCutting = params.isCutting
-
         // генерируем уникальный идентификатор, если ветка копируется
         val id = if (isCutting) srcNode.id else dataNameProvider.createUniqueId()
         val name = srcNode.name
@@ -74,7 +76,7 @@ class InsertNodeUseCase(
             isEncrypted,
             id,
             encryptFieldIfNeed(name, isEncrypted),
-            encryptFieldIfNeed(iconName, isEncrypted),
+            iconName.ifNotEmpty { encryptFieldIfNeed(iconName, isEncrypted) },
             parentNode.level + 1
         )
         node.parentNode = parentNode
@@ -110,7 +112,12 @@ class InsertNodeUseCase(
         }
         // добавляем подветки
         for (srcSubNode in srcNode.subNodes) {
-            insertNodeRecursively(params, breakOnFSErrors)
+            insertNodeRecursively(
+                srcNode = srcSubNode,
+                parentNode = node,
+                isCutting = isCutting,
+                breakOnFSErrors = breakOnFSErrors,
+            )
                 .onFailure {
                     return it.toLeft()
                 }
