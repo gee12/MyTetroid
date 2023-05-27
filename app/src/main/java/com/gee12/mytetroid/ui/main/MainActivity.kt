@@ -90,7 +90,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     private lateinit var fabCreateNode: FloatingActionButton
 
     private var isActivityCreated = false
-    private var openedDrawerBeforeLock = 0
+    private var drawerStateBeforeLock = Gravity.NO_GRAVITY
 
     private val mainPage: MainPageFragment
         get() = viewPagerAdapter.mainFragment
@@ -296,7 +296,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 closeFoundFragment()
             }
             is BaseEvent.TaskStarted -> {
-                openedDrawerBeforeLock = taskMainPreExecute(event.titleResId ?: R.string.task_wait)
+                drawerStateBeforeLock = taskMainPreExecute(event.titleResId ?: R.string.task_wait)
             }
             BaseEvent.TaskFinished -> {
                 taskMainPostExecute()
@@ -2297,20 +2297,46 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
     // endregion StartActivity
 
+    // region IAndroidComponent
+
+    override fun setProgressVisibility(isVisible: Boolean, text: String?) {
+        super.setProgressVisibility(isVisible, text)
+        // TODO: по-хорошему, нужно отображать крутилку поверх шторки,
+        //  а не открывать/закрывать ее туда-сюда
+        if (isVisible) {
+            drawerStateBeforeLock = getDrawerState()
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        } else {
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+            when (drawerStateBeforeLock) {
+                GravityCompat.START,
+                GravityCompat.END -> {
+                    drawerLayout.openDrawer(drawerStateBeforeLock)
+                }
+                else -> Unit
+            }
+        }
+    }
+
+    // endregion IAndroidComponent
+
     // region Tasks
 
     fun taskMainPreExecute(progressTextResId: Int): Int {
         super.taskPreExecute(progressTextResId)
-        val openedDrawer =
-            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                GravityCompat.START
-            } else if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
-                GravityCompat.END
-            } else {
-                Gravity.NO_GRAVITY
-            }
+        val openedDrawer = getDrawerState()
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         return openedDrawer
+    }
+
+    private fun getDrawerState(): Int {
+        return if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            GravityCompat.START
+        } else if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
+            GravityCompat.END
+        } else {
+            Gravity.NO_GRAVITY
+        }
     }
 
     fun taskMainPostExecute() {

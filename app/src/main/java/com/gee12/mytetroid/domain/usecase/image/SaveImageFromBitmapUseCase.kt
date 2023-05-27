@@ -47,7 +47,7 @@ class SaveImageFromBitmapUseCase(
             GetRecordFolderUseCase.Params(
                 record = record,
                 createIfNeed = true,
-                inTrash = false,
+                inTrash = record.isTemp,
             )
         ).foldResult(
             onLeft = {
