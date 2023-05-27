@@ -98,7 +98,7 @@ abstract class BaseStorageViewModel(
 
     fun getStorageName() = storage?.name.orEmpty()
 
-    fun isStorageDefault() = storage?.isDefault.orFalse()
+    fun isDefaultStorage() = storage?.isDefault.orFalse()
 
     fun isStorageReadOnly() = storage?.isReadOnly.orFalse()
 

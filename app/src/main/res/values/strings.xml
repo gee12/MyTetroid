@@ -656,7 +656,9 @@ Your storage settings have been automatically moved to the \"Default storage\"</
 <!--    <string name="log_errors_during_decryption">Errors occurred during decryption (more in logs)</string>-->
     <string name="log_app_start_mask">Run app. Version %s</string>
     <string name="log_storage_loaded_mask">Storage «%s» was loaded</string>
+    <string name="log_default_storage_loaded_mask">Default storage «%s» was loaded</string>
     <string name="log_storage_loaded_decrypted_mask">Storage «%s» was loaded and decrypted</string>
+    <string name="log_default_storage_loaded_decrypted_mask">Default storage «%s» was loaded and decrypted</string>
     <string name="log_storage_favor_loaded_mask">Storage «%s» favorites records was loaded</string>
     <string name="log_show_pass_dialog"> Starting the password request dialog</string>
     <string name="log_storage_config_loaded_mask">Storage config loaded: %s</string>
@@ -717,6 +719,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_not_found_record">Not found record with id=</string>
     <string name="log_not_transferred_record_id">Record Id not passed</string>
     <string name="log_not_transferred_storage_id">Storage Id not passed</string>
+    <string name="log_not_set_default_storage_and_try_load_last">Default storage is not specified, load the last used one</string>
     <string name="log_not_transferred_storage">Storage not passed</string>
     <string name="log_editing_crypted_records">Editing encrypted records is not implemented yet..</string>
     <string name="log_url_decode_error">Url decoding error:&#160;</string>

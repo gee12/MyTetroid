@@ -563,7 +563,9 @@
 <!--    <string name="log_errors_during_decryption">При расшифровке произошли ошибки (подробнее в логах)</string>-->
     <string name="log_app_start_mask">Запуск приложения. Версия %s</string>
     <string name="log_storage_loaded_mask">Хранилище «%s» загружено</string>
+    <string name="log_default_storage_loaded_mask">Основоное хранилище «%s» загружено</string>
     <string name="log_storage_loaded_decrypted_mask">Хранилище «%s» загружено и расшифровано</string>
+    <string name="log_default_storage_loaded_decrypted_mask">Основоное хранилище «%s» загружено и расшифровано</string>
     <string name="log_storage_favor_loaded_mask">Избранные записи хранилища «%s» загружены</string>
     <string name="log_show_pass_dialog">Запуск диалога ввода пароля</string>
     <string name="log_storage_config_loaded_mask">Конфигурация хранилища загружена: %s</string>
@@ -624,6 +626,7 @@
     <string name="log_not_found_record">Не найдена запись с id=</string>
     <string name="log_not_transferred_record_id">Не передан Id записи</string>
     <string name="log_not_transferred_storage_id">Не передан Id хранилища</string>
+    <string name="log_not_set_default_storage_and_try_load_last">Не указано хранилище по умолчанию, загружаем последнее используемое</string>
     <string name="log_not_transferred_storage">Не передан объект хранилища</string>
     <string name="log_editing_crypted_records">Редактирование зашифрованных записей пока не реализовано..</string>
     <string name="log_url_decode_error">Ошибка декодирования url:&#160;</string>

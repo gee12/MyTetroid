@@ -165,6 +165,14 @@ class RecordViewModel(
         storageProvider.init(storageDataProcessor)
     }
 
+    fun init(intent: Intent) {
+        // проверяем передавались ли изображения
+        isReceivedImages = intent.hasExtra(Constants.EXTRA_IMAGES_URI)
+
+        initStorage(intent)
+    }
+
+
     //region Migration
 
     fun checkMigration() {
@@ -179,34 +187,68 @@ class RecordViewModel(
 
     //region Storage
 
+    private fun initStorage(intent: Intent) {
+        launchOnMain {
+            when (intent.action) {
+                Intent.ACTION_MAIN -> {
+                    initStorageFromIntent(intent)
+                }
+                Constants.ACTION_ADD_RECORD -> {
+                    initDefaultStorage()
+                }
+                else -> {
+                    sendEvent(BaseEvent.FinishActivity)
+                }
+            }
+        }
+    }
     /**
      * Инициализация хранилища по ID, переданному в Intent.
      */
-    fun initStorage(intent: Intent): Boolean {
+    private suspend fun initStorageFromIntent(intent: Intent) {
         var storageId = intent.getIntExtra(Constants.EXTRA_STORAGE_ID, 0)
 
-        return if (storage?.let { it.id == storageId } == true) {
-            launchOnMain {
+        if (storageId > 0) {
+            if (storage?.let { it.id == storageId } == true) {
                 storage?.let {
                     sendEvent(StorageEvent.FoundInBase(it))
                     sendEvent(StorageEvent.Inited(it))
                 }
-            }
-            true
-        } else {
-            if (storageId > 0) {
-                startInitStorageFromBase(storageId)
-                true
             } else {
-                // инициализация хранилища по ID хранилища, загруженному в последний раз.
-                storageId = settingsManager.getLastStorageId()
-                if (storageId > 0) {
-                    checkPermissionsAndInitStorageById(storageId)
-                    true
-                } else {
-                    logError(getString(R.string.log_not_transferred_storage_id), show = true)
-                    false
+                startInitStorageFromBase(storageId)
+            }
+        } else {
+            // если id хранилища не передано, пытаемся загрузить последнее используемое
+            storageId = settingsManager.getLastStorageId()
+            if (storageId > 0) {
+                checkPermissionsAndInitStorageById(storageId)
+            } else {
+                logError(getString(R.string.log_not_transferred_storage_id), show = true)
+                sendEvent(BaseEvent.FinishActivity)
+            }
+        }
+    }
+
+    private suspend fun initDefaultStorage() {
+        // инициализация хранилища по ID хранилища, загруженному в последний раз.
+        var storageId = withIo { storagesRepo.getDefaultStorageId() }
+        if (storageId > 0) {
+            if (storage?.let { it.id == storageId } == true) {
+                storage?.let {
+                    sendEvent(StorageEvent.FoundInBase(it))
+                    sendEvent(StorageEvent.Inited(it))
                 }
+            } else {
+                checkPermissionsAndInitStorageById(storageId)
+            }
+        } else {
+            logWarning(R.string.log_not_set_default_storage_and_try_load_last)
+            // если основное хранилище не указано, пытаемся загрузить последнее используемое
+            storageId = settingsManager.getLastStorageId()
+            if (storageId > 0) {
+                checkPermissionsAndInitStorageById(storageId)
+            } else {
+                logError(getString(R.string.log_not_transferred_storage_id), show = true)
             }
         }
     }
@@ -218,7 +260,6 @@ class RecordViewModel(
                 initRecordFromStorage(intent)
             }
             Constants.ACTION_ADD_RECORD -> {
-    //            viewModel.initApp()
                 initRecordFromWidget()
             }
             else -> {
@@ -242,7 +283,7 @@ class RecordViewModel(
                 isSaveTempAfterStorageLoaded = false
                 // сохраняем временную запись
                 launchOnMain {
-                    sendEvent(RecordEvent.EditFields(resultObj))
+                    sendEvent(RecordEvent.ShowEditFieldsDialog(resultObj))
                 }
             }
         }
@@ -251,11 +292,6 @@ class RecordViewModel(
     //endregion Storage
 
     // region Load page
-
-    fun onCreate(receivedIntent: Intent) {
-        // проверяем передавались ли изображения
-        isReceivedImages = receivedIntent.hasExtra(Constants.EXTRA_IMAGES_URI)
-    }
 
     /**
      * Событие окончания загрузки страницы.
@@ -567,7 +603,7 @@ class RecordViewModel(
                 }
             }
             sendEvent(
-                RecordEvent.LoadRecordTextFromFile(
+                RecordEvent.LoadHtmlTextFromFile(
                     recordText = text.orEmpty()
                 )
             )
@@ -1002,7 +1038,7 @@ class RecordViewModel(
             if (curRecord.value!!.isTemp) {
                 if (isStorageLoaded()) {
                     launchOnMain {
-                        sendEvent(RecordEvent.EditFields(obj))
+                        sendEvent(RecordEvent.ShowEditFieldsDialog(obj))
                     }
                 } else {
                     isSaveTempAfterStorageLoaded = true
@@ -1012,7 +1048,7 @@ class RecordViewModel(
             } else {
                 launchOnMain {
                     // запрашиваем у View html-текст записи и сохраняем
-                    sendEvent(RecordEvent.GetHtmlTextAndSave(obj))
+                    sendEvent(RecordEvent.GetHtmlTextAndSaveToFile(obj))
                 }
             }
         }
@@ -1346,6 +1382,8 @@ class RecordViewModel(
         isFavorite: Boolean
     ) {
         launchOnMain {
+            sendEvent(RecordEvent.SaveFields.InProcess)
+
             val record = curRecord.value!!
             val wasTemp = record.isTemp
             withIo {
@@ -1362,14 +1400,9 @@ class RecordViewModel(
                 )
             }.onFailure {
                 logFailure(it)
-//                if (wasTemp) {
-//                    // все равно сохраняем текст записи
-//                    logOperErrorMore(LogObj.TEMP_RECORD, LogOper.SAVE)
-//                } else {
-//                    logOperErrorMore(LogObj.RECORD_FIELDS, LogOper.CHANGE)
-//                }
             }.onSuccess {
                 isFieldsEdited = true
+                sendEvent(RecordEvent.SaveFields.Success)
                 if (wasTemp) {
                     // обновляем путь к записи, если изначально она была временная (в корзине)
                     initRecordFolder(record)

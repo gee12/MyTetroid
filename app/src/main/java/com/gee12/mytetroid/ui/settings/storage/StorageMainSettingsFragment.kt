@@ -81,7 +81,7 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment(), ITetroidFi
                         checkIsFavorMode = true,
                         showMessage = true,
                     ) -> Unit
-                    !viewModel.isStorageDefault() -> {
+                    !viewModel.isDefaultStorage() -> {
                         viewModel.showMessage(R.string.pref_quickly_node_not_available)
                     }
                     else -> {

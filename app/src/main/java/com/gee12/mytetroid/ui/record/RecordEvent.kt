@@ -11,10 +11,14 @@ sealed class RecordEvent : StorageEvent() {
     data class LoadFields(
         val record: TetroidRecord,
     ) : RecordEvent()
-    data class EditFields(
+    data class ShowEditFieldsDialog(
         val resultObj: ResultObj?,
     ) : RecordEvent()
-    data class LoadRecordTextFromFile(
+    sealed class SaveFields : RecordEvent() {
+        object InProcess : SaveFields()
+        object Success : SaveFields()
+    }
+    data class LoadHtmlTextFromFile(
         val recordText: String,
     ) : RecordEvent()
     object LoadRecordTextFromHtml : RecordEvent()
@@ -54,7 +58,7 @@ sealed class RecordEvent : StorageEvent() {
     data class AskToOpenExportedPdf(
         val pdfFile: DocumentFile,
     ) : RecordEvent()
-    data class GetHtmlTextAndSave(
+    data class GetHtmlTextAndSaveToFile(
         val obj: ResultObj?
     ) : RecordEvent()
 }

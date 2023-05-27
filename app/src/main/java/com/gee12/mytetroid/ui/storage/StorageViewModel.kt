@@ -3,7 +3,6 @@ package com.gee12.mytetroid.ui.storage
 import android.app.Activity
 import android.app.Application
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.text.TextUtils
 import androidx.documentfile.provider.DocumentFile
@@ -452,11 +451,9 @@ open class StorageViewModel(
         logOperStart(LogObj.STORAGE, LogOper.LOAD)
 
         launchOnMain {
-            sendEvent(
-                BaseEvent.TaskStarted(
-                    if (isDecrypt) R.string.task_storage_decrypting else R.string.task_storage_loading
-                )
-            )
+            sendEvent(BaseEvent.TaskStarted(
+                if (isDecrypt) R.string.task_storage_decrypting else R.string.task_storage_loading
+            ))
 
             val result = withIo {
                 readStorageUseCase.run(
@@ -479,11 +476,20 @@ open class StorageViewModel(
                 onRight = {
                     sendEvent(BaseEvent.TaskFinished)
 
+                    val isDefault = isDefaultStorage()
                     val mes = getString(
                         when {
                             isFavoritesOnly -> R.string.log_storage_favor_loaded_mask
-                            isDecrypt -> R.string.log_storage_loaded_decrypted_mask
-                            else -> R.string.log_storage_loaded_mask
+                            isDecrypt -> if (isDefault) {
+                                R.string.log_default_storage_loaded_decrypted_mask
+                            } else {
+                                R.string.log_storage_loaded_decrypted_mask
+                            }
+                            else -> if (isDefault) {
+                                R.string.log_default_storage_loaded_mask
+                            } else {
+                                R.string.log_storage_loaded_mask
+                            }
                         },
                         getStorageName()
                     )

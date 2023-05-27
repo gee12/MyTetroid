@@ -134,12 +134,13 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (receivedIntent == null || receivedIntent!!.action == null) {
+        val intent = receivedIntent
+        if (intent == null || intent.action == null) {
             finish()
             return
+        } else {
+            viewModel.init(intent)
         }
-        initStorage(receivedIntent!!)
-        viewModel.onCreate(receivedIntent!!)
         editor = findViewById(R.id.html_editor)
         editor.init(settingsManager)
         editor.setColorPickerListener(this)
@@ -331,17 +332,17 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             RecordEvent.NeedMigration -> {
                 showNeedMigrationDialog()
             }
-            is RecordEvent.GetHtmlTextAndSave -> {
+            is RecordEvent.GetHtmlTextAndSaveToFile -> {
                 saveRecord(obj = event.obj)
             }
             is RecordEvent.LoadFields -> {
                 loadFields(event.record)
                 expandFieldsIfNeed()
             }
-            is RecordEvent.EditFields -> {
-                editFields(event.resultObj)
+            is RecordEvent.ShowEditFieldsDialog -> {
+                showEditFieldsDialog(event.resultObj)
             }
-            is RecordEvent.LoadRecordTextFromFile -> {
+            is RecordEvent.LoadHtmlTextFromFile -> {
                 loadRecordText(event.recordText)
             }
             RecordEvent.LoadRecordTextFromHtml -> {
@@ -402,26 +403,18 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             is RecordEvent.AskToOpenExportedPdf -> {
                 showDialogForOpenExportedPdf(event.pdfFile)
             }
+            RecordEvent.SaveFields.InProcess -> {
+                showProgress(getString(R.string.progress_save_record))
+            }
+            RecordEvent.SaveFields.Success -> {
+                hideProgress()
+            }
         }
     }
 
     // endregion Events
 
     // region Storage
-
-    private fun initStorage(intent: Intent) {
-        when (intent.action) {
-            Intent.ACTION_MAIN,
-            Constants.ACTION_ADD_RECORD -> {
-                if (!viewModel.initStorage(intent)) {
-                    finish()
-                }
-            }
-            else -> {
-                finish()
-            }
-        }
-    }
 
     override fun afterStorageInited() {
         viewModel.onStorageInited(receivedIntent)
@@ -714,7 +707,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     //region Mode
 
     private fun switchViews(newMode: Int) {
-        viewModel.logDebug("switchViews: mode=$newMode")
+        //viewModel.logDebug("switchViews: mode=$newMode")
         when (newMode) {
             Constants.MODE_VIEW -> {
                 editor.visibility = View.VISIBLE
@@ -1120,7 +1113,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 return true
             }
             R.id.action_record_edit_fields -> {
-                editFields(null)
+                showEditFieldsDialog(null)
                 return true
             }
             R.id.action_record_node -> {
@@ -1180,7 +1173,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     /**
      * Редактирование свойств записи.
      */
-    private fun editFields(obj: ResultObj?) {
+    private fun showEditFieldsDialog(obj: ResultObj?) {
         RecordFieldsDialog(
             record = viewModel.curRecord.value,
             chooseNode = true,
