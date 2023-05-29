@@ -695,13 +695,14 @@ object UseCasesModule {
             scoped {
                 PrepareAttachForOpenUseCase(
                     context = androidContext(),
+                    appBuildInfoProvider = get(),
                     resourcesProvider = get(),
                     logger = get(),
-                    cryptManager = get(),
                     storageProvider = get(),
                     recordPathProvider = get(),
                     storageSettingsProvider = get(),
                     getRecordFolderUseCase = get(),
+                    encryptOrDecryptFileIfNeedUseCase = get(),
                 )
             }
 

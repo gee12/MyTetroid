@@ -719,7 +719,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="error_get_folder_mask">Error getting folder: %s</string>
     <string name="error_get_folder_size_mask">Error getting folder size: %s</string>
     <string name="error_denied_read_file_access_mask">Denied read access to the file: %s</string>
-    <string name="log_file_sharing_error">File sharing error:&#160;</string>
+    <string name="log_file_sharing_error_mask">File sharing error: %s</string>
     <string name="log_record_file_reading">Record file reading: id=</string>
     <string name="log_error_record_reading">Record reading error</string>
     <string name="log_not_found_child_in_viewflipper">Not found child in ViewFliper</string>

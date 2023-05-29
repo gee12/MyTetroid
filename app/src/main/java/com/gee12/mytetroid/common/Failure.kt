@@ -97,6 +97,7 @@ sealed class Failure(val ex: Throwable? = null) {
         class Rename(val path: FilePath, val newName: String) : File()
         class Copy(val from: FilePath, val to: FilePath, ex: Throwable? = null) : File(ex)
         class Delete(val path: FilePath, ex: Throwable? = null) : File(ex)
+        class GetContentUri(val path: FilePath, ex: Throwable? = null) : File(ex)
         class Unknown(val path: FilePath, ex: Exception) : File(ex)
     }
 

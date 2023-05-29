@@ -356,6 +356,12 @@ class FailureHandler(
                     message = failure.ex?.getInfo()
                 )
             }
+            is Failure.File.GetContentUri -> {
+                NotificationData.Error(
+                    title = getString(R.string.log_file_sharing_error_mask, failure.path.fullPath),
+                    message = failure.ex?.getInfo()
+                )
+            }
             is Failure.File.Unknown -> {
                 NotificationData.Error(
                     title = getString(R.string.error_file_unknown_mask, failure.path.fullPath),

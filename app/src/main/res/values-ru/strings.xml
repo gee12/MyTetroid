@@ -626,7 +626,7 @@
     <string name="error_get_folder_mask">Ошибка получения каталога: %s</string>
     <string name="error_get_folder_size_mask">Ошибка получения размера каталога: %s</string>
     <string name="error_denied_read_file_access_mask">Отказано в доступе к файлу на чтение: %s</string>
-    <string name="log_file_sharing_error">Ошибка предоставления доступа к файлу:&#160;</string>
+    <string name="log_file_sharing_error_mask">Ошибка предоставления доступа к файлу: %s</string>
     <string name="log_record_file_reading">Чтение файла записи: id=</string>
     <string name="log_error_record_reading">Ошибка чтения записи</string>
     <string name="log_not_found_child_in_viewflipper">Не найден дочерний элемент во ViewFliper</string>

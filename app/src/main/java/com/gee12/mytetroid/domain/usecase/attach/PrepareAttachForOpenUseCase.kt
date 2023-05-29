@@ -2,34 +2,33 @@ package com.gee12.mytetroid.domain.usecase.attach
 
 import android.content.Context
 import android.net.Uri
+import androidx.core.content.FileProvider
+import androidx.documentfile.provider.DocumentFile
 import com.anggrayudi.storage.file.*
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.getExtensionWithoutComma
 import com.gee12.mytetroid.common.extensions.withExtension
-import com.gee12.mytetroid.domain.manager.IStorageCryptManager
-import com.gee12.mytetroid.domain.provider.IRecordPathProvider
-import com.gee12.mytetroid.domain.provider.IResourcesProvider
-import com.gee12.mytetroid.domain.provider.IStorageProvider
+import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidFile
-import com.gee12.mytetroid.domain.provider.IStorageSettingsProvider
+import com.gee12.mytetroid.domain.usecase.crypt.EncryptOrDecryptFileIfNeedUseCase
 import com.gee12.mytetroid.domain.usecase.record.GetRecordFolderUseCase
 import com.gee12.mytetroid.model.FilePath
-import java.io.IOException
 
 /**
  * Получение прикрепленного файла с предварительной расшифровкой (если необходимо).
  */
 class PrepareAttachForOpenUseCase(
     private val context: Context,
+    private val appBuildInfoProvider: BuildInfoProvider,
     private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
-    private val cryptManager: IStorageCryptManager,
     private val storageProvider: IStorageProvider,
     private val recordPathProvider: IRecordPathProvider,
     private val storageSettingsProvider: IStorageSettingsProvider,
     private val getRecordFolderUseCase: GetRecordFolderUseCase,
+    private val encryptOrDecryptFileIfNeedUseCase: EncryptOrDecryptFileIfNeedUseCase,
 ) : UseCase<Uri, PrepareAttachForOpenUseCase.Params>() {
 
     data class Params(
@@ -37,6 +36,12 @@ class PrepareAttachForOpenUseCase(
     )
 
     override suspend fun run(params: Params): Either<Failure, Uri> {
+        return getFile(params).flatMap {  file ->
+            getContentFileUri(file)
+        }
+    }
+
+    private suspend fun getFile(params: Params): Either<Failure, DocumentFile> {
         val attach = params.attach
         val storageFolder = storageProvider.rootFolder
         val storageFolderPath = storageFolder?.getAbsolutePath(context).orEmpty()
@@ -44,8 +49,6 @@ class PrepareAttachForOpenUseCase(
         logger.logDebug(resourcesProvider.getString(R.string.log_start_attach_file_opening) + attach.id)
         val record = attach.record
         val fileDisplayName = attach.name
-        val ext = fileDisplayName.getExtensionWithoutComma()
-        val fileIdName = attach.id.withExtension(ext)
 
         val attachFileRelativePath = recordPathProvider.getRelativePathToRecordAttach(attach)
         val attachFilePath = FilePath.File(storageFolderPath, attachFileRelativePath)
@@ -61,59 +64,77 @@ class PrepareAttachForOpenUseCase(
             return Failure.File.NotExist(attachFilePath).toLeft()
         }
         // если запись зашифрована
-
-        // TODO: use CopyFileWithCryptUseCase
-
         return if (record.isCrypted && storageSettingsProvider.isDecryptAttachesToTempFolder()) {
-            // создаем временный файл
-            val tempFolder = getRecordFolderUseCase.run(
-                GetRecordFolderUseCase.Params(
-                    record = record,
-                    createIfNeed = true,
-                    inTrash = true,
-                )
-            ).foldResult(
-                onLeft = {
-                    return it.toLeft()
-                },
-                onRight = { it }
+            decryptAttachFile(attach, attachFile)
+        } else {
+            attachFile.toRight()
+        }
+    }
+
+    private suspend fun decryptAttachFile(attach: TetroidFile, attachFile: DocumentFile): Either<Failure, DocumentFile> {
+        val record = attach.record
+        val fileDisplayName = attach.name
+        val ext = fileDisplayName.getExtensionWithoutComma()
+        val fileIdName = attach.id.withExtension(ext)
+
+        // создаем временный файл
+        val tempFolder = getRecordFolderUseCase.run(
+            GetRecordFolderUseCase.Params(
+                record = record,
+                createIfNeed = true,
+                inTrash = true,
             )
-            val tempFolderPath = tempFolder.getAbsolutePath(context)
-            val tempFilePath = FilePath.File(tempFolderPath, fileIdName)
+        ).foldResult(
+            onLeft = {
+                return it.toLeft()
+            },
+            onRight = { it }
+        )
+        val tempFolderPath = tempFolder.getAbsolutePath(context)
+        val tempFilePath = FilePath.File(tempFolderPath, fileIdName)
 
-            // расшифровываем во временный файл
-            val tempFile = try {
-                tempFolder.makeFile(
-                    context = context,
-                    name = fileIdName,
-                    mimeType = MimeType.TEXT,
-                    mode = CreateMode.REPLACE,
-                ) ?: return Failure.File.Create(tempFilePath).toLeft()
-            } catch (ex: Exception) {
-                return Failure.File.Create(tempFilePath, ex).toLeft()
-            }
+        // расшифровываем во временный файл
+        val tempFile = try {
+            tempFolder.makeFile(
+                context = context,
+                name = fileIdName,
+                mimeType = MimeType.TEXT,
+                mode = CreateMode.REPLACE,
+            ) ?: return Failure.File.Create(tempFilePath).toLeft()
+        } catch (ex: Exception) {
+            return Failure.File.Create(tempFilePath, ex).toLeft()
+        }
 
+        return encryptOrDecryptFileIfNeedUseCase.run(
+            EncryptOrDecryptFileIfNeedUseCase.Params(
+                srcFile = attachFile,
+                destFile = tempFile,
+                isEncrypt = false,
+                isDecrypt = true,
+            )
+        ).map {
+            tempFile
+        }
+    }
+
+    private fun getContentFileUri(file: DocumentFile): Either<Failure, Uri> {
+        return if (file.isRawFile && appBuildInfoProvider.appVersionCode >= 24) {
+            val filePath = FilePath.FileFull(file.getAbsolutePath(context))
             try {
-                val isDecrypted = attachFile.openInputStream(context)?.use { inputStream ->
-                    tempFile.openOutputStream(context, append = false)?.use { outputStream ->
-                        cryptManager.encryptOrDecryptFile(
-                            srcFileStream = inputStream,
-                            destFileStream = outputStream,
-                            encrypt = false
-                        )
-                    } ?: return Failure.File.Write(tempFilePath).toLeft()
-                } ?: return Failure.File.Read(attachFilePath).toLeft()
-
-                if (isDecrypted) {
-                    tempFile.uri.toRight()
-                } else {
-                    return Failure.Decrypt.File(attachFilePath).toLeft()
-                }
-            } catch (ex: IOException) {
-                return Failure.Decrypt.File(attachFilePath).toLeft()
+                // Начиная с API 24, для предоставления доступа к файлам, который ассоциируется с приложением
+                // (по сути, для открытия файла другими приложениями с помощью Intent),
+                // нужно использовать механизм FileProvider.
+                // Uri должен быть иметь scheme "content://"
+                FileProvider.getUriForFile(
+                    context,
+                    "${appBuildInfoProvider.applicationId}.provider",
+                    file.toRawFile(context)!!
+                ).toRight()
+            } catch (ex: Exception) {
+                Failure.File.GetContentUri(filePath, ex).toLeft()
             }
         } else {
-            attachFile.uri.toRight()
+            file.uri.toRight()
         }
     }
 
