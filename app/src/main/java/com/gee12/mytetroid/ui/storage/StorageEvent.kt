@@ -35,8 +35,9 @@ abstract class StorageEvent : BaseEvent() {
     data class LoadOrDecrypt(
         val params: StorageParams,
     ) : StorageEvent()
+    object StartLoadingOrDecrypting: StorageEvent()
     data class Loaded(
-        val result: Boolean,
+        val isLoaded: Boolean,
     ) : StorageEvent()
     object Decrypted : StorageEvent()
     object TreeChangedOutside : StorageEvent()

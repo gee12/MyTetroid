@@ -110,6 +110,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     private lateinit var mButtonFindPrev: FloatingActionButton
     private lateinit var mFindListener: TextFindListener
     private lateinit var mSearchView: SearchView
+    private var recordFieldsDialog: RecordFieldsDialog? = null
     private var voiceSpeechDialog: VoiceSpeechDialog? = null
     private val syncObject = Object()
 
@@ -420,8 +421,19 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         viewModel.onStorageInited(receivedIntent)
     }
 
-    override fun afterStorageLoaded(res: Boolean) {
-        viewModel.onStorageLoaded(res)
+    override fun beforeStorageLoadedOrDecrypted() {
+        if (recordFieldsDialog?.isVisible == true) {
+            recordFieldsDialog?.onStorageStartLoading()
+        }
+    }
+
+    override fun afterStorageLoaded(isLoaded: Boolean) {
+        viewModel.onStorageLoaded(isLoaded)
+
+        if (recordFieldsDialog?.isVisible == true) {
+            recordFieldsDialog?.quicklyNode = viewModel.getQuicklyNode()
+            recordFieldsDialog?.onStorageLoaded()
+        }
     }
 
     private fun showNeedMigrationDialog() {
@@ -1174,23 +1186,29 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
      * Редактирование свойств записи.
      */
     private fun showEditFieldsDialog(obj: ResultObj?) {
-        RecordFieldsDialog(
+        recordFieldsDialog = RecordFieldsDialog(
             record = viewModel.curRecord.value,
             chooseNode = true,
-            node = viewModel.quicklyNode,
-            storageId = viewModel.getStorageId()
-        ) { name: String, tags: String, author: String, url: String, node: TetroidNode, isFavorite: Boolean ->
-            viewModel.editFields(
-                obj = obj,
-                name = name,
-                tags = tags,
-                author = author,
-                url = url,
-                node = node,
-                isFavorite = isFavorite,
-            )
+            node = null,
+            quicklyNode = viewModel.getQuicklyNode().takeIf { viewModel.isRecordTemporary() },
+            storageId = viewModel.getStorageId(),
+            onLoadAllNodes = {
+                viewModel.loadAllNodes(isHandleReceivedIntent = false)
+            },
+            onApply = { name: String, tags: String, author: String, url: String, node: TetroidNode, isFavorite: Boolean ->
+                viewModel.editFields(
+                    obj = obj,
+                    name = name,
+                    tags = tags,
+                    author = author,
+                    url = url,
+                    node = node,
+                    isFavorite = isFavorite,
+                )
+            }
+        ).apply {
+            showIfPossible(supportFragmentManager)
         }
-            .showIfPossible(supportFragmentManager)
     }
 
     /**

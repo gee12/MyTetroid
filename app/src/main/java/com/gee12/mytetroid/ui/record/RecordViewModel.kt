@@ -50,6 +50,7 @@ import com.gee12.mytetroid.domain.usecase.record.*
 import com.gee12.mytetroid.domain.usecase.image.SaveImageFromBitmapUseCase
 import com.gee12.mytetroid.domain.usecase.image.SaveImageFromUriUseCase
 import com.gee12.mytetroid.domain.usecase.storage.*
+import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.model.permission.TetroidPermission
 import com.gee12.mytetroid.ui.storage.StorageEvent
@@ -106,6 +107,9 @@ class RecordViewModel(
     private val editRecordFieldsUseCase : EditRecordFieldsUseCase,
     private val getRecordFolderUseCase : GetRecordFolderUseCase,
     private val printDocumentToFileUseCase : PrintDocumentToFileUseCase,
+
+    cryptRecordFilesIfNeedUseCase: CryptRecordFilesIfNeedUseCase,
+    parseRecordTagsUseCase: ParseRecordTagsUseCase,
 ): StorageViewModel(
     app = app,
     resourcesProvider = resourcesProvider,
@@ -163,6 +167,10 @@ class RecordViewModel(
 
     init {
         storageProvider.init(storageDataProcessor)
+        cryptManager.init(
+            cryptRecordFilesIfNeedUseCase,
+            parseRecordTagsUseCase,
+        )
     }
 
     fun init(intent: Intent) {
@@ -512,7 +520,7 @@ class RecordViewModel(
                         srcName = null,
                         url = null,
                         text = null,
-                        node = quicklyNode ?: storageProvider.getRootNode(),
+                        node = getQuicklyOrRootNode(),
                     )
                 )
             }.onFailure {

@@ -23,7 +23,7 @@ class NodeChooserDialog(
     val canDecrypted: Boolean, // разрешены ли уже расшифрованные ветки
     val rootOnly: Boolean, // разрешены ли только ветки в корне дерева
     override var storageId: Int? = null,
-    val onApply: (TetroidNode?) -> Unit,
+    val onApply: (TetroidNode) -> Unit,
     val onProblem: (ProblemType) -> Unit,
 ) : TetroidStorageDialogFragment<StorageViewModel>() {
 
@@ -122,7 +122,11 @@ class NodeChooserDialog(
         closeButton?.setOnClickListener { searchView.setQuery("", true) }
 
         // обработчик результата
-        setPositiveButton(R.string.answer_ok) { _, _ -> onApply(adapter.curNode) }
+        setPositiveButton(R.string.answer_ok) { _, _ ->
+            adapter.curNode?.also {
+                onApply(it)
+            }
+        }
         setNegativeButton(R.string.answer_cancel)
     }
 

@@ -39,6 +39,7 @@ import com.gee12.mytetroid.domain.usecase.file.GetFolderSizeInStorageUseCase
 import com.gee12.mytetroid.domain.usecase.node.GetNodeByIdUseCase
 import com.gee12.mytetroid.domain.usecase.record.GetRecordByIdUseCase
 import com.gee12.mytetroid.domain.usecase.storage.*
+import com.gee12.mytetroid.model.QuicklyNode
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.model.permission.TetroidPermission
 import kotlinx.coroutines.runBlocking
@@ -451,6 +452,7 @@ open class StorageViewModel(
         logOperStart(LogObj.STORAGE, LogOper.LOAD)
 
         launchOnMain {
+            sendEvent(StorageEvent.StartLoadingOrDecrypting)
             sendEvent(BaseEvent.TaskStarted(
                 if (isDecrypt) R.string.task_storage_decrypting else R.string.task_storage_loading
             ))
@@ -1213,47 +1215,70 @@ open class StorageViewModel(
 
     // region StorageProperties
 
-    var quicklyNode: TetroidNode?
-        get() {
-            val nodeId = storage?.quickNodeId
-            if (nodeId != null && isStorageLoaded() && !isLoadedFavoritesOnly()) {
-                // TODO ?
-                return runBlocking { getNode(nodeId) }
-            }
-            return null
-        }
-        set(value) {
-            updateStorageOption(getString(R.string.pref_key_quickly_node_id), value?.id.orEmpty())
-        }
-
     open fun updateStorageOption(key: String, value: Any) {}
 
     suspend fun updateStorageInDb(storage: TetroidStorage): Boolean {
         return storagesRepo.updateStorage(storage)
     }
 
-    fun getFavoriteRecords(): List<TetroidRecord> {
-        return favoritesManager.getFavoriteRecords()
+    // region QuicklyNode
+
+    fun getQuicklyNode(): QuicklyNode {
+        val nodeId = storage?.quickNodeId
+        return when {
+            nodeId == null -> QuicklyNode.IsNotSet
+            !isStorageLoaded() -> QuicklyNode.NeedLoadStorage
+            isLoadedFavoritesOnly() -> QuicklyNode.NeedLoadAllNodes
+            else -> {
+                runBlocking {
+                    getNode(nodeId)
+                }?.let { node ->
+                    QuicklyNode.Loaded(node)
+                } ?: QuicklyNode.NotFound(nodeId)
+            }
+        }
     }
 
-    /**
-     * Задана ли ветка для быстрой вставки в дереве.
-     */
-    fun isQuicklyNodeSet(): Boolean {
-        return storage?.quickNodeId != null
+    fun getQuicklyOrRootNode(): TetroidNode {
+        val quicklyNode = getQuicklyNode()
+        return if (quicklyNode is QuicklyNode.Loaded) {
+            quicklyNode.node
+        } else {
+            getRootNode()
+        }
     }
 
-    /**
-     * Актуализация ветки для быстрой вставки в дереве.
-     */
+    fun getQuicklyNodeOrNull(): TetroidNode? {
+        val quicklyNode = getQuicklyNode()
+        return if (quicklyNode is QuicklyNode.Loaded) {
+            quicklyNode.node
+        } else {
+            null
+        }
+    }
+
+    fun setQuicklyNodeId(nodeId: String) {
+        updateStorageOption(getString(R.string.pref_key_quickly_node_id), nodeId)
+    }
+
     fun updateQuicklyNode() {
         val nodeId = storage?.quickNodeId
         if (nodeId != null && isStorageLoaded() && !isLoadedFavoritesOnly()) {
             launchOnIo {
-                quicklyNode = getNode(nodeId)
+                setQuicklyNodeId(nodeId)
             }
         }
     }
+
+    fun getQuicklyNodeName(): String {
+        return getQuicklyNode().getName(resourcesProvider)
+    }
+
+    fun getQuicklyNodeId(): String? {
+        return storage?.quickNodeId
+    }
+
+    // endregion QuicklyNode
 
     fun clearTrashFolder() {
         launchOnMain {
@@ -1282,19 +1307,13 @@ open class StorageViewModel(
 
     // region Getters
 
-    fun getQuicklyNodeName() = quicklyNode?.name.orEmpty()
-
-    fun getQuicklyNodeNameOrMessage(): String? {
-        return if (storage?.quickNodeId != null) {
-            if (!isStorageLoaded()) {
-                getString(R.string.hint_need_load_storage)
-            } else if (isLoadedFavoritesOnly()) {
-                getString(R.string.hint_need_load_all_nodes)
-            } else quicklyNode?.name
-        } else null
+    fun getFavoriteRecords(): List<TetroidRecord> {
+        return favoritesManager.getFavoriteRecords()
     }
 
-    fun getQuicklyNodeId() = quicklyNode?.id.orEmpty()
+    fun getPathToRecordFolder(record: TetroidRecord): FilePath.Folder {
+        return recordPathProvider.getPathToRecordFolder(record)
+    }
 
     // endregion Getters
 
@@ -1332,10 +1351,6 @@ open class StorageViewModel(
             },
             onRight = { true }
         )
-    }
-
-    fun getPathToRecordFolder(record: TetroidRecord): FilePath.Folder {
-        return recordPathProvider.getPathToRecordFolder(record)
     }
 
     // endregion IStorageCallback

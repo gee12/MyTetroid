@@ -105,7 +105,7 @@ class StorageInfoActivity : TetroidStorageActivity<StorageInfoViewModel>() {
             is StorageEvent.FoundInBase -> onStorageFoundInBase()
             is StorageEvent.Inited -> onStorageInitedOrLoaded(true)
             is StorageEvent.InitFailed -> onStorageInitFailed()
-            is StorageEvent.Loaded -> onStorageInitedOrLoaded(event.result)
+            is StorageEvent.Loaded -> onStorageInitedOrLoaded(event.isLoaded)
             else -> super.onStorageEvent(event)
         }
     }

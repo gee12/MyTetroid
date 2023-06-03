@@ -189,6 +189,9 @@ object ViewModelsModule {
                     editRecordFieldsUseCase = get(),
                     getRecordFolderUseCase = get(),
                     printDocumentToFileUseCase = get(),
+
+                    cryptRecordFilesIfNeedUseCase = get(),
+                    parseRecordTagsUseCase = get(),
                 )
             }
 

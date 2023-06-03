@@ -535,7 +535,14 @@ class MainViewModel(
     /**
      * Создание новой записи.
      */
-    fun createRecord(name: String, tags: String, author: String, url: String, node: TetroidNode, isFavor: Boolean) {
+    fun createRecord(
+        name: String,
+        tags: String,
+        author: String,
+        url: String,
+        node: TetroidNode,
+        isFavorite: Boolean,
+    ) {
         launchOnMain {
             sendEvent(MainEvent.Record.Create.InProcess(name))
 
@@ -547,7 +554,7 @@ class MainViewModel(
                         author = author,
                         url = url,
                         node = node,
-                        isFavor = isFavor,
+                        isFavor = isFavorite,
                     )
                 )
             }.onComplete {
@@ -591,7 +598,7 @@ class MainViewModel(
                         srcName = subject,
                         url = url,
                         text = text,
-                        node = quicklyNode ?: storageProvider.getRootNode(),
+                        node = getQuicklyOrRootNode(),
                     )
                 )
             }.onFailure {
@@ -1220,7 +1227,7 @@ class MainViewModel(
     fun startEncryptNode(node: TetroidNode) {
         val callbackEvent = MainEvent.Node.Encrypt(node)
 
-        if (node == quicklyNode) {
+        if (node.id == getQuicklyNodeId()) {
             showMessage(R.string.mes_quickly_node_cannot_encrypt)
         } else if (!isStorageEncrypted()) {
             launchOnMain {
@@ -2262,7 +2269,7 @@ class MainViewModel(
                     )
                 )
                 // действия после загрузки хранилища
-                sendEvent(StorageEvent.Loaded(result = true))
+                sendEvent(StorageEvent.Loaded(isLoaded = true))
             } else {
                 // проверяем необходимость миграции
                 val mirgationStarted = withIo {

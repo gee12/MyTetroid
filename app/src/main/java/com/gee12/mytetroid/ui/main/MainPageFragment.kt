@@ -284,20 +284,21 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
      */
     fun createRecord() {
         RecordFieldsDialog(
-            null,
-            true,
-            viewModel.curNode,
-            viewModel.getStorageId()
-        ) { name: String, tags: String, author: String, url: String, node: TetroidNode, isFavor: Boolean ->
-            viewModel.createRecord(
-                name = name,
-                tags = tags,
-                author = author,
-                url = url,
-                node = node,
-                isFavor = isFavor
-            )
-        }.showIfPossible(parentFragmentManager)
+            record = null,
+            chooseNode = true,
+            node = viewModel.curNode,
+            storageId = viewModel.getStorageId(),
+            onApply = { name, tags, author, url, node, isFavorite ->
+                viewModel.createRecord(
+                    name = name,
+                    tags = tags,
+                    author = author,
+                    url = url,
+                    node = node,
+                    isFavorite = isFavorite
+                )
+            },
+        ).showIfPossible(parentFragmentManager)
     }
 
     /**

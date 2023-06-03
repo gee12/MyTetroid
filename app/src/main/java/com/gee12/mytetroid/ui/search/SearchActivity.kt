@@ -189,10 +189,8 @@ class SearchActivity : TetroidStorageActivity<StorageViewModel>() {
                 storageId = viewModel.getStorageId(),
                 onApply = { node ->
                     selectedNode = node
-                    if (node != null) {
-                        etNodeName.setText(node.name)
-                        nodeId = node.id
-                    }
+                    etNodeName.setText(node.name)
+                    nodeId = node.id
                 },
                 onProblem = { code ->
                     when (code) {

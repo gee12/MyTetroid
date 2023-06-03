@@ -999,8 +999,8 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     /**
      * Обработчик события после загрузки хранилища.
      */
-    override fun afterStorageLoaded(res: Boolean) {
-        if (res) {
+    override fun afterStorageLoaded(isLoaded: Boolean) {
+        if (isLoaded) {
             // проверяем входящий Intent после загрузки
             checkReceivedIntent(receivedIntent)
             // запускаем отслеживание изменения структуры хранилища

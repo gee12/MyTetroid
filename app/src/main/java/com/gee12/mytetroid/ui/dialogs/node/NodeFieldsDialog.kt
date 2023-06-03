@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.ui.dialogs.node
 
+import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.text.InputType
 import android.text.TextUtils
@@ -46,6 +47,7 @@ class NodeFieldsDialog(
         val etNode = view.findViewById<EditText>(R.id.edit_text_node)
         val bNode = view.findViewById<ImageButton>(R.id.button_node)
 
+        @SuppressLint("SetTextI18n")
         if (BuildConfig.DEBUG && node == null) {
             val rand = Random()
             val num = abs(rand.nextInt())
@@ -83,10 +85,8 @@ class NodeFieldsDialog(
                     storageId = storageId,
                     onApply = { node ->
                         selectedNode = node
-                        if (node != null) {
-                            etNode.setText(node.name)
-                            getPositiveButton()?.isEnabled = !TextUtils.isEmpty(etName.text)
-                        }
+                        etNode.setText(node.name)
+                        getPositiveButton()?.isEnabled = etName.text.isNotEmpty()
                     },
                     onProblem = { code ->
                         when (code) {

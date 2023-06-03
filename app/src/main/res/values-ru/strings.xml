@@ -6,8 +6,11 @@
     <string name="policy_link_html"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Политика конфиденциальности</a>]]></string>
     <string name="hint_date_format_string">Н-р: \"dd MMM yyyy HH:mm\"</string>
 
+    <string name="hint_node_is_not_set"><![CDATA[<ветка не указана>]]></string>
     <string name="hint_need_load_storage"><![CDATA[<загрузите хранилище>]]></string>
     <string name="hint_need_load_all_nodes"><![CDATA[<загрузите все ветки>]]></string>
+    <string name="hint_node_not_found"><![CDATA[<ветка не найдена>]]></string>
+    <string name="hint_node_not_decrypted"><![CDATA[<ветка не расшифрована>]]></string>
     <string name="hint_error"><![CDATA[<ошибка>]]></string>
 
     <string name="mes_migration_50">Приложение обновилось на версию 5.0\n
@@ -524,7 +527,7 @@
     <string name="ask_clear_saved_pass_hash">Очистить сохраненный хэш пароля?</string>
     <string name="ask_dir_not_empty">Выбранный каталог не пуст. Все равно продолжить?</string>
     <string name="ask_load_storage">Сначала нужно загрузить хранилище в главном окне. Загрузить?</string>
-    <string name="ask_load_all_nodes">Сначала нужно загрузить все ветки хранилища в главном окне. Загрузить?</string>
+    <string name="ask_load_all_nodes">Сначала нужно загрузить все ветки хранилища. Загрузить?</string>
     <string name="ask_permission_termux">Необходимо разрешение на запуск команд Termux. Предоставить ?</string>
     <string name="ask_open_attaches">Открыть список прикрепленных файлов ?</string>
     <string name="ask_delete_storage_title">Удаление хранилища</string>
@@ -572,9 +575,9 @@
     <string name="title_storage_not_loaded">Хранилище не загружено</string>
     <string name="log_app_start_mask">Запуск приложения. Версия %s</string>
     <string name="log_storage_loaded_mask">Хранилище «%s» загружено</string>
-    <string name="log_default_storage_loaded_mask">Основоное хранилище «%s» загружено</string>
+    <string name="log_default_storage_loaded_mask">Основное хранилище «%s» загружено</string>
     <string name="log_storage_loaded_decrypted_mask">Хранилище «%s» загружено и расшифровано</string>
-    <string name="log_default_storage_loaded_decrypted_mask">Основоное хранилище «%s» загружено и расшифровано</string>
+    <string name="log_default_storage_loaded_decrypted_mask">Основное хранилище «%s» загружено и расшифровано</string>
     <string name="log_storage_favor_loaded_mask">Избранные записи хранилища «%s» загружены</string>
     <string name="log_show_pass_dialog">Запуск диалога ввода пароля</string>
     <string name="log_storage_config_loaded_mask">Конфигурация хранилища загружена: %s</string>

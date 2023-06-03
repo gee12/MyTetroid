@@ -85,7 +85,7 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment(), ITetroidFi
                         viewModel.showMessage(R.string.pref_quickly_node_not_available)
                     }
                     else -> {
-                        showNodeChooserDialog()
+                        showQuicklyNodeChooserDialog()
                     }
                 }
                 true
@@ -116,7 +116,7 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment(), ITetroidFi
         updateSummary(R.string.pref_key_storage_path, path)
         updateSummary(R.string.pref_key_storage_name, viewModel.getStorageName())
         updateSummary(R.string.pref_key_temp_path, viewModel.getStorageTrashFolderPath().fullPath)
-        updateSummary(R.string.pref_key_quickly_node_id, viewModel.getQuicklyNodeNameOrMessage(), getString(R.string.pref_quickly_node_summ))
+        updateSummary(R.string.pref_key_quickly_node_id, viewModel.getQuicklyNodeName(), getString(R.string.pref_quickly_node_summ))
     }
 
     override fun onStorageInited(storage: TetroidStorage) {
@@ -128,7 +128,7 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment(), ITetroidFi
             )
         }
 
-        updateSummary(R.string.pref_key_quickly_node_id, viewModel.getQuicklyNodeNameOrMessage(), getString(R.string.pref_quickly_node_summ))
+        updateSummary(R.string.pref_key_quickly_node_id, viewModel.getQuicklyNodeName(), getString(R.string.pref_quickly_node_summ))
     }
 
     // endregion Storage
@@ -159,16 +159,16 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment(), ITetroidFi
 
     // endregion File
 
-    private fun showNodeChooserDialog() {
+    private fun showQuicklyNodeChooserDialog() {
         NodeChooserDialog(
-            node = viewModel.quicklyNode,
+            node = viewModel.getQuicklyNodeOrNull(),
             canCrypted = false,
             canDecrypted = false,
             rootOnly = true,
             storageId = viewModel.getStorageId(),
             onApply = { node ->
                 // устанавливаем ветку, если все хорошо
-                viewModel.quicklyNode = node
+                viewModel.setQuicklyNodeId(nodeId = node.id)
             },
             onProblem = { code ->
                 // если хранилище недозагружено, спрашиваем о действиях
