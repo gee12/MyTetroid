@@ -77,6 +77,7 @@ object ViewModelsModule {
                     sensitiveDataProvider = get(),
                     recordPathProvider = get(),
                     dataNameProvider = get(),
+                    storageSettingsProvider = get(),
 
                     storagesRepo = get(),
                     cryptManager = get(),

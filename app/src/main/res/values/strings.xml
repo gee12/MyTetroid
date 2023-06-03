@@ -205,6 +205,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="title_empty_tag"><![CDATA[<no tags>]]></string>
     <string name="title_multiple_tags">TAGS</string>
     <string name="title_tags_search_mode_subtitle">Search by tags:</string>
+    <string name="title_storage_currently_in_use_mask">Storage «%s» is currently in use</string>
 
     <string name="text_intent_create_text">Insert into a new record; Create a new record and add the transferred text</string>
     <string name="text_intent_create_image">Insert into a new record; Create a new record and add the transferred image (s) to its text</string>
@@ -471,8 +472,10 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="state_record_cutting">Record cutting…</string>
     <string name="state_record_deleting">Record deleting…</string>
     <string name="state_node_cutting">Node cutting…</string>
-    <string name="state_node_deleting">Node deleing…</string>
+    <string name="state_node_deleting">Node deleting…</string>
     <string name="state_node_inserting">Node inserting…</string>
+    <string name="state_attach_opening">Attached file opening…</string>
+    <string name="state_attach_deleting">Attached file deleting…</string>
     <string name="state_images_loading">Images loading…</string>
     <string name="state_camera_capturing">Image loading from camera…</string>
     <string name="state_voice_input_start">Starting voice input…</string>
@@ -580,6 +583,8 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="action_tags_search_mode_or">OR</string>
     <string name="action_tags_search_mode_and">AND</string>
     <string name="action_enter_password">Enter password</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_load">Load</string>
 
     <string name="ask_oper_without_record_dir_mask">Record directory is missing. %s anyway ?</string>
     <string name="ask_attach_delete_without_file">File is missing on the disk. Delete anyway ?</string>
@@ -621,12 +626,11 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="ask_open_attaches">Open list of attached files ?</string>
     <string name="ask_delete_storage_title">Removing a storage</string>
     <string name="ask_delete_storage_mask">Remove storage «%s» from the list and clear his trash?</string>
-    <string name="title_storage_currently_in_use_mask">Storage «%s» is currently in use</string>
     <string name="ask_delete_storage_anyway">Remove storage from the list and clear his trash anyway?</string>
     <string name="ask_load_storage_mask">Load storage «%s» ?</string>
     <string name="ask_open_storage_settings">Open storage settings?</string>
-    <string name="action_settings">Settings</string>
-    <string name="action_load">Load</string>
+    <string name="ask_decrypt_attached_files_in_trash_title">Opening an encrypted file</string>
+    <string name="ask_decrypt_attached_files_in_trash_message">The \"Decrypt files to directory\" option is disabled.\nEnable the option and open the file?</string>
 
     <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
     <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
@@ -656,10 +660,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_wrong_saved_pass">Wrong saved pass (value does not match middle_hash_check_data)</string>
     <string name="log_pass_is_incorrect">Password is incorrect</string>
     <string name="log_cur_pass_is_incorrect">Current password is incorrect</string>
-    <string name="log_viewing_decrypted_not_possible">Viewing the encrypted file is not possible. Enable the option "Decrypt to a temporary directory"</string>
-<!--    <string name="log_could_not_decrypt_file">Could not decrypt file&#160;</string>-->
     <string name="log_could_not_create_temp_dir">Could not create temp directory&#160;</string>
-<!--    <string name="log_file_decryption_error">File decryption error:&#160;</string>-->
     <string name="log_storage_load_error">Storage loading error</string>
     <string name="title_storage_not_loaded">Storage not loaded</string>
 <!--    <string name="log_errors_during_decryption">Errors occurred during decryption (more in logs)</string>-->

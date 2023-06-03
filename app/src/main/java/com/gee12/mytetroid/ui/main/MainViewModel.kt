@@ -71,6 +71,7 @@ class MainViewModel(
     storagePathProvider: IStoragePathProvider,
     recordPathProvider: IRecordPathProvider,
     dataNameProvider: IDataNameProvider,
+    private val storageSettingsProvider: IStorageSettingsProvider,
 
     storagesRepo: StoragesRepo,
     cryptManager: IStorageCryptManager,
@@ -1019,7 +1020,9 @@ class MainViewModel(
      */
     private fun saveLastSelectedNode(nodeId: String) {
         if (isKeepLastNode()) {
-            setLastNodeIdAndSaveStorageInDb(nodeId)
+            launchOnIo {
+                setLastNodeIdAndSaveStorageInDb(nodeId)
+            }
         }
     }
 
@@ -1597,11 +1600,11 @@ class MainViewModel(
         curAttaches.addAll(attaches)
     }
 
-    fun checkPermissionAndOpenAttach(activity: Activity, attach: TetroidFile) {
-        if (attach.isNonCryptedOrDecrypted) {
+    fun checkPermissionIfNeedAndOpenAttach(activity: Activity, attach: TetroidFile) {
+        if (!attach.isCrypted) {
             openAttach(activity, attach)
         } else {
-            if (isDecryptAttachesToTemp()) {
+            if (storageSettingsProvider.isDecryptAttachesToTempFolder()) {
                 // будет запрос разрешения на запись расшифрованного файла в память
                 tempAttachToOpen = attach
 
@@ -1617,28 +1620,43 @@ class MainViewModel(
                     )
                 }
             } else {
-                log(R.string.log_viewing_decrypted_not_possible, show = true)
+                launchOnMain {
+                    sendEvent(MainEvent.Attach.Open.RequestToEnableDecryptAttachesToTempFolder(attach))
+                }
             }
         }
     }
 
-    fun checkPermissionAndOpenTempAttach(activity: Activity) {
+    fun openTempAttachAfterCheckPermission(activity: Activity) {
         tempAttachToOpen?.let {
-            checkPermissionAndOpenAttach(activity, it)
+            openAttach(activity, it)
         }
     }
 
     private fun openAttach(activity: Activity, attach: TetroidFile) {
         launchOnMain {
-            getUriFromAttachUseCase.run(
-                PrepareAttachForOpenUseCase.Params(
-                    attach = attach,
+            sendEvent(MainEvent.Attach.Open.InProcess(attach))
+
+            withIo {
+                getUriFromAttachUseCase.run(
+                    PrepareAttachForOpenUseCase.Params(
+                        attach = attach,
+                    )
                 )
-            ).onFailure {
-                logFailure(it)
+            }.onFailure { failure ->
+                logFailure(failure)
+                sendEvent(MainEvent.Attach.Open.Failed(attach, failure))
             }.onSuccess { fileUri ->
+                sendEvent(MainEvent.Attach.Open.Success(attach))
                 interactionManager.openFile(activity, fileUri)
             }
+        }
+    }
+
+    fun enableDecryptAttachesToTempFolderAndOpen(activity: Activity, attach: TetroidFile) {
+        launchOnIo {
+            setIsDecryptToTempAndSaveStorageInDb(value = true)
+            checkPermissionIfNeedAndOpenAttach(activity, attach)
         }
     }
 
@@ -1716,7 +1734,7 @@ class MainViewModel(
      */
     fun pickAndAttachFile() {
         launchOnMain {
-            sendEvent(MainEvent.PickAttach)
+            sendEvent(MainEvent.Attach.OpenPicker)
         }
     }
 
@@ -1745,6 +1763,8 @@ class MainViewModel(
      */
     fun deleteAttach(attach: TetroidFile, withoutFile: Boolean = false) {
         launchOnMain {
+            sendEvent(MainEvent.Attach.Delete.InProcess(attach))
+
             withIo {
                 deleteAttachUseCase.run(
                     DeleteAttachUseCase.Params(
@@ -1752,8 +1772,9 @@ class MainViewModel(
                         withoutFile = withoutFile,
                     )
                 )
-            }.onFailure {
-                when (it) {
+            }.onFailure { failure ->
+                sendEvent(MainEvent.Attach.Delete.Failed(attach, failure))
+                when (failure) {
                     is Failure.File.NotExist -> {
                         sendEvent(MainEvent.AskForOperationWithoutFile(ClipboardParams(LogOper.DELETE, attach)))
                     }
@@ -1761,13 +1782,13 @@ class MainViewModel(
                         sendEvent(MainEvent.AskForOperationWithoutFolder(ClipboardParams(LogOper.DELETE, attach)))
                     }
                     else -> {
-                        logFailure(it)
+                        logFailure(failure)
                     }
                 }
             }.onSuccess {
                 curAttaches.remove(attach)
                 launchOnMain {
-                    sendEvent(MainEvent.AttachDeleted(attach = attach))
+                    sendEvent(MainEvent.Attach.Delete.Success(attach))
                 }
                 // обновляем список записей для удаления иконки о наличии прикрепляемых файлов у записи,
                 // если был удален единственный файл

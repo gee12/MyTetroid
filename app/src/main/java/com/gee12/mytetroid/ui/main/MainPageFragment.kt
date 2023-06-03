@@ -384,7 +384,7 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
      */
     private fun openAttach(position: Int) {
         viewModel.curRecord?.attachedFiles?.getOrNull(position)?.also { attach ->
-            viewModel.checkPermissionAndOpenAttach(activity = requireActivity(), attach)
+            viewModel.checkPermissionIfNeedAndOpenAttach(activity = requireActivity(), attach)
         }
     }
 

@@ -33,7 +33,7 @@ sealed class MainEvent(
             endTaskEvent: Boolean = false,
         ) : Node(node, startTaskEvent, endTaskEvent) {
             class InProcess(node: TetroidNode) : Insert(node, startTaskEvent = true)
-            class Failed(node: TetroidNode, failure: Failure) : Insert(node, endTaskEvent = true)
+            class Failed(node: TetroidNode, val failure: Failure) : Insert(node, endTaskEvent = true)
             class Success(node: TetroidNode) : Insert(node, endTaskEvent = true)
         }
 
@@ -47,7 +47,7 @@ sealed class MainEvent(
             endTaskEvent: Boolean = false,
         ) : Node(node, startTaskEvent, endTaskEvent) {
             class InProcess(node: TetroidNode) : Cut(node, startTaskEvent = true)
-            class Failed(node: TetroidNode, failure: Failure) : Cut(node, endTaskEvent = true)
+            class Failed(node: TetroidNode, val failure: Failure) : Cut(node, endTaskEvent = true)
             class Success(node: TetroidNode) : Cut(node, endTaskEvent = true)
         }
 
@@ -57,7 +57,7 @@ sealed class MainEvent(
             endTaskEvent: Boolean = false,
         ) : Node(node, startTaskEvent, endTaskEvent) {
             class InProcess(node: TetroidNode) : Delete(node, startTaskEvent = true)
-            class Failed(node: TetroidNode, failure: Failure) : Delete(node, endTaskEvent = true)
+            class Failed(node: TetroidNode, val failure: Failure) : Delete(node, endTaskEvent = true)
             class Success(node: TetroidNode) : Delete(node, endTaskEvent = true)
         }
 
@@ -90,7 +90,7 @@ sealed class MainEvent(
             endTaskEvent: Boolean = false,
         ) : Record(startTaskEvent, endTaskEvent) {
             class InProcess(val name: String) : Create(startTaskEvent = true)
-            class Failed(val name: String, failure: Failure) : Create(endTaskEvent = true)
+            class Failed(val name: String, val failure: Failure) : Create(endTaskEvent = true)
             class Success(val record: TetroidRecord) : Create(endTaskEvent = true)
         }
 
@@ -100,7 +100,7 @@ sealed class MainEvent(
             endTaskEvent: Boolean = false,
         ) : Record(startTaskEvent, endTaskEvent) {
             class InProcess(record: TetroidRecord) : Insert(record, startTaskEvent = true)
-            class Failed(record: TetroidRecord, failure: Failure) : Insert(record, endTaskEvent = true)
+            class Failed(record: TetroidRecord, val failure: Failure) : Insert(record, endTaskEvent = true)
             class Success(record: TetroidRecord) : Insert(record, endTaskEvent = true)
         }
 
@@ -110,7 +110,7 @@ sealed class MainEvent(
             endTaskEvent: Boolean = false,
         ) : Record(startTaskEvent, endTaskEvent) {
             class InProcess(record: TetroidRecord) : Cut(record, startTaskEvent = true)
-            class Failed(record: TetroidRecord, failure: Failure) : Cut(record, endTaskEvent = true)
+            class Failed(record: TetroidRecord, val failure: Failure) : Cut(record, endTaskEvent = true)
             class Success(record: TetroidRecord) : Cut(record, endTaskEvent = true)
         }
 
@@ -120,7 +120,7 @@ sealed class MainEvent(
             endTaskEvent: Boolean = false,
         ) : Record(startTaskEvent, endTaskEvent) {
             class InProcess(record: TetroidRecord) : Delete(record, startTaskEvent = true)
-            class Failed(record: TetroidRecord, failure: Failure) : Delete(record, endTaskEvent = true)
+            class Failed(record: TetroidRecord, val failure: Failure) : Delete(record, endTaskEvent = true)
             class Success(record: TetroidRecord) : Delete(record, endTaskEvent = true)
         }
     }
@@ -152,6 +152,22 @@ sealed class MainEvent(
         ) : Tags()
     }
 
+    sealed class Attach : MainEvent() {
+        object OpenPicker : Attach()
+        sealed class Open(val  attach: TetroidFile) : Attach() {
+            class RequestToEnableDecryptAttachesToTempFolder(attach: TetroidFile) : Open(attach)
+            class InProcess(attach: TetroidFile) : Open(attach)
+            class Failed(attach: TetroidFile, val failure: Failure) : Open(attach)
+            class Success(attach: TetroidFile) : Open(attach)
+        }
+        sealed class Delete(val  attach: TetroidFile) : Attach() {
+            class InProcess(attach: TetroidFile) : Delete(attach)
+            class Failed(attach: TetroidFile, val failure: Failure) : Delete(attach)
+            class Success(attach: TetroidFile) : Delete(attach)
+        }
+    }
+
+
     // attaches
     data class ShowAttaches(
         val attaches: List<TetroidFile>,
@@ -168,12 +184,6 @@ sealed class MainEvent(
     data class ReloadAttaches(
         val attaches: List<TetroidFile>,
     ) : MainEvent()
-
-    data class AttachDeleted(
-        val attach: TetroidFile,
-    ) : MainEvent()
-
-    object PickAttach : MainEvent()
 
     data class PickFolderForAttach(val attach: TetroidFile) : MainEvent()
 

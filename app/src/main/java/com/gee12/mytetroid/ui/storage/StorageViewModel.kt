@@ -1304,13 +1304,18 @@ open class StorageViewModel(
         storage?.isDecrypted = value
     }
 
-    fun setLastNodeIdAndSaveStorageInDb(nodeId: String?) {
-        launchOnIo {
-            storage?.also {
-                it.lastNodeId = nodeId
-                updateStorageInDb(storage = it)
-            }
-        }
+    suspend fun setLastNodeIdAndSaveStorageInDb(nodeId: String?): Boolean {
+        return storage?.let {
+            it.lastNodeId = nodeId
+            updateStorageInDb(storage = it)
+        } ?: false
+    }
+
+    suspend fun setIsDecryptToTempAndSaveStorageInDb(value: Boolean): Boolean {
+        return storage?.let {
+            it.isDecryptToTemp = value
+            updateStorageInDb(storage = it)
+        } ?: false
     }
 
     // endregion Setters

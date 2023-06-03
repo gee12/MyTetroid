@@ -201,6 +201,7 @@
     <string name="title_empty_tag"><![CDATA[<без меток>]]></string>
     <string name="title_multiple_tags">МЕТКИ</string>
     <string name="title_tags_search_mode_subtitle">Искать по меткам:</string>
+    <string name="title_storage_currently_in_use_mask">Хранилище «%s» в данный момент используется</string>
 
     <string name="text_intent_create_text">Вставить в новую запись;Создать новую запись и добавить переданный текст</string>
     <string name="text_intent_create_image">Вставить в новую запись;Создать новую запись и добавить переданное(ые) изображение(я) в ее текст</string>
@@ -389,6 +390,8 @@
     <string name="state_node_cutting">Вырезание ветки…</string>
     <string name="state_node_deleting">Удаление ветки…</string>
     <string name="state_node_inserting">Вставка ветки…</string>
+    <string name="state_attach_opening">Открытие прикрепленного файла…</string>
+    <string name="state_attach_deleting">Удаление прикрепленного файла…</string>
     <string name="state_voice_input_start">Запуск голосового ввода…</string>
     <string name="state_voice_input_recognition">Распознавание текста…</string>
     <string name="state_export_to_pdf">Экспорт в pdf…</string>
@@ -483,6 +486,8 @@
     <string name="action_tags_search_mode_or">ИЛИ</string>
     <string name="action_tags_search_mode_and">И</string>
     <string name="action_enter_password">Ввести пароль</string>
+    <string name="action_settings">Настройки</string>
+    <string name="action_load">Загрузить</string>
 
     <string name="ask_exit_from_app">Выйти из приложения?</string>
     <string name="ask_node_delete_mask">Удалить ветку «%s» ?</string>
@@ -524,12 +529,11 @@
     <string name="ask_open_attaches">Открыть список прикрепленных файлов ?</string>
     <string name="ask_delete_storage_title">Удаление хранилища</string>
     <string name="ask_delete_storage_mask">Удалить хранилище «%s» из списка и очистить его корзину?</string>
-    <string name="title_storage_currently_in_use_mask">Хранилище «%s» в данный момент используется</string>
     <string name="ask_delete_storage_anyway">Удалить хранилище из списка и очистить его корзину все равно?</string>
     <string name="ask_load_storage_mask">Загрузить хранилище «%s» ?</string>
     <string name="ask_open_storage_settings">Открыть настройки хранилища ?</string>
-    <string name="action_settings">Настройки</string>
-    <string name="action_load">Загрузить</string>
+    <string name="ask_decrypt_attached_files_in_trash_title">Открытие зашифрованного файла</string>
+    <string name="ask_decrypt_attached_files_in_trash_message">Отключена опция \"Расшифровывать файлы в каталог\".\nВключить опцию и открыть файл?</string>
 
     <string name="subtitle_record_view">ПРОСМОТР</string>
     <string name="subtitle_record_edit">РЕДАКТОР</string>
@@ -563,13 +567,9 @@
     <string name="log_wrong_saved_pass">Неверный сохраненный пароль (значение не совпадает с middle_hash_check_data)</string>
     <string name="log_pass_is_incorrect">Введен неверный пароль</string>
     <string name="log_cur_pass_is_incorrect">Введен неверный текущий пароль</string>
-    <string name="log_viewing_decrypted_not_possible">Предпросмотр зашифрованного файла невозможен. Включите опцию \"расшифровывать во временный каталог\"</string>
-<!--    <string name="log_could_not_decrypt_file">Не удалось расшифровать файл&#160;</string>-->
     <string name="log_could_not_create_temp_dir">Не удалось создать временный каталог&#160;</string>
-<!--    <string name="log_file_decryption_error">Ошибка расшифровки файла:</string>-->
     <string name="log_storage_load_error">Ошибка загрузки хранилища</string>
     <string name="title_storage_not_loaded">Хранилище не загружено</string>
-<!--    <string name="log_errors_during_decryption">При расшифровке произошли ошибки (подробнее в логах)</string>-->
     <string name="log_app_start_mask">Запуск приложения. Версия %s</string>
     <string name="log_storage_loaded_mask">Хранилище «%s» загружено</string>
     <string name="log_default_storage_loaded_mask">Основоное хранилище «%s» загружено</string>

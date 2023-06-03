@@ -50,7 +50,6 @@ import com.gee12.mytetroid.ui.dialogs.pass.PassDialogs.showPasswordEnterDialog
 import com.gee12.mytetroid.ui.dialogs.pin.PinCodeDialog.Companion.showDialog
 import com.gee12.mytetroid.ui.dialogs.pin.PinCodeDialog.IPinInputResult
 import com.gee12.mytetroid.ui.dialogs.storage.StorageDialogs
-import com.gee12.mytetroid.ui.dialogs.tag.TagFieldsDialog
 import com.gee12.mytetroid.ui.main.found.FoundPageFragment
 import com.gee12.mytetroid.ui.tag.TagsFragment
 import com.gee12.mytetroid.ui.node.NodesListAdapter
@@ -447,14 +446,14 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                     isMultiTagsMode = event.isMultiTagsMode,
                 )
             }
+            is MainEvent.Attach -> {
+                onAttachEvent(event)
+            }
             is MainEvent.ShowAttaches -> {
                 mainPage.showAttaches(event.attaches)
             }
             is MainEvent.AttachesFiltered -> {
                 mainPage.onAttachesFiltered(event.query, event.attaches)
-            }
-            is MainEvent.AttachDeleted -> {
-                mainPage.onDeleteAttachResult(event.attach)
             }
             MainEvent.UpdateAttaches -> {
                 mainPage.updateAttachesList()
@@ -479,9 +478,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             }
             is MainEvent.AskForOperationWithoutFile -> {
                 askForOperationWithoutFile(clipboardParams = event.clipboardParams)
-            }
-            MainEvent.PickAttach -> {
-                openFilePickerForAttach()
             }
             is MainEvent.PickFolderForAttach -> {
                 openFolderPickerForAttach()
@@ -598,6 +594,43 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         }
     }
 
+    private fun onAttachEvent(event: MainEvent.Attach) {
+        when (event) {
+            MainEvent.Attach.OpenPicker -> {
+                openFilePickerForAttach()
+            }
+            is MainEvent.Attach.Open.RequestToEnableDecryptAttachesToTempFolder -> {
+                AskDialogs.showYesNoDialog(
+                    context = this,
+                    isCancelable = true,
+                    titleResId = R.string.ask_decrypt_attached_files_in_trash_title,
+                    messageResId = R.string.ask_decrypt_attached_files_in_trash_message,
+                    onApply = {
+                        viewModel.enableDecryptAttachesToTempFolderAndOpen(activity = this, attach = event.attach)
+                    },
+                    onCancel = {},
+                )
+            }
+            is MainEvent.Attach.Open.InProcess -> {
+                showProgress(R.string.state_attach_opening)
+            }
+            is MainEvent.Attach.Open.Failed,
+            is MainEvent.Attach.Open.Success -> {
+                hideProgress()
+            }
+            is MainEvent.Attach.Delete.InProcess -> {
+                showProgress(R.string.state_attach_deleting)
+            }
+            is MainEvent.Attach.Delete.Failed -> {
+                hideProgress()
+            }
+            is MainEvent.Attach.Delete.Success -> {
+                hideProgress()
+                mainPage.onDeleteAttachResult(attach = event.attach)
+            }
+        }
+    }
+
     // endregion Events
 
     // region Permissions
@@ -649,7 +682,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 }
             }
             PermissionRequestCode.OPEN_ATTACH_FILE -> {
-                viewModel.checkPermissionAndOpenTempAttach(activity = this)
+                viewModel.openTempAttachAfterCheckPermission(activity = this)
             }
             PermissionRequestCode.TERMUX -> {
                 viewModel.syncAndInitStorage(this)

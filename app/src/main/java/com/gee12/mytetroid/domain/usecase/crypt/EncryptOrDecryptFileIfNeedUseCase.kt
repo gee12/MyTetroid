@@ -46,7 +46,7 @@ class EncryptOrDecryptFileIfNeedUseCase(
         val srcFile = params.srcFile
         val destFile = params.destFile
 
-        return if (srcFile.id == destFile.id) {
+        return if (srcFile.uri.path == destFile.uri.path) {
             encryptOrDecryptOneFile(srcFile, isEncrypt)
         } else {
             encryptOrDecryptDifferentFiles(srcFile, destFile, isEncrypt)

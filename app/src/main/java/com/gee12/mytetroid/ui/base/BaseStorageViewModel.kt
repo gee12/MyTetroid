@@ -69,11 +69,6 @@ abstract class BaseStorageViewModel(
 
     // endregion Permissions
 
-    //region Event
-
-    //endregion Event
-
-
     //region Getters
 
     fun getRootNode() = storageProvider.getRootNode()
@@ -121,8 +116,6 @@ abstract class BaseStorageViewModel(
     fun getLastNodeId() = storage?.lastNodeId
 
     fun isSaveMiddlePassLocal() = storage?.isSavePassLocal.orFalse()
-
-    fun isDecryptAttachesToTemp() = storage?.isDecryptToTemp.orFalse()
 
     fun getMiddlePassHash() = storage?.middlePassHash
 
