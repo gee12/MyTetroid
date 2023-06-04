@@ -43,6 +43,15 @@ android {
             applicationIdSuffix = '.pro'
             buildConfigField "String", "DEF_APPLICATION_ID", '"'+android.defaultConfig.applicationId+'"'
         }
+        /*googlePlayFree {
+            dimension = 'default'
+            buildConfigField "String", "DEF_APPLICATION_ID", '"'+android.defaultConfig.applicationId+'"'
+        }
+        googlePlayPro {
+            dimension = 'default'
+            applicationIdSuffix = '.pro'
+            buildConfigField "String", "DEF_APPLICATION_ID", '"'+android.defaultConfig.applicationId+'"'
+        }*/
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

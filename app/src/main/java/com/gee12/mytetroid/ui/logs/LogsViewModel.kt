@@ -8,6 +8,7 @@ import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
+import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 import com.gee12.mytetroid.domain.provider.IAppPathProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -17,6 +18,7 @@ import kotlin.coroutines.CoroutineContext
 
 class LogsViewModel(
     app: Application,
+    buildInfoProvider: BuildInfoProvider,
     resourcesProvider: IResourcesProvider,
     logger: ITetroidLogger,
     notificator: INotificator,
@@ -25,6 +27,7 @@ class LogsViewModel(
     appPathProvider: IAppPathProvider,
 ) : BaseViewModel(
     application = app,
+    buildInfoProvider = buildInfoProvider,
     resourcesProvider = resourcesProvider,
     logger = logger,
     notificator = notificator,

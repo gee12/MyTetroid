@@ -27,19 +27,20 @@ import com.gee12.mytetroid.model.FilePath
 
 class StoragesViewModel(
     app: Application,
+    buildInfoProvider: BuildInfoProvider,
     resourcesProvider: IResourcesProvider,
     logger: ITetroidLogger,
     notificator: INotificator,
     failureHandler: IFailureHandler,
     settingsManager: CommonSettingsManager,
     appPathProvider: IAppPathProvider,
-    private val buildInfoProvider: BuildInfoProvider,
     private val storagesRepo: StoragesRepo,
     private val checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
     private val initStorageFromDefaultSettingsUseCase: InitStorageFromDefaultSettingsUseCase,
     private val deleteStorageUseCase: DeleteStorageUseCase,
 ) : BaseViewModel(
     application = app,
+    buildInfoProvider = buildInfoProvider,
     resourcesProvider = resourcesProvider,
     logger = logger,
     notificator = notificator,

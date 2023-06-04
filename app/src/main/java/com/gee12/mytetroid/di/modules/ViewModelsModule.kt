@@ -310,6 +310,7 @@ object ViewModelsModule {
             viewModel {
                 IconsViewModel(
                     app = androidApplication(),
+                    buildInfoProvider = get(),
                     resourcesProvider = get(),
                     logger = get(),
                     notificator = get(),
@@ -343,6 +344,7 @@ object ViewModelsModule {
         viewModel {
             LogsViewModel(
                 app = androidApplication(),
+                buildInfoProvider = get(),
                 resourcesProvider = get(),
                 logger = get(),
                 notificator = get(),

@@ -74,6 +74,7 @@ object ManagersModule {
         single {
             FileStorageManager(
                 context = androidContext(),
+                buildInfoProvider = get(),
             )
         }
 

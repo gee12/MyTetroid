@@ -9,10 +9,7 @@ import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidIcon
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
-import com.gee12.mytetroid.domain.provider.IAppPathProvider
-import com.gee12.mytetroid.domain.provider.IResourcesProvider
-import com.gee12.mytetroid.domain.provider.IStoragePathProvider
-import com.gee12.mytetroid.domain.provider.IStorageProvider
+import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.domain.usecase.image.LoadDrawableFromFileUseCase
 import com.gee12.mytetroid.domain.usecase.node.icon.GetIconsFolderNamesUseCase
 import com.gee12.mytetroid.domain.usecase.node.icon.GetNodesIconsFromFolderUseCase
@@ -21,6 +18,7 @@ import java.io.File
 
 class IconsViewModel(
     app: Application,
+    buildInfoProvider: BuildInfoProvider,
     resourcesProvider: IResourcesProvider,
     logger: ITetroidLogger,
     notificator: INotificator,
@@ -34,6 +32,7 @@ class IconsViewModel(
     private val loadDrawableFromFileUseCase: LoadDrawableFromFileUseCase,
 ) : BaseStorageViewModel(
     app = app,
+    buildInfoProvider = buildInfoProvider,
     resourcesProvider = resourcesProvider,
     logger = logger,
     notificator = notificator,

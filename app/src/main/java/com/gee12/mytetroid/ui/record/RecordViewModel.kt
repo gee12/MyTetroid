@@ -59,6 +59,7 @@ import java.io.File
 
 class RecordViewModel(
     app: Application,
+    buildInfoProvider: BuildInfoProvider,
     resourcesProvider: IResourcesProvider,
     logger: ITetroidLogger,
     notificator: INotificator,
@@ -66,7 +67,6 @@ class RecordViewModel(
 
     settingsManager: CommonSettingsManager,
     appPathProvider: IAppPathProvider,
-    buildInfoProvider: BuildInfoProvider,
     storageProvider: IStorageProvider,
     sensitiveDataProvider: ISensitiveDataProvider,
     storagePathProvider: IStoragePathProvider,
@@ -112,6 +112,7 @@ class RecordViewModel(
     parseRecordTagsUseCase: ParseRecordTagsUseCase,
 ): StorageViewModel(
     app = app,
+    buildInfoProvider = buildInfoProvider,
     resourcesProvider = resourcesProvider,
     logger = logger,
     notificator = notificator,
@@ -119,7 +120,6 @@ class RecordViewModel(
 
     settingsManager = settingsManager,
     appPathProvider = appPathProvider,
-    buildInfoProvider = buildInfoProvider,
     storageProvider = storageProvider,
     sensitiveDataProvider = sensitiveDataProvider,
     storagePathProvider = storagePathProvider,

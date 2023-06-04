@@ -17,6 +17,7 @@ import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.manager.FileStorageManager
 import com.gee12.mytetroid.domain.manager.PermissionManager
+import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 import com.gee12.mytetroid.domain.provider.IAppPathProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.*
@@ -30,6 +31,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 
 abstract class BaseViewModel(
     application: Application,
+    val buildInfoProvider: BuildInfoProvider,
     val resourcesProvider: IResourcesProvider,
     val logger: ITetroidLogger,
     val notificator: INotificator,
@@ -49,9 +51,8 @@ abstract class BaseViewModel(
 
     var isBusy = false
 
-    // TODO: inject
-    val permissionManager = PermissionManager(resourcesProvider, this.logger)
-    val fileStorageManager = FileStorageManager(context = application)
+    val permissionManager = PermissionManager(buildInfoProvider, resourcesProvider, this.logger)
+    val fileStorageManager = FileStorageManager(context = application, buildInfoProvider)
 
     private val _messageEventFlow = MutableSharedFlow<Message>(extraBufferCapacity = 0)
     val messageEventFlow = _messageEventFlow.asSharedFlow()

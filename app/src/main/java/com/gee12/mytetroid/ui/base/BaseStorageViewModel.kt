@@ -10,10 +10,7 @@ import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.model.TetroidTag
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
-import com.gee12.mytetroid.domain.provider.IAppPathProvider
-import com.gee12.mytetroid.domain.provider.IResourcesProvider
-import com.gee12.mytetroid.domain.provider.IStoragePathProvider
-import com.gee12.mytetroid.domain.provider.IStorageProvider
+import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.model.FilePath
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.model.permission.TetroidPermission
@@ -24,6 +21,7 @@ import kotlin.coroutines.CoroutineContext
 
 abstract class BaseStorageViewModel(
     app: Application,
+    buildInfoProvider: BuildInfoProvider,
     resourcesProvider: IResourcesProvider,
     logger: ITetroidLogger,
     notificator: INotificator,
@@ -34,6 +32,7 @@ abstract class BaseStorageViewModel(
     val storagePathProvider: IStoragePathProvider,
 ) : BaseViewModel(
     application = app,
+    buildInfoProvider = buildInfoProvider,
     resourcesProvider = resourcesProvider,
     logger = logger,
     notificator = notificator,

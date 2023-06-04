@@ -48,6 +48,7 @@ import java.util.*
 
 open class StorageViewModel(
     app: Application,
+    buildInfoProvider: BuildInfoProvider,
     resourcesProvider: IResourcesProvider,
     logger: ITetroidLogger,
     notificator: INotificator,
@@ -57,7 +58,6 @@ open class StorageViewModel(
     appPathProvider: IAppPathProvider,
     storageProvider: IStorageProvider,
     storagePathProvider: IStoragePathProvider,
-    val buildInfoProvider: BuildInfoProvider,
     val sensitiveDataProvider: ISensitiveDataProvider,
     val storagesRepo: StoragesRepo,
     val recordPathProvider: IRecordPathProvider,
@@ -87,6 +87,7 @@ open class StorageViewModel(
     protected val getRecordByIdUseCase: GetRecordByIdUseCase,
 ) : BaseStorageViewModel(
     app = app,
+    buildInfoProvider = buildInfoProvider,
     resourcesProvider = resourcesProvider,
     logger = logger,
     notificator = notificator,
@@ -280,7 +281,8 @@ open class StorageViewModel(
                     } else {
                         requestFileStorageAccess(
                             permission = TetroidPermission.FileStorage.Write(storageRoot),
-                            requestCode = PermissionRequestCode.OPEN_STORAGE_FOLDER,)
+                            requestCode = PermissionRequestCode.OPEN_STORAGE_FOLDER,
+                        )
                     }
                 }
             }

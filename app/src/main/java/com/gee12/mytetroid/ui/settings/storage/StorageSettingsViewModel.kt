@@ -27,12 +27,12 @@ import com.gee12.mytetroid.ui.storage.StorageViewModel
 
 class StorageSettingsViewModel(
     app: Application,
+    buildInfoProvider: BuildInfoProvider,
     resourcesProvider: IResourcesProvider,
     logger: ITetroidLogger,
     notificator: INotificator,
     failureHandler: IFailureHandler,
 
-    buildInfoProvider: BuildInfoProvider,
     appPathProvider: IAppPathProvider,
     settingsManager: CommonSettingsManager,
     storageProvider: IStorageProvider,
@@ -70,6 +70,7 @@ class StorageSettingsViewModel(
     getRecordByIdUseCase: GetRecordByIdUseCase,
 ) : StorageViewModel(
     app = app,
+    buildInfoProvider = buildInfoProvider,
     resourcesProvider = resourcesProvider,
     logger = logger,
     notificator = notificator,
@@ -77,7 +78,6 @@ class StorageSettingsViewModel(
 
     settingsManager = settingsManager,
     appPathProvider = appPathProvider,
-    buildInfoProvider = buildInfoProvider,
     storageProvider = storageProvider,
     sensitiveDataProvider = sensitiveDataProvider,
     storagePathProvider = storagePathProvider,

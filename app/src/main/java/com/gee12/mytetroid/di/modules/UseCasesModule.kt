@@ -38,6 +38,7 @@ object UseCasesModule {
 
         single {
             PermissionManager(
+                buildInfoProvider = get(),
                 logger = get(),
                 resourcesProvider = get(),
             )

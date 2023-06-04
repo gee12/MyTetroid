@@ -22,16 +22,17 @@ import kotlin.coroutines.CoroutineContext
 
 class CommonSettingsViewModel(
     app: Application,
+    buildInfoProvider: BuildInfoProvider,
     resourcesProvider: IResourcesProvider,
     logger: ITetroidLogger,
     notificator: INotificator,
-    val buildInfoProvider: BuildInfoProvider,
     failureHandler: IFailureHandler,
     settingsManager: CommonSettingsManager,
     appPathProvider: IAppPathProvider,
     private val clearAllStoragesTrashFolderUseCase: ClearAllStoragesTrashFolderUseCase,
 ) : BaseViewModel(
     application = app,
+    buildInfoProvider = buildInfoProvider,
     resourcesProvider = resourcesProvider,
     logger = logger,
     notificator = notificator,

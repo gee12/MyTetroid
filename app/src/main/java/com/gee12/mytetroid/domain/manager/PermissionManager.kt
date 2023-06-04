@@ -9,9 +9,11 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.Settings
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
@@ -20,13 +22,16 @@ import com.gee12.mytetroid.model.permission.TetroidPermission
 
 
 class PermissionManager(
+    buildInfoProvider: BuildInfoProvider,
     private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
 ) {
     companion object {
         const val PERMISSION_TERMUX = "com.termux.permission.RUN_COMMAND"
-        const val IS_HAS_ALL_FILES_ACCESS = false // has permission MANAGE_EXTERNAL_STORAGE
     }
+
+    // has permission MANAGE_EXTERNAL_STORAGE
+    private val hasAllFilesAccess = buildInfoProvider.hasAllFilesAccessVersion()
 
     /**
      * Проверка разрешения на запись во внешнюю память.
@@ -34,7 +39,7 @@ class PermissionManager(
     fun hasWriteExtStoragePermission(context: Context): Boolean {
         return when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-                if (IS_HAS_ALL_FILES_ACCESS) {
+                if (hasAllFilesAccess) {
                     Environment.isExternalStorageManager()
                 } else {
                     // используем SAF, специально разрешения спрашивать не нужно
@@ -48,7 +53,6 @@ class PermissionManager(
                 true
             }
         }
-        //return ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
     }
 
     /**
@@ -60,7 +64,7 @@ class PermissionManager(
         onManualPermissionRequest: (() -> Unit) -> Unit
     ) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (IS_HAS_ALL_FILES_ACCESS) {
+            if (hasAllFilesAccess) {
                 logger.log(activity.getString(R.string.log_permission_request_mask, Manifest.permission.MANAGE_EXTERNAL_STORAGE), false)
                 onManualPermissionRequest {
                     requestManageExternalStoragePermission(activity, requestCode)
@@ -71,9 +75,9 @@ class PermissionManager(
         } else {
             requestPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE, requestCode)
         }
-        //requestPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE, requestCode)
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
     private fun requestManageExternalStoragePermission(activity: Activity, requestCode: PermissionRequestCode) {
         try {
             val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {

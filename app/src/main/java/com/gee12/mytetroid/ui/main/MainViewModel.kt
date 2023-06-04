@@ -57,6 +57,7 @@ import java.util.ArrayList
 
 class MainViewModel(
     app: Application,
+    buildInfoProvider: BuildInfoProvider,
     resourcesProvider: IResourcesProvider,
     logger: ITetroidLogger,
     notificator: INotificator,
@@ -64,7 +65,6 @@ class MainViewModel(
 
     settingsManager: CommonSettingsManager,
     appPathProvider: IAppPathProvider,
-    buildInfoProvider: BuildInfoProvider,
     storageProvider: IStorageProvider,
     favoritesManager: FavoritesManager,
     sensitiveDataProvider: ISensitiveDataProvider,
@@ -131,6 +131,7 @@ class MainViewModel(
     parseRecordTagsUseCase: ParseRecordTagsUseCase,
 ): StorageViewModel(
     app = app,
+    buildInfoProvider = buildInfoProvider,
     resourcesProvider = resourcesProvider,
     logger = logger,
     notificator = notificator,
@@ -138,7 +139,6 @@ class MainViewModel(
 
     settingsManager = settingsManager,
     appPathProvider = appPathProvider,
-    buildInfoProvider = buildInfoProvider,
     storageProvider = storageProvider,
     sensitiveDataProvider = sensitiveDataProvider,
     storagePathProvider = storagePathProvider,

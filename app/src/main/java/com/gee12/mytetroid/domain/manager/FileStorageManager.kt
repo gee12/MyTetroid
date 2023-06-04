@@ -2,12 +2,17 @@ package com.gee12.mytetroid.domain.manager
 
 import android.content.Context
 import android.os.Build
+import android.os.Environment
 import androidx.documentfile.provider.DocumentFile
 import com.anggrayudi.storage.file.*
+import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 
 class FileStorageManager(
     private val context: Context,
+    buildInfoProvider: BuildInfoProvider,
 ) {
+    // has permission MANAGE_EXTERNAL_STORAGE
+    private val hasAllFilesAccess = buildInfoProvider.hasAllFilesAccessVersion()
 
     fun isFileApiUsed(): Boolean {
         return Build.VERSION.SDK_INT <= 29
@@ -20,7 +25,9 @@ class FileStorageManager(
 
     fun checkWriteFileStoragePermission(root: DocumentFile): Boolean {
         // на Android 10 и ниже проверка возвращает false, поэтому на этих устройствах не проверяем
-        return isFileApiUsed() || root.isWritable(context)
+        return isFileApiUsed()
+                || hasAllFilesAccess && Environment.isExternalStorageManager()
+                || root.isWritable(context)
                 /*|| SimpleStorage.hasStorageAccess(
                         context = context,
                         fullPath = root.getAbsolutePath(context),
@@ -37,7 +44,7 @@ class FileStorageManager(
             }
             // если версия Android еще использует File Api, то преобразуем uri (например, со схемой content://)
             // в формат для File Api (uri со схемой file://)
-            isFileApiUsed() -> {
+            isFileApiUsed() || hasAllFilesAccess -> {
                 DocumentFileCompat.fromFullPath(
                     context = context,
                     fullPath = folder.getAbsolutePath(context),

@@ -27,6 +27,7 @@ import kotlinx.coroutines.*
 
 class StorageInfoViewModel(
     app: Application,
+    buildInfoProvider: BuildInfoProvider,
     resourcesProvider: IResourcesProvider,
     logger: ITetroidLogger,
     notificator: INotificator,
@@ -34,7 +35,6 @@ class StorageInfoViewModel(
 
     settingsManager: CommonSettingsManager,
     appPathProvider: IAppPathProvider,
-    buildInfoProvider: BuildInfoProvider,
     storageProvider: IStorageProvider,
     sensitiveDataProvider: ISensitiveDataProvider,
     dataNameProvider: IDataNameProvider,
@@ -70,6 +70,7 @@ class StorageInfoViewModel(
     private val parseRecordTagsUseCase: ParseRecordTagsUseCase,
 ) : StorageViewModel(
     app = app,
+    buildInfoProvider = buildInfoProvider,
     resourcesProvider = resourcesProvider,
     logger = logger,
     notificator = notificator,
@@ -77,7 +78,6 @@ class StorageInfoViewModel(
 
     settingsManager = settingsManager,
     appPathProvider = appPathProvider,
-    buildInfoProvider = buildInfoProvider,
     storageProvider = storageProvider,
     sensitiveDataProvider = sensitiveDataProvider,
     storagePathProvider = storagePathProvider,
