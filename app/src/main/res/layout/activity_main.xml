@@ -137,7 +137,7 @@
         app:headerLayout="@layout/nav_view_header_right">
 
         <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/fragment_container"
+            android:id="@+id/fragment_container_right"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="?attr/actionBarSize"

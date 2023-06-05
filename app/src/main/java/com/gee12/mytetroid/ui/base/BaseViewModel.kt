@@ -44,6 +44,11 @@ abstract class BaseViewModel(
         CoroutineExceptionHandler { _, throwable ->
             throwable.printStackTrace()
             logError(throwable)
+            if (isBusy) {
+                launchOnMain {
+                    sendEvent(BaseEvent.HideProgress)
+                }
+            }
         }
 
     private val _eventFlow = MutableSharedFlow<BaseEvent>(extraBufferCapacity = 0)
@@ -299,13 +304,7 @@ abstract class BaseViewModel(
         if (show) {
             showError(message.title)
         }
-        val messageString = buildString {
-            appendLine(message.title)
-            if (!message.message.isNullOrBlank()) {
-                append(message.message)
-            }
-        }
-        logger.logError(messageString, show = false)
+        logger.logError(message.getFullMassage(), show = false)
     }
 
     // common
@@ -384,8 +383,8 @@ abstract class BaseViewModel(
     }
 
     fun showFailure(failure: Failure) {
-        val message = failureHandler.getFailureMessage(failure)
-        showMessage(message.title, LogType.ERROR)
+        val message = failureHandler.getFailureMessage(failure).getFullMassage()
+        showMessage(message, LogType.ERROR)
     }
 
     fun showMessage(message: String, type: LogType) {

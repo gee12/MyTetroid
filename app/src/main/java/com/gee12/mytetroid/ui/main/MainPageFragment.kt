@@ -54,7 +54,12 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
     }
 
     override fun createViewModel() {
-        viewModel = (requireActivity() as MainActivity).viewModel
+        // TODO:
+        val mainActivity = requireActivity() as MainActivity
+        if (!mainActivity.isViewModelInited()) {
+            throw Exception("MainActivity viewModel is not inited")
+        }
+        viewModel = mainActivity.viewModel
     }
 
     fun getTitle(): String {

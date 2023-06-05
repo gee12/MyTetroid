@@ -55,6 +55,11 @@ abstract class TetroidActivity<VM : BaseViewModel>
 
     lateinit var viewModel: VM
 
+    // TODO:
+    fun isViewModelInited(): Boolean {
+        return ::viewModel.isInitialized
+    }
+
     val resourcesProvider: IResourcesProvider by inject()
     val settingsManager: CommonSettingsManager by inject()
     val appPathProvider: IAppPathProvider by inject()
@@ -257,9 +262,9 @@ abstract class TetroidActivity<VM : BaseViewModel>
     ) {
         requestCodeForStorageAccess = requestCode
         //fileStorageHelper.requestStorageAccess(
-        fileStorageHelper.openFolderPicker(
-            requestCode = requestCode.code,
-            initialPath = FileFullPath(this, fullPath = root.uri.toString()),
+        openFolderPicker(
+            requestCode = requestCode,
+            initialPath = root.uri.toString(),
         )
     }
 

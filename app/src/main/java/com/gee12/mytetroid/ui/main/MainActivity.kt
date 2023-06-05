@@ -173,12 +173,12 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
         // метки
         fragmentTags = TagsFragment()
-        if (savedInstanceState == null) {
-            supportFragmentManager.commit {
-                replace(R.id.fragment_container, fragmentTags)
-                setReorderingAllowed(true)
-            }
+        //if (savedInstanceState == null) {
+        supportFragmentManager.commit {
+            replace(R.id.fragment_container_right, fragmentTags)
+            setReorderingAllowed(true)
         }
+        //}
 
         val tagsNavView = drawerLayout.findViewById<NavigationView>(R.id.nav_view_right)
         val vTagsHeader = tagsNavView.getHeaderView(0)

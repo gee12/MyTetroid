@@ -81,7 +81,7 @@ class StoragesViewModel(
             CheckStorageFilesExistingUseCase.Params(storage)
         ).foldResult(
             onLeft = {
-                failureHandler.getFailureMessage(it).title
+                failureHandler.getFailureMessage(it).getFullMassage()
             },
             onRight = { result ->
                 when (result) {

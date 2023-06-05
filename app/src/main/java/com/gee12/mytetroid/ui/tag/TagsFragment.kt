@@ -91,16 +91,16 @@ class TagsFragment : TetroidFragment<MainViewModel>() {
         }
 
         // onViewCreated не всегда вызывается
-        createListAdapters()
+        //createListAdapters()
 
         return view
     }
 
-    /*override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         createListAdapters()
-    }*/
+    }
 
     private fun createListAdapters() {
         adapterTags = TagsListAdapter(
