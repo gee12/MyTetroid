@@ -9,25 +9,22 @@ import android.view.ViewGroup
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.core.view.GestureDetectorCompat
-import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
-import com.anggrayudi.storage.SimpleStorageHelper
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
-import com.gee12.mytetroid.ui.TetroidMessage
+import com.gee12.mytetroid.logs.ITetroidLogger
 import org.koin.android.ext.android.inject
 import org.koin.core.scope.Scope
-import org.koin.core.scope.get
 
-abstract class TetroidFragment<VM : BaseStorageViewModel> : Fragment/*, ITetroidComponent*/, View.OnTouchListener {
+abstract class TetroidFragment<VM : BaseStorageViewModel> : Fragment, View.OnTouchListener {
 
     protected lateinit var scopeSource: ScopeSource
     protected val koinScope: Scope
         get() = scopeSource.scope
 
-    protected open lateinit var viewModel: VM
+    private lateinit var logger: ITetroidLogger
 
     val resourcesProvider: IResourcesProvider by inject()
     val settingsManager: CommonSettingsManager by inject()
@@ -48,25 +45,14 @@ abstract class TetroidFragment<VM : BaseStorageViewModel> : Fragment/*, ITetroid
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
 
         createAndInitViewModel()
+
+        logger.logDebug(getString(R.string.log_fragment_opened_mask, javaClass.simpleName))
         return inflater.inflate(getLayoutResourceId(), container, false)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if (!isViewModelInited()) {
-            createAndInitViewModel()
-        }
-    }
-
-    protected fun isViewModelInited(): Boolean {
-        return ::viewModel.isInitialized
     }
 
     protected fun createAndInitViewModel() {
         createDependencyScope()
         afterCreateDependencyScope()
-        createViewModel()
-        initViewModel()
     }
 
     protected open fun createDependencyScope() {
@@ -74,14 +60,7 @@ abstract class TetroidFragment<VM : BaseStorageViewModel> : Fragment/*, ITetroid
     }
 
     protected open fun afterCreateDependencyScope() {
-    }
-
-    protected open fun createViewModel() {
-        viewModel = koinScope.get(getViewModelClazz())
-    }
-
-    protected open fun initViewModel() {
-        viewModel.logDebug(getString(R.string.log_fragment_opened_mask, javaClass.simpleName))
+        logger = koinScope.get()
     }
 
     /**

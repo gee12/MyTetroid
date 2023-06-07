@@ -55,11 +55,6 @@ abstract class TetroidActivity<VM : BaseViewModel>
 
     lateinit var viewModel: VM
 
-    // TODO:
-    fun isViewModelInited(): Boolean {
-        return ::viewModel.isInitialized
-    }
-
     val resourcesProvider: IResourcesProvider by inject()
     val settingsManager: CommonSettingsManager by inject()
     val appPathProvider: IAppPathProvider by inject()
@@ -78,7 +73,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
     protected var isOnCreateProcessed = false
     protected var isUICreated = false
 
-    lateinit var fileStorageHelper: SimpleStorageHelper
+    var fileStorageHelper: SimpleStorageHelper? = null
 
     private var requestCodeForStorageAccess: PermissionRequestCode? = null
 
@@ -121,7 +116,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
             fileStorageHelper = SimpleStorageHelper(this, savedInstanceState)
             // ради оптимизации удаляются "повторные" persistable uri, к которым юзер предоставил доступ в SAF,
             // и оставляются только "родительские", из-за чего происходит циклический запрос доступа на Android >= 11
-            fileStorageHelper.storage.isCleanupRedundantUriPermissions = false
+            fileStorageHelper?.storage?.isCleanupRedundantUriPermissions = false //
             initFileStorage(savedInstanceState)
         }
 
@@ -270,29 +265,29 @@ abstract class TetroidActivity<VM : BaseViewModel>
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        fileStorageHelper.storage.checkIfFileReceived(intent)
+        fileStorageHelper?.storage?.checkIfFileReceived(intent)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        fileStorageHelper.onSaveInstanceState(outState)
+        fileStorageHelper?.onSaveInstanceState(outState)
         super.onSaveInstanceState(outState)
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        fileStorageHelper.onRestoreInstanceState(savedInstanceState)
+        fileStorageHelper?.onRestoreInstanceState(savedInstanceState)
     }
 
     // TODO: в отдельный FileStorageManager
     private fun initFileStorage(savedInstanceState: Bundle?) {
-        savedInstanceState?.let { fileStorageHelper.onRestoreInstanceState(it) }
-        fileStorageHelper.onStorageAccessGranted = { requestCode, root ->
+        savedInstanceState?.let { fileStorageHelper?.onRestoreInstanceState(it) }
+        fileStorageHelper?.onStorageAccessGranted = { requestCode, root ->
             onStorageAccessGranted(requestCode, root)
         }
-        fileStorageHelper.onFileSelected = { requestCode, files ->
+        fileStorageHelper?.onFileSelected = { requestCode, files ->
             onFileSelected(requestCode, files)
         }
-        fileStorageHelper.onFolderSelected = { requestCode, folder ->
+        fileStorageHelper?.onFolderSelected = { requestCode, folder ->
             // сохраняем путь
             settingsManager.setLastSelectedFolderPath(path = folder.uri.toString())
 
@@ -316,7 +311,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
             }
         }*/
         if (savedInstanceState == null) {
-            fileStorageHelper.storage.checkIfFileReceived(intent)
+            fileStorageHelper?.storage?.checkIfFileReceived(intent)
         }
     }
 
@@ -337,7 +332,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
     ) {
         val path = initialPath ?: settingsManager.getLastSelectedFolderPathOrDefault(true)
         try {
-            fileStorageHelper.openFilePicker(
+            fileStorageHelper?.openFilePicker(
                 requestCode = requestCode.code,
                 allowMultiple = allowMultiple,
                 initialPath = path?.let { FileFullPath(this, fullPath = it) },
@@ -345,7 +340,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
             )
         } catch (ex: Exception) {
             try {
-                fileStorageHelper.openFilePicker(
+                fileStorageHelper?.openFilePicker(
                     requestCode = requestCode.code,
                     allowMultiple = allowMultiple,
                     initialPath = null,
@@ -365,13 +360,13 @@ abstract class TetroidActivity<VM : BaseViewModel>
     ) {
         val path = initialPath ?: settingsManager.getLastSelectedFolderPathOrDefault(true)
         try {
-            fileStorageHelper.openFolderPicker(
+            fileStorageHelper?.openFolderPicker(
                 requestCode = requestCode.code,
                 initialPath = path?.let { FileFullPath(this, fullPath = it) },
             )
         } catch (ex: Exception) {
             try {
-                fileStorageHelper.openFolderPicker(
+                fileStorageHelper?.openFolderPicker(
                     requestCode = requestCode.code,
                     initialPath = null,
                 )

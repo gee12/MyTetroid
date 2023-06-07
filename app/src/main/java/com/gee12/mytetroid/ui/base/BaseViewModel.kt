@@ -64,11 +64,7 @@ abstract class BaseViewModel(
 
 
     open fun initialize() {
-        // FIXME: перенести в InitAppUseCase ?
-        logger.init(
-            path = appPathProvider.getPathToLogsFolder().fullPath,
-            isWriteToFile = settingsManager.isWriteLogToFile()
-        )
+
     }
 
     fun setNotificatorCallbacks() {

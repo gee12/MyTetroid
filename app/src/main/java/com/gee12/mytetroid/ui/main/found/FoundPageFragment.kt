@@ -30,6 +30,9 @@ class FoundPageFragment : TetroidFragment<MainViewModel> {
     private var foundCount = 0
     private lateinit var profile: SearchProfile
 
+    val viewModel: MainViewModel
+        get() = (requireActivity() as MainActivity).viewModel
+
 
     constructor(detector: GestureDetectorCompat) : super(detector)
 
@@ -41,10 +44,6 @@ class FoundPageFragment : TetroidFragment<MainViewModel> {
 
     override fun createDependencyScope() {
         scopeSource = ScopeSource.current
-    }
-
-    override fun createViewModel() {
-        viewModel = (requireActivity() as MainActivity).viewModel
     }
 
     fun getTitle(): String {
@@ -95,8 +94,7 @@ class FoundPageFragment : TetroidFragment<MainViewModel> {
     }
 
     fun showFoundsIfFragmentCreated() {
-        if (isViewModelInited()
-            && ::foundItems.isInitialized
+        if (::foundItems.isInitialized
             && ::profile.isInitialized
         ) {
             showFounds(foundItems, profile)

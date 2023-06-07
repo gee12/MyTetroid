@@ -41,6 +41,9 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
     private lateinit var listAdapterRecords: RecordsListAdapter
     private lateinit var listAdapterAttaches: FilesListAdapter
 
+    val viewModel: MainViewModel
+        get() = (requireActivity() as MainActivity).viewModel
+
     constructor(gestureDetector: GestureDetectorCompat) : super(gestureDetector)
 
     constructor() : super()
@@ -51,15 +54,6 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
 
     override fun createDependencyScope() {
         scopeSource = ScopeSource.current
-    }
-
-    override fun createViewModel() {
-        // TODO:
-        val mainActivity = requireActivity() as MainActivity
-        if (!mainActivity.isViewModelInited()) {
-            throw Exception("MainActivity viewModel is not inited")
-        }
-        viewModel = mainActivity.viewModel
     }
 
     fun getTitle(): String {

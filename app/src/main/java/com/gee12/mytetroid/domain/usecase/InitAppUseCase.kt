@@ -27,6 +27,12 @@ class InitAppUseCase(
 
     override suspend fun run(params: Params): Either<Failure, None> {
 
+        settingsManager.init()
+
+        logger.init(
+            path = appPathProvider.getPathToLogsFolder().fullPath,
+            isWriteToFile = settingsManager.isWriteLogToFile()
+        )
         logger.logRaw("************************************************************")
         logger.log(resourcesProvider.getString(R.string.log_app_start_mask, context.getAppVersionName().orEmpty()), false)
 
@@ -35,8 +41,6 @@ class InitAppUseCase(
         }
 
         createDefaultFolders()
-
-        settingsManager.init()
 
         return None.toRight()
     }

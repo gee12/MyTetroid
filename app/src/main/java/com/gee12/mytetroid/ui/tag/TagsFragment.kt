@@ -41,16 +41,16 @@ class TagsFragment : TetroidFragment<MainViewModel>() {
     private lateinit var adapterSelectedTags: SelectedTagsListAdapter
     private lateinit var btnApplySelectedTags: Button
 
+    val viewModel: MainViewModel
+        get() = (requireActivity() as MainActivity).viewModel
+
+
     override fun getLayoutResourceId() = R.layout.fragment_tags
 
     override fun getViewModelClazz() = MainViewModel::class.java
 
     override fun createDependencyScope() {
         scopeSource = ScopeSource.current
-    }
-
-    override fun createViewModel() {
-        viewModel = (requireActivity() as MainActivity).viewModel
     }
 
 
