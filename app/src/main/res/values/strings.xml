@@ -373,25 +373,25 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="pref_change_pass_summ">Change password and re-encrypt encrypted nodes</string>
     <string name="pref_setup_pass">Setup password</string>
     <string name="pref_setup_pass_summ">Set password for encrypt nodes</string>
-    <string name="pref_key_is_load_favorites" translatable="false">is_load_favorites</string>
-    <string name="pref_key_favorites" translatable="false">favorites</string>
-    <string name="pref_key_favorites_json" translatable="false">favorites_json</string>
+    <string name="pref_key_is_load_favorites" translatable="false">pref_key_is_load_favorites</string>
+    <string name="pref_key_favorites" translatable="false">pref_key_favorites</string>
+    <string name="pref_key_favorites_json" translatable="false">pref_key_favorites_json</string>
     <string name="pref_load_only_favorites">Load only favorites (Pro)</string>
     <string name="pref_load_only_favorites_summ">To speed up the startup, first load only favorite entries \n(used as default value for new storages)</string>
     <string name="pref_load_only_favorites_summ_storage">To speed up the startup, first load only favorite entries</string>
-    <string name="pref_key_check_outside_changing" translatable="false">check_outside_changing</string>
+    <string name="pref_key_check_outside_changing" translatable="false">pref_key_check_outside_changing</string>
     <string name="pref_check_outside_changing">Track outside changes</string>
     <string name="pref_check_outside_changing_summ">Check records tree for changes by third-party programs \n(used as default value for new storages)</string>
     <string name="pref_check_outside_changing_summ_storage">Check records tree for changes by third-party programs</string>
-    <string name="pref_key_request_pin_code" translatable="false">request_pin_code</string>
+    <string name="pref_key_request_pin_code" translatable="false">pref_key_request_pin_code</string>
     <string name="pref_request_pin_code">Use PIN-code</string>
     <string name="pref_request_pin_code_summ">If the storage password is saved, prompt for a PIN to access encrypted data</string>
-    <string name="pref_key_fix_empty_paragraphs" translatable="false">fix_empty_paragraphs</string>
+    <string name="pref_key_fix_empty_paragraphs" translatable="false">pref_key_fix_empty_paragraphs</string>
     <string name="pref_fix_empty_paragraphs">Fix html on save</string>
     <string name="pref_fix_empty_paragraphs_summ">Correct html-text of a note for correct display in MyTetra</string>
-    <string name="pref_key_quickly_node_id" translatable="false">quickly_node_id</string>
-    <string name="pref_key_quickly_node_name" translatable="false">quickly_node_name</string>
-    <string name="pref_key_show_record_fields" translatable="false">show_record_fields</string>
+    <string name="pref_key_quickly_node_id" translatable="false">pref_key_quickly_node_id</string>
+    <string name="pref_key_quickly_node_name" translatable="false">pref_key_quickly_node_name</string>
+    <string name="pref_key_show_record_fields" translatable="false">pref_key_show_record_fields</string>
     <string name="pref_key_editor_toolbar_buttons_size" translatable="false">editor_toolbar_buttons_size</string>
     <string name="pref_show_record_fields">Show record fields</string>
     <string name="pref_show_record_fields_summ">Whether to open the panel with record properties when opening a record</string>
@@ -404,12 +404,12 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="pref_editor_toolbar_buttons_small_size">Small</string>
     <string name="pref_editor_toolbar_buttons_medium_size">Medium</string>
     <string name="pref_editor_toolbar_buttons_large_size">Large</string>
-    <string name="pref_key_record_fields_in_list" translatable="false">record_fields_in_list</string>
+    <string name="pref_key_record_fields_in_list" translatable="false">pref_key_record_fields_in_list</string>
     <string name="pref_record_fields_in_list">Record fields to show</string>
     <string name="pref_record_fields_in_list_summ">Record fields to show in list</string>
-    <string name="pref_key_tags_sort_mode" translatable="false">tags_sort_mode</string>
-    <string name="pref_key_tags_search_mode" translatable="false">tags_search_mode</string>
-    <string name="pref_key_app_for_sync" translatable="false">app_for_sync</string>
+    <string name="pref_key_tags_sort_mode" translatable="false">pref_key_tags_sort_mode</string>
+    <string name="pref_key_tags_search_mode" translatable="false">pref_key_tags_search_mode</string>
+    <string name="pref_key_app_for_sync" translatable="false">pref_key_app_for_sync</string>
     <string name="pref_app_for_sync">Application</string>
     <string name="pref_app_for_sync_summ">Application used to start sync \n(used as default value for new storages)</string>
     <string name="pref_app_for_sync_summ_storage">Application used to start sync</string>
