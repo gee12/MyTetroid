@@ -930,6 +930,15 @@ class MainViewModel(
     /**
      * Открытие каталога записи.
      */
+    fun openCurrentRecordFolder(activity: Activity) {
+        curRecord?.also {
+            openRecordFolder(
+                activity = activity,
+                record = it,
+            )
+        }
+    }
+
     fun openRecordFolder(activity: Activity, record: TetroidRecord) {
         logger.logDebug(resourcesProvider.getString(R.string.log_start_record_folder_opening) + record.id)
         launchOnMain {

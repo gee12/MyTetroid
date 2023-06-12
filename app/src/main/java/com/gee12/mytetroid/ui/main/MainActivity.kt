@@ -1843,9 +1843,9 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         setFoundPageVisibility(true)
         setCurrentPage(Constants.PAGE_FOUND)
         foundPage.setFounds(found, profile)
-        foundPage.showFoundsIfFragmentCreated()
-        // обьновляем title у страницы
+        // обновляем title у страницы
         tabLayout.getTabAt(Constants.PAGE_FOUND)?.text = foundPage.getTitle()
+        foundPage.showFoundsIfFragmentCreated()
     }
 
     private fun closeFoundFragment() {
@@ -2158,7 +2158,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         menuInflater.inflate(R.menu.main, menu)
         optionsMenu = menu
         initRecordsSearchView(menu.findItem(R.id.action_search_records))
-        mainPage.onCreateOptionsMenu(menu)
         return super.onAfterCreateOptionsMenu(menu)
     }
 
@@ -2181,8 +2180,20 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         enableMenuItem(menu.findItem(R.id.action_storage_settings), isStorageNotNull)
         enableMenuItem(menu.findItem(R.id.action_storage_reload), isStorageNotNull)
 
-        mainPage.onPrepareOptionsMenu(menu)
+        onPrepareMainOptionsMenu(menu)
         return super.onPrepareOptionsMenu(menu)
+    }
+
+    private fun onPrepareMainOptionsMenu(menu: Menu) {
+        val isRecordFilesView = viewModel.curMainViewId == Constants.MAIN_VIEW_RECORD_FILES
+        val isFavoritesView = viewModel.curMainViewId == Constants.MAIN_VIEW_FAVORITES
+        visibleMenuItem(menu.findItem(R.id.action_move_back), isRecordFilesView)
+        visibleMenuItem(menu.findItem(R.id.action_cur_record), isRecordFilesView)
+        visibleMenuItem(menu.findItem(R.id.action_cur_record_folder), isRecordFilesView)
+        visibleMenuItem(
+            menu.findItem(R.id.action_insert),
+            !isFavoritesView && ClipboardManager.hasObject(FoundType.TYPE_RECORD)
+        )
     }
 
     /**
@@ -2190,42 +2201,69 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      */
     @SuppressLint("NonConstantResourceId")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
-        when (id) {
+        return when (val id = item.itemId) {
             R.id.action_move_back -> {
                 viewModel.moveBackFromAttaches()
-                return true
+                true
             }
             R.id.action_global_search -> {
                 showGlobalSearchActivity(null)
-                return true
+                true
             }
             R.id.action_storage_sync -> {
                 viewModel.syncStorage(this)
-                return true
+                true
             }
             R.id.action_storage_info -> {
                 showStorageInfoActivity()
-                return true
+                true
             }
             R.id.action_storage_reload -> {
                 reloadStorageAsk()
-                return true
+                true
             }
             R.id.action_storages -> {
                 showStoragesActivity()
-                return true
+                true
             }
-            R.id.action_storage_settings -> showStorageSettingsActivity(viewModel.storage)
+            R.id.action_storage_settings -> {
+                showStorageSettingsActivity(viewModel.storage)
+                true
+            }
             R.id.action_settings -> {
                 showActivityForResult(SettingsActivity::class.java, Constants.REQUEST_CODE_COMMON_SETTINGS_ACTIVITY)
-                return true
+                true
             }
-            else -> if (mainPage.onOptionsItemSelected(id)) {
-                return true
+            else -> if (onMainOptionsItemSelected(id)) {
+                true
+            } else {
+                super.onOptionsItemSelected(item)
             }
         }
-        return super.onOptionsItemSelected(item)
+    }
+
+    private fun onMainOptionsItemSelected(menuId: Int): Boolean {
+        return when (menuId) {
+            R.id.action_insert -> {
+                viewModel.insertRecord()
+                 true
+            }
+            R.id.action_cur_record -> {
+                viewModel.curRecord?.also {
+                    mainPage.showRecord(it)
+                }
+                true
+            }
+            R.id.action_cur_record_folder -> {
+                viewModel.openCurrentRecordFolder(
+                    activity = this,
+                )
+                true
+            }
+            else -> {
+                false
+            }
+        }
     }
 
     // endregion OptionsMenu

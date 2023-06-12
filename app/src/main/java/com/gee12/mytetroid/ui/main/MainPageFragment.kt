@@ -452,55 +452,6 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
 
     // endregion Attach
 
-    // region OptionsMenu
-
-    fun onCreateOptionsMenu(menu: Menu) {
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        val isRecordFilesView = viewModel.curMainViewId == Constants.MAIN_VIEW_RECORD_FILES
-        val isFavoritesView = viewModel.curMainViewId == Constants.MAIN_VIEW_FAVORITES
-        activateMenuItem(menu.findItem(R.id.action_move_back), isRecordFilesView)
-        activateMenuItem(menu.findItem(R.id.action_cur_record), isRecordFilesView)
-        activateMenuItem(menu.findItem(R.id.action_cur_record_folder), isRecordFilesView)
-        activateMenuItem(
-            menu.findItem(R.id.action_insert),
-            !isFavoritesView && ClipboardManager.hasObject(FoundType.TYPE_RECORD)
-        )
-    }
-
-    /**
-     * Обработчик пунктов меню фрагмента. Вызывается из аналогичного метода в классе активности.
-     * @param menuId
-     * @return
-     */
-    fun onOptionsItemSelected(menuId: Int): Boolean {
-        when (menuId) {
-            R.id.action_insert -> {
-                viewModel.insertRecord()
-                return true
-            }
-            R.id.action_cur_record -> {
-                showRecord(viewModel.curRecord!!)
-                return true
-            }
-            R.id.action_cur_record_folder -> {
-                viewModel.openRecordFolder(
-                    activity = requireActivity(),
-                    record = viewModel.curRecord!!
-                )
-                return true
-            }
-        }
-        return false
-    }
-
-    private fun activateMenuItem(menuItem: MenuItem, isActivate: Boolean) {
-        ViewUtils.setVisibleIfNotNull(menuItem, isActivate)
-    }
-
-    // endregion OptionsMenu
-
     // region ContextMenu
 
     /**
@@ -578,6 +529,10 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
         val attachFileSize = file?.let { viewModel.getAttachFileSize(requireContext(), it) }
         activateMenuItem(menu.findItem(R.id.action_save_as), !attachFileSize.isNullOrEmpty())
         activateMenuItem(menu.findItem(R.id.action_delete), !isLoadedFavoritesOnly)
+    }
+
+    private fun activateMenuItem(menuItem: MenuItem, isActivate: Boolean) {
+        ViewUtils.setVisibleIfNotNull(menuItem, isActivate)
     }
 
     /**

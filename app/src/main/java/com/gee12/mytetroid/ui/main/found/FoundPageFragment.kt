@@ -96,6 +96,7 @@ class FoundPageFragment : TetroidFragment<MainViewModel> {
     fun showFoundsIfFragmentCreated() {
         if (::foundItems.isInitialized
             && ::profile.isInitialized
+            && isAdded
         ) {
             showFounds(foundItems, profile)
         }
