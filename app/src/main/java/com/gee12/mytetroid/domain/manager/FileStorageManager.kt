@@ -15,19 +15,21 @@ class FileStorageManager(
     private val hasAllFilesAccess = buildInfoProvider.hasAllFilesAccessVersion()
 
     fun isFileApiUsed(): Boolean {
-        return Build.VERSION.SDK_INT <= 29
+//        return Build.VERSION.SDK_INT <= 29
+        return Build.VERSION.SDK_INT < 29
     }
 
     fun checkReadFileStoragePermission(root: DocumentFile): Boolean {
-        // на Android 10 и ниже проверка возвращает false, поэтому на этих устройствах не проверяем
-        return isFileApiUsed() || root.canRead()
+        // на Android 10 и ниже canRead() возвращает false, поэтому на этих устройствах не проверяем
+        return isFileApiUsed() && root.isRawFile
+                || root.canRead()
     }
 
     fun checkWriteFileStoragePermission(root: DocumentFile): Boolean {
-        // на Android 10 и ниже проверка возвращает false, поэтому на этих устройствах не проверяем
-        return isFileApiUsed()
-                || hasAllFilesAccess && Environment.isExternalStorageManager()
+        // на Android 10 и ниже canWrite() возвращает false, поэтому на этих устройствах не проверяем
+        return isFileApiUsed() && root.isRawFile
                 || root.isWritable(context)
+                || hasAllFilesAccess && Environment.isExternalStorageManager()
                 /*|| SimpleStorage.hasStorageAccess(
                         context = context,
                         fullPath = root.getAbsolutePath(context),

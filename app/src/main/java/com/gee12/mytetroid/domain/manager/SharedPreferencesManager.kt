@@ -63,6 +63,7 @@ open class SharedPreferencesManager(
         val prefs: SharedPreferences? = try {
             context.getSharedPreferences(BuildConfig.APPLICATION_ID + CommonSettings.PREFS_NAME, mode)
         } catch (ex: Exception) {
+            ex.printStackTrace()
             PreferenceManager.getDefaultSharedPreferences(context)
         }
         return prefs

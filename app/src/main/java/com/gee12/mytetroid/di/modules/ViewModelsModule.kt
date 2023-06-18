@@ -302,7 +302,7 @@ object ViewModelsModule {
                     storagesRepo = get(),
 
                     checkStorageFilesExistingUseCase = get(),
-                    initStorageFromDefaultSettingsUseCase = get(),
+                    fillStorageFieldsFromDefaultSettingsUseCase = get(),
                     deleteStorageUseCase = get(),
                 )
             }

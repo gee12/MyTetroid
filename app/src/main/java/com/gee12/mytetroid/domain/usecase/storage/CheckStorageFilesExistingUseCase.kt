@@ -7,6 +7,7 @@ import com.anggrayudi.storage.file.DocumentFileCompat
 import com.anggrayudi.storage.file.isEmpty
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
+import com.gee12.mytetroid.common.extensions.parseUri
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.model.TetroidStorage
 
@@ -28,7 +29,7 @@ class CheckStorageFilesExistingUseCase(
 
     override suspend fun run(params: Params): Either<Failure, Result> {
         val storage = params.storage
-        val storageFolderUri = Uri.parse(storage.uri)
+        val storageFolderUri = storage.uri.parseUri()
         val storageFolder = DocumentFileCompat.fromUri(context, storageFolderUri)
 
         return when {

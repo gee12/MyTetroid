@@ -13,10 +13,8 @@
     <string name="hint_node_not_decrypted"><![CDATA[<ветка не расшифрована>]]></string>
     <string name="hint_error"><![CDATA[<ошибка>]]></string>
 
-    <string name="mes_migration_50">Приложение обновилось на версию 5.0\n
-В этой версии добавилась поддержка нескольких хранилищ
-(пока одновременно загружать можно только одно)\n
-Параметры Вашего хранилища были автоматически перенесены в \"Основное хранилище\"</string>
+    <string name="title_app_updated">Обновление</string>
+    <string name="mes_migration_53">Приложение обновилось на версию 5.3\n\nВ этой версии добавилась поддержка нескольких хранилищ (пока одновременно загружать можно только одно)\nПараметры вашего хранилища были автоматически перенесены в \"Основное хранилище\"</string>
     <string name="mes_cant_more_one_storage_on_free">Использование нескольких хранилищ доступно в версии Pro</string>
     <string name="mes_need_migration">Для завершения обновления необходим запуск из основного окна приложения</string>
     <string name="mes_input_wrong_date_format">Введена некорректная строка формата даты/времени</string>
@@ -797,6 +795,7 @@
     <string name="log_storage_trash_path_changed_mask">Изменен путь к корзине хранилища: %s</string>
     <string name="log_storage_name_changed_mask">Изменено имя хранилища: %s</string>
     <string name="log_start_migrate_to_version_mask">Запуск миграции на версию %s</string>
+    <string name="log_migration_finished_successfully">Миграция прошла успешно</string>
     <string name="log_field_changed_mask">Изменен параметр хранилища \"%1$s\" с \"%2$s\" на \"%3$s\"</string>
 
     <string name="error_record_create_mask">Ошибка создания записи:\n%s</string>

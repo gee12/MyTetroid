@@ -14,8 +14,12 @@ import java.io.InputStream
 import kotlin.io.readBytes as kotlinReadBytes
 
 
-fun String.uriToPath(): String {
-    return Uri.parse(this).toPath().orEmpty()
+fun String.parseUri(): Uri {
+    var uri = Uri.parse(this)
+    if (uri.scheme == null) {
+        uri = Uri.fromFile(File(this))
+    }
+    return uri
 }
 
 fun Uri.toPath(): String? {

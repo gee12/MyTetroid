@@ -223,39 +223,42 @@ class MainViewModel(
      * Проверка необходимости миграции и ее запуск.
      * Возвращает true, если миграция была запущена.
      */
-    private fun checkAndStartMigration(): Boolean {
+    private suspend fun checkAndStartMigration(): Boolean {
         val fromVersion = CommonSettings.getSettingsVersion(getContext())
         var result: Boolean? = null
 
-        if (fromVersion == 0) { // новая установка, миграция не нужна
+        if (fromVersion == 0 && settingsManager.getStoragePath().isEmpty()) {
+            // новая установка, миграция не нужна
             CommonSettings.setSettingsCurrentVersion(getContext())
             return false
         }
 
-        // 50
+        // 53
         if (fromVersion < Constants.SETTINGS_VERSION_CURRENT) {
-            result = runBlocking { migrateTo50() }
+            result = migrateFrom46To53()
         }
         // ..
 
         if (result == true) {
             CommonSettings.setSettingsCurrentVersion(getContext())
-            launchOnMain {
+            withMain {
                 sendEvent(MainEvent.Migrated)
             }
         } else if (result == false) {
-            logger.logError(R.string.log_error_migration, true)
+            logger.logError(R.string.log_error_migration, show = true)
             showSnackMoreInLogs()
         }
         return result != null
     }
 
-    private suspend fun migrateTo50(): Boolean {
-        logger.log(getString(R.string.log_start_migrate_to_version_mask, "5.0"), false)
+    private suspend fun migrateFrom46To53(): Boolean {
+        logger.log(getString(R.string.log_start_migrate_to_version_mask, "5.3"), false)
 
         // параметры хранилища из SharedPreferences в бд
         if (migrationInteractor.isNeedMigrateStorageFromPrefs()) {
-            if (!migrationInteractor.addDefaultStorageFromPrefs()) {
+            if (migrationInteractor.addDefaultStorageFromPrefs()) {
+                logger.log(R.string.log_migration_finished_successfully)
+            } else {
                 return false
             }
         }
@@ -1631,7 +1634,7 @@ class MainViewModel(
                 )
                 attachFile?.also {
                     checkAndRequestWriteFileStoragePermission(
-                        file = it,
+                        uri = it.uri,
                         requestCode = PermissionRequestCode.OPEN_ATTACH_FILE,
                     )
                 }

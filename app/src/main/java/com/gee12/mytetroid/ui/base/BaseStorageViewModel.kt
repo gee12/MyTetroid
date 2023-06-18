@@ -60,7 +60,7 @@ abstract class BaseStorageViewModel(
     fun onStorageAccessGranted(requestCode: Int, root: DocumentFile) {
         PermissionRequestCode.fromCode(requestCode)?.also {
             onPermissionGranted(
-                permission = TetroidPermission.FileStorage.Write(root),
+                permission = TetroidPermission.FileStorage.Write(uri = root.uri),
                 requestCode = it
             )
         }

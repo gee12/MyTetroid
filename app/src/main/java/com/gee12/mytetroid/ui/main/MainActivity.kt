@@ -20,7 +20,6 @@ import androidx.documentfile.provider.DocumentFile
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.commit
 import androidx.viewpager2.widget.ViewPager2
-import com.gee12.mytetroid.BuildConfig
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.ICallback
@@ -267,6 +266,9 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         when (event) {
             is MainEvent -> {
                 onMainEvent(event)
+            }
+            is BaseEvent.Permission -> {
+                onPermissionEvent(event)
             }
             is BaseEvent.InitUI -> {
                 initUI(
@@ -631,11 +633,43 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         }
     }
 
+    private fun onPermissionEvent(event: BaseEvent.Permission) {
+        when (event) {
+            is BaseEvent.Permission.Check -> {
+                onRequestPermission(event.permission, event.requestCode)
+            }
+            is BaseEvent.Permission.Granted -> {
+                onPermissionGranted(event.permission, event.requestCode)
+            }
+            is BaseEvent.Permission.Canceled -> {
+                onPermissionCanceled(event.requestCode)
+            }
+            is BaseEvent.Permission.ShowRequest -> showPermissionRequest(
+                permission = event.permission,
+                requestCallback = event.requestCallback,
+            )
+        }
+    }
+
     // endregion Events
 
     // region Permissions
 
-    override fun onRequestPermission(
+    private fun showPermissionRequest(
+        permission: TetroidPermission,
+        requestCallback: () -> Unit
+    ) {
+        // диалог с объяснием зачем нужно разрешение
+        AskDialogs.showYesDialog(
+            context = this,
+            message = permission.getPermissionRequestMessage(resourcesProvider),
+            onApply = {
+                requestCallback.invoke()
+            },
+        )
+    }
+
+    private fun onRequestPermission(
         permission: TetroidPermission,
         requestCode: PermissionRequestCode,
     ) {
@@ -660,7 +694,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             isCancelable = false,
             onYes = {
                 requestFileStorageAccess(
-                    root = permission.root,
+                    uri = permission.uri,
                     requestCode = requestCode,
                 )
             },
@@ -677,7 +711,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 if (permission is TetroidPermission.FileStorage) {
                     viewModel.startInitStorageAfterPermissionsGranted(
                         activity = this,
-                        root = permission.root,
+                        uri = permission.uri,
                     )
                 }
             }
@@ -687,15 +721,11 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             PermissionRequestCode.TERMUX -> {
                 viewModel.syncAndInitStorage(this)
             }
-            else -> {
-                super.onPermissionGranted(permission, requestCode)
-            }
+            else -> Unit
         }
     }
 
-    override fun onPermissionCanceled(requestCode: PermissionRequestCode) {
-        super.onPermissionCanceled(requestCode)
-    }
+    override fun onPermissionCanceled(requestCode: PermissionRequestCode) {}
 
     // endregion Permissions
 
@@ -852,17 +882,16 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      * Диалог с информацией об обновлении.
      */
     private fun showMigrationDialog() {
-        if (BuildConfig.VERSION_CODE == Constants.SETTINGS_VERSION_CURRENT) {
-            AskDialogs.showOkDialog(
-                context = this,
-                messageRes = R.string.mes_migration_50,
-                applyResId = R.string.answer_ok,
-                isCancelable = false,
-                onApply = {
-                    viewModel.checkPermissionsAndInitDefaultStorage()
-                }
-            )
-        }
+        AskDialogs.showOkDialog(
+            context = this,
+            titleResId = R.string.title_app_updated,
+            messageResId = R.string.mes_migration_53,
+            applyResId = R.string.answer_ok,
+            isCancelable = false,
+            onApply = {
+                viewModel.checkPermissionsAndInitDefaultStorage()
+            }
+        )
     }
 
     private fun updateStorageNameLabel(isLoaded: Boolean) {

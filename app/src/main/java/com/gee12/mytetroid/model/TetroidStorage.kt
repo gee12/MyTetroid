@@ -1,7 +1,5 @@
 package com.gee12.mytetroid.model
 
-import com.gee12.mytetroid.common.extensions.getNameFromPath
-import com.gee12.mytetroid.common.extensions.uriToPath
 import com.gee12.mytetroid.database.entity.StorageEntity
 
 class TetroidStorage(
@@ -29,8 +27,6 @@ class TetroidStorage(
         this.isDefault = isDefault
         this.isNew = isNew
     }
-
-    constructor(uri: String) : this(name = uri.uriToPath().getNameFromPath(), uri = uri)
 
     fun resetFields(src: TetroidStorage): TetroidStorage {
         return src.also {

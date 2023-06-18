@@ -14,10 +14,8 @@
     <string name="hint_node_not_decrypted"><![CDATA[<node is not decrypted>]]></string>
     <string name="hint_error"><![CDATA[<error>]]></string>
 
-    <string name="mes_migration_50">The application has been updated to version 5.0\n
-This version adds support for multiple storages
-(so far only one can be loaded at a time)\n
-Your storage settings have been automatically moved to the \"Default storage\"</string>
+    <string name="title_app_updated">App updated</string>
+    <string name="mes_migration_53">The application has been updated to version 5.3\n\nThis version adds support for multiple storages (so far only one can be loaded at a time)\nYour storage settings have been automatically moved to the \"Default storage\"</string>
     <string name="mes_cant_more_one_storage_on_free">Multiple storage is available in the Pro version</string>
     <string name="mes_input_wrong_date_format">Incorrect date/time format string entered</string>
     <string name="mes_select_non_encrypted_node">Select a non-encrypted node</string>
@@ -891,6 +889,7 @@ Your storage settings have been automatically moved to the \"Default storage\"</
     <string name="log_storage_trash_path_changed_mask">Storage trash path was changed: %s</string>
     <string name="log_storage_name_changed_mask">Storage name was changed: %s</string>
     <string name="log_start_migrate_to_version_mask">Start migration to version %s</string>
+    <string name="log_migration_finished_successfully">Migration finished successfully</string>
     <string name="log_start_pin_crypt_migration">Launching PIN re-encryption from RC5 to MD5</string>
     <string name="log_pin_crypt_was_migrated">PIN has been re-encrypted from RC5 to MD5</string>
     <string name="log_error_pin_crypt_migrate">Error re-encrypting PIN from RC5 to MD5</string>

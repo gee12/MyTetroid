@@ -101,47 +101,33 @@ abstract class BaseViewModel(
     }
 
     fun checkAndRequestReadFileStoragePermission(
-        file: DocumentFile,
-        requestCode: PermissionRequestCode,
-    ) {
-        val permission = TetroidPermission.FileStorage.Read(file)
-
-        if (fileStorageManager.checkReadFileStoragePermission(file)) {
-            onPermissionGranted(permission, requestCode)
-        } else {
-            requestFileStorageAccess(permission, requestCode)
-        }
-    }
-
-    fun checkAndRequestReadFileStoragePermission(
         uri: Uri,
         requestCode: PermissionRequestCode,
     ) {
-        DocumentFileCompat.fromUri(getContext(), uri)?.let { root ->
-            checkAndRequestReadFileStoragePermission(root, requestCode)
-        }
-    }
+        val permission = TetroidPermission.FileStorage.Read(uri)
 
-    fun checkAndRequestWriteFileStoragePermission(
-        file: DocumentFile,
-        requestCode: PermissionRequestCode,
-    ) {
-        val permission = TetroidPermission.FileStorage.Write(file)
-
-        if (fileStorageManager.checkWriteFileStoragePermission(file)) {
-            onPermissionGranted(permission, requestCode)
-        } else {
-            requestFileStorageAccess(permission, requestCode)
-        }
+        DocumentFileCompat.fromUri(getContext(), uri)?.let { file ->
+            if (fileStorageManager.checkReadFileStoragePermission(file)) {
+                onPermissionGranted(permission, requestCode)
+            } else {
+                requestFileStorageAccess(permission, requestCode)
+            }
+        } ?: requestFileStorageAccess(permission, requestCode)
     }
 
     fun checkAndRequestWriteFileStoragePermission(
         uri: Uri,
         requestCode: PermissionRequestCode,
     ) {
-        DocumentFileCompat.fromUri(getContext(), uri)?.let { root ->
-            checkAndRequestWriteFileStoragePermission(root, requestCode)
-        }
+        val permission = TetroidPermission.FileStorage.Write(uri)
+
+        DocumentFileCompat.fromUri(getContext(), uri)?.let { file ->
+            if (fileStorageManager.checkWriteFileStoragePermission(file)) {
+                onPermissionGranted(permission, requestCode)
+            } else {
+                requestFileStorageAccess(permission, requestCode)
+            }
+        } ?: requestFileStorageAccess(permission, requestCode)
     }
 
     fun checkCameraPermission(activity: Activity) {

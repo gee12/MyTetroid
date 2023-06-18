@@ -8,6 +8,7 @@ import com.anggrayudi.storage.file.deleteRecursively
 import com.anggrayudi.storage.file.getAbsolutePath
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
+import com.gee12.mytetroid.common.extensions.parseUri
 import com.gee12.mytetroid.domain.provider.IAppPathProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.domain.repo.StoragesRepo
@@ -69,7 +70,7 @@ class DeleteStorageUseCase(
     }
 
     private fun deleteStorageFolder(storage: TetroidStorage): Either<Failure, None> {
-        val storageFolderUri = Uri.parse(storage.uri)
+        val storageFolderUri = storage.uri.parseUri()
         var storageFolderPath = FilePath.FolderFull(storageFolderUri.path.orEmpty())
 
         return try {

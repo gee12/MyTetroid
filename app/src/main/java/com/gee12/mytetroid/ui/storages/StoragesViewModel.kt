@@ -22,7 +22,7 @@ import com.gee12.mytetroid.domain.repo.StoragesRepo
 import com.gee12.mytetroid.ui.base.BaseViewModel
 import com.gee12.mytetroid.domain.usecase.storage.CheckStorageFilesExistingUseCase
 import com.gee12.mytetroid.domain.usecase.storage.DeleteStorageUseCase
-import com.gee12.mytetroid.domain.usecase.storage.InitStorageFromDefaultSettingsUseCase
+import com.gee12.mytetroid.domain.usecase.storage.FillStorageFieldsFromDefaultSettingsUseCase
 import com.gee12.mytetroid.model.FilePath
 
 class StoragesViewModel(
@@ -36,7 +36,7 @@ class StoragesViewModel(
     appPathProvider: IAppPathProvider,
     private val storagesRepo: StoragesRepo,
     private val checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
-    private val initStorageFromDefaultSettingsUseCase: InitStorageFromDefaultSettingsUseCase,
+    private val fillStorageFieldsFromDefaultSettingsUseCase: FillStorageFieldsFromDefaultSettingsUseCase,
     private val deleteStorageUseCase: DeleteStorageUseCase,
 ) : BaseViewModel(
     application = app,
@@ -122,7 +122,7 @@ class StoragesViewModel(
         launchOnMain {
             withIo {
                 // заполняем поля настройками по-умолчанию
-                initStorageFromDefaultSettingsUseCase.run(storage)
+                fillStorageFieldsFromDefaultSettingsUseCase.run(storage)
                     .flatMap { storagesRepo.addStorage(storage).toRight() }
             }.onFailure {
                 logFailure(it)

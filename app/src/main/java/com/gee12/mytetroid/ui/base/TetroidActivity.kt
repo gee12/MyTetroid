@@ -187,28 +187,15 @@ abstract class TetroidActivity<VM : BaseViewModel>
      */
     protected open fun onBaseEvent(event: BaseEvent) {
         when (event) {
-            is BaseEvent.Permission.Check -> {
-                onRequestPermission(event.permission, event.requestCode)
-            }
-            is BaseEvent.Permission.Granted -> {
-                onPermissionGranted(event.permission, event.requestCode)
-            }
-            is BaseEvent.Permission.Canceled -> {
-                onPermissionCanceled(event.requestCode)
-            }
             is BaseEvent.ShowProgress -> setProgressVisibility(true)
             is BaseEvent.HideProgress -> setProgressVisibility(false)
             is BaseEvent.ShowProgressWithText -> showProgress(event.message)
-            is BaseEvent.Permission.ShowRequest -> showPermissionRequest(
-                permission = event.permission,
-                requestCallback = event.requestCallback,
-            )
             is BaseEvent.TaskStarted -> {
                 taskPreExecute(event.titleResId ?: R.string.state_loading)
             }
             BaseEvent.TaskFinished -> taskPostExecute()
             BaseEvent.ShowMoreInLogs -> showSnackMoreInLogs()
-            else -> {}
+            else -> Unit
         }
     }
 
@@ -216,34 +203,14 @@ abstract class TetroidActivity<VM : BaseViewModel>
 
     // region Permissions
 
-    private fun showPermissionRequest(
-        permission: TetroidPermission,
-        requestCallback: () -> Unit
-    ) {
-        // диалог с объяснием зачем нужно разрешение
-        AskDialogs.showYesDialog(
-            context = this,
-            message = permission.getPermissionRequestMessage(resourcesProvider),
-            onApply = {
-                requestCallback.invoke()
-            },
-        )
-    }
-
-    protected open fun onRequestPermission(
-        permission: TetroidPermission,
-        requestCode: PermissionRequestCode,
-    ) {
-    }
-
     protected open fun onPermissionGranted(
         permission: TetroidPermission?,
         requestCode: PermissionRequestCode,
-    ) {
-    }
+    ) = Unit
 
-    protected open fun onPermissionCanceled(requestCode: PermissionRequestCode) {
-    }
+    protected open fun onPermissionCanceled(
+        requestCode: PermissionRequestCode
+    ) = Unit
 
     // endregion Permissions
 
@@ -252,14 +219,13 @@ abstract class TetroidActivity<VM : BaseViewModel>
     override fun isUseFileStorage() = false
 
     protected fun requestFileStorageAccess(
-        root: DocumentFile,
+        uri: Uri,
         requestCode: PermissionRequestCode,
     ) {
         requestCodeForStorageAccess = requestCode
-        //fileStorageHelper.requestStorageAccess(
         openFolderPicker(
             requestCode = requestCode,
-            initialPath = root.uri.toString(),
+            initialPath = uri.toString(),
         )
     }
 

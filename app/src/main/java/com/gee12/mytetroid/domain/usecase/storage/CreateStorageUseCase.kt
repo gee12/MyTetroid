@@ -1,11 +1,11 @@
 package com.gee12.mytetroid.domain.usecase.storage
 
 import android.content.Context
-import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
 import com.anggrayudi.storage.file.*
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
+import com.gee12.mytetroid.common.extensions.parseUri
 import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
@@ -56,7 +56,7 @@ class CreateStorageUseCase(
     private suspend fun createStorageFiles(params: Params): Either<Failure, None> {
         val storage = params.storage
         val databaseConfig = params.databaseConfig
-        val storageFolderUri = Uri.parse(storage.uri)
+        val storageFolderUri = storage.uri.parseUri()
         var storageFolderPath = FilePath.FolderFull(storageFolderUri.path.orEmpty())
 
         val storageFolder: DocumentFile?

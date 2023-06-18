@@ -278,6 +278,9 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             is RecordEvent -> {
                 onRecordEvent(event)
             }
+            is BaseEvent.Permission -> {
+                onPermissionEvent(event)
+            }
             is BaseEvent.StartActivity -> {
                 startActivity(event.intent)
             }
@@ -413,7 +416,103 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         }
     }
 
+    private fun onPermissionEvent(event: BaseEvent.Permission) {
+        when (event) {
+            is BaseEvent.Permission.Check -> {
+                onRequestPermission(event.permission, event.requestCode)
+            }
+            is BaseEvent.Permission.Granted -> {
+                onPermissionGranted(event.permission, event.requestCode)
+            }
+            is BaseEvent.Permission.Canceled -> {
+                onPermissionCanceled(event.requestCode)
+            }
+            is BaseEvent.Permission.ShowRequest -> showPermissionRequest(
+                permission = event.permission,
+                requestCallback = event.requestCallback,
+            )
+        }
+    }
+
     // endregion Events
+
+    // region Permissions
+
+    private fun onRequestPermission(
+        permission: TetroidPermission,
+        requestCode: PermissionRequestCode,
+    ) {
+        when (permission) {
+            is TetroidPermission.FileStorage.Read -> {
+                viewModel.checkAndRequestReadFileStoragePermission(
+                    uri = permission.uri,
+                    requestCode = requestCode,
+                )
+            }
+            is TetroidPermission.FileStorage.Write -> {
+                viewModel.checkAndRequestWriteFileStoragePermission(
+                    uri = permission.uri,
+                    requestCode = requestCode,
+                )
+            }
+            TetroidPermission.RecordAudio -> {
+                viewModel.checkAndRequestRecordAudioPermission(activity = this)
+            }
+            else -> Unit
+        }
+    }
+
+    override fun onPermissionGranted(
+        permission: TetroidPermission?,
+        requestCode: PermissionRequestCode,
+    ) {
+        when (requestCode) {
+            PermissionRequestCode.OPEN_STORAGE_FOLDER -> {
+                if (permission is TetroidPermission.FileStorage) {
+                    viewModel.startInitStorageAfterPermissionsGranted(
+                        activity = this,
+                        uri = permission.uri,
+                    )
+                }
+            }
+            PermissionRequestCode.OPEN_RECORD_FILE -> {
+                viewModel.loadRecordAfterPermissionsGranted()
+            }
+            PermissionRequestCode.RECORD_AUDIO -> {
+                startVoiceInputDirectly()
+            }
+            PermissionRequestCode.OPEN_CAMERA -> {
+                startCameraAfterPermissionGranted()
+            }
+            else -> Unit
+        }
+    }
+
+    override fun onPermissionCanceled(requestCode: PermissionRequestCode) {
+        when (requestCode) {
+            PermissionRequestCode.OPEN_RECORD_FILE -> {
+                // закрываем активити, если нет разрешения на чтение/запись в файловое хранилище
+                finish()
+            }
+            else -> Unit
+        }
+    }
+
+    private fun showPermissionRequest(
+        permission: TetroidPermission,
+        requestCallback: () -> Unit
+    ) {
+        // диалог с объяснием зачем нужно разрешение
+        AskDialogs.showYesDialog(
+            context = this,
+            message = permission.getPermissionRequestMessage(resourcesProvider),
+            onApply = {
+                requestCallback.invoke()
+            },
+        )
+    }
+
+    // endregion Permissions
 
     // region Storage
 
@@ -1458,74 +1557,6 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     }
 
     // endregion UI
-
-    // region Permissions
-
-    override fun onRequestPermission(
-        permission: TetroidPermission,
-        requestCode: PermissionRequestCode,
-    ) {
-        when (permission) {
-            is TetroidPermission.FileStorage.Read -> {
-                viewModel.checkAndRequestReadFileStoragePermission(
-                    file = permission.root,
-                    requestCode = requestCode,
-                )
-            }
-            is TetroidPermission.FileStorage.Write -> {
-                viewModel.checkAndRequestWriteFileStoragePermission(
-                    file = permission.root,
-                    requestCode = requestCode,
-                )
-            }
-            TetroidPermission.RecordAudio -> {
-                viewModel.checkAndRequestRecordAudioPermission(activity = this)
-            }
-            else -> {}
-        }
-    }
-
-    override fun onPermissionGranted(
-        permission: TetroidPermission?,
-        requestCode: PermissionRequestCode,
-    ) {
-        when (requestCode) {
-            PermissionRequestCode.OPEN_STORAGE_FOLDER -> {
-                if (permission is TetroidPermission.FileStorage) {
-                    viewModel.startInitStorageAfterPermissionsGranted(
-                        activity = this,
-                        root = permission.root,
-                    )
-                }
-            }
-            PermissionRequestCode.OPEN_RECORD_FILE -> {
-                viewModel.loadRecordAfterPermissionsGranted()
-            }
-            PermissionRequestCode.RECORD_AUDIO -> {
-                startVoiceInputDirectly()
-            }
-            PermissionRequestCode.OPEN_CAMERA -> {
-                startCameraAfterPermissionGranted()
-            }
-            else -> {
-                super.onPermissionGranted(permission, requestCode)
-            }
-        }
-    }
-
-    override fun onPermissionCanceled(requestCode: PermissionRequestCode) {
-        when (requestCode) {
-            PermissionRequestCode.OPEN_RECORD_FILE -> {
-                // закрываем активити, если нет разрешения на чтение/запись в файловое хранилище
-                finish()
-            }
-            else -> {
-                super.onPermissionCanceled(requestCode)
-            }
-        }
-    }
-
-    // endregion Permissions
 
     // region File
 

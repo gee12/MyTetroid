@@ -1,15 +1,15 @@
 package com.gee12.mytetroid.model.permission
 
 import android.Manifest
-import androidx.documentfile.provider.DocumentFile
+import android.net.Uri
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.domain.manager.PermissionManager
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 
 sealed class TetroidPermission {
-    sealed class FileStorage(val root: DocumentFile) : TetroidPermission() {
-        class Read(root: DocumentFile) : FileStorage(root)
-        class Write(root: DocumentFile) : FileStorage(root)
+    sealed class FileStorage(val uri: Uri) : TetroidPermission() {
+        class Read(uri: Uri) : FileStorage(uri)
+        class Write(uri: Uri) : FileStorage(uri)
     }
     object Camera : TetroidPermission()
     object RecordAudio : TetroidPermission()

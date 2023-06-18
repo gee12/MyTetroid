@@ -1,11 +1,11 @@
 package com.gee12.mytetroid.domain.usecase.storage
 
 import android.content.Context
-import android.net.Uri
 import com.anggrayudi.storage.file.child
 import com.anggrayudi.storage.file.openInputStream
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
+import com.gee12.mytetroid.common.extensions.parseUri
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.model.FilePath
@@ -44,7 +44,7 @@ class ReadStorageUseCase(
     private suspend fun readStorage(params: Params): Either<Failure, None> {
         val storage = storageProvider.storage
             ?: return Failure.Storage.StorageNotInited.toLeft()
-        val storageFolderUri = Uri.parse(storage.uri)
+        val storageFolderUri = storage.uri.parseUri()
         val storageFolderPath = storageFolderUri.path.orEmpty()
         val storageFolder = storageProvider.rootFolder
             ?: return Failure.Storage.StorageNotInited.toLeft()

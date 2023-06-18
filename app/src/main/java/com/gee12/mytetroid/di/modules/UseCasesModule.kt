@@ -90,7 +90,7 @@ object UseCasesModule {
                     settingsManager = get(),
                     storagesRepo = get(),
                     favoritesManager = get(),
-                    initStorageFromDefaultSettingsUseCase = get(),
+                    fillStorageFieldsFromDefaultSettingsUseCase = get(),
                 )
             }
 
@@ -231,7 +231,7 @@ object UseCasesModule {
             }
 
             scoped {
-                InitStorageFromDefaultSettingsUseCase(
+                FillStorageFieldsFromDefaultSettingsUseCase(
                     context = androidContext()
                 )
             }

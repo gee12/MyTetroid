@@ -44,6 +44,10 @@ public class CommonSettings {
         return getInt(context, R.string.pref_key_settings_version, 0);
     }
 
+    public static boolean hasSettingsVersion(Context context) {
+        return settings.contains(context.getString(R.string.pref_key_settings_version));
+    }
+
     public static void setSettingsCurrentVersion(Context context) {
         setInt(context, R.string.pref_key_settings_version, Constants.SETTINGS_VERSION_CURRENT);
     }

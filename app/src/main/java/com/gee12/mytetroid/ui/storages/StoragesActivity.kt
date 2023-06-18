@@ -182,7 +182,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
                     is BaseEvent.Permission.Check -> {
                         if (event.permission is TetroidPermission.FileStorage.Write) {
                             storageViewModel.checkAndRequestWriteFileStoragePermission(
-                                file = event.permission.root,
+                                uri = event.permission.uri,
                                 requestCode = PermissionRequestCode.CREATE_STORAGE_FILES,
                             )
                         }

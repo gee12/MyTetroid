@@ -6,6 +6,7 @@ import com.anggrayudi.storage.file.DocumentFileCompat
 import com.anggrayudi.storage.file.child
 import com.anggrayudi.storage.file.openInputStream
 import com.gee12.mytetroid.common.*
+import com.gee12.mytetroid.common.extensions.parseUri
 import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.domain.manager.FavoritesManager
 import com.gee12.mytetroid.model.FilePath
@@ -42,7 +43,7 @@ class InitStorageUseCase(
     private fun loadIniConfig(params: Params): Either<Failure, None> {
         val storage = params.storage
         val databaseConfig = params.databaseConfig
-        val storageFolderUri = Uri.parse(storage.uri)
+        val storageFolderUri = storage.uri.parseUri()
         val storageFolderPath = FilePath.FolderFull(storageFolderUri.path.orEmpty())
         val iniFilePath = FilePath.File(storageFolderPath.fullPath, Constants.DATABASE_INI_FILE_NAME)
 

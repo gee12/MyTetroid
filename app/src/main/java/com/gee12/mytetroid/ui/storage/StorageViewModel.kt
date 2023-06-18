@@ -5,13 +5,14 @@ import android.app.Application
 import android.content.Context
 import android.net.Uri
 import android.text.TextUtils
-import androidx.documentfile.provider.DocumentFile
 import com.anggrayudi.storage.file.DocumentFileCompat
+import com.anggrayudi.storage.file.toRawFile
 import com.gee12.htmlwysiwygeditor.Dialogs.*
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.getExtensionWithoutComma
 import com.gee12.mytetroid.common.extensions.makePath
+import com.gee12.mytetroid.common.extensions.parseUri
 import com.gee12.mytetroid.common.extensions.withExtension
 import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.data.*
@@ -242,7 +243,7 @@ open class StorageViewModel(
 
         CommonSettings.setLastStorageId(getContext(), storage.id)
 
-        val storageFolderUri = Uri.parse(storage.uri)
+        val storageFolderUri = storage.uri.parseUri()
 
         checkAndRequestFileStoragePermission(
             storage = storage,
@@ -265,26 +266,45 @@ open class StorageViewModel(
 
     fun startInitStorageAfterPermissionsGranted(
         activity: Activity,
-        root: DocumentFile
+        uri: Uri,
     ) {
         launchOnIo {
-            storage?.also {
-                val storageRootUri = Uri.parse(it.uri)
-                DocumentFileCompat.fromUri(getContext(), storageRootUri)?.let { storageRoot ->
+            storage?.also { storage ->
+                val storageUri = storage.uri
+                val selectedFile = DocumentFileCompat.fromUri(getContext(), uri)
+                val selectedFileRawPath = selectedFile?.toRawFile(getContext())?.path
+                val (storageRootUri, storageRoot) = if (selectedFileRawPath == storageUri) {
+                    uri to selectedFile
+                } else {
+                    val parsedUri = storageUri.parseUri()
+                    parsedUri to DocumentFileCompat.fromUri(getContext(), parsedUri)
+                }
+                storageRoot?.let {
 
                     // перепроверяем доступ к файловому хранилищу
                     if (fileStorageManager.checkWriteFileStoragePermission(storageRoot)) {
+
+                        // если в storage.uri у нас был старый path
+                        //  и мы выбрали этот же каталог (т.е. выбранный uri.toRawFile.path совпадает с storage.uri),
+                        //  значит берем выбранный uri и перезаписываем вместо старого storage.uri
+                        if (storageRootUri.toString() != storageUri) {
+                            storage.uri = storageRootUri.toString()
+                            updateStorageInDb(storage)
+                        }
                         // устанавливаем полученный DocumentFile
                         storageProvider.setRootFolder(storageRoot)
 
                         syncAndInitStorage(activity)
                     } else {
                         requestFileStorageAccess(
-                            permission = TetroidPermission.FileStorage.Write(storageRoot),
+                            permission = TetroidPermission.FileStorage.Write(storageRootUri),
                             requestCode = PermissionRequestCode.OPEN_STORAGE_FOLDER,
                         )
                     }
-                }
+                } ?: requestFileStorageAccess(
+                        permission = TetroidPermission.FileStorage.Write(storageRootUri),
+                        requestCode = PermissionRequestCode.OPEN_STORAGE_FOLDER,
+                    )
             }
         }
     }

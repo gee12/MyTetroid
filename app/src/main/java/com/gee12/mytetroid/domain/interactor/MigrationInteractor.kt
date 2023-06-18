@@ -1,11 +1,12 @@
 package com.gee12.mytetroid.domain.interactor
 
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.extensions.getNameFromPath
 import com.gee12.mytetroid.common.flatMap
 import com.gee12.mytetroid.common.map
 import com.gee12.mytetroid.common.toRight
 import com.gee12.mytetroid.domain.manager.FavoritesManager
-import com.gee12.mytetroid.domain.usecase.storage.InitStorageFromDefaultSettingsUseCase
+import com.gee12.mytetroid.domain.usecase.storage.FillStorageFieldsFromDefaultSettingsUseCase
 import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.repo.StoragesRepo
@@ -18,7 +19,7 @@ class MigrationInteractor(
     private val settingsManager: CommonSettingsManager,
     private val storagesRepo: StoragesRepo,
     private val favoritesManager: FavoritesManager,
-    private val initStorageFromDefaultSettingsUseCase: InitStorageFromDefaultSettingsUseCase,
+    private val fillStorageFieldsFromDefaultSettingsUseCase: FillStorageFieldsFromDefaultSettingsUseCase,
 ) {
 
     suspend fun isNeedMigrateStorageFromPrefs(): Boolean {
@@ -31,10 +32,13 @@ class MigrationInteractor(
      * Миграция с версии < 5.0, когда не было многобазовости.
      */
     suspend fun addDefaultStorageFromPrefs(): Boolean {
-        return initStorageFromDefaultSettingsUseCase.run(
-            storage = TetroidStorage(
-                uri = settingsManager.getStoragePath()
-            )
+        return fillStorageFieldsFromDefaultSettingsUseCase.run(
+            storage = settingsManager.getStoragePath().let { path ->
+                TetroidStorage(
+                    name = path.getNameFromPath(),
+                    uri = path,
+                )
+            }
         ).map { storage ->
             storage.also {
                 it.isDefault = true

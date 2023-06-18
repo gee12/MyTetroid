@@ -8,9 +8,9 @@ import com.gee12.mytetroid.common.toRight
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.model.TetroidStorage
 
-class InitStorageFromDefaultSettingsUseCase(
+class FillStorageFieldsFromDefaultSettingsUseCase(
     private val context: Context, // TODO: CommonSettingsProvider
-) : UseCase<TetroidStorage, InitStorageFromDefaultSettingsUseCase.Params>() {
+) : UseCase<TetroidStorage, FillStorageFieldsFromDefaultSettingsUseCase.Params>() {
 
     data class Params(
         val storage: TetroidStorage,
