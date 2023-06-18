@@ -17,8 +17,8 @@ class StorageTreeObserver(
     var observerStartedCallback: (() -> Unit)? = null
     var observerStoppedCallback: (() -> Unit)? = null
 
-    suspend fun startObserver(storagePath: String/*, callback: (TetroidFileObserver.Even) -> Unitt*/) {
-        fileObserver?.stop()
+    suspend fun startObserver(storagePath: String) {
+        /*fileObserver?.stop()
         fileObserver = null
 
         fileObserver = TetroidFileObserver(
@@ -31,15 +31,15 @@ class StorageTreeObserver(
         fileObserver?.create()
         fileObserver?.start()
 
-        observerStartedCallback?.invoke()
+        observerStartedCallback?.invoke()*/
     }
 
     fun stopObserver() {
-        fileObserver?.stop()
+        /*fileObserver?.stop()
         fileObserver = null
         logger.log(app.getString(R.string.log_mytetra_xml_observer_mask, app.getString(R.string.stopped)), false)
 
-        observerStoppedCallback?.invoke()
+        observerStoppedCallback?.invoke()*/
     }
 
 }

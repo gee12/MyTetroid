@@ -60,10 +60,12 @@
 <!--        android:summary="@string/pref_is_not_remember_sync_app_summ"-->
 <!--        android:title="@string/pref_is_not_remember_sync_app" />-->
 
+    <!--
     <CheckBoxPreference
         android:defaultValue="true"
         android:key="@string/pref_key_check_outside_changing"
         android:summary="@string/pref_check_outside_changing_summ"
         android:title="@string/pref_check_outside_changing" />
+        -->
 
 </PreferenceScreen>

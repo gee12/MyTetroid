@@ -51,10 +51,12 @@
         android:summary="@string/pref_ask_before_sync_summ_exit_storage"
         android:title="@string/pref_ask_before_sync" />
 
+    <!--
     <CheckBoxPreference
         android:defaultValue="true"
         android:key="@string/pref_key_check_outside_changing"
         android:summary="@string/pref_check_outside_changing_summ_storage"
         android:title="@string/pref_check_outside_changing" />
+        -->
 
 </PreferenceScreen>

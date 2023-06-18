@@ -2208,10 +2208,7 @@ class MainViewModel(
                 launchOnMain {
                     storageTreeInteractor.startObserver(
                         storagePath = storagePathProvider.getPathToMyTetraXml()
-                    ) /*{ event ->
-                        // обработка внешнего изменения дерева записей
-                        onStorageTreeOutsideChanged(event)
-                    }*/
+                    )
                 }
             }
         } else {
