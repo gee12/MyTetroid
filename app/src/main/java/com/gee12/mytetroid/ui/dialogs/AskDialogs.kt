@@ -83,7 +83,7 @@ object AskDialogs {
     fun showOkDialog(
         context: Context,
         @StringRes titleResId: Int? = null,
-        @StringRes messageRes: Int,
+        @StringRes messageResId: Int,
         @StringRes applyResId: Int,
         isCancelable: Boolean,
         onApply: () -> Unit,
@@ -91,7 +91,7 @@ object AskDialogs {
         showDialog(
             context = context,
             title = titleResId?.let { context.getString(titleResId) },
-            message = context.getString(messageRes),
+            message = context.getString(messageResId),
             isCancelable = isCancelable,
             applyResId = applyResId,
             onApply = onApply,

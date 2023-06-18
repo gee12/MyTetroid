@@ -538,7 +538,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     private fun showNeedMigrationDialog() {
         AskDialogs.showOkDialog(
             context = this,
-            messageRes = R.string.mes_need_migration,
+            messageResId = R.string.mes_need_migration,
             applyResId = R.string.answer_ok,
             isCancelable = false,
             onApply = {

@@ -46,7 +46,7 @@ abstract class TetroidFragment<VM : BaseStorageViewModel> : Fragment, View.OnTou
 
         createAndInitViewModel()
 
-        logger.logDebug(getString(R.string.log_fragment_opened_mask, javaClass.simpleName))
+        //logger.logDebug(getString(R.string.log_fragment_opened_mask, javaClass.simpleName))
         return inflater.inflate(getLayoutResourceId(), container, false)
     }
 
