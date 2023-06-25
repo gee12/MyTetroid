@@ -541,6 +541,7 @@
     <string name="label_icons_section">Section:</string>
     <string name="label_storage_name">Name:</string>
     <string name="label_storage_path">Path:</string>
+    <string name="label_storage_uri">Uri:</string>
     <string name="label_storage_size">Size on disk:</string>
     <string name="label_storage_last_edit">Last modified tree:</string>
     <string name="label_node">Node:</string>

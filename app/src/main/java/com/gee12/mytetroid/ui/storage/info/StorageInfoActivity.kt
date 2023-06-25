@@ -113,6 +113,7 @@ class StorageInfoActivity : TetroidStorageActivity<StorageInfoViewModel>() {
     private fun onStorageFoundInBase() {
         (findViewById<View>(R.id.text_view_name) as TextView).text = viewModel.getStorageName()
         (findViewById<View>(R.id.text_view_path) as TextView).text = viewModel.getStorageFolderPath().fullPath
+        (findViewById<View>(R.id.text_view_uri) as TextView).text = viewModel.getStorageUri().toString()
         viewModel.computeStorageFolderSize()
         viewModel.computeMyTetraXmlLastModifiedDate()
     }

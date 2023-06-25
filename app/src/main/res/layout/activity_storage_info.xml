@@ -72,6 +72,28 @@
 
             </LinearLayout>
 
+            <!-- Uri -->
+            <LinearLayout
+                android:id="@+id/layout_uri"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/layout_path"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/label_uri"
+                    style="@style/grid_cell_label"
+                    android:text="@string/label_storage_uri"/>
+
+                <TextView
+                    android:id="@+id/text_view_uri"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    style="@style/grid_cell_value"
+                    tools:text="@tools:sample/full_names"/>
+
+            </LinearLayout>
+
             <!-- Размер -->
             <TextView
                 android:id="@+id/label_size"
@@ -79,7 +101,7 @@
                 style="@style/grid_cell_label"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/text_view_size"
-                app:layout_constraintTop_toBottomOf="@id/layout_path"
+                app:layout_constraintTop_toBottomOf="@id/layout_uri"
                 app:layout_constraintHorizontal_chainStyle="spread_inside"
                 android:text="@string/label_storage_size" />
 
@@ -88,7 +110,7 @@
                 style="@style/grid_cell_value"
                 app:layout_constraintStart_toEndOf="@id/label_size"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/layout_path"
+                app:layout_constraintTop_toBottomOf="@id/layout_uri"
                 android:paddingBottom="4dp"
                 tools:text="@tools:sample/us_zipcodes" />
 
@@ -96,7 +118,7 @@
                 android:id="@+id/progress_size"
                 app:layout_constraintStart_toEndOf="@id/label_size"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/layout_path"
+                app:layout_constraintTop_toBottomOf="@id/layout_uri"
                 app:layout_constraintHorizontal_bias="1"
                 android:layout_width="16dp"
                 android:layout_height="16dp"

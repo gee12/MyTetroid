@@ -422,6 +422,7 @@
     <string name="label_favorite">В избранное</string>
     <string name="label_storage_name">Название:</string>
     <string name="label_storage_path">Путь:</string>
+    <string name="label_storage_uri">Uri:</string>
     <string name="label_storage_size">Размер на диске:</string>
     <string name="label_storage_last_edit">Последнее изменение дерева:</string>
     <string name="label_default_storage">Основное хранилище</string>
