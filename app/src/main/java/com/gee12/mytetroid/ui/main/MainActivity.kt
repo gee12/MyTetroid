@@ -226,6 +226,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         // принудительно запускаем создание пунктов меню уже после отработки onCreate
         super.afterOnCreate()
         isActivityCreated = true
+        viewModel.onUICreated()
     }
 
     /**
@@ -233,9 +234,9 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      * Вызывается из onCreateOptionsMenu(), т.к. пункты меню, судя по всему, создаются в последнюю очередь.
      */
     override fun onUICreated(isUICreated: Boolean) {
-        if (isUICreated) {
+        /*if (isUICreated) {
             viewModel.onUICreated()
-        }
+        }*/
     }
 
     // endregion Create

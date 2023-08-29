@@ -347,7 +347,6 @@ abstract class TetroidActivity<VM : BaseViewModel>
 
     /**
      * Установка заголовка активности.
-     * @param title
      */
     override fun setTitle(title: CharSequence?) {
         val isSingleTitle = isSingleTitle()
@@ -363,7 +362,6 @@ abstract class TetroidActivity<VM : BaseViewModel>
 
     /**
      * Установка подзаголовка активности.
-     * @param title
      */
     fun setSubtitle(title: CharSequence?) {
         tvSubtitle.text = title
@@ -385,8 +383,6 @@ abstract class TetroidActivity<VM : BaseViewModel>
     /**
      * Включение/отключение полноэкранного режима.
      * Оставлен только в RecordActivity.
-     * @param fromDoubleTap
-     * @return
      */
     open fun toggleFullscreen(fromDoubleTap: Boolean): Int {
         if (this is RecordActivity) {
@@ -405,9 +401,6 @@ abstract class TetroidActivity<VM : BaseViewModel>
     /**
      * Переопределяем обработчик нажатия на экране
      * для обработки перехода в полноэкранный режим.
-     * @param v
-     * @param event
-     * @return
      */
     override fun onTouch(v: View, event: MotionEvent): Boolean {
         gestureDetector.onTouchEvent(event)
@@ -437,13 +430,6 @@ abstract class TetroidActivity<VM : BaseViewModel>
         return true
     }
 
-/*    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        if (!isOnCreateCalled())
-            return true;
-        return false;
-    }*/
-
     fun updateOptionsMenu() {
         optionsMenu?.let {
             onPrepareOptionsMenu(it)
@@ -454,8 +440,6 @@ abstract class TetroidActivity<VM : BaseViewModel>
 
     /**
      * Обработчик выбора пунктов системного меню.
-     * @param item
-     * @return
      */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
@@ -602,8 +586,6 @@ abstract class TetroidActivity<VM : BaseViewModel>
 
     /**
      * Установка активности пункта меню.
-     * @param menuItem
-     * @param isEnabled
      */
     protected fun enableMenuItem(menuItem: MenuItem?, isEnabled: Boolean) {
         ViewUtils.setEnabledIfNotNull(menuItem, isEnabled)
@@ -621,7 +603,6 @@ abstract class TetroidActivity<VM : BaseViewModel>
 
     /**
      * Установка подзаголовка активности.
-     * @param subtitle
      */
     fun setSubtitle(subtitle: String?) {
         tvSubtitle.visibility = View.VISIBLE
