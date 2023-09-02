@@ -6,7 +6,6 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.annotation.StringRes
-import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.anggrayudi.storage.file.DocumentFileCompat
@@ -30,7 +29,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
 abstract class BaseViewModel(
-    application: Application,
+    app: Application,
     val buildInfoProvider: BuildInfoProvider,
     val resourcesProvider: IResourcesProvider,
     val logger: ITetroidLogger,
@@ -38,7 +37,7 @@ abstract class BaseViewModel(
     val failureHandler: IFailureHandler,
     val settingsManager: CommonSettingsManager,
     val appPathProvider: IAppPathProvider,
-) : AndroidViewModel(application) {
+) : AndroidViewModel(app) {
 
     private val internalCoroutineExceptionHandler =
         CoroutineExceptionHandler { _, throwable ->
@@ -46,7 +45,7 @@ abstract class BaseViewModel(
             logError(throwable)
             if (isBusy) {
                 launchOnMain {
-                    sendEvent(BaseEvent.HideProgress)
+                    hideProgress()
                 }
             }
         }
@@ -57,7 +56,7 @@ abstract class BaseViewModel(
     var isBusy = false
 
     val permissionManager = PermissionManager(buildInfoProvider, resourcesProvider, this.logger)
-    val fileStorageManager = FileStorageManager(context = application, buildInfoProvider)
+    val fileStorageManager = FileStorageManager(context = app, buildInfoProvider)
 
     private val _messageEventFlow = MutableSharedFlow<Message>(extraBufferCapacity = 0)
     val messageEventFlow = _messageEventFlow.asSharedFlow()
@@ -141,6 +140,7 @@ abstract class BaseViewModel(
                     onManualPermissionRequest = { requestCallback ->
                         showManualPermissionRequest(
                             permission = permission,
+                            requestCode = PermissionRequestCode.OPEN_CAMERA,
                             requestCallback = requestCallback
                         )
                     }
@@ -163,6 +163,7 @@ abstract class BaseViewModel(
                     onManualPermissionRequest = { requestCallback ->
                         showManualPermissionRequest(
                             permission = permission,
+                            requestCode = requestCode,
                             requestCallback = requestCallback
                         )
                     }
@@ -187,6 +188,7 @@ abstract class BaseViewModel(
                 onManualPermissionRequest = { requestCallback ->
                     showManualPermissionRequest(
                         permission = permission,
+                        requestCode = PermissionRequestCode.TERMUX,
                         requestCallback = requestCallback
                     )
                 }
@@ -382,6 +384,22 @@ abstract class BaseViewModel(
     }
 
     //endregion Message
+
+    //region Progress
+
+    protected suspend fun showProgressWithText(resId: Int) {
+        showProgressWithText(message = getString(resId))
+    }
+
+    protected suspend fun showProgressWithText(message: String) {
+        sendEvent(BaseEvent.ShowProgressWithText(message))
+    }
+
+    protected suspend fun hideProgress() {
+        sendEvent(BaseEvent.HideProgress)
+    }
+
+    //endregion Progress
 
     //region Context
 

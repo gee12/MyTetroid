@@ -377,7 +377,9 @@
     <string name="stage_old_pass_decrypting">Расшифровка хранилища старым паролем…</string>
     <string name="stage_new_pass_reencrypting">Перешифровка хранилища новым паролем…</string>
     <string name="stage_storage_saving">Сохранение структуры хранилища…</string>
-
+    <string name="state_file_downloading">Загрузка файла</string>
+    <string name="state_image_downloading">Загрузка изображения</string>
+    <string name="state_image_saving">Сохранение изображения</string>
     <string name="state_loading">Загрузка…</string>
     <string name="state_storage_files_creating">Создание файлов хранилища…</string>
     <string name="state_record_copying">Копирование записи…</string>

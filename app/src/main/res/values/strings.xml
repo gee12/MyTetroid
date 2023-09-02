@@ -482,6 +482,9 @@
     <string name="state_voice_input_start">Starting voice input…</string>
     <string name="state_voice_input_recognition">Voice input recognition…</string>
     <string name="state_export_to_pdf">Export to pdf…</string>
+    <string name="state_file_downloading">File downloading</string>
+    <string name="state_image_downloading">Image downloading</string>
+    <string name="state_image_saving">Image saving</string>
 
     <string name="filter_records_in_node_by_query">Filter records in node [%1$s] by query "%2$s"</string>
     <string name="filter_records_in_tag_by_query">Filter records in tag records [%1$s] by query "%2$s"</string>

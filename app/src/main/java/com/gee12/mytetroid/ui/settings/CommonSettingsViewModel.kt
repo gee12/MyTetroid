@@ -31,7 +31,7 @@ class CommonSettingsViewModel(
     appPathProvider: IAppPathProvider,
     private val clearAllStoragesTrashFolderUseCase: ClearAllStoragesTrashFolderUseCase,
 ) : BaseViewModel(
-    application = app,
+    app = app,
     buildInfoProvider = buildInfoProvider,
     resourcesProvider = resourcesProvider,
     logger = logger,

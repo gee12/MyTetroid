@@ -402,8 +402,31 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      */
     private fun onMainEvent(event: MainEvent) {
         when (event) {
-            MainEvent.Migrated -> {
-                showMigrationDialog()
+            is MainEvent.InitUI -> {
+                initUI(
+                    isLoaded = event.result,
+                    isOnlyFavorites = event.isLoadFavoritesOnly,
+                    isOpenLastNode = event.isHandleReceivedIntent,
+                    isAllNodesOpening = event.isAllNodesLoading,
+                )
+            }
+            is MainEvent.UpdateToolbar -> {
+                updateMainToolbar(event.viewId, event.title)
+            }
+            MainEvent.HandleReceivedIntent -> {
+                checkReceivedIntent(receivedIntent)
+            }
+            is MainEvent.OpenPage -> {
+                setCurrentPage(event.pageId)
+            }
+            is MainEvent.ShowMainView -> {
+                mainPage?.showView(event.viewId)
+            }
+            MainEvent.ClearMainView -> {
+                mainPage?.clearView()
+            }
+            MainEvent.CloseFoundView -> {
+                closeFoundFragment()
             }
             is MainEvent.Node -> {
                 onNodeEvent(event)

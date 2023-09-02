@@ -10,9 +10,34 @@ sealed class MainEvent(
     val endTaskEvent: Boolean = false,
 ) : StorageEvent() {
 
-    // migration
-    object Migrated : MainEvent()
+    // ui
+    data class InitUI(
+        val storage: TetroidStorage,
+        var result: Boolean = false, // результат открытия/расшифровки
+        var isLoadFavoritesOnly: Boolean, // нужно ли загружать только избранные записи,
+        //  или загружены только избранные записи, т.е. в избранном нажали на не расшифрованную запись
+        val isHandleReceivedIntent: Boolean, // ужно ли после загрузки открыть ветку, сохраненную в опции getLastNodeId()
+        //  или ветку с избранным (если именно она передана в node)
+        var isAllNodesLoading: Boolean = false, // загрузка всех веток после режима isLoadedFavoritesOnly
+    ) : MainEvent()
 
+    data class UpdateToolbar(
+        val viewId: Int,
+        val title: String?,
+    ) : MainEvent()
+
+    data class OpenPage(
+        val pageId: Int,
+    ) : MainEvent()
+    data class ShowMainView(
+        val viewId: Int,
+    ) : MainEvent()
+    object ClearMainView : MainEvent()
+    object CloseFoundView : MainEvent()
+
+    object HandleReceivedIntent : MainEvent()
+
+    // nodes
     sealed class Node(
         val node: TetroidNode,
         startTaskEvent: Boolean = false,
@@ -75,6 +100,7 @@ sealed class MainEvent(
 
     object UpdateNodes : MainEvent()
 
+    // records
     sealed class Record(
         startTaskEvent: Boolean = false,
         endTaskEvent: Boolean = false,
@@ -166,7 +192,6 @@ sealed class MainEvent(
             class Success(attach: TetroidFile) : Delete(attach)
         }
     }
-
 
     // attaches
     data class ShowAttaches(

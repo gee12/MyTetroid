@@ -39,7 +39,7 @@ class StoragesViewModel(
     private val fillStorageFieldsFromDefaultSettingsUseCase: FillStorageFieldsFromDefaultSettingsUseCase,
     private val deleteStorageUseCase: DeleteStorageUseCase,
 ) : BaseViewModel(
-    application = app,
+    app = app,
     buildInfoProvider = buildInfoProvider,
     resourcesProvider = resourcesProvider,
     logger = logger,

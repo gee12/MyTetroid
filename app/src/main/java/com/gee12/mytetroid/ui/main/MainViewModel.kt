@@ -272,7 +272,7 @@ class MainViewModel(
 
     fun openPage(pageId: Int) {
         launchOnMain {
-            sendEvent(BaseEvent.OpenPage(pageId))
+            sendEvent(MainEvent.OpenPage(pageId))
         }
     }
 
@@ -283,14 +283,14 @@ class MainViewModel(
             this.lastMainViewId = curMainViewId
         }
         launchOnMain {
-            sendEvent(BaseEvent.ShowMainView(viewId))
+            sendEvent(MainEvent.ShowMainView(viewId))
         }
         this.curMainViewId = viewId
     }
 
     fun closeFoundFragment() {
         launchOnMain {
-            sendEvent(BaseEvent.CloseFoundView)
+            sendEvent(MainEvent.CloseFoundView)
         }
     }
 
@@ -308,7 +308,7 @@ class MainViewModel(
 
     fun updateToolbar(viewId: Int, title: String?) {
         launchOnMain {
-            sendEvent(BaseEvent.UpdateToolbar(viewId, title))
+            sendEvent(MainEvent.UpdateToolbar(viewId, title))
         }
     }
 
@@ -505,7 +505,7 @@ class MainViewModel(
                     )
                 )
             }.onComplete {
-                sendEvent(BaseEvent.HideProgress)
+                hideProgress()
             }.onFailure { failure ->
                 sendEvent(MainEvent.Record.Insert.Failed(record, failure))
                 when (failure) {
@@ -561,7 +561,7 @@ class MainViewModel(
                     )
                 )
             }.onComplete {
-                sendEvent(BaseEvent.HideProgress)
+                hideProgress()
             }.onFailure { failure ->
                 logFailure(failure)
                 sendEvent(MainEvent.Record.Create.Failed(name, failure))
@@ -1221,7 +1221,7 @@ class MainViewModel(
                     curRecord = null
                     curNode = null
                     launchOnMain {
-                        sendEvent(BaseEvent.ClearMainView)
+                        sendEvent(MainEvent.ClearMainView)
                     }
                 }
                 if (node.isCrypted) {
@@ -1360,18 +1360,14 @@ class MainViewModel(
                     showNode(node)
                 }
             }
-            sendEvent(BaseEvent.HandleReceivedIntent)
+            sendEvent(MainEvent.HandleReceivedIntent)
         }
     }
 
     private fun setStage(obj: LogObj, oper: LogOper, stage: Stages) {
         val taskStage = TaskStage(Constants.TetroidView.Main, obj, oper, stage)
         launchOnMain {
-            sendEvent(
-                BaseEvent.ShowProgressWithText(
-                    message = logger.logTaskStage(taskStage).orEmpty()
-                )
-            )
+            showProgressWithText(message = logger.logTaskStage(taskStage).orEmpty())
         }
     }
 
@@ -2265,20 +2261,16 @@ class MainViewModel(
 
     // region Main view
 
-    fun onUICreated() {
+    fun initStorageOrUi() {
         launchOnMain {
             if (isStorageLoaded()) {
                 // инициализация контролов
-                sendEvent(
-                    BaseEvent.InitUI(
-                        storage = storage!!,
-                        isLoadFavoritesOnly = isLoadedFavoritesOnly(),
-                        isHandleReceivedIntent = true,
-                        result = true
-                    )
-                )
                 // действия после загрузки хранилища
-                sendEvent(StorageEvent.Loaded(isLoaded = true))
+                sendEvent(StorageEvent.Loaded(
+                    isLoaded = true,
+                    isLoadedFavoritesOnly = isLoadedFavoritesOnly(),
+                    isHandleReceivedIntent = true,
+                ))
             } else {
                 // проверяем необходимость миграции
                 val mirgationStarted = withIo {

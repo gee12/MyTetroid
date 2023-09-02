@@ -38,6 +38,11 @@ abstract class StorageEvent : BaseEvent() {
     object StartLoadingOrDecrypting: StorageEvent()
     data class Loaded(
         val isLoaded: Boolean,
+        var isLoadedFavoritesOnly: Boolean, // нужно ли загружать только избранные записи,
+        //  или загружены только избранные записи, т.е. в избранном нажали на не расшифрованную запись
+        val isHandleReceivedIntent: Boolean, // ужно ли после загрузки открыть ветку, сохраненную в опции getLastNodeId()
+        //  или ветку с избранным (если именно она передана в node)
+        var isAllNodesLoading: Boolean = false, // загрузка всех веток после режима isLoadedFavoritesOnly
     ) : StorageEvent()
     object Decrypted : StorageEvent()
     object TreeChangedOutside : StorageEvent()

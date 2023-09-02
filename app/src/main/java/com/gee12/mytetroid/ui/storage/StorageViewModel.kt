@@ -525,17 +525,12 @@ open class StorageViewModel(
                 }
             )
 
-            // инициализация контролов
-            sendEvent(
-                BaseEvent.InitUI(
-                    storage = storage!!,
-                    isLoadFavoritesOnly = isFavoritesOnly,
-                    isHandleReceivedIntent = isOpenLastNode,
-                    result = result
-                )
-            )
             // действия после загрузки хранилища
-            sendEvent(StorageEvent.Loaded(result))
+            sendEvent(StorageEvent.Loaded(
+                isLoaded = result,
+                isLoadedFavoritesOnly = isFavoritesOnly,
+                isHandleReceivedIntent = isOpenLastNode,
+            ))
 
         }
     }
@@ -954,12 +949,8 @@ open class StorageViewModel(
             logError(R.string.log_link_is_empty)
             return
         }
-        this.sendEvent(
-            BaseEvent.ShowProgressWithText(
-                message = getString(R.string.title_file_downloading)
-            )
-        )
-        var fileName = UriUtils.getFileName(url).ifEmpty { dataNameProvider.createDateTimePrefix() }
+        showProgressWithText(R.string.state_file_downloading)
+        val fileName = UriUtils.getFileName(url).ifEmpty { dataNameProvider.createDateTimePrefix() }
 
         // TODO: взять путь из AppPathProvider
 
@@ -969,7 +960,7 @@ open class StorageViewModel(
             override fun onSuccess() {
                 callback?.onSuccess(Uri.fromFile(File(outputFileName)))
                 launchOnMain {
-                    sendEvent(BaseEvent.HideProgress)
+                    hideProgress()
                 }
             }
 
@@ -977,7 +968,7 @@ open class StorageViewModel(
                 callback?.onError(ex)
                 logError(getString(R.string.log_error_download_file_mask, ex.message.orEmpty()))
                 launchOnMain {
-                    sendEvent(BaseEvent.HideProgress)
+                    hideProgress()
                 }
             }
         })
@@ -1224,11 +1215,7 @@ open class StorageViewModel(
         private fun setStage(obj: LogObj, oper: LogOper, stage: TaskStage.Stages) {
             val taskStage = TaskStage(Constants.TetroidView.Settings, obj, oper, stage)
             launchOnMain {
-                sendEvent(
-                    BaseEvent.ShowProgressWithText(
-                        message = logger.logTaskStage(taskStage).orEmpty()
-                    )
-                )
+                showProgressWithText(message = logger.logTaskStage(taskStage).orEmpty())
             }
         }
     }

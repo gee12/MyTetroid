@@ -336,6 +336,15 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             RecordEvent.NeedMigration -> {
                 showNeedMigrationDialog()
             }
+            is RecordEvent.UpdateTitle -> {
+                setTitle(event.title)
+            }
+            RecordEvent.UpdateOptionsMenu -> {
+                updateOptionsMenu()
+            }
+            is RecordEvent.ShowHomeButton -> {
+                setVisibilityActionHome(event.isVisible)
+            }
             is RecordEvent.GetHtmlTextAndSaveToFile -> {
                 saveRecord(obj = event.obj)
             }
@@ -427,10 +436,18 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             is BaseEvent.Permission.Canceled -> {
                 onPermissionCanceled(event.requestCode)
             }
-            is BaseEvent.Permission.ShowRequest -> showPermissionRequest(
-                permission = event.permission,
-                requestCallback = event.requestCallback,
-            )
+            is BaseEvent.Permission.ShowRequest -> {
+                if (event.permission is TetroidPermission.FileStorage
+                    && event.requestCode == PermissionRequestCode.OPEN_STORAGE_FOLDER
+                ) {
+                    showFileStoragePermissionRequest(event.permission, event.requestCode)
+                } else {
+                    showPermissionRequest(
+                        permission = event.permission,
+                        requestCallback = event.requestCallback,
+                    )
+                }
+            }
         }
     }
 
@@ -526,7 +543,12 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         }
     }
 
-    override fun afterStorageLoaded(isLoaded: Boolean) {
+    override fun afterStorageLoaded(
+        isLoaded: Boolean,
+        isLoadFavoritesOnly: Boolean,
+        isHandleReceivedIntent: Boolean,
+        isAllNodesLoading: Boolean,
+    ) {
         viewModel.onStorageLoaded(isLoaded)
 
         if (recordFieldsDialog?.isVisible == true) {

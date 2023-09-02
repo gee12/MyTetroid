@@ -7,7 +7,21 @@ import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.ui.storage.StorageEvent
 
 sealed class RecordEvent : StorageEvent() {
+
+    // migration
     object NeedMigration : RecordEvent()
+
+    // ui
+    object UpdateOptionsMenu : RecordEvent()
+
+    data class UpdateTitle(
+        val title: String,
+    ) : RecordEvent()
+
+    data class ShowHomeButton(
+        val isVisible: Boolean,
+    ) : RecordEvent()
+
     data class LoadFields(
         val record: TetroidRecord,
     ) : RecordEvent()

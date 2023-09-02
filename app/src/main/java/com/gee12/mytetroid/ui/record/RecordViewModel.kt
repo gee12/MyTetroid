@@ -511,7 +511,7 @@ class RecordViewModel(
      */
     private fun initRecordFromWidget() {
         launchOnMain {
-            sendEvent(BaseEvent.ShowHomeButton(isVisible = false))
+            sendEvent(RecordEvent.ShowHomeButton(isVisible = false))
 
             // создаем временную запись
             withIo {
@@ -792,8 +792,9 @@ class RecordViewModel(
         }
     }
 
-    fun saveImage(bitmap: Bitmap) {
+    private fun saveImage(bitmap: Bitmap) {
         launchOnMain {
+            showProgressWithText(R.string.state_image_saving)
             withIo {
                 saveImageFromBitmapUseCase.run(
                     SaveImageFromBitmapUseCase.Params(
@@ -801,6 +802,8 @@ class RecordViewModel(
                         bitmap = bitmap,
                     )
                 )
+            }.onComplete {
+                hideProgress()
             }.onFailure {
                 logFailure(it)
 //                logOperError(LogObj.IMAGE, LogOper.SAVE, show = true)
@@ -813,11 +816,8 @@ class RecordViewModel(
 
     fun downloadWebPageContent(url: String?, isTextOnly: Boolean) {
         launchOnMain {
-            sendEvent(
-                BaseEvent.ShowProgressWithText(
-                    message = getString(R.string.title_page_downloading)
-                )
-            )
+            showProgressWithText(R.string.title_page_downloading)
+
             NetworkHelper.downloadWebPageContentAsync(url, isTextOnly, object : IWebPageContentResult {
                 override fun onSuccess(content: String, isTextOnly: Boolean) {
                     launchOnMain {
@@ -826,14 +826,15 @@ class RecordViewModel(
                             if (isTextOnly) RecordEvent.InsertWebPageText(text = content)
                             else RecordEvent.InsertWebPageContent(content = content)
                         )
-                        sendEvent(BaseEvent.HideProgress)
+                        hideProgress()
                     }
                 }
 
                 override fun onError(ex: java.lang.Exception) {
+                    logError(getString(R.string.log_error_download_image_mask, ex.message!!), true)
                     launchOnMain {
                         logError(getString(R.string.log_error_download_web_page_mask, ex.message!!), true)
-                        sendEvent(BaseEvent.HideProgress)
+                        hideProgress()
                     }
                 }
             })
@@ -842,23 +843,17 @@ class RecordViewModel(
 
     fun downloadImage(url: String?) {
         launchOnMain {
-            sendEvent(
-                BaseEvent.ShowProgressWithText(
-                    message = getString(R.string.title_image_downloading)
-                )
-            )
+            showProgressWithText(R.string.state_image_downloading)
+
             NetworkHelper.downloadImageAsync(url, object : IWebImageResult {
                 override fun onSuccess(bitmap: Bitmap) {
-                    launchOnMain {
-                        saveImage(bitmap)
-                        sendEvent(BaseEvent.HideProgress)
-                    }
+                    saveImage(bitmap)
                 }
 
                 override fun onError(ex: java.lang.Exception) {
+                    logError(getString(R.string.log_error_download_image_mask, ex.message!!), true)
                     launchOnMain {
-                        logError(getString(R.string.log_error_download_image_mask, ex.message!!), true)
-                        sendEvent(BaseEvent.HideProgress)
+                        hideProgress()
                     }
                 }
             })
@@ -989,7 +984,7 @@ class RecordViewModel(
                 sendEvent(RecordEvent.SwitchViews(viewMode = newMode))
             }
             curMode = newMode
-            sendEvent(BaseEvent.UpdateOptionsMenu)
+            sendEvent(RecordEvent.UpdateOptionsMenu)
         }
     }
 
@@ -1070,7 +1065,7 @@ class RecordViewModel(
         launchOnMain {
             curRecord.value?.let { record ->
                 log(resourcesProvider.getString(R.string.log_start_record_file_saving) + record.id)
-                sendEvent(BaseEvent.ShowProgressWithText(message = resourcesProvider.getString(R.string.state_record_saving)))
+                showProgressWithText(R.string.state_record_saving)
                 withIo {
                     saveRecordHtmlTextUseCase.run(
                         SaveRecordHtmlTextUseCase.Params(
@@ -1079,7 +1074,7 @@ class RecordViewModel(
                         )
                     )
                 }.onComplete {
-                    sendEvent(BaseEvent.HideProgress)
+                    hideProgress()
                 }.onFailure {
                     logFailure(it)
                 }.onSuccess {
@@ -1266,7 +1261,7 @@ class RecordViewModel(
         )
         if (pdfFile != null) {
             launchOnMain {
-                sendEvent(BaseEvent.ShowProgressWithText(resourcesProvider.getString(R.string.state_export_to_pdf)))
+                showProgressWithText(R.string.state_export_to_pdf)
                 // специально в Main
                 withMain {
                     printDocumentToFileUseCase.run(
@@ -1277,7 +1272,7 @@ class RecordViewModel(
                         )
                     )
                 }.onComplete {
-                    sendEvent(BaseEvent.HideProgress)
+                    hideProgress()
                 }.onFailure {
                     logFailure(it)
                 }.onSuccess {
@@ -1429,7 +1424,7 @@ class RecordViewModel(
                     }
                     saveRecord(resObj)
                     // показываем кнопку Home для возврата в ветку записи
-                    sendEvent(BaseEvent.ShowHomeButton(isVisible = true))
+                    sendEvent(RecordEvent.ShowHomeButton(isVisible = true))
                 } else {
                     log(R.string.log_record_fields_changed, true)
                 }
@@ -1468,7 +1463,7 @@ class RecordViewModel(
 
     fun setTitle(title: String) {
         launchOnMain {
-            sendEvent(BaseEvent.UpdateTitle(title))
+            sendEvent(RecordEvent.UpdateTitle(title))
         }
     }
 

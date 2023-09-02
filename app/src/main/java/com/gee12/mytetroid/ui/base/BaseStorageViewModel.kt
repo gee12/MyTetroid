@@ -31,7 +31,7 @@ abstract class BaseStorageViewModel(
     val storageProvider: IStorageProvider,
     val storagePathProvider: IStoragePathProvider,
 ) : BaseViewModel(
-    application = app,
+    app = app,
     buildInfoProvider = buildInfoProvider,
     resourcesProvider = resourcesProvider,
     logger = logger,

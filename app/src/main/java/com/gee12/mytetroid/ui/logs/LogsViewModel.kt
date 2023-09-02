@@ -26,7 +26,7 @@ class LogsViewModel(
     settingsManager: CommonSettingsManager,
     appPathProvider: IAppPathProvider,
 ) : BaseViewModel(
-    application = app,
+    app = app,
     buildInfoProvider = buildInfoProvider,
     resourcesProvider = resourcesProvider,
     logger = logger,
