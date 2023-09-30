@@ -7,7 +7,6 @@ import android.widget.*
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.isVisible
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.manager.ClipboardManager
@@ -28,7 +27,7 @@ import com.github.clans.fab.FloatingActionMenu
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.runBlocking
 
-class MainPageFragment : TetroidFragment<MainViewModel> {
+class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
     
     private lateinit var viewFlipperMain: ViewFlipper
     private lateinit var lvRecords: ListView
@@ -56,7 +55,7 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
         scopeSource = ScopeSource.current
     }
 
-    fun getTitle(): String {
+    override fun getTitle(): String {
         return resourcesProvider.getString(R.string.title_main_fragment)
     }
 
@@ -138,6 +137,11 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+
         val activity = activity as MainActivity?
         activity?.onMainPageCreated()
     }
@@ -179,35 +183,36 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
         listAdapterAttaches.reset()
     }
 
-    fun showView(viewId: Int) {
+    fun showView(viewType: MainViewType) {
         fabAddRecord.hide()
         fabAddAttach.hideMenu(true)
-        var whichChild = viewId
+        var whichChild = viewType
         var title: String? = null
-        when (viewId) {
-            Constants.MAIN_VIEW_NONE,
-            Constants.MAIN_VIEW_TAG_RECORDS -> {
-                whichChild = Constants.MAIN_VIEW_NODE_RECORDS
+        when (viewType) {
+            MainViewType.NONE,
+            MainViewType.TAG_RECORDS -> {
+                whichChild = MainViewType.NODE_RECORDS
             }
-            Constants.MAIN_VIEW_NODE_RECORDS -> {
+            MainViewType.NODE_RECORDS -> {
                 fabAddRecord.show()
             }
-            Constants.MAIN_VIEW_RECORD_FILES -> {
+            MainViewType.RECORD_ATTACHES -> {
                 if (!viewModel.isLoadedFavoritesOnly()) {
                     fabAddAttach.showMenu(true)
                 }
                 title = if (viewModel.curRecord != null) viewModel.curRecord!!.name else ""
             }
+            MainViewType.FAVORITES -> Unit
         }
-        viewModel.updateToolbar(viewId, title)
-        viewFlipperMain.displayedChild = whichChild - 1
+        viewModel.updateToolbar(page = PageType.MAIN, viewType = viewType, title)
+        viewFlipperMain.displayedChild = whichChild.index - 1
     }
 
     /**
      * Возврат фрагмента в первоначальное состояние.
      */
     fun clearView() {
-        viewModel.showMainView(Constants.MAIN_VIEW_NONE)
+        viewModel.showMainView(MainViewType.NONE)
         lvRecords.adapter = null
         lvAttaches.adapter = null
         tvRecordsEmpty.setText(R.string.title_select_the_node)
@@ -218,33 +223,31 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
 
     /**
      * Отображение списка записей.
-     * @param records
-     * @param viewId
      */
-    fun showRecords(records: List<TetroidRecord>, viewId: Int) {
-        viewModel.showMainView(viewId)
+    fun showRecords(records: List<TetroidRecord>, viewType: MainViewType) {
+        viewModel.showMainView(viewType)
         tvRecordsEmpty.setText(
-            if (viewId == Constants.MAIN_VIEW_FAVORITES) {
+            if (viewType == MainViewType.FAVORITES) {
                 R.string.title_favors_is_missing
             } else {
                 R.string.title_records_is_missing
             }
         )
         showGlobalSearchButton(false)
-        listAdapterRecords.setDataItems(records, viewId)
+        listAdapterRecords.setDataItems(records, viewType)
         lvRecords.adapter = listAdapterRecords
     }
 
     /**
      * Обновление списка записей.
      */
-    fun updateRecordList(records: List<TetroidRecord>, curMainViewId: Int) {
-        listAdapterRecords.setDataItems(records, curMainViewId)
+    fun updateRecordList(records: List<TetroidRecord>, currentViewType: MainViewType) {
+        listAdapterRecords.setDataItems(records, viewType = currentViewType)
     }
 
-    fun onRecordsFiltered(query: String?, found: List<TetroidRecord>, viewId: Int) {
+    fun onRecordsFiltered(query: String?, found: List<TetroidRecord>, viewType: MainViewType) {
         if (found.isEmpty()) {
-            val emptyText = if (viewId == Constants.MAIN_VIEW_NODE_RECORDS) {
+            val emptyText = if (viewType == MainViewType.NODE_RECORDS) {
                 getString(R.string.search_records_in_node_not_found_mask, query, viewModel.getCurNodeName())
             } else {
                 getString(R.string.search_records_in_tag_not_found_mask, query, viewModel.getSelectedTagsNames())
@@ -357,7 +360,7 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
         }.showIfPossible(parentFragmentManager)
     }
 
-    fun showRecordInfoDialog(record: TetroidRecord) {
+    private fun showRecordInfoDialog(record: TetroidRecord) {
         RecordInfoDialog(
             record = record,
             storageId = viewModel.getStorageId()
@@ -369,7 +372,7 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
     // region Attaches
 
     fun showAttaches(files: List<TetroidFile>) {
-        viewModel.showMainView(Constants.MAIN_VIEW_RECORD_FILES)
+        viewModel.showMainView(MainViewType.RECORD_ATTACHES)
         setAttachesList(files)
         lvAttaches.adapter = listAdapterAttaches
     }
@@ -482,7 +485,7 @@ class MainPageFragment : TetroidFragment<MainViewModel> {
         if (menuInfo == null) return
         val isPro = viewModel.buildInfoProvider.isFullVersion()
         val isLoadedFavoritesOnly = viewModel.isLoadedFavoritesOnly()
-        val isFavoritesView = viewModel.curMainViewId == Constants.MAIN_VIEW_FAVORITES
+        val isFavoritesView = viewModel.currentMainViewType == MainViewType.FAVORITES
         var isNonCrypted = false
         val record = listAdapterRecords.getItem(menuInfo.position) as? TetroidRecord
         if (record != null) {

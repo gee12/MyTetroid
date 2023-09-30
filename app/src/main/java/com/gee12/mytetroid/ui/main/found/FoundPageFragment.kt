@@ -10,7 +10,6 @@ import android.widget.ListView
 import android.widget.TextView
 import androidx.core.view.GestureDetectorCompat
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.model.FoundType
 import com.gee12.mytetroid.model.ITetroidObject
@@ -19,9 +18,11 @@ import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.ui.main.MainViewModel
 import com.gee12.mytetroid.ui.base.TetroidFragment
 import com.gee12.mytetroid.ui.main.MainActivity
+import com.gee12.mytetroid.ui.main.MainPage
+import com.gee12.mytetroid.ui.main.PageType
 import kotlinx.coroutines.runBlocking
 
-class FoundPageFragment : TetroidFragment<MainViewModel> {
+class FoundPageFragment : TetroidFragment<MainViewModel>, MainPage {
     
     private lateinit var lvFound: ListView
     private lateinit var listAdapterFound: FoundListAdapter
@@ -46,7 +47,7 @@ class FoundPageFragment : TetroidFragment<MainViewModel> {
         scopeSource = ScopeSource.current
     }
 
-    fun getTitle(): String {
+    override fun getTitle(): String {
         return resourcesProvider.getString(R.string.search_found_mask, foundCount)
     }
 
@@ -141,7 +142,7 @@ class FoundPageFragment : TetroidFragment<MainViewModel> {
     }
 
     fun onBackPressed(): Boolean {
-        viewModel.openPage(Constants.PAGE_MAIN)
+        viewModel.openPage(PageType.FOUND)
         return true
     }
 

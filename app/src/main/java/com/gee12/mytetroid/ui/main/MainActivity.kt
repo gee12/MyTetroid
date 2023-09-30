@@ -18,12 +18,13 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.documentfile.provider.DocumentFile
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
-import androidx.viewpager2.widget.ViewPager2
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.ICallback
 import com.gee12.mytetroid.common.extensions.fromHtml
+import com.gee12.mytetroid.common.extensions.orZero
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
@@ -50,7 +51,6 @@ import com.gee12.mytetroid.ui.dialogs.pin.PinCodeDialog.Companion.showDialog
 import com.gee12.mytetroid.ui.dialogs.pin.PinCodeDialog.IPinInputResult
 import com.gee12.mytetroid.ui.dialogs.storage.StorageDialogs
 import com.gee12.mytetroid.ui.main.found.FoundPageFragment
-import com.gee12.mytetroid.ui.tag.TagsFragment
 import com.gee12.mytetroid.ui.node.NodesListAdapter
 import com.gee12.mytetroid.ui.node.icon.IconsActivity
 import com.gee12.mytetroid.ui.record.RecordActivity
@@ -58,13 +58,15 @@ import com.gee12.mytetroid.ui.search.SearchActivity.Companion.start
 import com.gee12.mytetroid.ui.settings.SettingsActivity
 import com.gee12.mytetroid.ui.storage.StorageEvent
 import com.gee12.mytetroid.ui.storage.info.StorageInfoActivity.Companion.start
+import com.gee12.mytetroid.ui.tag.TagsFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.tabs.TabLayout
-import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.runBlocking
 import pl.openrnd.multilevellistview.*
 import java.util.*
+import kotlin.math.abs
+
 
 /**
  * Главная активность приложения со списком веток, записей и меток.
@@ -79,8 +81,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     private lateinit var searchViewNodes: SearchView
     private lateinit var searchViewTags: SearchView
     private lateinit var searchViewRecords: SearchView
-    private lateinit var viewPagerAdapter: MainPagerAdapter
-    private lateinit var viewPager: ViewPager2
     private lateinit var tabLayout: TabLayout
     private lateinit var favoritesNode: View
     private lateinit var btnLoadStorageNodes: Button
@@ -90,12 +90,12 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     private var isActivityCreated = false
     private var drawerStateBeforeLock = Gravity.NO_GRAVITY
 
-    private val mainPage: MainPageFragment
-        get() = viewPagerAdapter.mainFragment
-
-    private val foundPage: FoundPageFragment
-        get() = viewPagerAdapter.foundFragment
-
+    private var currentPage: PageType? = null
+    private var isCanChangePage = false
+    private var mainPage: MainPageFragment? = null
+    private var foundPage: FoundPageFragment? = null
+    private lateinit var mainTab: TabLayout.Tab
+    private lateinit var foundTab: TabLayout.Tab
 
     // region Create
 
@@ -104,6 +104,38 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     override fun getViewModelClazz() = MainViewModel::class.java
 
     override fun isSingleTitle() = false
+
+
+    private var x1 = 0f
+    private var x2 = 0f
+    private val MIN_DISTANCE = 150
+
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        var isEventHandled = false
+        if (isCanChangePage
+            && !drawerLayout.isDrawerVisible(GravityCompat.START)
+            && !drawerLayout.isDrawerVisible(GravityCompat.END)
+        ) {
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    x1 = event.x
+                }
+                MotionEvent.ACTION_UP -> {
+                    x2 = event.x
+                    val deltaX = x2 - x1
+                    if (abs(deltaX) > MIN_DISTANCE) {
+                        if (x2 > x1) {
+                            setCurrentPage(PageType.MAIN)
+                        } else {
+                            setCurrentPage(PageType.FOUND)
+                        }
+                        isEventHandled = true
+                    }
+                }
+            }
+        }
+        return isEventHandled || super.dispatchTouchEvent(event)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -127,28 +159,23 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         drawerLayout.setOnTouchListener(this)
 
         // страницы (главная и найдено)
-        viewPagerAdapter = MainPagerAdapter(
-            fragmentManager = supportFragmentManager,
-            lifecycle = lifecycle,
-            detector = gestureDetector,
-        )
-        viewPager = findViewById(R.id.view_pager)
-        viewPager.adapter = viewPagerAdapter
-        //viewPager.setGestureDetector(gestureDetector)
-        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-            override fun onPageSelected(position: Int) {
-                super.onPageSelected(position)
-                if (isActivityCreated) {
-                    changeToolBarByPage(position)
+        tabLayout = findViewById(R.id.tab_layout)
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab) {
+                PageType.fromIndex(index = tab.position.orZero())?.also { page ->
+                    setCurrentPage(page)
                 }
             }
+            override fun onTabUnselected(tab: TabLayout.Tab) {}
+            override fun onTabReselected(tab: TabLayout.Tab) {}
         })
 
-        tabLayout = findViewById(R.id.tab_layout)
-        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = viewPagerAdapter.getPageTitle(position)
-        }.attach()
-        setFoundPageVisibility(false)
+        mainTab = tabLayout.newTab()
+        foundTab = tabLayout.newTab()
+        tabLayout.addTab(mainTab)
+        tabLayout.addTab(foundTab)
+
+        hideFoundPage()
 
         // ветки
         lvNodes = findViewById(R.id.list_view_nodes)
@@ -251,6 +278,9 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
     override fun onDestroy() {
         super.onDestroy()
+
+        mainPage = null
+        foundPage = null
 
         // TODO ?
         //ScopeSource.main.scope.close()
@@ -411,22 +441,26 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 )
             }
             is MainEvent.UpdateToolbar -> {
-                updateMainToolbar(event.viewId, event.title)
+                updateToolbar(
+                    page = event.page,
+                    viewType = event.viewType,
+                    title = event.title,
+                )
             }
             MainEvent.HandleReceivedIntent -> {
                 checkReceivedIntent(receivedIntent)
             }
             is MainEvent.OpenPage -> {
-                setCurrentPage(event.pageId)
+                setCurrentPage(event.page)
             }
             is MainEvent.ShowMainView -> {
-                mainPage?.showView(event.viewId)
+                mainPage?.showView(event.viewType)
             }
             MainEvent.ClearMainView -> {
                 mainPage?.clearView()
             }
             MainEvent.CloseFoundView -> {
-                closeFoundFragment()
+                this.hideFoundPage()
             }
             is MainEvent.Node -> {
                 onNodeEvent(event)
@@ -443,21 +477,21 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             is MainEvent.ShowRecords -> {
                 showRecords(
                     records = event.records,
-                    viewId = event.viewId,
+                    viewType = event.viewType,
                     dropSearch = event.dropSearch,
                 )
             }
             is MainEvent.RecordsFiltered -> {
-                mainPage.onRecordsFiltered(
+                mainPage?.onRecordsFiltered(
                     query = event.query,
                     found = event.records,
-                    viewId = event.viewId
+                    viewType = event.viewType
                 )
             }
             is MainEvent.UpdateRecordsList -> {
-                mainPage.updateRecordList(
+                mainPage?.updateRecordList(
                     records = event.records,
-                    curMainViewId = event.curMainViewId
+                    currentViewType = event.currentViewType
                 )
             }
             is MainEvent.Tags.UpdateTags -> {
@@ -476,16 +510,16 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 onAttachEvent(event)
             }
             is MainEvent.ShowAttaches -> {
-                mainPage.showAttaches(event.attaches)
+                mainPage?.showAttaches(event.attaches)
             }
             is MainEvent.AttachesFiltered -> {
-                mainPage.onAttachesFiltered(event.query, event.attaches)
+                mainPage?.onAttachesFiltered(event.query, event.attaches)
             }
             MainEvent.UpdateAttaches -> {
-                mainPage.updateAttachesList()
+                mainPage?.updateAttachesList()
             }
             is MainEvent.ReloadAttaches -> {
-                mainPage.setAttachesList(event.attaches)
+                mainPage?.setAttachesList(event.attaches)
             }
             MainEvent.UpdateFavoritesNodeTitle -> {
                 updateFavoritesNodeTitle()
@@ -601,7 +635,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             }
             is MainEvent.Record.Cut.Success -> {
                 hideProgress()
-                mainPage.onDeleteRecordResult(event.record)
+                mainPage?.onDeleteRecordResult(event.record)
             }
             is MainEvent.Record.Cut.Failed -> {
                 hideProgress()
@@ -612,7 +646,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             }
             is MainEvent.Record.Delete.Success -> {
                 hideProgress()
-                mainPage.onDeleteRecordResult(event.record)
+                mainPage?.onDeleteRecordResult(event.record)
             }
             is MainEvent.Record.Delete.Failed -> {
                 hideProgress()
@@ -652,7 +686,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             }
             is MainEvent.Attach.Delete.Success -> {
                 hideProgress()
-                mainPage.onDeleteAttachResult(attach = event.attach)
+                mainPage?.onDeleteAttachResult(attach = event.attach)
             }
         }
     }
@@ -759,7 +793,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         isLoaded: Boolean,
         isOnlyFavorites: Boolean,
         isOpenLastNode: Boolean,
-        isAllNodesOpening: Boolean
+        isAllNodesOpening: Boolean,
     ) {
         val rootNodes: List<TetroidNode?> = viewModel.getRootNodes()
         val isEmpty = rootNodes.isEmpty()
@@ -788,7 +822,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             // обработка только "ветки" избранных записей
             if (isLoaded) {
                 // списки записей, файлов
-                mainPage.resetListAdapters()
+                mainPage?.resetListAdapters()
                 viewModel.showFavorites()
                 // список меток
                 fragmentTags.setTagsEmptyText(R.string.title_load_all_nodes)
@@ -804,7 +838,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 listAdapterNodes.setDataItems(rootNodes)
                 setListEmptyViewState(tvNodesEmpty, isEmpty, R.string.title_nodes_is_missing)
                 // списки записей, файлов
-                mainPage.resetListAdapters()
+                mainPage?.resetListAdapters()
                 // список меток
                 reloadTags()
                 fragmentTags.setTagsEmptyText(R.string.log_tags_is_missing)
@@ -833,7 +867,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                     }
                 } else {
                     // очищаем заголовок, список
-                    mainPage.clearView()
+                    mainPage?.clearView()
                     drawerLayout.openDrawer(GravityCompat.START)
                 }
                 if (!nodesAdapterInited) {
@@ -841,7 +875,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 }
                 if (!isEmpty) {
                     // списки записей, файлов
-                    mainPage.resetListAdapters()
+                    mainPage?.resetListAdapters()
                     if (nodeToSelect != null) {
                         if (nodeToSelect === FAVORITES_NODE) {
                             viewModel.showFavorites()
@@ -849,7 +883,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                             viewModel.showNode(nodeToSelect)
                         }
                     } else {
-                        mainPage.clearView()
+                        mainPage?.clearView()
                     }
 
                     // список меток
@@ -858,7 +892,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 }
                 setListEmptyViewState(tvNodesEmpty, isEmpty, R.string.title_nodes_is_missing)
             } else {
-                mainPage.clearView()
+                mainPage?.clearView()
                 setEmptyTextViews(R.string.title_storage_not_loaded)
             }
         }
@@ -928,7 +962,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     }
 
     private fun setEmptyTextViews(@StringRes mesId: Int) {
-        mainPage.setRecordsEmptyViewText(getString(mesId))
+        mainPage?.setRecordsEmptyViewText(getString(mesId))
         setListEmptyViewState(tvNodesEmpty, isVisible = true, mesId)
         fragmentTags.setListEmptyViewState(isVisible = true, mesId)
         drawerLayout.closeDrawers()
@@ -946,56 +980,65 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     /**
      * Изменение ToolBar по текущей странице.
      */
-    private fun changeToolBarByPage(curPage: Int) {
-        if (curPage == Constants.PAGE_MAIN) {
-            viewModel.restoreLastMainToolbarState()
+    private fun changeToolBarByPage(page: PageType) {
+        if (page == PageType.MAIN) {
+            viewModel.restoreLastToolbarState()
         } else {
-            updateMainToolbar(Constants.MAIN_VIEW_GLOBAL_FOUND, null)
+            updateToolbar(
+                page = page,
+                viewType = viewModel.currentMainViewType,
+                title = null,
+            )
         }
     }
 
     /**
      * Установка заголовка и подзаголовка ToolBar.
      */
-    fun updateMainToolbar(viewId: Int, title: String?) {
-        val newTitle = when (viewId) {
-            Constants.MAIN_VIEW_GLOBAL_FOUND -> getString(R.string.title_global_search)
-            Constants.MAIN_VIEW_NONE -> null
-            Constants.MAIN_VIEW_NODE_RECORDS -> viewModel.getCurNodeName()
-            Constants.MAIN_VIEW_TAG_RECORDS -> viewModel.getSelectedTagsNames()
-            Constants.MAIN_VIEW_FAVORITES -> getString(R.string.title_favorites)
-            Constants.MAIN_VIEW_RECORD_FILES -> title
-            else -> title
+    private fun updateToolbar(page: PageType, viewType: MainViewType, title: String?) {
+        val newTitle = when (page) {
+            PageType.MAIN -> when (viewType) {
+                MainViewType.NONE -> null
+                MainViewType.NODE_RECORDS -> viewModel.getCurNodeName()
+                MainViewType.TAG_RECORDS -> viewModel.getSelectedTagsNames()
+                MainViewType.FAVORITES -> getString(R.string.title_favorites)
+                MainViewType.RECORD_ATTACHES -> title
+                else -> title
+            }
+            PageType.FOUND -> getString(R.string.title_global_search)
         }
+
         setTitle(newTitle)
-        setSubtitle(viewId)
+        setSubtitle(page, viewType)
         updateOptionsMenu()
     }
 
     /**
      * Установка подзаголовка активности, указывающим на тип отображаемого объекта.
      */
-    private fun setSubtitle(viewId: Int) {
-        if (viewId != Constants.MAIN_VIEW_GLOBAL_FOUND) {
-            val titles = resources.getStringArray(R.array.view_type_titles)
-            // преобразуем идентификатор view в индекс заголовка
-            val titleId = viewId - 1
-            if (titleId >= 0 && titleId < titles.size) {
-                tvSubtitle.visibility = View.VISIBLE
-                tvSubtitle.textSize = 12f
-                tvSubtitle.text = if (viewId == Constants.MAIN_VIEW_TAG_RECORDS && viewModel.isMultiTagsMode) {
-                    val tagsSearchMode = settingsManager.getTagsSearchMode().getStringValue(resourcesProvider)
-                    "${resourcesProvider.getString(R.string.title_multiple_tags)} (${tagsSearchMode})"
+    private fun setSubtitle(page: PageType, viewType: MainViewType) {
+        when {
+            page == PageType.MAIN -> {
+                val subtitle = viewType.getSubtitle(resourcesProvider, isMultiTagsMode = viewModel.isMultiTagsMode)
+                if (subtitle != null) {
+                    tvSubtitle.visibility = View.VISIBLE
+                    tvSubtitle.textSize = 12f
+                    tvSubtitle.text = if (viewType == MainViewType.TAG_RECORDS && viewModel.isMultiTagsMode) {
+                        val tagsSearchMode = settingsManager.getTagsSearchMode().getStringValue(resourcesProvider)
+                        "$subtitle (${tagsSearchMode})"
+                    } else {
+                        subtitle
+                    }
                 } else {
-                    titles[titleId]
+                    tvSubtitle.visibility = View.GONE
                 }
-            } else  /*if (titleId < 0)*/ {
+            }
+            viewModel.lastSearchProfile != null -> {
+                setSubtitle("\"${viewModel.lastSearchProfile!!.query}\"")
+            }
+            else -> {
                 tvSubtitle.visibility = View.GONE
             }
-        } else if (viewModel.lastSearchProfile != null) {
-            setSubtitle("\"${viewModel.lastSearchProfile!!.query}\"")
-        } else {
-            tvSubtitle.visibility = View.GONE
         }
     }
 
@@ -1041,8 +1084,43 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         )
     }
 
-    private fun setCurrentPage(position: Int) {
-        viewPager.currentItem = position
+    private fun setCurrentPage(page: PageType) {
+        val (fragment, tab) = when (page) {
+            PageType.MAIN -> {
+                val page = mainPage ?: MainPageFragment(gestureDetector).also {
+                    mainPage = it
+                }
+                page to mainTab
+            }
+            PageType.FOUND -> {
+                val page = foundPage ?: FoundPageFragment(gestureDetector).also {
+                    foundPage = it
+                }
+                page to foundTab
+            }
+        }
+
+        tabLayout.selectTab(tab)
+        tabLayout.getTabAt(page.index)?.text = fragment.getTitle()
+
+        val isShowAnimation = isCanChangePage
+
+        supportFragmentManager.commit {
+            if (isShowAnimation) {
+                when (page) {
+                    PageType.MAIN -> {
+                        setCustomAnimations(R.anim.slide_in_to_right, R.anim.slide_out_to_right)
+                    }
+                    PageType.FOUND -> {
+                        setCustomAnimations(R.anim.slide_in_to_left, R.anim.slide_out_to_left)
+                    }
+                }
+            }
+            replace(R.id.fragment_container_main, fragment)
+            setReorderingAllowed(true)
+        }
+
+        changeToolBarByPage(page)
     }
 
     // endregion UI
@@ -1065,8 +1143,8 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      * Перезагрузка хранилища (при изменении пути в настройках).
      */
     private fun reinitStorage() {
-        closeFoundFragment()
-        mainPage.clearView()
+        hideFoundPage()
+        mainPage?.clearView()
         viewModel.startReinitStorage()
     }
 
@@ -1112,8 +1190,8 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     }
 
     private fun onStorageInited() {
-        closeFoundFragment()
-        mainPage.clearView()
+        hideFoundPage()
+        mainPage?.clearView()
     }
 
     // endregion LoadStorage
@@ -1431,7 +1509,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     private fun showEmptyPassCheckingFieldDialog(
         fieldName: String,
         passHash: String,
-        callbackEvent: BaseEvent
+        callbackEvent: BaseEvent,
     ) {
         AskDialogs.showYesNoCancelDialog(
             context = this,
@@ -1512,15 +1590,15 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     /**
      * Отображение списка записей.
      */
-    private fun showRecords(records: List<TetroidRecord>, viewId: Int) {
-        showRecords(records, viewId, dropSearch = true)
+    private fun showRecords(records: List<TetroidRecord>, viewType: MainViewType) {
+        showRecords(records, viewType, dropSearch = true)
     }
 
     /**
      * Отображение списка записей.
      * @param dropSearch Нужно ли закрыть фильтрацию SearchView
      */
-    private fun showRecords(records: List<TetroidRecord>, viewId: Int, dropSearch: Boolean) {
+    private fun showRecords(records: List<TetroidRecord>, viewType: MainViewType, dropSearch: Boolean) {
         // сбрасываем фильтрацию при открытии списка записей
         if (dropSearch && !searchViewRecords.isIconified) {
             // сбрасываем SearchView;
@@ -1533,8 +1611,8 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             viewModel.isDropRecordsFiltering = true
         }
         drawerLayout.closeDrawers()
-        setCurrentPage(Constants.PAGE_MAIN)
-        mainPage.showRecords(records, viewId)
+        setCurrentPage(PageType.MAIN)
+        mainPage?.showRecords(records, viewType)
     }
 
     // endregion Records
@@ -1546,7 +1624,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      */
     private fun openRecord(recordId: String, bundle: Bundle) {
         RecordActivity.start(this, Intent.ACTION_MAIN, Constants.REQUEST_CODE_RECORD_ACTIVITY, bundle)
-        mainPage.onRecordOpened(recordId)
+        mainPage?.onRecordOpened(recordId)
     }
 
     // endregion Record
@@ -1884,25 +1962,25 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
     // region GlobalSearch
 
-    private fun setFoundPageVisibility(isVisible: Boolean) {
-        if (!isVisible) {
-            setCurrentPage(Constants.PAGE_MAIN)
-        }
-        viewPager.isUserInputEnabled = isVisible // отключаем свайп страниц
-        tabLayout.visibility = if (isVisible) View.VISIBLE else View.GONE
+    private fun showFoundPage() {
+        setCurrentPage(PageType.FOUND)
+        isCanChangePage = true
+        tabLayout.isVisible = true
+    }
+
+    private fun hideFoundPage() {
+        setCurrentPage(PageType.MAIN)
+        isCanChangePage = false
+        tabLayout.isVisible = false
     }
 
     private fun onGlobalSearchFinished(found: Map<ITetroidObject, FoundType>, profile: SearchProfile) {
-        setFoundPageVisibility(true)
-        setCurrentPage(Constants.PAGE_FOUND)
-        foundPage.setFounds(found, profile)
-        // обновляем title у страницы
-        tabLayout.getTabAt(Constants.PAGE_FOUND)?.text = foundPage.getTitle()
-        foundPage.showFoundsIfFragmentCreated()
-    }
-
-    private fun closeFoundFragment() {
-        setFoundPageVisibility(false)
+        if (foundPage == null) {
+            foundPage = FoundPageFragment(gestureDetector)
+        }
+        foundPage?.setFounds(found, profile)
+        showFoundPage()
+        foundPage?.showFoundsIfFragmentCreated()
     }
 
     private fun research() {
@@ -2219,9 +2297,9 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      */
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         if (!isOnCreateProcessed) return true
-        val curViewId = if (viewPagerAdapter != null) viewModel.curMainViewId else 0
-        val canSearchRecords = viewPager != null && viewPager.currentItem == Constants.PAGE_MAIN && (curViewId == Constants.MAIN_VIEW_NODE_RECORDS
-                || curViewId == Constants.MAIN_VIEW_TAG_RECORDS)
+        val currentMainView = viewModel.currentMainViewType
+        val canSearchRecords = currentPage == PageType.MAIN &&
+                currentMainView in arrayOf(MainViewType.NODE_RECORDS, MainViewType.TAG_RECORDS)
         menu.findItem(R.id.action_search_records)?.isVisible = canSearchRecords
         menu.findItem(R.id.action_storage_sync)?.isVisible = viewModel.isStorageSyncEnabled()
         val isStorageLoaded = viewModel.isStorageLoaded()
@@ -2238,8 +2316,8 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     }
 
     private fun onPrepareMainOptionsMenu(menu: Menu) {
-        val isRecordFilesView = viewModel.curMainViewId == Constants.MAIN_VIEW_RECORD_FILES
-        val isFavoritesView = viewModel.curMainViewId == Constants.MAIN_VIEW_FAVORITES
+        val isRecordFilesView = viewModel.currentMainViewType == MainViewType.RECORD_ATTACHES
+        val isFavoritesView = viewModel.currentMainViewType == MainViewType.FAVORITES
         visibleMenuItem(menu.findItem(R.id.action_move_back), isRecordFilesView)
         visibleMenuItem(menu.findItem(R.id.action_cur_record), isRecordFilesView)
         visibleMenuItem(menu.findItem(R.id.action_cur_record_folder), isRecordFilesView)
@@ -2303,7 +2381,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             }
             R.id.action_cur_record -> {
                 viewModel.curRecord?.also {
-                    mainPage.showRecord(it)
+                    mainPage?.showRecord(it)
                 }
                 true
             }
@@ -2339,10 +2417,9 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 drawerLayout.closeDrawer(GravityCompat.END)
             } else {
                 var needToOpenDrawer = true
-                val curPage = viewPager.currentItem
-                if (curPage == Constants.PAGE_MAIN || curPage == Constants.PAGE_FOUND) {
-                    if (curPage == Constants.PAGE_MAIN && mainPage.onBackPressed()
-                        || curPage == Constants.PAGE_FOUND && foundPage.onBackPressed()
+                if (currentPage != null) {
+                    if (currentPage == PageType.MAIN && mainPage?.onBackPressed() == true
+                        || currentPage == PageType.FOUND && foundPage?.onBackPressed() == true
                     ) {
                         needToOpenDrawer = false
                     }
@@ -2360,10 +2437,9 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             } else if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
                 drawerLayout.closeDrawer(GravityCompat.END)
             } else {
-                val curPage = viewPager.currentItem
-                if (curPage == Constants.PAGE_MAIN || curPage == Constants.PAGE_FOUND) {
-                    if (curPage == Constants.PAGE_MAIN && !mainPage.onBackPressed()
-                        || curPage == Constants.PAGE_FOUND && !foundPage.onBackPressed()
+                if (currentPage != null) {
+                    if (currentPage == PageType.MAIN && mainPage?.onBackPressed() == false
+                        || currentPage == PageType.FOUND && foundPage?.onBackPressed() == false
                     ) {
                         if (CommonSettings.isConfirmAppExit(this)) {
                             askForExit()

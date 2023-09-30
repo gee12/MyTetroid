@@ -22,15 +22,16 @@ sealed class MainEvent(
     ) : MainEvent()
 
     data class UpdateToolbar(
-        val viewId: Int,
+        val page: PageType,
+        val viewType: MainViewType,
         val title: String?,
     ) : MainEvent()
 
     data class OpenPage(
-        val pageId: Int,
+        val page: PageType,
     ) : MainEvent()
     data class ShowMainView(
-        val viewId: Int,
+        val viewType: MainViewType,
     ) : MainEvent()
     object ClearMainView : MainEvent()
     object CloseFoundView : MainEvent()
@@ -153,19 +154,19 @@ sealed class MainEvent(
 
     data class ShowRecords(
         val records: List<TetroidRecord>,
-        val viewId: Int,
+        val viewType: MainViewType,
         val dropSearch: Boolean = true,
     ) : MainEvent()
 
     data class RecordsFiltered(
         val query: String,
         val records: List<TetroidRecord>,
-        val viewId: Int,
+        val viewType: MainViewType,
     ) : MainEvent()
 
     data class UpdateRecordsList(
         val records: List<TetroidRecord>,
-        val curMainViewId: Int,
+        val currentViewType: MainViewType,
     ) : MainEvent()
 
     // tags
@@ -201,7 +202,7 @@ sealed class MainEvent(
     data class AttachesFiltered(
         val query: String,
         val attaches: List<TetroidFile>,
-        val viewId: Int,
+        val viewType: MainViewType,
     ) : MainEvent()
 
     object UpdateAttaches : MainEvent()

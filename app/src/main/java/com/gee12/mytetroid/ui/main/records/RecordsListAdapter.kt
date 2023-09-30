@@ -5,9 +5,9 @@ import android.view.View
 import android.view.ViewGroup
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.domain.RecordFieldsSelector
-import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.ui.main.MainViewType
 import java.util.*
 
 class RecordsListAdapter(
@@ -36,9 +36,9 @@ class RecordsListAdapter(
         notifyDataSetChanged()
     }
 
-    fun setDataItems(dataSet: List<TetroidRecord>, viewId: Int) {
+    fun setDataItems(dataSet: List<TetroidRecord>, viewType: MainViewType) {
         this.dataSet = dataSet
-        isShowNodeName = viewId in arrayOf(Constants.MAIN_VIEW_TAG_RECORDS, Constants.MAIN_VIEW_FAVORITES)
+        isShowNodeName = viewType in arrayOf(MainViewType.TAG_RECORDS, MainViewType.FAVORITES)
         notifyDataSetChanged()
     }
 

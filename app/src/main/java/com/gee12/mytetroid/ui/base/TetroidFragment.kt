@@ -10,7 +10,6 @@ import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.core.view.GestureDetectorCompat
 import androidx.fragment.app.Fragment
-import com.gee12.mytetroid.R
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
@@ -71,7 +70,7 @@ abstract class TetroidFragment<VM : BaseStorageViewModel> : Fragment, View.OnTou
      * @return
      */
     override fun onTouch(v: View, event: MotionEvent): Boolean {
-        if (gestureDetector != null) gestureDetector!!.onTouchEvent(event)
+        gestureDetector?.onTouchEvent(event)
         return false
     }
 

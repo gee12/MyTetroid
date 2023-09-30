@@ -204,9 +204,13 @@
     <string name="title_need_load_storage">Need to load storage…</string>
     <string name="title_need_decrypt_storage">Need to decrypt storage…</string>
     <string name="title_empty_tag"><![CDATA[<no tags>]]></string>
-    <string name="title_multiple_tags">TAGS</string>
     <string name="title_tags_search_mode_subtitle">Search by tags:</string>
     <string name="title_storage_currently_in_use_mask">Storage «%s» is currently in use</string>
+
+    <string name="subtitle_main_page_node_records">NODE</string>
+    <string name="subtitle_main_page_record_files">FILES</string>
+    <string name="subtitle_main_page_tag_records">TAG</string>
+    <string name="subtitle_main_page_multiple_tags_records">TAGS</string>
 
     <string name="text_intent_create_text">Insert into a new record; Create a new record and add the transferred text</string>
     <string name="text_intent_create_image">Insert into a new record; Create a new record and add the transferred image (s) to its text</string>

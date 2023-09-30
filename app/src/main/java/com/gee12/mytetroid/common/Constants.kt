@@ -49,18 +49,6 @@ object Constants {
     const val REQUEST_CODE_SYNC_STORAGE = 107               // синхронизация хранилища
 
     // TODO: преобразовать в enum
-    const val PAGE_MAIN = 0
-    const val PAGE_FOUND = 1
-
-    // TODO: преобразовать в enum
-    const val MAIN_VIEW_GLOBAL_FOUND = -1
-    const val MAIN_VIEW_NONE = 0
-    const val MAIN_VIEW_NODE_RECORDS = 1
-    const val MAIN_VIEW_RECORD_FILES = 2
-    const val MAIN_VIEW_TAG_RECORDS = 3
-    const val MAIN_VIEW_FAVORITES = 4
-
-    // TODO: преобразовать в enum
     const val MODE_VIEW = 1
     const val MODE_EDIT = 2
     const val MODE_HTML = 3

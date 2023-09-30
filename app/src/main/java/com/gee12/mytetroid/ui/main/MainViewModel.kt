@@ -174,9 +174,9 @@ class MainViewModel(
         private const val MYTETRA_XML_EXISTING_DELAY = 1000L
     }
 
-    var curMainViewId = Constants.MAIN_VIEW_NONE
+    var currentMainViewType: MainViewType = MainViewType.NONE
         private set
-    private var lastMainViewId = 0
+    private var lastMainViewType: MainViewType = MainViewType.NONE
 
     var curNode: TetroidNode? = null
         private set
@@ -270,22 +270,22 @@ class MainViewModel(
 
     // region Pages
 
-    fun openPage(pageId: Int) {
+    fun openPage(page: PageType) {
         launchOnMain {
-            sendEvent(MainEvent.OpenPage(pageId))
+            sendEvent(MainEvent.OpenPage(page))
         }
     }
 
-    fun showMainView(viewId: Int) {
+    fun showMainView(viewType: MainViewType) {
         // сохраняем значение для возврата на старое View
         // (только, если осуществляется переключение на действительно другую вьюшку)
-        if (viewId != curMainViewId) {
-            this.lastMainViewId = curMainViewId
+        if (viewType != currentMainViewType) {
+            this.lastMainViewType = currentMainViewType
         }
         launchOnMain {
-            sendEvent(MainEvent.ShowMainView(viewId))
+            sendEvent(MainEvent.ShowMainView(viewType))
         }
-        this.curMainViewId = viewId
+        this.currentMainViewType = viewType
     }
 
     fun closeFoundFragment() {
@@ -297,18 +297,18 @@ class MainViewModel(
     /**
      * Восстанавливаем состояние Toolbar при переключении обратно к фрагменту MainPageFragment.
      */
-    fun restoreLastMainToolbarState() {
+    fun restoreLastToolbarState() {
         var title: String? = null
-        val restoredViewId = curMainViewId
-        if (restoredViewId == Constants.MAIN_VIEW_RECORD_FILES) {
+        val restoredView = currentMainViewType
+        if (restoredView == MainViewType.RECORD_ATTACHES) {
             title = curRecord?.name.orEmpty()
         }
-        updateToolbar(restoredViewId, title)
+        updateToolbar(page = PageType.MAIN, viewType = restoredView, title)
     }
 
-    fun updateToolbar(viewId: Int, title: String?) {
+    fun updateToolbar(page: PageType, viewType: MainViewType, title: String?) {
         launchOnMain {
-            sendEvent(MainEvent.UpdateToolbar(viewId, title))
+            sendEvent(MainEvent.UpdateToolbar(page, viewType, title))
         }
     }
 
@@ -469,10 +469,10 @@ class MainViewModel(
         curRecords.addAll(records)
     }
 
-    fun showRecords(records: List<TetroidRecord>, viewId: Int, dropSearch: Boolean = true) {
+    fun showRecords(records: List<TetroidRecord>, page: MainViewType, dropSearch: Boolean = true) {
         launchOnMain {
             setCurrentRecords(records)
-            sendEvent(MainEvent.ShowRecords(records, viewId, dropSearch))
+            sendEvent(MainEvent.ShowRecords(records, page, dropSearch))
         }
     }
 
@@ -727,7 +727,7 @@ class MainViewModel(
      * @param isUp
      */
     fun reorderRecords(pos: Int, isUp: Boolean) {
-        if (curMainViewId == Constants.MAIN_VIEW_FAVORITES) {
+        if (currentMainViewType == MainViewType.FAVORITES) {
             reorderFavorites(pos, isUp)
         } else {
             reorderNodeRecords(pos, isUp)
@@ -836,8 +836,8 @@ class MainViewModel(
                 logOperRes(LogObj.RECORD, if (isCutting) LogOper.CUT else LogOper.DELETE)
                 // переходим в список записей ветки после удаления
                 // (запись может быть удалена при попытке просмотра/изменения файла, например)
-                if (curMainViewId != Constants.MAIN_VIEW_NODE_RECORDS && curMainViewId != Constants.MAIN_VIEW_FAVORITES) {
-                    showMainView(Constants.MAIN_VIEW_NODE_RECORDS)
+                if (currentMainViewType !in arrayOf(MainViewType.NODE_RECORDS, MainViewType.FAVORITES)) {
+                    showMainView(MainViewType.NODE_RECORDS)
                 }
             }
         }
@@ -971,7 +971,7 @@ class MainViewModel(
             sendEvent(
                 MainEvent.UpdateRecordsList(
                     records = curRecords,
-                    curMainViewId = curMainViewId,
+                    currentViewType = currentMainViewType,
                 )
             )
         }
@@ -1015,7 +1015,7 @@ class MainViewModel(
         launchOnMain {
             log(getString(R.string.log_open_node) + node.getIdString(resourcesProvider))
             setCurrentNode(node)
-            showRecords(node.records, Constants.MAIN_VIEW_NODE_RECORDS)
+            showRecords(node.records, MainViewType.NODE_RECORDS)
 
             // сохраняем выбранную ветку
             saveLastSelectedNode(nodeId = node.id)
@@ -1528,7 +1528,7 @@ class MainViewModel(
             // сбрасываем текущую ветку
             setCurrentNode(node = null)
             log(getString(R.string.log_open_tag_records_mask, tag.name))
-            showRecords(tag.records, Constants.MAIN_VIEW_TAG_RECORDS)
+            showRecords(tag.records, MainViewType.TAG_RECORDS)
         }
     }
 
@@ -1550,7 +1550,7 @@ class MainViewModel(
             setCurrentNode(node = null)
             log(getString(R.string.log_open_tag_records_mask, getSelectedTagsNames()))
             val tagsRecords = getTagsRecords(selectedTags)
-            showRecords(tagsRecords, Constants.MAIN_VIEW_TAG_RECORDS)
+            showRecords(tagsRecords, MainViewType.TAG_RECORDS)
         }
     }
 
@@ -1704,7 +1704,7 @@ class MainViewModel(
             curRecord = record
             isFromRecordActivity = fromRecordActivity
             showAttaches(record.attachedFiles)
-            openPage(Constants.PAGE_MAIN)
+            openPage(PageType.MAIN)
         }
     }
 
@@ -1956,7 +1956,7 @@ class MainViewModel(
             if (!isLoadedFavoritesOnly()) {
                 setCurrentNode(node)
             }
-            showRecords(getFavoriteRecords(), Constants.MAIN_VIEW_FAVORITES, dropSearch = true)
+            showRecords(getFavoriteRecords(), MainViewType.FAVORITES, dropSearch = true)
 
             // сохраняем выбранную ветку
             saveLastSelectedNode(nodeId = node.id)
@@ -1983,7 +1983,7 @@ class MainViewModel(
                 val mes = getString(R.string.log_deleted_from_favor)
                 showMessage(mes)
                 log(mes + ": " + record.getIdString(resourcesProvider), false)
-                if (!record.isFavorite && curMainViewId == Constants.MAIN_VIEW_FAVORITES) {
+                if (!record.isFavorite && currentMainViewType == MainViewType.FAVORITES) {
                     curRecords.remove(record)
                 }
                 updateFavoritesNodeTitle()
@@ -2024,7 +2024,7 @@ class MainViewModel(
                 FoundType.TYPE_TAG -> (found as? TetroidTag)?.let { showTagRecords(it) }
             }
             if (type != FoundType.TYPE_RECORD) {
-                openPage(Constants.PAGE_MAIN)
+                openPage(PageType.MAIN)
             }
         }
     }
@@ -2088,20 +2088,21 @@ class MainViewModel(
         if (isSaveQuery) {
             TetroidSuggestionProvider.saveRecentQuery(getContext(), query)
         }
-        filterListInMainPage(query, curMainViewId)
+        filterListInMainPage(query, currentMainViewType)
     }
 
-    private fun filterListInMainPage(query: String, viewId: Int) {
-        when (viewId) {
-            Constants.MAIN_VIEW_NODE_RECORDS -> filterNodeRecords(query)
-            Constants.MAIN_VIEW_TAG_RECORDS -> filterTagRecords(query)
-            Constants.MAIN_VIEW_RECORD_FILES -> filterRecordAttaches(query)
+    private fun filterListInMainPage(query: String, viewType: MainViewType) {
+        when (viewType) {
+            MainViewType.NODE_RECORDS -> filterNodeRecords(query)
+            MainViewType.TAG_RECORDS -> filterTagRecords(query)
+            MainViewType.RECORD_ATTACHES -> filterRecordAttaches(query)
+            else -> Unit
         }
     }
 
     private fun filterNodeRecords(query: String) {
         if (curNode != null) {
-            filterRecords(query, curNode!!.records, Constants.MAIN_VIEW_NODE_RECORDS)
+            filterRecords(query, curNode!!.records, MainViewType.NODE_RECORDS)
         } else {
             log(R.string.search_records_search_select_node, show = true)
         }
@@ -2110,24 +2111,24 @@ class MainViewModel(
     private fun filterTagRecords(query: String) {
         if (selectedTags.isNotEmpty()) {
             val tagsRecords = getTagsRecords(selectedTags)
-            filterRecords(query, tagsRecords, Constants.MAIN_VIEW_TAG_RECORDS)
+            filterRecords(query, tagsRecords, MainViewType.TAG_RECORDS)
         } else {
             log(R.string.search_records_select_tag, show = true)
         }
     }
 
-    private fun filterRecords(query: String, records: List<TetroidRecord>, viewId: Int) {
+    private fun filterRecords(query: String, records: List<TetroidRecord>, viewType: MainViewType) {
         launchOnMain {
-            val message = if (viewId == Constants.MAIN_VIEW_NODE_RECORDS)
+            val message = if (viewType == MainViewType.NODE_RECORDS)
                 getString(R.string.filter_records_in_node_by_query, getCurNodeName(), query)
             else getString(R.string.filter_records_in_tag_by_query, getSelectedTagsNames(), query)
             log(message)
             val found = ScanManager.searchInRecordsNames(records, query)
-            showRecords(found, viewId, dropSearch = false)
+            showRecords(found, viewType, dropSearch = false)
             if (lastFilterQuery.isNullOrEmpty()) {
                 lastFilterQuery = query
             }
-            sendEvent(MainEvent.RecordsFiltered(query, found, viewId))
+            sendEvent(MainEvent.RecordsFiltered(query, found, viewType))
         }
     }
 
@@ -2148,7 +2149,7 @@ class MainViewModel(
                 MainEvent.AttachesFiltered(
                     query = query,
                     attaches = found,
-                    viewId = Constants.MAIN_VIEW_RECORD_FILES,
+                    viewType = MainViewType.RECORD_ATTACHES,
                 )
             )
         }
@@ -2160,14 +2161,15 @@ class MainViewModel(
             // (т.к. при открытии списка записей вызывается setIconified=false, при котором вызывается это событие,
             // что приводит к повторному открытию списка записей)
             if (isDropRecordsFiltering) {
-                when (curMainViewId) {
-                    Constants.MAIN_VIEW_NODE_RECORDS -> if (curNode != null) {
-                        showRecords(curNode!!.records, Constants.MAIN_VIEW_NODE_RECORDS, dropSearch = false)
+                when (currentMainViewType) {
+                    MainViewType.NODE_RECORDS -> if (curNode != null) {
+                        showRecords(curNode!!.records, MainViewType.NODE_RECORDS, dropSearch = false)
                     }
-                    Constants.MAIN_VIEW_TAG_RECORDS -> if (selectedTags.isNotEmpty()) {
+                    MainViewType.TAG_RECORDS -> if (selectedTags.isNotEmpty()) {
                         val tagsRecords = getTagsRecords(selectedTags)
-                        showRecords(tagsRecords, Constants.MAIN_VIEW_TAG_RECORDS, dropSearch = false)
+                        showRecords(tagsRecords, MainViewType.TAG_RECORDS, dropSearch = false)
                     }
+                    else -> Unit
                 }
             }
         }
@@ -2285,17 +2287,17 @@ class MainViewModel(
         }
     }
 
-    fun onMainViewBackPressed(curView: Int): Boolean {
+    fun onMainViewBackPressed(mainPageIndex: Int): Boolean {
         var res = false
-        if (curView == Constants.MAIN_VIEW_RECORD_FILES) {
+        if (mainPageIndex == MainViewType.RECORD_ATTACHES.index) {
             res = true
-            when (lastMainViewId) {
-                Constants.MAIN_VIEW_NODE_RECORDS,
-                Constants.MAIN_VIEW_TAG_RECORDS,
+            when (lastMainViewType) {
+                MainViewType.NODE_RECORDS,
+                MainViewType.TAG_RECORDS,
                 // Constants.VIEW_FOUND_RECORDS,
-                Constants.MAIN_VIEW_FAVORITES ->
-                    showMainView(lastMainViewId)
-                else -> showMainView(Constants.MAIN_VIEW_NONE)
+                MainViewType.FAVORITES ->
+                    showMainView(lastMainViewType)
+                else -> showMainView(MainViewType.NONE)
             }
         }
         return res
