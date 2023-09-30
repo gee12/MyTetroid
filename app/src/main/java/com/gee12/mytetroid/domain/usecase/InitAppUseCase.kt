@@ -15,6 +15,9 @@ import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.FilePath
 
+/**
+ * Первоначальная инициализация компонентов приложения.
+ */
 class InitAppUseCase(
     private val context: Context,
     private val resourcesProvider: IResourcesProvider,

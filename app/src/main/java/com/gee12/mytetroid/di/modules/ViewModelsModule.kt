@@ -7,6 +7,7 @@ import com.gee12.mytetroid.ui.node.icon.IconsViewModel
 import com.gee12.mytetroid.ui.record.RecordViewModel
 import com.gee12.mytetroid.ui.settings.CommonSettingsViewModel
 import com.gee12.mytetroid.ui.settings.storage.StorageSettingsViewModel
+import com.gee12.mytetroid.ui.splash.SplashViewModel
 import com.gee12.mytetroid.ui.storage.StorageViewModel
 import com.gee12.mytetroid.ui.storage.info.StorageInfoViewModel
 import com.gee12.mytetroid.ui.storages.StoragesViewModel
@@ -18,6 +19,21 @@ object ViewModelsModule {
     val viewModelsModule = module {
 
         scope<ScopeSource> {
+
+            viewModel {
+                SplashViewModel(
+                    app = androidApplication(),
+                    buildInfoProvider = get(),
+                    resourcesProvider = get(),
+                    logger = get(),
+                    notificator = get(),
+                    failureHandler = get(),
+                    settingsManager = get(),
+                    appPathProvider = get(),
+                    migrationInteractor = get(),
+                    initAppUseCase = get(),
+                )
+            }
 
             viewModel {
                 StorageViewModel(
@@ -86,10 +102,8 @@ object ViewModelsModule {
                     favoritesManager = get(),
                     interactionManager = get(),
                     syncInteractor = get(),
-                    migrationInteractor = get(),
                     storageTreeInteractor = get(),
 
-                    initAppUseCase = get(),
                     initOrCreateStorageUseCase = get(),
                     readStorageUseCase = get(),
                     saveStorageUseCase = get(),

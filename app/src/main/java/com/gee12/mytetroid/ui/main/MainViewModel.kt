@@ -14,7 +14,6 @@ import com.gee12.mytetroid.common.extensions.getIdString
 import com.gee12.mytetroid.common.extensions.isFileExist
 import com.gee12.mytetroid.common.extensions.orZero
 import com.gee12.mytetroid.data.*
-import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.TaskStage
@@ -32,7 +31,6 @@ import com.gee12.mytetroid.domain.interactor.*
 import com.gee12.mytetroid.domain.manager.*
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.domain.usecase.GlobalSearchUseCase
-import com.gee12.mytetroid.domain.usecase.InitAppUseCase
 import com.gee12.mytetroid.domain.usecase.SwapObjectsInListUseCase
 import com.gee12.mytetroid.domain.usecase.crypt.*
 import com.gee12.mytetroid.domain.usecase.file.GetFileModifiedDateInStorageUseCase
@@ -79,10 +77,8 @@ class MainViewModel(
 
     interactionManager: InteractionManager,
     syncInteractor: SyncInteractor,
-    private val migrationInteractor: MigrationInteractor,
     private val storageTreeInteractor: StorageTreeObserver,
 
-    initAppUseCase: InitAppUseCase,
     private val globalSearchUseCase: GlobalSearchUseCase,
     getFileModifiedDateUseCase: GetFileModifiedDateInStorageUseCase,
     getFolderSizeUseCase: GetFolderSizeInStorageUseCase,
@@ -200,12 +196,6 @@ class MainViewModel(
         private set
 
     init {
-        // первоначальная инициализация компонентов приложения
-        initAppUseCase.execute(InitAppUseCase.Params)
-            .onFailure {
-                logFailure(it)
-            }
-
         // FIXME: koin: из-за циклической зависимости вместо инжекта storageDataProcessor в конструкторе,
         //  задаем его вручную позже
         storageProvider.init(storageDataProcessor)
@@ -218,53 +208,6 @@ class MainViewModel(
     }
 
     // region Migration
-
-    /**
-     * Проверка необходимости миграции и ее запуск.
-     * Возвращает true, если миграция была запущена.
-     */
-    private suspend fun checkAndStartMigration(): Boolean {
-        val fromVersion = CommonSettings.getSettingsVersion(getContext())
-        var result: Boolean? = null
-
-        if (fromVersion == 0 && settingsManager.getStoragePath().isEmpty()) {
-            // новая установка, миграция не нужна
-            CommonSettings.setSettingsCurrentVersion(getContext())
-            return false
-        }
-
-        // 53
-        if (fromVersion < Constants.SETTINGS_VERSION_CURRENT) {
-            result = migrateFrom46To53()
-        }
-        // ..
-
-        if (result == true) {
-            CommonSettings.setSettingsCurrentVersion(getContext())
-            withMain {
-                sendEvent(MainEvent.Migrated)
-            }
-        } else if (result == false) {
-            logger.logError(R.string.log_error_migration, show = true)
-            showSnackMoreInLogs()
-        }
-        return result != null
-    }
-
-    private suspend fun migrateFrom46To53(): Boolean {
-        logger.log(getString(R.string.log_start_migrate_to_version_mask, "5.3"), false)
-
-        // параметры хранилища из SharedPreferences в бд
-        if (migrationInteractor.isNeedMigrateStorageFromPrefs()) {
-            if (migrationInteractor.addDefaultStorageFromPrefs()) {
-                logger.log(R.string.log_migration_finished_successfully)
-            } else {
-                return false
-            }
-        }
-
-        return true
-    }
 
     // endregion Migration
 
@@ -2274,15 +2217,8 @@ class MainViewModel(
                     isHandleReceivedIntent = true,
                 ))
             } else {
-                // проверяем необходимость миграции
-                val mirgationStarted = withIo {
-                    checkAndStartMigration()
-                }
-
-                if (!mirgationStarted) {
-                    // загружаем хранилище, если еще не загружано
-                    checkPermissionsAndInitDefaultStorage()
-                }
+                // загружаем хранилище, если еще не загружано
+                checkPermissionsAndInitDefaultStorage()
             }
         }
     }

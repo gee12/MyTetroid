@@ -376,6 +376,8 @@
     <string name="task_node_drop_crypting">Сброс шифровки ветки…</string>
     <string name="task_attach_file">Загрузка файла в хранилище…</string>
     <string name="task_file_saving">Сохранение файла…</string>
+
+    <string name="state_app_initializing">Загрузка приложения…</string>
     <string name="stage_pass_checking">Проверка пароля…</string>
     <string name="stage_storage_decrypting">Расшифровка хранилища…</string>
     <string name="stage_old_pass_decrypting">Расшифровка хранилища старым паролем…</string>
@@ -835,4 +837,6 @@
     <string name="error_open_file_folder_picker">Ошибка открытия диалога выбора файла/каталога SAF</string>
     <string name="ask_permission_on_storage_folder_mask">Требуется разрешение на доступ к каталогу хранилища «%s» в файловой системе устройства.\nВыберите каталог хранилища в следующем окне</string>
     <string name="ask_permission_on_storage_folder_title">Разрешите доступ к каталогу</string>
+    <string name="ask_permission_on_all_files_on_device_title">Предоставьте полный доступ к файловой системе</string>
+    <string name="ask_permission_on_all_files_on_device_description">Требуется разрешение на доступ ко всем файлам на устройстве.\nВключите настройку в следующем окне</string>
 </resources>

@@ -936,22 +936,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         fragmentTags.resetListAdapters()
     }
 
-    /**
-     * Диалог с информацией об обновлении.
-     */
-    private fun showMigrationDialog() {
-        AskDialogs.showOkDialog(
-            context = this,
-            titleResId = R.string.title_app_updated,
-            messageResId = R.string.mes_migration_53,
-            applyResId = R.string.answer_ok,
-            isCancelable = false,
-            onApply = {
-                viewModel.checkPermissionsAndInitDefaultStorage()
-            }
-        )
-    }
-
     private fun updateStorageNameLabel(isLoaded: Boolean) {
         val title = if (isLoaded) {
             viewModel.getStorageName()

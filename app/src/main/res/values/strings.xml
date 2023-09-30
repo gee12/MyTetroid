@@ -468,6 +468,7 @@
     <string name="stage_new_pass_reencrypting">Storage re-encryption with new password…</string>
     <string name="stage_storage_saving">Saving storage structure…</string>
 
+    <string name="state_app_initializing">App initializing…</string>
     <string name="state_loading">Loading…</string>
     <string name="state_storage_files_creating">Creating storage files…</string>
     <string name="state_record_copying">Record copying…</string>
@@ -938,4 +939,6 @@
     <string name="error_open_file_folder_picker">Error with open SAF file/folder picker</string>
     <string name="ask_permission_on_storage_folder_mask">Permission is required to access the directory of storage «%s» in the device\'s file system.\nSelect the storage directory in the next window</string>
     <string name="ask_permission_on_storage_folder_title">Allow access to the directory</string>
+    <string name="ask_permission_on_all_files_on_device_title">Grant full access to the file system</string>
+    <string name="ask_permission_on_all_files_on_device_description">Permission is required to access all files on the device.\nEnable the setting in the next window</string>
 </resources>
