@@ -11,6 +11,7 @@ import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.TetroidActivity
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
+import com.gee12.mytetroid.ui.dialogs.FullFileStoragePermissionDialog
 import com.gee12.mytetroid.ui.main.MainActivity
 import com.gee12.mytetroid.ui.record.RecordActivity
 
@@ -110,18 +111,14 @@ class SplashActivity : TetroidActivity<SplashViewModel>() {
             activity = this,
             requestCode = PermissionRequestCode.FULL_FILE_ACCESS,
             onManualPermissionRequest = { callback ->
-                AskDialogs.showOkCancelDialog(
-                    context = this,
-                    title = getString(R.string.ask_permission_on_all_files_on_device_title),
-                    message = getString(R.string.ask_permission_on_all_files_on_device_description),
-                    isCancelable = false,
-                    onYes = {
+                FullFileStoragePermissionDialog(
+                    onSuccess = {
                         callback()
                     },
                     onCancel = {
                         finishAffinity()
                     }
-                )
+                ).showIfPossible(supportFragmentManager)
             },
         )
     }

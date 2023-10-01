@@ -9,42 +9,42 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <TextView
+        android:id="@+id/text_view_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:textAlignment="center"
+        android:textColor="@color/colorBase2Text"
+        android:textSize="@dimen/font_default"
+        android:text="@string/ask_permission_on_all_files_on_device_description" />
+
     <ImageView
         android:layout_width="48dp"
         android:layout_height="48dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/text_view_state"
+        app:layout_constraintTop_toBottomOf="@id/text_view_description"
+        app:layout_constraintBottom_toTopOf="@id/text_view_description_2"
+        android:layout_margin="16dp"
         android:adjustViewBounds="true"
         android:clickable="false"
         android:focusable="false"
         android:scaleType="fitCenter"
-        android:src="@drawable/ic_voice_input" />
-
-    <ProgressBar
-        android:id="@+id/progress_circle"
-        style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Large"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/text_view_state"
-        android:indeterminate="true"
-        android:visibility="invisible"
-        tools:visibility="visible"/>
+        android:src="@drawable/ic_sd_storage_black" />
 
     <TextView
-        android:id="@+id/text_view_state"
+        android:id="@+id/text_view_description_2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:padding="16dp"
         android:textAlignment="center"
         android:textColor="@color/colorBase2Text"
-        tools:text="@string/state_voice_input_recognition" />
+        android:textStyle="italic"
+        android:text="@string/ask_permission_on_all_files_on_device_description_2" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

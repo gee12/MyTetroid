@@ -6,11 +6,10 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.ui.record.RecordViewModel
 
 class VoiceSpeechDialog(
     private val onCancel: () -> Unit,
-) : TetroidDialogFragment<RecordViewModel>() {
+) : BaseDialogFragment() {
 
     private lateinit var progressBar: ProgressBar
     private lateinit var textViewState: TextView
@@ -20,8 +19,6 @@ class VoiceSpeechDialog(
     override fun isPossibleToShow() = true
 
     override fun getLayoutResourceId() = R.layout.dialog_voice_speech
-
-    override fun getViewModelClazz() = RecordViewModel::class.java
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
         isCancelable = false

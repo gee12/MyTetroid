@@ -839,5 +839,6 @@
     <string name="ask_permission_on_storage_folder_mask">Требуется разрешение на доступ к каталогу хранилища «%s» в файловой системе устройства.\nВыберите каталог хранилища в следующем окне</string>
     <string name="ask_permission_on_storage_folder_title">Разрешите доступ к каталогу</string>
     <string name="ask_permission_on_all_files_on_device_title">Предоставьте полный доступ к файловой системе</string>
-    <string name="ask_permission_on_all_files_on_device_description">Требуется разрешение на доступ ко всем файлам на устройстве.\nВключите настройку в следующем окне</string>
+    <string name="ask_permission_on_all_files_on_device_description">Требуется разрешение на доступ ко всем файлам на устройстве.\n<b>Для этого включите настройку в следующем окне.</b></string>
+    <string name="ask_permission_on_all_files_on_device_description_2">Это необходимо, чтобы размещать хранилище данных в любом месте файловой системы, и использовать его сторонними приложениями, если это потребуется.\nНапример, для синхронизации данных с другими вашими устройствами.</string>
 </resources>

@@ -9,14 +9,13 @@ import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.model.TetroidStorage
-import com.gee12.mytetroid.ui.dialogs.TetroidDialogFragment
-import com.gee12.mytetroid.ui.storage.StorageViewModel
+import com.gee12.mytetroid.ui.dialogs.BaseDialogFragment
 
 class DeleteStorageDialog(
     private val storage: TetroidStorage,
     private val isCurrentStorage: Boolean,
     private val onApply: (Boolean) -> Unit,
-) : TetroidDialogFragment<StorageViewModel>() {
+) : BaseDialogFragment() {
 
     private lateinit var cbIsDeleteFiles: CheckedTextView
 
@@ -25,8 +24,6 @@ class DeleteStorageDialog(
     override fun isPossibleToShow() = true
 
     override fun getLayoutResourceId() = R.layout.dialog_delete_storage
-
-    override fun getViewModelClazz() = StorageViewModel::class.java
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
         setTitle(R.string.ask_delete_storage_title)

@@ -1,32 +1,20 @@
 package com.gee12.mytetroid.ui.dialogs
 
 import android.app.Dialog
-import android.content.DialogInterface
 import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
-import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.lifecycleScope
-import com.gee12.htmlwysiwygeditor.Dialogs
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.ui.base.BaseEvent
-import com.gee12.mytetroid.common.extensions.focusAndShowKeyboard
-import com.gee12.mytetroid.common.extensions.hideKeyboard
-import com.gee12.mytetroid.common.extensions.resizeWindowWithKeyboard
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.logs.Message
+import com.gee12.mytetroid.ui.TetroidMessage
+import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.BaseViewModel
 import com.gee12.mytetroid.ui.base.ITetroidComponent
-import com.gee12.mytetroid.ui.TetroidMessage
 import kotlinx.coroutines.launch
 import org.koin.core.scope.Scope
 import org.koin.core.scope.get
 
-abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment()/*, IAndroidComponent*/ {
+abstract class TetroidDialogFragment<VM : BaseViewModel> : BaseDialogFragment() {
 
     protected lateinit var scopeSource: ScopeSource
 
@@ -38,32 +26,6 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment()/*, I
     private val componentListener: ITetroidComponent?
         get() = requireActivity() as? ITetroidComponent
 
-    lateinit var dialog: AlertDialog
-
-    lateinit var dialogView: View
-
-    abstract fun getRequiredTag(): String
-
-    abstract fun isPossibleToShow(): Boolean
-
-    interface OnDialogOkCallback {
-        fun onPositive()
-    }
-
-    interface OnDialogYesNoCallback : OnDialogOkCallback {
-        fun onNegative()
-    }
-
-    interface OnDialogYesNoCancelCallback : OnDialogYesNoCallback {
-        fun onCancel()
-    }
-
-    protected var onPositiveButtonCallback: DialogInterface.OnClickListener? = null
-    protected var onNegativeButtonCallback: DialogInterface.OnClickListener? = null
-    protected var onNeutralButtonCallback: DialogInterface.OnClickListener? = null
-
-    protected abstract fun getLayoutResourceId(): Int
-
     protected abstract fun getViewModelClazz(): Class<VM>
 
 
@@ -72,24 +34,7 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment()/*, I
         createViewModel()
         initViewModel()
 
-        val builder = Dialogs.AskDialogBuilder.create(context, getLayoutResourceId())
-        onDialogBuilderCreated(builder)
-
-        dialogView = builder.view
-
-        dialog = builder.create()
-        onDialogCreated(dialog, dialogView)
-
-        dialog.setOnShowListener {
-            initButtons()
-            onDialogShowed(dialog, dialogView)
-        }
-
-        return dialog
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return dialogView
+        return super.onCreateDialog(savedInstanceState)
     }
 
     protected open fun createDependencyScope() {
@@ -123,96 +68,6 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment()/*, I
             BaseEvent.ShowMoreInLogs -> componentListener?.showSnackMoreInLogs()
             else -> {}
         }
-    }
-
-    protected open fun initButtons() {
-        onPositiveButtonCallback?.let { callback ->
-            getPositiveButton()?.setOnClickListener { callback.onClick(null, 0) }
-        }
-        onNegativeButtonCallback?.let { callback ->
-            getNegativeButton()?.setOnClickListener { callback.onClick(null, 0) }
-        }
-        onNeutralButtonCallback?.let { callback ->
-            getNeutralButton()?.setOnClickListener { callback.onClick(null, 0) }
-        }
-    }
-
-    open fun onDialogBuilderCreated(builder: Dialogs.AskDialogBuilder) {}
-
-    open fun onDialogCreated(dialog: AlertDialog, view: View) {}
-
-    open fun onDialogShowed(dialog: AlertDialog, view: View) {}
-
-    fun showIfPossible(manager: FragmentManager) {
-        if (isPossibleToShow()) {
-            show(manager, getRequiredTag())
-        } else {
-            Log.i(getRequiredTag(), "Dialog fragment is not possible to show.")
-        }
-    }
-
-    fun showIfNeeded(manager: FragmentManager?) {
-        manager?.apply {
-            if (findFragmentByTag(getRequiredTag()) == null) {
-                show(this, getRequiredTag())
-            }
-        }
-    }
-
-    fun setTitle(title: String?) {
-        dialog.setTitle(title.orEmpty())
-    }
-
-    fun setTitle(resId: Int) {
-        dialog.setTitle(resId)
-    }
-
-    fun setPositiveButton(resId: Int, isCloseDialog: Boolean = true, listener: DialogInterface.OnClickListener? = null) {
-        if (!isCloseDialog) {
-            onPositiveButtonCallback = listener
-            setButton(AlertDialog.BUTTON_POSITIVE, resId, null)
-        } else {
-            setButton(AlertDialog.BUTTON_POSITIVE, resId, listener)
-        }
-    }
-
-    fun setNegativeButton(resId: Int, isCloseDialog: Boolean = true, listener: DialogInterface.OnClickListener? = null) {
-        if (!isCloseDialog) {
-            onNegativeButtonCallback = listener
-            setButton(AlertDialog.BUTTON_NEGATIVE, resId, null)
-        } else {
-            setButton(AlertDialog.BUTTON_NEGATIVE, resId, listener)
-        }
-    }
-
-    fun setNeutralButton(resId: Int, isCloseDialog: Boolean = true, listener: DialogInterface.OnClickListener? = null) {
-        if (!isCloseDialog) {
-            onNeutralButtonCallback = listener
-            setButton(AlertDialog.BUTTON_NEUTRAL, resId, null)
-        } else {
-            setButton(AlertDialog.BUTTON_NEUTRAL, resId, listener)
-        }
-    }
-
-    fun setButton(type: Int, resId: Int, listener: DialogInterface.OnClickListener?) {
-        dialog.setButton(type, getString(resId), listener)
-    }
-
-    fun getPositiveButton() = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-
-    fun getNegativeButton() = dialog.getButton(AlertDialog.BUTTON_NEGATIVE)
-
-    fun getNeutralButton() = dialog.getButton(AlertDialog.BUTTON_NEUTRAL)
-
-    protected fun showKeyboard(view: View, isResizeWindow: Boolean = true) {
-        if (isResizeWindow) {
-            dialog.window?.resizeWindowWithKeyboard(view)
-        }
-        dialog.window?.decorView?.post { view.focusAndShowKeyboard() }
-    }
-
-    protected fun hideKeyboard(view: View) {
-        view.hideKeyboard()
     }
 
     protected fun showMessage(message: Message) {

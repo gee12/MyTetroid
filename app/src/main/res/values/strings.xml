@@ -941,5 +941,6 @@
     <string name="ask_permission_on_storage_folder_mask">Permission is required to access the directory of storage «%s» in the device\'s file system.\nSelect the storage directory in the next window</string>
     <string name="ask_permission_on_storage_folder_title">Allow access to the directory</string>
     <string name="ask_permission_on_all_files_on_device_title">Grant full access to the file system</string>
-    <string name="ask_permission_on_all_files_on_device_description">Permission is required to access all files on the device.\nEnable the setting in the next window</string>
+    <string name="ask_permission_on_all_files_on_device_description">Permission is required to access all files on the device.\n<b>Enable the setting in the next window.</b></string>
+    <string name="ask_permission_on_all_files_on_device_description_2">This is necessary in order to place the data warehouse anywhere in the file system, and use it by third-party applications, if necessary.\nFor example, to synchronize data with your other devices.</string>
 </resources>
