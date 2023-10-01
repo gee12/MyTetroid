@@ -46,7 +46,7 @@ class CloneRecordToNodeUseCase(
         val id = if (isCutting) srcRecord.id else dataNameProvider.createUniqueId()
         val dirName = if (isCutting) srcRecord.dirName else dataNameProvider.createUniqueId()
         val name = srcRecord.name
-        val tagsString = srcRecord.tagsString
+        val tagsString = srcRecord.tagsString.orEmpty()
         val author = srcRecord.author
         val url = srcRecord.url
 

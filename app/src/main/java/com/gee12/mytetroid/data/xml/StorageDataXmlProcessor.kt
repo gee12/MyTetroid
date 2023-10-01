@@ -365,7 +365,7 @@ open class StorageDataXmlProcessor(
             if (tagName == "record") {
                 val record = readRecord(parser, node)
                 if (record != null && !isLoadFavoritesOnly) {
-                    records!!.add(record)
+                    records?.add(record)
                 }
 
                 /*if (AppDebug.isRecordsLoadedEnough(recordsCount)) {
@@ -459,8 +459,8 @@ open class StorageDataXmlProcessor(
         if (crypt && isNeedDecrypt) {
             decryptRecord(record)
         }
-        if (record.isNonCryptedOrDecrypted) {
-            // парсим метки, если запись не зашифрована
+        if (record.isNonCryptedOrDecrypted && !record.tagsString.isNullOrBlank()) {
+            // парсим метки, если поле не пусто и запись не зашифрована
             parseRecordTags(record)
         }
         parser.require(XmlPullParser.END_TAG, ns, "record")
@@ -755,8 +755,7 @@ open class StorageDataXmlProcessor(
         parseRecordTagsUseCase.run(
             ParseRecordTagsUseCase.Params(
                 record = record,
-                tagsString = record.tagsString,
-//                tagsMap = tagsMap,
+                tagsString = record.tagsString.orEmpty(),
             )
         ).onFailure {
             logger.logFailure(it, show = false)
