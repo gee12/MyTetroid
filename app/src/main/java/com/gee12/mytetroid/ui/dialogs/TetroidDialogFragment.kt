@@ -16,6 +16,7 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.common.extensions.focusAndShowKeyboard
 import com.gee12.mytetroid.common.extensions.hideKeyboard
+import com.gee12.mytetroid.common.extensions.resizeWindowWithKeyboard
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.logs.Message
 import com.gee12.mytetroid.ui.base.BaseViewModel
@@ -203,7 +204,10 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : DialogFragment()/*, I
 
     fun getNeutralButton() = dialog.getButton(AlertDialog.BUTTON_NEUTRAL)
 
-    protected fun showKeyboard(view: View) {
+    protected fun showKeyboard(view: View, isResizeWindow: Boolean = true) {
+        if (isResizeWindow) {
+            dialog.window?.resizeWindowWithKeyboard(view)
+        }
         dialog.window?.decorView?.post { view.focusAndShowKeyboard() }
     }
 

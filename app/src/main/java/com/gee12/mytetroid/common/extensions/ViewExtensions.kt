@@ -5,12 +5,9 @@ import android.content.Context
 import android.os.Build
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.View
-import android.view.ViewTreeObserver
-import android.view.WindowManager
+import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
-import androidx.fragment.app.Fragment
 
 
 fun EditText.addAfterTextChangedListener(listener: (String) -> Unit) {
@@ -81,4 +78,18 @@ fun View.hideKeyboard() {
     //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
     val imm = context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
     post { imm.hideSoftInputFromWindow(windowToken, 0) }
+}
+
+fun Window.resizeWindowWithKeyboard(view: View) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        view.setOnApplyWindowInsetsListener { _, windowInsets ->
+            val imeHeight = windowInsets.getInsets(WindowInsets.Type.ime()).bottom
+            view.setPadding(0, 0, 0, imeHeight)
+            windowInsets
+        }
+        setDecorFitsSystemWindows(true)
+    } else {
+        @Suppress("DEPRECATION")
+        setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+    }
 }
