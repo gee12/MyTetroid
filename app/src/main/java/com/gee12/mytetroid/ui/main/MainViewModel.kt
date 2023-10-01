@@ -412,10 +412,10 @@ class MainViewModel(
         curRecords.addAll(records)
     }
 
-    fun showRecords(records: List<TetroidRecord>, page: MainViewType, dropSearch: Boolean = true) {
+    fun showRecords(records: List<TetroidRecord>, viewType: MainViewType, dropSearch: Boolean = true) {
         launchOnMain {
             setCurrentRecords(records)
-            sendEvent(MainEvent.ShowRecords(records, page, dropSearch))
+            sendEvent(MainEvent.ShowRecords(records, viewType, dropSearch))
         }
     }
 
@@ -2214,7 +2214,7 @@ class MainViewModel(
                 sendEvent(StorageEvent.Loaded(
                     isLoaded = true,
                     isLoadedFavoritesOnly = isLoadedFavoritesOnly(),
-                    isHandleReceivedIntent = true,
+                    isOpenLastNode = true,
                 ))
             } else {
                 // загружаем хранилище, если еще не загружано

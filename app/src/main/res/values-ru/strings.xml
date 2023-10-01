@@ -818,6 +818,7 @@
     <string name="error_save_pass_hash_salt">Ошибка сохранения данных пароля: crypt_check_hash и crypt_check_salt</string>
     <string name="error_save_pass_check_data">Ошибка сохранения данных пароля: crypt_check</string>
     <string name="error_clone_record_to_node">Не удалось скопировать запись в ветку</string>
+    <string name="error_app_is_not_inited_restart">Приложение не проинициализировано, перезапускаем</string>
 
     <string name="folder_name_mask">каталог %s</string>
     <string name="file_name_mask">файл %s</string>

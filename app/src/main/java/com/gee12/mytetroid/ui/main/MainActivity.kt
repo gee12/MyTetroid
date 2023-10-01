@@ -1,8 +1,8 @@
 package com.gee12.mytetroid.ui.main
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.SearchManager
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -18,13 +18,12 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.documentfile.provider.DocumentFile
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
+import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.ICallback
 import com.gee12.mytetroid.common.extensions.fromHtml
-import com.gee12.mytetroid.common.extensions.orZero
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
@@ -56,6 +55,7 @@ import com.gee12.mytetroid.ui.node.icon.IconsActivity
 import com.gee12.mytetroid.ui.record.RecordActivity
 import com.gee12.mytetroid.ui.search.SearchActivity.Companion.start
 import com.gee12.mytetroid.ui.settings.SettingsActivity
+import com.gee12.mytetroid.ui.splash.SplashActivity
 import com.gee12.mytetroid.ui.storage.StorageEvent
 import com.gee12.mytetroid.ui.storage.info.StorageInfoActivity.Companion.start
 import com.gee12.mytetroid.ui.tag.TagsFragment
@@ -94,8 +94,8 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     private var isCanChangePage = false
     private var mainPage: MainPageFragment? = null
     private var foundPage: FoundPageFragment? = null
-    private lateinit var mainTab: TabLayout.Tab
-    private lateinit var foundTab: TabLayout.Tab
+    private var touchDownXPosition = 0f
+    private var touchUpXPosition = 0f
 
     // region Create
 
@@ -106,39 +106,15 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     override fun isSingleTitle() = false
 
 
-    private var x1 = 0f
-    private var x2 = 0f
-    private val MIN_DISTANCE = 150
-
-    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
-        var isEventHandled = false
-        if (isCanChangePage
-            && !drawerLayout.isDrawerVisible(GravityCompat.START)
-            && !drawerLayout.isDrawerVisible(GravityCompat.END)
-        ) {
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    x1 = event.x
-                }
-                MotionEvent.ACTION_UP -> {
-                    x2 = event.x
-                    val deltaX = x2 - x1
-                    if (abs(deltaX) > MIN_DISTANCE) {
-                        if (x2 > x1) {
-                            setCurrentPage(PageType.MAIN)
-                        } else {
-                            setCurrentPage(PageType.FOUND)
-                        }
-                        isEventHandled = true
-                    }
-                }
-            }
-        }
-        return isEventHandled || super.dispatchTouchEvent(event)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (!App.isInitialized) {
+            logger.log(getString(R.string.error_app_is_not_inited_restart))
+            SplashActivity.start(this)
+            finishAffinity()
+            return
+        }
 
         setTitle(null)
 
@@ -162,7 +138,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         tabLayout = findViewById(R.id.tab_layout)
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
-                PageType.fromIndex(index = tab.position.orZero())?.also { page ->
+                PageType.fromIndex(index = tab.position)?.also { page ->
                     setCurrentPage(page)
                 }
             }
@@ -170,12 +146,10 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             override fun onTabReselected(tab: TabLayout.Tab) {}
         })
 
-        mainTab = tabLayout.newTab()
-        foundTab = tabLayout.newTab()
-        tabLayout.addTab(mainTab)
-        tabLayout.addTab(foundTab)
-
-        hideFoundPage()
+        tabLayout.addTab(tabLayout.newTab())
+        tabLayout.addTab(tabLayout.newTab())
+        tabLayout.isVisible = false
+        isCanChangePage = false
 
         // ветки
         lvNodes = findViewById(R.id.list_view_nodes)
@@ -253,18 +227,14 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         // принудительно запускаем создание пунктов меню уже после отработки onCreate
         super.afterOnCreate()
         isActivityCreated = true
-        viewModel.onUICreated()
+        viewModel.initStorageOrUi()
     }
 
     /**
      * Обработчик события, когда создались все элементы интерфейса.
      * Вызывается из onCreateOptionsMenu(), т.к. пункты меню, судя по всему, создаются в последнюю очередь.
      */
-    override fun onUICreated(isUICreated: Boolean) {
-        /*if (isUICreated) {
-            viewModel.onUICreated()
-        }*/
-    }
+    override fun onUiCreated() {}
 
     // endregion Create
 
@@ -383,7 +353,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             }
             is StorageEvent.InitFailed -> {
                 viewModel.showMessage(R.string.mes_storage_init_error)
-                initUI(
+                updateViewsByStorage(
                     isLoaded = false,
                     isOnlyFavorites = event.isOnlyFavorites,
                     isOpenLastNode = false,
@@ -432,14 +402,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      */
     private fun onMainEvent(event: MainEvent) {
         when (event) {
-            is MainEvent.InitUI -> {
-                initUI(
-                    isLoaded = event.result,
-                    isOnlyFavorites = event.isLoadFavoritesOnly,
-                    isOpenLastNode = event.isHandleReceivedIntent,
-                    isAllNodesOpening = event.isAllNodesLoading,
-                )
-            }
             is MainEvent.UpdateToolbar -> {
                 updateToolbar(
                     page = event.page,
@@ -789,7 +751,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
     // region UI
 
-    fun initUI(
+    private fun updateViewsByStorage(
         isLoaded: Boolean,
         isOnlyFavorites: Boolean,
         isOpenLastNode: Boolean,
@@ -1069,23 +1031,26 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     }
 
     private fun setCurrentPage(page: PageType) {
-        val (fragment, tab) = when (page) {
+        if (currentPage == page) {
+            return
+        }
+        val fragment = when (page) {
             PageType.MAIN -> {
-                val page = mainPage ?: MainPageFragment(gestureDetector).also {
+                mainPage ?: MainPageFragment(gestureDetector).also {
                     mainPage = it
                 }
-                page to mainTab
             }
             PageType.FOUND -> {
-                val page = foundPage ?: FoundPageFragment(gestureDetector).also {
+                foundPage ?: FoundPageFragment(gestureDetector).also {
                     foundPage = it
                 }
-                page to foundTab
             }
         }
 
-        tabLayout.selectTab(tab)
-        tabLayout.getTabAt(page.index)?.text = fragment.getTitle()
+        tabLayout.getTabAt(page.index)?.also { tab ->
+            tabLayout.selectTab(tab)
+            tab.text = fragment.getTitle()
+        }
 
         val isShowAnimation = isCanChangePage
 
@@ -1103,8 +1068,39 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             replace(R.id.fragment_container_main, fragment)
             setReorderingAllowed(true)
         }
+        currentPage = page
 
         changeToolBarByPage(page)
+    }
+
+    /**
+     * Обработка свайпа для перелистывания страниц.
+     */
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        var isEventHandled = false
+        if (isCanChangePage
+            && !drawerLayout.isDrawerVisible(GravityCompat.START)
+            && !drawerLayout.isDrawerVisible(GravityCompat.END)
+        ) {
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    touchDownXPosition = event.x
+                }
+                MotionEvent.ACTION_UP -> {
+                    touchUpXPosition = event.x
+                    val deltaX = touchUpXPosition - touchDownXPosition
+                    if (abs(deltaX) > PAGE_SWIPE_MIN_DISTANCE) {
+                        if (touchUpXPosition > touchDownXPosition) {
+                            setCurrentPage(PageType.MAIN)
+                        } else {
+                            setCurrentPage(PageType.FOUND)
+                        }
+                        isEventHandled = true
+                    }
+                }
+            }
+        }
+        return isEventHandled || super.dispatchTouchEvent(event)
     }
 
     // endregion UI
@@ -1114,7 +1110,20 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     /**
      * Обработчик события после загрузки хранилища.
      */
-    override fun afterStorageLoaded(isLoaded: Boolean) {
+    override fun afterStorageLoaded(
+        isLoaded: Boolean,
+        isLoadedFavoritesOnly: Boolean,
+        isOpenLastNode: Boolean,
+        isAllNodesLoading: Boolean,
+    ) {
+        // инициализация контролов
+        updateViewsByStorage(
+            isLoaded = isLoaded,
+            isOnlyFavorites = isLoadedFavoritesOnly,
+            isOpenLastNode = isOpenLastNode,
+            isAllNodesOpening = isAllNodesLoading,
+        )
+
         if (isLoaded) {
             // проверяем входящий Intent после загрузки
             checkReceivedIntent(receivedIntent)
@@ -1850,7 +1859,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 val isLoadAllNodes = data.getBooleanExtra(Constants.EXTRA_IS_LOAD_ALL_NODES, false)
                 viewModel.checkPermissionsAndInitStorage(storageId, isLoadAllNodes)
             } else if (data.getBooleanExtra(Constants.EXTRA_IS_CLOSE_STORAGE, false)) {
-                initUI(
+                updateViewsByStorage(
                     isLoaded = false,
                     isOnlyFavorites = false,
                     isOpenLastNode = false,
@@ -2535,13 +2544,20 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     //endregion Tasks
 
     companion object {
-        fun start(context: Context, action: String?, bundle: Bundle?) {
-            val intent = Intent(context, MainActivity::class.java)
+
+        private const val PAGE_SWIPE_MIN_DISTANCE = 150
+
+        fun start(
+            activity: Activity,
+            action: String? = null,
+            bundle: Bundle? = null,
+        ) {
+            val intent = Intent(activity, MainActivity::class.java)
             intent.action = action
             if (bundle != null) {
                 intent.putExtras(bundle)
             }
-            context.startActivity(intent)
+            activity.startActivity(intent)
         }
     }
 

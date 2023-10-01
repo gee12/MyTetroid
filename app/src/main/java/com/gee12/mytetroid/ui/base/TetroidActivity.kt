@@ -27,6 +27,7 @@ import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.provider.IAppPathProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
+import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.logs.Message
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
@@ -34,7 +35,6 @@ import com.gee12.mytetroid.model.permission.TetroidPermission
 import com.gee12.mytetroid.ui.TetroidMessage
 import com.gee12.mytetroid.ui.about.AboutActivity
 import com.gee12.mytetroid.ui.base.views.ActivityDoubleTapListener
-import com.gee12.mytetroid.ui.dialogs.AskDialogs
 import com.gee12.mytetroid.ui.record.RecordActivity
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -58,6 +58,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
     val resourcesProvider: IResourcesProvider by inject()
     val settingsManager: CommonSettingsManager by inject()
     val appPathProvider: IAppPathProvider by inject()
+    val logger: ITetroidLogger by inject()
 
     protected var receivedIntent: Intent? = null
     var optionsMenu: Menu? = null
@@ -71,7 +72,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
     protected lateinit var gestureDetector: GestureDetectorCompat
     protected var isFullScreen = false
     protected var isOnCreateProcessed = false
-    protected var isUICreated = false
+    protected var isUiCreated = false
 
     var fileStorageHelper: SimpleStorageHelper? = null
 
@@ -84,6 +85,8 @@ abstract class TetroidActivity<VM : BaseViewModel>
     protected abstract fun getViewModelClazz(): Class<VM>
 
     protected open fun isSingleTitle() = true
+
+    protected open fun isAppearInLogs() = true
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -110,7 +113,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
         setTitle(title)
 
         isOnCreateProcessed = false
-        isUICreated = false
+        isUiCreated = false
 
         if (isUseFileStorage()) {
             fileStorageHelper = SimpleStorageHelper(this, savedInstanceState)
@@ -140,7 +143,9 @@ abstract class TetroidActivity<VM : BaseViewModel>
     protected open fun initViewModel() {
         viewModel.initialize()
 
-        viewModel.logDebug(getString(R.string.log_activity_opened_mask, javaClass.simpleName))
+        if (isAppearInLogs()) {
+            logger.logDebug(getString(R.string.log_activity_opened_mask, javaClass.simpleName))
+        }
 
         lifecycleScope.launch {
             viewModel.eventFlow.collect { event -> onBaseEvent(event) }
@@ -175,7 +180,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
      * Обработчик события, когда создались все элементы интерфейса.
      * Вызывается из onCreateOptionsMenu(), который, в свою очередь, принудительно вызывается после onCreate().
      */
-    protected open fun onUICreated(uiCreated: Boolean) {
+    protected open fun onUiCreated() {
     }
 
     // endregion Create
@@ -418,23 +423,21 @@ abstract class TetroidActivity<VM : BaseViewModel>
     @SuppressLint("RestrictedApi")
     fun onAfterCreateOptionsMenu(menu: Menu?): Boolean {
         // запускаем только 1 раз
-        if (!isUICreated) {
+        if (!isUiCreated) {
             // для отображения иконок
             if (menu is MenuBuilder) {
                 menu.setOptionalIconsVisible(true)
             }
         }
         // устанавливаем флаг, что стандартные элементы активности созданы
-        onUICreated(!isUICreated)
-        isUICreated = true
+        onUiCreated()
+        isUiCreated = true
         return true
     }
 
     fun updateOptionsMenu() {
         optionsMenu?.let {
             onPrepareOptionsMenu(it)
-        } ?: run {
-            viewModel.logWarning("TetroidActivity.updateOptionsMenu(): optionsMenu is null", false)
         }
     }
 

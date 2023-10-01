@@ -99,7 +99,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
         viewModel.checkStoragesFilesExisting = true
     }
 
-    override fun onUICreated(uiCreated: Boolean) {}
+    override fun onUiCreated() {}
 
     override fun onBaseEvent(event: BaseEvent) {
         when (event) {

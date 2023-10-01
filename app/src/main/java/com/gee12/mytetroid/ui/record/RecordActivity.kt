@@ -38,6 +38,7 @@ import com.gee12.htmlwysiwygeditor.ActionState
 import com.gee12.htmlwysiwygeditor.IImagePicker
 import com.gee12.htmlwysiwygeditor.INetworkWorker
 import com.gee12.htmlwysiwygeditor.IVoiceInputListener
+import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.Failure
@@ -69,6 +70,7 @@ import com.gee12.mytetroid.ui.dialogs.storage.StorageDialogs
 import com.gee12.mytetroid.ui.main.MainActivity
 import com.gee12.mytetroid.ui.record.TetroidEditor.IEditorListener
 import com.gee12.mytetroid.ui.settings.SettingsActivity
+import com.gee12.mytetroid.ui.splash.SplashActivity
 import com.gee12.mytetroid.ui.storage.StorageEvent
 import com.gee12.mytetroid.ui.storage.info.StorageInfoActivity.Companion.start
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -135,6 +137,14 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (!App.isInitialized) {
+            logger.log(getString(R.string.error_app_is_not_inited_restart))
+            SplashActivity.start(this, startRecordActivity = true)
+            finishAffinity()
+            return
+        }
+
         val intent = receivedIntent
         if (intent == null || intent.action == null) {
             finish()
@@ -223,8 +233,8 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         }
     }
 
-    override fun onUICreated(uiCreated: Boolean) {
-        viewModel.checkMigration()
+    override fun onUiCreated() {
+        viewModel.checkMigration() //TODO: перенести в SplashScreen
     }
 
     // endregion Create
@@ -292,15 +302,6 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             }
             is BaseEvent.FinishWithResult -> {
                 finishWithResult(event.code, event.bundle)
-            }
-            is BaseEvent.UpdateTitle -> {
-                setTitle(event.title)
-            }
-            BaseEvent.UpdateOptionsMenu -> {
-                updateOptionsMenu()
-            }
-            is BaseEvent.ShowHomeButton -> {
-                setVisibilityActionHome(event.isVisible)
             }
             is BaseEvent.TaskStarted -> {
                 taskPreExecute(event.titleResId ?: R.string.task_wait)
@@ -546,7 +547,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     override fun afterStorageLoaded(
         isLoaded: Boolean,
         isLoadFavoritesOnly: Boolean,
-        isHandleReceivedIntent: Boolean,
+        isOpenLastNode: Boolean,
         isAllNodesLoading: Boolean,
     ) {
         viewModel.onStorageLoaded(isLoaded)
@@ -1651,13 +1652,22 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     }
 
     companion object {
-        fun start(activity: Activity, action: String?, requestCode: Int, bundle: Bundle?) {
+        fun start(
+            activity: Activity,
+            action: String? = null,
+            requestCode: Int? = null,
+            bundle: Bundle? = null,
+        ) {
             val intent = Intent(activity, RecordActivity::class.java)
             intent.action = action
             if (bundle != null) {
                 intent.putExtras(bundle)
             }
-            activity.startActivityForResult(intent, requestCode)
+            if (requestCode != null) {
+                activity.startActivityForResult(intent, requestCode)
+            } else {
+                activity.startActivity(intent)
+            }
         }
     }
 

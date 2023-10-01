@@ -11,16 +11,6 @@ sealed class MainEvent(
 ) : StorageEvent() {
 
     // ui
-    data class InitUI(
-        val storage: TetroidStorage,
-        var result: Boolean = false, // результат открытия/расшифровки
-        var isLoadFavoritesOnly: Boolean, // нужно ли загружать только избранные записи,
-        //  или загружены только избранные записи, т.е. в избранном нажали на не расшифрованную запись
-        val isHandleReceivedIntent: Boolean, // ужно ли после загрузки открыть ветку, сохраненную в опции getLastNodeId()
-        //  или ветку с избранным (если именно она передана в node)
-        var isAllNodesLoading: Boolean = false, // загрузка всех веток после режима isLoadedFavoritesOnly
-    ) : MainEvent()
-
     data class UpdateToolbar(
         val page: PageType,
         val viewType: MainViewType,

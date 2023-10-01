@@ -529,7 +529,7 @@ open class StorageViewModel(
             sendEvent(StorageEvent.Loaded(
                 isLoaded = result,
                 isLoadedFavoritesOnly = isFavoritesOnly,
-                isHandleReceivedIntent = isOpenLastNode,
+                isOpenLastNode = isOpenLastNode,
             ))
 
         }

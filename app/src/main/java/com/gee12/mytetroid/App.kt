@@ -30,6 +30,10 @@ class AppKoin : MultiDexApplication() {
 
 object App {
 
+    // признак того, что приложение было запущено как полагается
+    // и нужные переменные были проинициализированы
+    var isInitialized = false
+
     fun isFullVersion() = BuildConfig.FLAVOR == "pro"
 
     fun isFreeVersion() = BuildConfig.FLAVOR == "free"

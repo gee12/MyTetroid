@@ -1,19 +1,25 @@
 package com.gee12.mytetroid.ui.splash
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.TetroidActivity
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
 import com.gee12.mytetroid.ui.main.MainActivity
+import com.gee12.mytetroid.ui.record.RecordActivity
 
 /**
  * Главная активность приложения со списком веток, записей и меток.
  */
 class SplashActivity : TetroidActivity<SplashViewModel>() {
+
+    private var startRecordActivity = false
 
     // region Create
 
@@ -23,8 +29,12 @@ class SplashActivity : TetroidActivity<SplashViewModel>() {
 
     override fun isSingleTitle() = true
 
+    override fun isAppearInLogs() = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        handleExtras()
 
         setVisibilityActionHome(false)
 
@@ -33,6 +43,10 @@ class SplashActivity : TetroidActivity<SplashViewModel>() {
 
     override fun createDependencyScope() {
         scopeSource = ScopeSource.current
+    }
+
+    private fun handleExtras() {
+        startRecordActivity = intent.getBooleanExtra(Constants.EXTRA_START_RECORD_ACTIVITY, false)
     }
 
     // endregion Create
@@ -44,7 +58,8 @@ class SplashActivity : TetroidActivity<SplashViewModel>() {
      */
     override fun onBaseEvent(event: BaseEvent) {
         when (event) {
-            SplashEvent.AppInited -> {
+            SplashEvent.AppInitialized -> {
+                App.isInitialized = true
                 viewModel.checkAndStartMigration()
             }
             SplashEvent.Migration.NoNeeded -> {
@@ -61,10 +76,10 @@ class SplashActivity : TetroidActivity<SplashViewModel>() {
                 showSnackMoreInLogs()
             }
             SplashEvent.CheckPermissions.NoNeeded -> {
-                startMainActivity()
+                startNextActivity()
             }
             SplashEvent.CheckPermissions.Granted -> {
-                startMainActivity()
+                startNextActivity()
             }
             SplashEvent.CheckPermissions.Request -> {
                 showFullFileStoragePermissionRequest()
@@ -120,9 +135,22 @@ class SplashActivity : TetroidActivity<SplashViewModel>() {
         }
     }
 
-    private fun startMainActivity() {
+    private fun startNextActivity() {
+        if (startRecordActivity) {
+            RecordActivity.start(this)
+        } else {
+            MainActivity.start(this)
+        }
         finish()
-        MainActivity.start(this, action = null, bundle = null)
+    }
+
+    companion object {
+
+        fun start(activity: Activity, startRecordActivity: Boolean = false) {
+            val intent = Intent(activity, SplashActivity::class.java)
+            intent.putExtra(Constants.EXTRA_START_RECORD_ACTIVITY, startRecordActivity)
+            activity.startActivity(intent)
+        }
     }
 
 }

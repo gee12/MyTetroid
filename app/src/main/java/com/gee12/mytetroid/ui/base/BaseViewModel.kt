@@ -78,7 +78,9 @@ abstract class BaseViewModel(
     }
 
     suspend fun sendEvent(event: BaseEvent) {
-        Log.i("MYTETROID", "sendEvent($event)")
+        if (buildInfoProvider.isDebug) {
+            Log.d("MYTETROID", "sendEvent($event)")
+        }
         _eventFlow.emit(event)
     }
 

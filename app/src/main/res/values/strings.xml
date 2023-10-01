@@ -920,6 +920,7 @@
     <string name="error_save_pass_hash_salt">Failed to save crypt_check_hash and crypt_check_salt data for password</string>
     <string name="error_save_pass_check_data">Failed to save crypt_check data for password</string>
     <string name="error_clone_record_to_node">Failed clone record to node</string>
+    <string name="error_app_is_not_inited_restart">App is not initialized, restart</string>
 
     <string name="folder_name_mask">folder %s</string>
     <string name="file_name_mask">file %s</string>

@@ -44,13 +44,13 @@ class SplashViewModel(
         launchOnMain {
             showProgressWithText(R.string.state_app_initializing)
             withIo {
-                initAppUseCase.execute(InitAppUseCase.Params)
+                initAppUseCase.run(InitAppUseCase.Params)
             }.onComplete {
                 hideProgress()
             } .onFailure {
                 logFailure(it)
             }.onSuccess {
-                sendEvent(SplashEvent.AppInited)
+                sendEvent(SplashEvent.AppInitialized)
             }
         }
     }

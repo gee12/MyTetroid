@@ -428,12 +428,17 @@ class FailureHandler(
     }
 
     override fun getExceptionInfo(ex: Throwable): String {
-        val caller = Thread.currentThread().stackTrace[CALLER_STACK_INDEX]
-        val fullClassName = caller.className
-        val className = fullClassName.substring(fullClassName.lastIndexOf('.') + 1)
-        val methodName = caller.methodName
-        val lineNumber = caller.lineNumber
-        return "%s.%s():%d\n%s".format(className, methodName, lineNumber, ex.message)
+        val stackTrace = ex.cause?.stackTrace ?: ex.stackTrace
+
+        return buildString {
+            append("Exception: ")
+            appendLine(ex.toString())
+            append("StackTrace: ")
+            stackTrace
+                .forEach {
+                    appendLine("\t$it;")
+                }
+        }
     }
 
     private fun getString(id: Int) = resourcesProvider.getString(id)

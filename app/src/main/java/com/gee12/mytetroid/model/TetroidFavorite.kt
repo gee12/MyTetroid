@@ -9,7 +9,8 @@ class TetroidFavorite(
 ) : FavoriteEntity(storageId, objectId, 0, order) {
     var obj: TetroidObject? = null
 
-    constructor(storageId: Int, record: TetroidRecord): this(storageId, record.id) {
+    constructor(storageId: Int, record: TetroidRecord)
+            : this(storageId = storageId, objectId = record.id) {
         this.obj = record
     }
 }

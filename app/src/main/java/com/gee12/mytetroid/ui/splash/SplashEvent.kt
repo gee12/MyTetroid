@@ -4,7 +4,7 @@ import com.gee12.mytetroid.ui.base.BaseEvent
 
 sealed class SplashEvent : BaseEvent() {
 
-    object AppInited : SplashEvent()
+    object AppInitialized : SplashEvent()
 
     sealed class Migration : SplashEvent() {
         object NoNeeded : SplashEvent()

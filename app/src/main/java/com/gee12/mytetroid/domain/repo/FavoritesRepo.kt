@@ -55,9 +55,9 @@ class FavoritesRepo(context: Context) {
     }
 
     private fun toTetroidFavorite(entity: FavoriteEntity) = TetroidFavorite(
-        entity.storageId,
-        entity.objectId,
-        entity.order
+        storageId = entity.storageId,
+        objectId = entity.objectId,
+        order = entity.order,
     ).apply {
         id = entity.id
         createdDate = entity.createdDate

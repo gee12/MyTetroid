@@ -71,7 +71,12 @@ abstract class TetroidStorageActivity<VM : BaseStorageViewModel> : TetroidActivi
             }
             is StorageEvent.Inited -> afterStorageInited()
             is StorageEvent.StartLoadingOrDecrypting -> beforeStorageLoadedOrDecrypted()
-            is StorageEvent.Loaded -> afterStorageLoaded(isLoaded = event.isLoaded)
+            is StorageEvent.Loaded -> afterStorageLoaded(
+                isLoaded = event.isLoaded,
+                isLoadedFavoritesOnly = event.isLoadedFavoritesOnly,
+                isOpenLastNode = event.isOpenLastNode,
+                isAllNodesLoading = event.isAllNodesLoading,
+            )
             StorageEvent.Decrypted -> afterStorageDecrypted()
             else -> {}
         }
@@ -84,7 +89,12 @@ abstract class TetroidStorageActivity<VM : BaseStorageViewModel> : TetroidActivi
 
     }
 
-    open fun afterStorageLoaded(isLoaded: Boolean) {
+    open fun afterStorageLoaded(
+        isLoaded: Boolean,
+        isLoadedFavoritesOnly: Boolean,
+        isOpenLastNode: Boolean,
+        isAllNodesLoading: Boolean,
+    ) {
     }
 
     open fun afterStorageDecrypted() {
