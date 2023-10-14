@@ -1642,13 +1642,10 @@ class MainViewModel(
     }
 
     fun showRecordAttaches(record: TetroidRecord, fromRecordActivity: Boolean = false) {
-        launchOnMain {
-            curNode = record.node
-            curRecord = record
-            isFromRecordActivity = fromRecordActivity
-            showAttaches(record.attachedFiles)
-            openPage(PageType.MAIN)
-        }
+        curNode = record.node
+        curRecord = record
+        isFromRecordActivity = fromRecordActivity
+        showAttaches(record.attachedFiles)
     }
 
     private fun attachFile(uri: Uri, record: TetroidRecord, deleteSrcFile: Boolean) {
@@ -1958,17 +1955,11 @@ class MainViewModel(
      * @param found
      */
     fun openFoundObject(found: ITetroidObject) {
-        launchOnMain {
-            val type = found.type
-            when (type) {
-                FoundType.TYPE_RECORD -> (found as? TetroidRecord)?.let { openRecord(it) }
-                FoundType.TYPE_FILE -> (found as? TetroidFile)?.let { showRecordAttaches(it.record, false) }
-                FoundType.TYPE_NODE -> (found as? TetroidNode)?.let { showNode(it) }
-                FoundType.TYPE_TAG -> (found as? TetroidTag)?.let { showTagRecords(it) }
-            }
-            if (type != FoundType.TYPE_RECORD) {
-                openPage(PageType.MAIN)
-            }
+        when (found.type) {
+            FoundType.TYPE_RECORD -> (found as? TetroidRecord)?.let { openRecord(it) }
+            FoundType.TYPE_FILE -> (found as? TetroidFile)?.let { showRecordAttaches(it.record) }
+            FoundType.TYPE_NODE -> (found as? TetroidNode)?.let { showNode(it) }
+            FoundType.TYPE_TAG -> (found as? TetroidTag)?.let { showTagRecords(it) }
         }
     }
 

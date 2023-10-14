@@ -3,9 +3,11 @@ package com.gee12.mytetroid.ui.splash
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.widget.TextView
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.extensions.getAppVersionName
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.ui.base.BaseEvent
@@ -38,6 +40,9 @@ class SplashActivity : TetroidActivity<SplashViewModel>() {
         handleExtras()
 
         setVisibilityActionHome(false)
+
+        val tvVersion = findViewById<TextView>(R.id.text_view_version)
+        tvVersion.text = this.getAppVersionName()
 
         viewModel.initApp()
     }

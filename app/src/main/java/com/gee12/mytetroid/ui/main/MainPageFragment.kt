@@ -139,13 +139,6 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
         super.onViewCreated(view, savedInstanceState)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-
-        val activity = activity as MainActivity?
-        activity?.onMainPageCreated()
-    }
-
     private fun initListAdapters() {
         // список записей
         val settingsProvider = viewModel.settingsManager
@@ -163,7 +156,7 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
                 }
             },
             onClick = { record ->
-                viewModel.showRecordAttaches(record, false)
+                viewModel.showRecordAttaches(record)
             }
         )
         lvRecords.adapter = listAdapterRecords
@@ -587,7 +580,7 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
                 true
             }
             R.id.action_attached_files -> {
-                viewModel.showRecordAttaches(record, false)
+                viewModel.showRecordAttaches(record)
                 true
             }
             R.id.action_open_record_folder -> {

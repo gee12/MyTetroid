@@ -119,9 +119,10 @@ class FoundListAdapter(
                 FoundType.TYPE_RECORD -> resourcesProvider.getString(R.string.title_record)
                 FoundType.TYPE_NODE -> resourcesProvider.getString(R.string.title_node)
                 FoundType.TYPE_TAG -> resourcesProvider.getString(R.string.title_tag)
+                FoundType.TYPE_FILE -> resourcesProvider.getString(R.string.title_attached_file)
                 else -> {
                     val strings = resourcesProvider.getStringArray(R.array.found_types)
-                    return if (strings != null && strings.size > type) strings[type] else ""
+                    return strings.getOrNull(type - 1).orEmpty()
                 }
             }
         }

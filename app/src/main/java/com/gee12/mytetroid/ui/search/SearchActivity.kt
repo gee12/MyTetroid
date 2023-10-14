@@ -58,7 +58,7 @@ class SearchActivity : TetroidStorageActivity<StorageViewModel>() {
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         etQuery = findViewById(R.id.edit_text_query)
         cbText = findViewById(R.id.check_box_records_text)

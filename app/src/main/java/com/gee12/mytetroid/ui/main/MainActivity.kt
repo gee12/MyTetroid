@@ -19,6 +19,7 @@ import androidx.core.view.isVisible
 import androidx.documentfile.provider.DocumentFile
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.commit
+import androidx.fragment.app.commitNow
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
@@ -140,6 +141,9 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             override fun onTabSelected(tab: TabLayout.Tab) {
                 PageType.fromIndex(index = tab.position)?.also { page ->
                     setCurrentPage(page)
+                    if (!isUiCreated) {
+                        onMainPageCreated()
+                    }
                 }
             }
             override fun onTabUnselected(tab: TabLayout.Tab) {}
@@ -472,7 +476,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 onAttachEvent(event)
             }
             is MainEvent.ShowAttaches -> {
-                mainPage?.showAttaches(event.attaches)
+                showAttaches(event.attaches)
             }
             is MainEvent.AttachesFiltered -> {
                 mainPage?.onAttachesFiltered(event.query, event.attaches)
@@ -904,7 +908,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         } else {
             getString(R.string.main_header_title)
         }
-        (findViewById<View>(R.id.text_view_app_name) as TextView).text = title
+        (findViewById<View>(R.id.text_view_app_name) as? TextView)?.text = title
     }
 
     private fun setEmptyTextViews(@StringRes mesId: Int) {
@@ -1054,7 +1058,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
         val isShowAnimation = isCanChangePage
 
-        supportFragmentManager.commit {
+        supportFragmentManager.commitNow {
             if (isShowAnimation) {
                 when (page) {
                     PageType.MAIN -> {
@@ -1622,7 +1626,12 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
     // endregion Record
 
-    // region File
+    // region Attach
+
+    private fun showAttaches(attaches: List<TetroidFile>) {
+        setCurrentPage(PageType.MAIN)
+        mainPage?.showAttaches(attaches)
+    }
 
     private fun openFilePickerForAttach() {
         openFilePicker(
@@ -1659,7 +1668,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         }
     }
 
-    // endregion File
+    // endregion Attach
 
     // region ContextMenus
     
@@ -2309,14 +2318,15 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     }
 
     private fun onPrepareMainOptionsMenu(menu: Menu) {
+        val isMainPage = currentPage == PageType.MAIN
         val isRecordFilesView = viewModel.currentMainViewType == MainViewType.RECORD_ATTACHES
         val isFavoritesView = viewModel.currentMainViewType == MainViewType.FAVORITES
-        visibleMenuItem(menu.findItem(R.id.action_move_back), isRecordFilesView)
-        visibleMenuItem(menu.findItem(R.id.action_cur_record), isRecordFilesView)
-        visibleMenuItem(menu.findItem(R.id.action_cur_record_folder), isRecordFilesView)
+        visibleMenuItem(menu.findItem(R.id.action_move_back), isMainPage && isRecordFilesView)
+        visibleMenuItem(menu.findItem(R.id.action_cur_record), isMainPage && isRecordFilesView)
+        visibleMenuItem(menu.findItem(R.id.action_cur_record_folder), isMainPage && isRecordFilesView)
         visibleMenuItem(
             menu.findItem(R.id.action_insert),
-            !isFavoritesView && ClipboardManager.hasObject(FoundType.TYPE_RECORD)
+            isMainPage && !isFavoritesView && ClipboardManager.hasObject(FoundType.TYPE_RECORD)
         )
     }
 

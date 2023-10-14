@@ -103,7 +103,7 @@ class FoundPageFragment : TetroidFragment<MainViewModel>, MainPage {
         }
     }
 
-    fun showFounds(foundItems: Map<ITetroidObject, FoundType>, profile: SearchProfile) {
+    private fun showFounds(foundItems: Map<ITetroidObject, FoundType>, profile: SearchProfile) {
         val settingsProvider = viewModel.settingsManager
         listAdapterFound = FoundListAdapter(
             context = requireContext(),
@@ -119,6 +119,7 @@ class FoundPageFragment : TetroidFragment<MainViewModel>, MainPage {
                 }
             },
             onClick = { record: TetroidRecord ->
+                // иконка открытия прикрепленных файлов рисуется как-бы отдельно от itemView
                 viewModel.showRecordAttaches(record, false)
             }
         )

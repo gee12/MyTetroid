@@ -156,6 +156,7 @@
     <string name="title_record">Record</string>
     <string name="title_node">Node</string>
     <string name="title_tag">Tag</string>
+    <string name="title_attached_file">Attached file</string>
     <string name="title_enter_pin_code_length">Enter PIN-code length</string>
     <string name="title_new_record">New record</string>
     <string name="title_add_record">Add record</string>

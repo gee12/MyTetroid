@@ -155,6 +155,7 @@
     <string name="title_record">Запись</string>
     <string name="title_node">Ветка</string>
     <string name="title_tag">Метка</string>
+    <string name="title_attached_file">Прикрепленный файл</string>
     <string name="title_new_record">Новая запись</string>
     <string name="title_add_record">Добавить запись</string>
     <string name="title_add_storage">Добавить хранилище</string>
