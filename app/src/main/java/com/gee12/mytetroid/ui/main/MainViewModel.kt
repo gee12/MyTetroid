@@ -186,10 +186,10 @@ class MainViewModel(
     private var selectedTags: MutableList<TetroidTag> = mutableListOf()
 
     private var tempAttachToOpen: TetroidFile? = null
-    var isDropRecordsFiltering = true
     var lastSearchProfile: SearchProfile? = null
         private set
-    private var lastFilterQuery: String? = null
+    var isSearchViewIconified: Boolean = true
+    var lastFilterQuery: String? = null
     private var isFromRecordActivity = false
     private var isStorageTreeChangingHandled = false
     var isMultiTagsMode = false
@@ -2019,6 +2019,7 @@ class MainViewModel(
      * @param query
      */
     fun filterListInMainPage(query: String, isSaveQuery: Boolean) {
+        isSearchViewIconified = false
         if (isSaveQuery) {
             TetroidSuggestionProvider.saveRecentQuery(getContext(), query)
         }
@@ -2059,9 +2060,7 @@ class MainViewModel(
             log(message)
             val found = ScanManager.searchInRecordsNames(records, query)
             showRecords(found, viewType, dropSearch = false)
-            if (lastFilterQuery.isNullOrEmpty()) {
-                lastFilterQuery = query
-            }
+            lastFilterQuery = query
             sendEvent(MainEvent.RecordsFiltered(query, found, viewType))
         }
     }
@@ -2089,23 +2088,17 @@ class MainViewModel(
         }
     }
 
-    fun onRecordsSearchClose() {
-        launchOnMain {
-            // "сбрасываем" фильтрацию, но не для только что открытых списков записей
-            // (т.к. при открытии списка записей вызывается setIconified=false, при котором вызывается это событие,
-            // что приводит к повторному открытию списка записей)
-            if (isDropRecordsFiltering) {
-                when (currentMainViewType) {
-                    MainViewType.NODE_RECORDS -> if (curNode != null) {
-                        showRecords(curNode!!.records, MainViewType.NODE_RECORDS, dropSearch = false)
-                    }
-                    MainViewType.TAG_RECORDS -> if (selectedTags.isNotEmpty()) {
-                        val tagsRecords = getTagsRecords(selectedTags)
-                        showRecords(tagsRecords, MainViewType.TAG_RECORDS, dropSearch = false)
-                    }
-                    else -> Unit
-                }
+    fun dropRecordsFiltering() {
+        isSearchViewIconified = true
+        when (currentMainViewType) {
+            MainViewType.NODE_RECORDS -> if (curNode != null) {
+                showRecords(curNode!!.records, MainViewType.NODE_RECORDS, dropSearch = false)
             }
+            MainViewType.TAG_RECORDS -> if (selectedTags.isNotEmpty()) {
+                val tagsRecords = getTagsRecords(selectedTags)
+                showRecords(tagsRecords, MainViewType.TAG_RECORDS, dropSearch = false)
+            }
+            else -> Unit
         }
     }
 

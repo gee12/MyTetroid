@@ -27,7 +27,7 @@ class AboutActivity() : AppCompatActivity() {
         setContentView(R.layout.activity_about)
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val tvVersion = findViewById<TextView>(R.id.text_view_version)
         tvVersion.text = this.getAppVersionName()

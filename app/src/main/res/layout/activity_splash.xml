@@ -66,7 +66,7 @@
             android:layout_toRightOf="@id/text_view_ver_label"
             android:paddingStart="5dp"
             android:paddingLeft="5dp"
-            android:text="1.0" />
+            tools:text="1.0" />
 
     </RelativeLayout>
 

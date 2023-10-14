@@ -81,7 +81,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     private lateinit var tvNodesEmpty: TextView
     private lateinit var searchViewNodes: SearchView
     private lateinit var searchViewTags: SearchView
-    private lateinit var searchViewRecords: SearchView
+    private var searchViewRecords: SearchView? = null
     private lateinit var tabLayout: TabLayout
     private lateinit var favoritesNode: View
     private lateinit var btnLoadStorageNodes: Button
@@ -97,6 +97,8 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     private var foundPage: FoundPageFragment? = null
     private var touchDownXPosition = 0f
     private var touchUpXPosition = 0f
+
+    private var isDropRecordsFiltering = true
 
     // region Create
 
@@ -141,7 +143,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             override fun onTabSelected(tab: TabLayout.Tab) {
                 PageType.fromIndex(index = tab.position)?.also { page ->
                     setCurrentPage(page)
-                    if (!isUiCreated) {
+                    if (page == PageType.MAIN && !isUiCreated) {
                         onMainPageCreated()
                     }
                 }
@@ -1597,15 +1599,15 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      */
     private fun showRecords(records: List<TetroidRecord>, viewType: MainViewType, dropSearch: Boolean) {
         // сбрасываем фильтрацию при открытии списка записей
-        if (dropSearch && !searchViewRecords.isIconified) {
+        if (dropSearch && searchViewRecords?.isIconified != true) {
             // сбрасываем SearchView;
             // но т.к. при этом срабатывает событие onClose, нужно избежать повторной загрузки
             // полного списка записей в его обработчике с помощью проверки isDropRecordsFiltering
-            viewModel.isDropRecordsFiltering = false
+            isDropRecordsFiltering = false
 //          mSearchViewRecords.onActionViewCollapsed();
-            searchViewRecords.setQuery("", false)
-            searchViewRecords.isIconified = true
-            viewModel.isDropRecordsFiltering = true
+            searchViewRecords?.setQuery("", false)
+            searchViewRecords?.isIconified = true
+            isDropRecordsFiltering = true
         }
         drawerLayout.closeDrawers()
         setCurrentPage(PageType.MAIN)
@@ -2009,7 +2011,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             Intent.ACTION_SEARCH -> {
                 // обработка результата голосового поиска
                 val query = intent.getStringExtra(SearchManager.QUERY)
-                searchViewRecords.setQuery(query, true)
+                searchViewRecords?.setQuery(query, true)
             }
             Constants.ACTION_RECORD -> {
                 val resCode = intent.getIntExtra(Constants.EXTRA_RESULT_CODE, 0)
@@ -2146,9 +2148,14 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         // Associate searchable configuration with the SearchView
         searchViewRecords = (menuItem.actionView as SearchView)
         val searchManager = getSystemService(SEARCH_SERVICE) as SearchManager
-        searchViewRecords.setSearchableInfo(searchManager.getSearchableInfo(componentName))
-        searchViewRecords.setIconifiedByDefault(true)
-        searchViewRecords.isQueryRefinementEnabled = true
+
+        searchViewRecords?.apply {
+            setSearchableInfo(searchManager.getSearchableInfo(componentName))
+            setIconifiedByDefault(true)
+            isQueryRefinementEnabled = true
+            setQuery(viewModel.lastFilterQuery.orEmpty(), false)
+            isIconified = viewModel.isSearchViewIconified
+        }
         object : SearchViewXListener(searchViewRecords) {
             override fun onSearchClick() {}
             override fun onQuerySubmit(query: String) {
@@ -2160,11 +2167,16 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             }
 
             override fun onSuggestionSelectOrClick(query: String) {
-                searchViewRecords.setQuery(query, true)
+                searchViewRecords?.setQuery(query, true)
             }
 
             override fun onClose() {
-                viewModel.onRecordsSearchClose()
+                // "сбрасываем" фильтрацию, но не для только что открытых списков записей
+                // (т.к. при открытии списка записей вызывается setIconified=false, при котором вызывается это событие,
+                // что приводит к повторному открытию списка записей)
+                if (isDropRecordsFiltering) {
+                    viewModel.dropRecordsFiltering()
+                }
             }
         }
     }

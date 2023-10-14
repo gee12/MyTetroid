@@ -137,6 +137,14 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        showListIfFragmentCreated()
+    }
+
+    private fun showListIfFragmentCreated() {
+        if (isAdded) {
+            showView(viewType = viewModel.currentMainViewType)
+            viewModel.updateRecordsList()
+        }
     }
 
     private fun initListAdapters() {
@@ -193,7 +201,7 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
                 if (!viewModel.isLoadedFavoritesOnly()) {
                     fabAddAttach.showMenu(true)
                 }
-                title = if (viewModel.curRecord != null) viewModel.curRecord!!.name else ""
+                title = viewModel.curRecord?.name.orEmpty()
             }
             MainViewType.FAVORITES -> Unit
         }
