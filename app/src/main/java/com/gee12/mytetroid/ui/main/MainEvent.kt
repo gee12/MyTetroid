@@ -216,6 +216,7 @@ sealed class MainEvent(
     data class GlobalSearchFinished(
         val found: Map<ITetroidObject, FoundType>,
         val profile: SearchProfile,
+        val isExistEncryptedNodes: Boolean,
     ) : MainEvent()
 
     // file system

@@ -158,10 +158,7 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
             highlightAttachColor = settingsProvider.highlightAttachColor(),
             fieldsSelector = settingsProvider.getRecordFieldsSelector(),
             getEditedDateCallback = { record ->
-                // FIXME
-                runBlocking {
-                    viewModel.getEditedDate(record)
-                }
+                viewModel.getEditedDate(record)
             },
             onClick = { record ->
                 viewModel.showRecordAttaches(record)

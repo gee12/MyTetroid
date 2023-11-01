@@ -1978,13 +1978,28 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         tabLayout.isVisible = false
     }
 
-    private fun onGlobalSearchFinished(found: Map<ITetroidObject, FoundType>, profile: SearchProfile) {
+    private fun onGlobalSearchFinished(
+        found: Map<ITetroidObject, FoundType>,
+        profile: SearchProfile,
+        isExistEncryptedNodes: Boolean,
+    ) {
         if (foundPage == null) {
             foundPage = FoundPageFragment(gestureDetector)
         }
         foundPage?.setFounds(found, profile)
         showFoundPage()
         foundPage?.showFoundsIfFragmentCreated()
+
+        if (profile.isSearchInNode) {
+            profile.node?.let { node ->
+                showMessage(getString(R.string.global_search_by_node_result, node.name))
+            }
+        }
+
+        // уведомляем, если не смогли поискать в зашифрованных ветках
+        if (isExistEncryptedNodes) {
+            showMessage(R.string.log_found_crypted_nodes)
+        }
     }
 
     private fun research() {
@@ -2431,27 +2446,22 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             } else if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
                 drawerLayout.closeDrawer(GravityCompat.END)
             } else {
-                var needToOpenDrawer = true
-                if (currentPage != null) {
-                    if (currentPage == PageType.MAIN && mainPage?.onBackPressed() == true
-                        || currentPage == PageType.FOUND && foundPage?.onBackPressed() == true
-                    ) {
-                        needToOpenDrawer = false
-                    }
-                }
-                // открываем левую шторку, если все проверили
-                if (needToOpenDrawer) {
+                if (currentPage == null
+                    || currentPage == PageType.MAIN && mainPage?.onBackPressed() != true
+                    || currentPage == PageType.FOUND && foundPage?.onBackPressed() != true
+                ) {
+                    // открываем левую шторку, если все проверили
                     drawerLayout.openDrawer(GravityCompat.START)
                 }
             }
         } else {
-            var needToExit = true
             // выходить, если не отображаются боковые панели
             if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
                 drawerLayout.closeDrawer(GravityCompat.START)
             } else if (drawerLayout.isDrawerOpen(GravityCompat.END)) {
                 drawerLayout.closeDrawer(GravityCompat.END)
             } else {
+                var needToExit = true
                 if (currentPage != null) {
                     if (currentPage == PageType.MAIN && mainPage?.onBackPressed() == false
                         || currentPage == PageType.FOUND && foundPage?.onBackPressed() == false

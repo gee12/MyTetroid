@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import com.anggrayudi.storage.extension.launchOnUiThread
 import com.gee12.mytetroid.App.isFullVersion
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.domain.RecordFieldsSelector
@@ -25,7 +26,7 @@ abstract class RecordsBaseListAdapter(
     protected val isHighlightAttach: Boolean,
     protected val highlightAttachColor: Int,
     protected val fieldsSelector: RecordFieldsSelector,
-    protected val getEditedDateCallback: (record: TetroidRecord) -> Date?,
+    protected val getEditedDateCallback: suspend (record: TetroidRecord) -> Date?,
     protected val onClick: (record: TetroidRecord) -> Unit,
 ) : BaseAdapter() {
 
@@ -103,10 +104,12 @@ abstract class RecordsBaseListAdapter(
         // дата изменения
         if (isFullVersion() && nonCryptedOrDecrypted && fieldsSelector.checkIsEditedDate()) {
             viewHolder.editedView.visibility = View.VISIBLE
-            val edited = getEditedDateCallback(record)?.let { date ->
-                Utils.dateToString(date, dateTimeFormat)
-            } ?: "-"
-            viewHolder.editedView.text = edited
+            launchOnUiThread {
+                val edited = getEditedDateCallback(record)?.let { date ->
+                    Utils.dateToString(date, dateTimeFormat)
+                } ?: "-"
+                viewHolder.editedView.text = edited
+            }
         } else {
             viewHolder.editedView.visibility = View.GONE
         }

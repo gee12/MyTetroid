@@ -21,7 +21,7 @@ class FoundListAdapter(
     isHighlightAttach: Boolean,
     highlightAttachColor: Int,
     fieldsSelector: RecordFieldsSelector,
-    getEditedDateCallback: (record: TetroidRecord) -> Date?,
+    getEditedDateCallback: suspend (record: TetroidRecord) -> Date?,
     onClick: (record: TetroidRecord) -> Unit,
 ) : RecordsBaseListAdapter(
     context = context,

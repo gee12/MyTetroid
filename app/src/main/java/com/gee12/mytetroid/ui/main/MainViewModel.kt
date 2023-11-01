@@ -1983,23 +1983,19 @@ class MainViewModel(
                     GlobalSearchUseCase.Params(profile)
                 )
             }.onComplete {
-                sendEvent(BaseEvent.TaskFinished/*, Gravity.NO_GRAVITY*/)
+                sendEvent(BaseEvent.TaskFinished)
             }.onFailure {
                 logFailure(it)
             }.onSuccess { result ->
-                if (profile.isSearchInNode) {
-                    profile.node?.let { node ->
-                        log(getString(R.string.global_search_by_node_result, node.name), show = true)
-                    }
-                }
-
-                // уведомляем, если не смогли поискать в зашифрованных ветках
-                if (result.isExistCryptedNodes) {
-                    log(R.string.log_found_crypted_nodes, show = true)
-                }
                 log(getString(R.string.global_search_end, result.foundObjects.size))
 
-                sendEvent(MainEvent.GlobalSearchFinished(result.foundObjects, profile))
+                sendEvent(
+                    MainEvent.GlobalSearchFinished(
+                        found = result.foundObjects,
+                        profile = profile,
+                        isExistEncryptedNodes = result.isExistEncryptedNodes,
+                    )
+                )
             }
         }
     }

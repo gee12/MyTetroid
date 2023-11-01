@@ -18,21 +18,24 @@ class GlobalSearchUseCase(
     private val getRecordParsedTextUseCase: GetRecordParsedTextUseCase,
 ) : UseCase<GlobalSearchUseCase.Result, GlobalSearchUseCase.Params>() {
 
+    companion object {
+        private const val QUERY_SEPAR = " "
+    }
+
     data class Params(
         val profile: SearchProfile,
     )
 
     data class Result(
         val foundObjects: Map<ITetroidObject, FoundType>,
-        val isExistCryptedNodes: Boolean,
+        val isExistEncryptedNodes: Boolean,
     )
 
-    private val QUERY_SEPAR = " "
-
-    private var isExistCryptedNodes = false
+    private var isExistEncryptedNodes = false
 
     override suspend fun run(params: Params): Either<Failure, Result> {
         val profile = params.profile
+        isExistEncryptedNodes = false
 
         profile.node = profile.nodeId?.let { nodeId ->
             getNodeById(nodeId)
@@ -63,7 +66,7 @@ class GlobalSearchUseCase(
         }.let {
             Result(
                 foundObjects = it,
-                isExistCryptedNodes = isExistCryptedNodes,
+                isExistEncryptedNodes = isExistEncryptedNodes,
             )
         }.toRight()
     }
@@ -118,9 +121,6 @@ class GlobalSearchUseCase(
     /**
      * Глобальный поиск по названиям веток.
      * Пропускает зашифрованные ветки.
-     * @param nodes
-     * @param regex
-     * @param inRecords
      */
     private suspend fun globalSearchInNodes(
         params: Params,
@@ -133,7 +133,7 @@ class GlobalSearchUseCase(
 
         for (node in nodes) {
             if (!node.isNonCryptedOrDecrypted) {
-                isExistCryptedNodes = true
+                isExistEncryptedNodes = true
                 continue
             }
             // поиск по именам веток
@@ -155,9 +155,6 @@ class GlobalSearchUseCase(
 
     /**
      * Поиск по названиям записей.
-     * @param srcRecords
-     * @param regex
-     * @return
      */
     private suspend fun globalSearchInRecords(
         params: Params,
@@ -221,9 +218,6 @@ class GlobalSearchUseCase(
 
     /**
      * Глобальный поиск по файлам записи.
-     * @param files
-     * @param regex
-     * @return
      */
     private fun globalSearchInFiles(foundObjects: MutableMap<ITetroidObject, FoundType>, files: List<TetroidFile>, regex: Regex) {
         for (file in files) {
@@ -241,8 +235,6 @@ class GlobalSearchUseCase(
     /**
      * Глобальный поиск по меткам.
      * Не используется в связи с переходом на 2й тип поиска по меткам.
-     * @param tags
-     * @param regex
      */
     private fun globalSearchInTags(foundObjects: MutableMap<ITetroidObject, FoundType>, tags: List<TetroidTag>, regex: Regex) {
         for (tagEntry in tags) {
@@ -259,8 +251,6 @@ class GlobalSearchUseCase(
 
     /**
      * Добавление типа найденного объекта (в зависимости от того, где он найден).
-     * @param obj
-     * @param foundType
      */
     private fun addFoundObject(foundObjects: MutableMap<ITetroidObject, FoundType>, obj: ITetroidObject, foundType: Int) {
         if (foundObjects.containsKey(obj)) {
@@ -298,9 +288,6 @@ class GlobalSearchUseCase(
 
 /**
      * Поиск по названиям записей.
-     * @param srcRecords
-     * @param query
-     * @return
      */
     suspend fun searchInRecordsNames(srcRecords: List<TetroidRecord>, query: String): List<TetroidRecord> {
         val found: MutableList<TetroidRecord> = ArrayList()
@@ -315,9 +302,6 @@ class GlobalSearchUseCase(
 
     /**
      * Поиск по файлам записи.
-     * @param files
-     * @param query
-     * @return
      */
     suspend fun searchInFiles(files: List<TetroidFile>, query: String): List<TetroidFile> {
         val found: MutableList<TetroidFile> = ArrayList()
@@ -332,9 +316,6 @@ class GlobalSearchUseCase(
 
     /**
      * Поиск по меткам.
-     * @param tags
-     * @param query
-     * @return
      */
     suspend fun searchInTags(tags: List<TetroidTag>, query: String): List<TetroidTag> {
         val found: MutableList<TetroidTag> = ArrayList()
@@ -363,8 +344,6 @@ class GlobalSearchUseCase(
      * Формирование регулярного выражения для поиска.
      * i - CASE_INSENSITIVE - регистронезависимый режим
      * s - DOTALL - режим одной строки (\n и \r не играют роли)
-     * @param query
-     * @return
      */
     private fun buildRegex(query: String): Regex {
         return Regex("(?is)" + ".*" + Pattern.quote(query) + ".*")

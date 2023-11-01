@@ -113,10 +113,7 @@ class FoundPageFragment : TetroidFragment<MainViewModel>, MainPage {
             highlightAttachColor = settingsProvider.highlightAttachColor(),
             fieldsSelector = settingsProvider.getRecordFieldsSelector(),
             getEditedDateCallback = { record ->
-                // FIXME
-                runBlocking {
-                    viewModel.getEditedDate(record)
-                }
+                viewModel.getEditedDate(record)
             },
             onClick = { record: TetroidRecord ->
                 // иконка открытия прикрепленных файлов рисуется как-бы отдельно от itemView
@@ -143,7 +140,7 @@ class FoundPageFragment : TetroidFragment<MainViewModel>, MainPage {
     }
 
     fun onBackPressed(): Boolean {
-        viewModel.openPage(PageType.FOUND)
+        viewModel.openPage(PageType.MAIN)
         return true
     }
 
