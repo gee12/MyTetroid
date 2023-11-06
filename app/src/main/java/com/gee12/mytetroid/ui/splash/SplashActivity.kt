@@ -30,6 +30,10 @@ class SplashActivity : TetroidActivity<SplashViewModel>() {
 
     override fun getViewModelClazz() = SplashViewModel::class.java
 
+    override fun hasToolbar() = false
+
+    override fun hasProgressBar() = false
+
     override fun isSingleTitle() = true
 
     override fun isAppearInLogs() = false

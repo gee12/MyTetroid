@@ -184,8 +184,6 @@
     <string name="title_download_attach_image">Скачать и прикрепить изображение</string>
     <string name="title_download_insert_image">Скачать и вставить изображение</string>
     <string name="title_insert_as">Вставить как..</string>
-    <string name="title_file_downloading">Загрузка файла</string>
-    <string name="title_image_downloading">Загрузка изображения</string>
     <string name="title_page_downloading">Загрузка содержимого веб-страницы</string>
     <string name="title_download_by_link">ЗАГРУЗИТЬ ПО ССЫЛКЕ</string>
     <string name="title_select_on_device">ВЫБРАТЬ НА УСТРОЙСТВЕ</string>
@@ -203,6 +201,7 @@
     <string name="title_empty_tag"><![CDATA[<без меток>]]></string>
     <string name="title_tags_search_mode_subtitle">Искать по меткам:</string>
     <string name="title_storage_currently_in_use_mask">Хранилище «%s» в данный момент используется</string>
+    <string name="title_mytetroid_slogan">Персональная база знаний</string>
 
     <string name="subtitle_main_page_node_records">ВЕТКА</string>
     <string name="subtitle_main_page_record_files">ФАЙЛЫ</string>

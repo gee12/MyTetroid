@@ -62,12 +62,14 @@ abstract class TetroidActivity<VM : BaseViewModel>
 
     protected var receivedIntent: Intent? = null
     var optionsMenu: Menu? = null
-    protected lateinit var tvSingleTitle: TextView
-    protected lateinit var tvTitle: TextView
-    protected lateinit var tvSubtitle: TextView
-    protected lateinit var toolbar: Toolbar
-    protected lateinit var layoutProgress: LinearLayout
-    protected lateinit var tvProgress: TextView
+    // toolbar
+    protected var toolbar: Toolbar? = null
+    protected var tvSingleTitle: TextView? = null
+    protected var tvTitle: TextView? = null
+    protected var tvSubtitle: TextView? = null
+    // progress bar
+    protected var layoutProgress: LinearLayout? = null
+    protected var tvProgress: TextView? = null
 
     protected lateinit var gestureDetector: GestureDetectorCompat
     protected var isFullScreen = false
@@ -84,6 +86,10 @@ abstract class TetroidActivity<VM : BaseViewModel>
 
     protected abstract fun getViewModelClazz(): Class<VM>
 
+    protected open fun hasToolbar() = true
+
+    protected open fun hasProgressBar() = true
+
     protected open fun isSingleTitle() = true
 
     protected open fun isAppearInLogs() = true
@@ -95,23 +101,28 @@ abstract class TetroidActivity<VM : BaseViewModel>
 
         receivedIntent = intent
 
-        toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        setVisibilityActionHome(true)
+        if (hasToolbar()) {
+            toolbar = findViewById(R.id.toolbar)
+            setSupportActionBar(toolbar)
+            setVisibilityActionHome(true)
+
+            tvSingleTitle = toolbar?.findViewById(R.id.text_view_single_title)
+            tvTitle = toolbar?.findViewById(R.id.text_view_title)
+            tvSubtitle = toolbar?.findViewById(R.id.text_view_subtitle)
+
+            setTitle(title)
+        }
+
+        if (hasProgressBar()) {
+            layoutProgress = findViewById(R.id.layout_progress_bar)
+            tvProgress = findViewById(R.id.progress_text)
+        }
 
         // обработчик нажатия на экране
         gestureDetector = GestureDetectorCompat(this,
             ActivityDoubleTapListener {
                 toggleFullscreen(true)
             })
-        tvSingleTitle = toolbar.findViewById(R.id.text_view_single_title)
-        tvTitle = toolbar.findViewById(R.id.text_view_title)
-        tvSubtitle = toolbar.findViewById(R.id.text_view_subtitle)
-        layoutProgress = findViewById(R.id.layout_progress_bar)
-        tvProgress = findViewById(R.id.progress_text)
-
-        setTitle(title)
-
         isOnCreateProcessed = false
         isUiCreated = false
 
@@ -355,13 +366,13 @@ abstract class TetroidActivity<VM : BaseViewModel>
      */
     override fun setTitle(title: CharSequence?) {
         val isSingleTitle = isSingleTitle()
-        tvTitle.isVisible = !isSingleTitle
-        tvSubtitle.isVisible = !isSingleTitle
-        tvSingleTitle.isVisible = isSingleTitle
+        tvTitle?.isVisible = !isSingleTitle
+        tvSubtitle?.isVisible = !isSingleTitle
+        tvSingleTitle?.isVisible = isSingleTitle
         if (isSingleTitle) {
-            tvSingleTitle.text = title
+            tvSingleTitle?.text = title
         } else {
-            tvTitle.text = title
+            tvTitle?.text = title
         }
     }
 
@@ -369,7 +380,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
      * Установка подзаголовка активности.
      */
     fun setSubtitle(title: CharSequence?) {
-        tvSubtitle.text = title
+        tvSubtitle?.text = title
     }
 
     //    /**
@@ -541,8 +552,8 @@ abstract class TetroidActivity<VM : BaseViewModel>
     // region IAndroidComponent
 
     override fun setProgressVisibility(isVisible: Boolean, text: String?) {
-        layoutProgress.isVisible = isVisible
-        tvProgress.text = text
+        layoutProgress?.isVisible = isVisible
+        tvProgress?.text = text
     }
 
     override fun showProgress(textResId: Int) {
@@ -608,9 +619,9 @@ abstract class TetroidActivity<VM : BaseViewModel>
      * Установка подзаголовка активности.
      */
     fun setSubtitle(subtitle: String?) {
-        tvSubtitle.visibility = View.VISIBLE
-        tvSubtitle.textSize = 16f
-        tvSubtitle.text = subtitle
+        tvSubtitle?.visibility = View.VISIBLE
+        tvSubtitle?.textSize = 16f
+        tvSubtitle?.text = subtitle
     }
 
     open fun showActivityForResult(cls: Class<*>?, requestCode: Int) {

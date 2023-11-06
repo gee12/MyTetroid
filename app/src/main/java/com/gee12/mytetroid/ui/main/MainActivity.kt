@@ -973,23 +973,23 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             page == PageType.MAIN -> {
                 val subtitle = viewType.getSubtitle(resourcesProvider, isMultiTagsMode = viewModel.isMultiTagsMode)
                 if (subtitle != null) {
-                    tvSubtitle.visibility = View.VISIBLE
-                    tvSubtitle.textSize = 12f
-                    tvSubtitle.text = if (viewType == MainViewType.TAG_RECORDS && viewModel.isMultiTagsMode) {
+                    tvSubtitle?.visibility = View.VISIBLE
+                    tvSubtitle?.textSize = 12f
+                    tvSubtitle?.text = if (viewType == MainViewType.TAG_RECORDS && viewModel.isMultiTagsMode) {
                         val tagsSearchMode = settingsManager.getTagsSearchMode().getStringValue(resourcesProvider)
                         "$subtitle (${tagsSearchMode})"
                     } else {
                         subtitle
                     }
                 } else {
-                    tvSubtitle.visibility = View.GONE
+                    tvSubtitle?.visibility = View.GONE
                 }
             }
             viewModel.lastSearchProfile != null -> {
                 setSubtitle("\"${viewModel.lastSearchProfile!!.query}\"")
             }
             else -> {
-                tvSubtitle.visibility = View.GONE
+                tvSubtitle?.visibility = View.GONE
             }
         }
     }

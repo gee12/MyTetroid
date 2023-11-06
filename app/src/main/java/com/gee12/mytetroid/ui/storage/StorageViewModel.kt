@@ -829,14 +829,12 @@ open class StorageViewModel(
 
     // TODO: вынести в конкретную VM
     suspend fun getEditedDate(record: TetroidRecord): Date? {
-        return withMain {
-            withIo {
-                getFileModifiedDateUseCase.run(
-                    GetFileModifiedDateInStorageUseCase.Params(
-                        fileRelativePath = recordPathProvider.getRelativePathToFileInRecordFolder(record, record.fileName),
-                    )
+        return withIo {
+            getFileModifiedDateUseCase.run(
+                GetFileModifiedDateInStorageUseCase.Params(
+                    fileRelativePath = recordPathProvider.getRelativePathToFileInRecordFolder(record, record.fileName),
                 )
-            }.foldResult(
+            ).foldResult(
                 onLeft = { null },
                 onRight = { it }
             )
