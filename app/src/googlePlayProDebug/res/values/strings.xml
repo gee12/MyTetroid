@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name" translatable="false">MyTetroid Pro debug</string>
+    <string name="main_header_title" translatable="false">MyTetroid Pro debug</string>
+    <string name="search_suggest_authorities" translatable="false">com.gee12.mytetroid.pro.debug.TetroidSuggestionProvider</string>
+</resources>

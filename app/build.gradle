@@ -43,7 +43,7 @@ android {
             applicationIdSuffix = '.pro'
             buildConfigField "String", "DEF_APPLICATION_ID", '"'+android.defaultConfig.applicationId+'"'
         }
-        /*googlePlayFree {
+        googlePlayFree {
             dimension = 'default'
             buildConfigField "String", "DEF_APPLICATION_ID", '"'+android.defaultConfig.applicationId+'"'
         }
@@ -51,7 +51,7 @@ android {
             dimension = 'default'
             applicationIdSuffix = '.pro'
             buildConfigField "String", "DEF_APPLICATION_ID", '"'+android.defaultConfig.applicationId+'"'
-        }*/
+        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -59,11 +59,16 @@ android {
     }
     applicationVariants.all { variant ->
         variant.outputs.all {
+            def flavor = variant.getFlavorName()
             def flavorName = ""
-            if (variant.getFlavorName() == "pro") {
+            if (flavor == "pro" || flavor == "googlePlayPro") {
                 flavorName = "_Pro"
             }
-            outputFileName = "MyTetroid${flavorName}_${variant.versionName}.apk"
+            def postfix = ""
+            if (flavor == "googlePlayFree" || flavor == "googlePlayPro") {
+                postfix = "_GP"
+            }
+            outputFileName = "MyTetroid${flavorName}_${variant.versionName}${postfix}.apk"
         }
     }
 }
