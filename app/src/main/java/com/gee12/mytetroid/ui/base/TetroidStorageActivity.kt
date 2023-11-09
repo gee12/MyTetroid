@@ -7,9 +7,12 @@ import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.model.TetroidStorage
+import com.gee12.mytetroid.model.permission.PermissionRequestCode
+import com.gee12.mytetroid.model.permission.TetroidPermission
 import com.gee12.mytetroid.ui.settings.storage.StorageSettingsActivity.Companion.newIntent
 import com.gee12.mytetroid.ui.storages.StoragesActivity.Companion.start
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
+import com.gee12.mytetroid.ui.dialogs.FullFileStoragePermissionDialog
 import com.gee12.mytetroid.ui.storage.StorageEvent
 
 abstract class TetroidStorageActivity<VM : BaseStorageViewModel> : TetroidActivity<VM>() {
@@ -106,6 +109,54 @@ abstract class TetroidStorageActivity<VM : BaseStorageViewModel> : TetroidActivi
 
     override fun onStorageAccessGranted(requestCode: Int, root: DocumentFile) {
         viewModel.onStorageAccessGranted(requestCode, root)
+    }
+
+    protected fun showPermissionRequest(
+        permission: TetroidPermission,
+        requestCallback: (() -> Unit)?
+    ) {
+        // диалог с объяснием зачем нужно разрешение
+        AskDialogs.showYesDialog(
+            context = this,
+            message = permission.getPermissionRequestMessage(resourcesProvider),
+            onApply = {
+                requestCallback?.invoke()
+            },
+        )
+    }
+
+    protected fun showFileStoragePermissionRequest(
+        permission: TetroidPermission.FileStorage,
+        requestCode: PermissionRequestCode,
+    ) {
+        if (viewModel.buildInfoProvider.hasAllFilesAccessVersion()) {
+            viewModel.permissionManager.requestWriteExtStoragePermissions(
+                activity = this,
+                requestCode = requestCode,
+                onManualPermissionRequest = { callback ->
+                    FullFileStoragePermissionDialog(
+                        onSuccess = {
+                            callback()
+                        },
+                        onCancel = {}
+                    ).showIfPossible(supportFragmentManager)
+                },
+            )
+        } else {
+            AskDialogs.showOkCancelDialog(
+                context = this,
+                title = getString(R.string.ask_permission_on_storage_folder_title),
+                message = getString(R.string.ask_permission_on_storage_folder_mask, viewModel.storage?.name.orEmpty()),
+                isCancelable = false,
+                onYes = {
+                    requestFileStorageAccess(
+                        uri = permission.uri,
+                        requestCode = requestCode,
+                    )
+                },
+                onCancel = {}
+            )
+        }
     }
 
     // endregion File

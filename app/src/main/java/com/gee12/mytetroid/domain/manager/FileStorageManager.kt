@@ -12,11 +12,10 @@ class FileStorageManager(
     buildInfoProvider: BuildInfoProvider,
 ) {
     // has permission MANAGE_EXTERNAL_STORAGE
-    private val hasAllFilesAccess = buildInfoProvider.hasAllFilesAccessVersion()
+    private val hasAllFilesAccessVersion = buildInfoProvider.hasAllFilesAccessVersion()
 
     fun isFileApiUsed(): Boolean {
-//        return Build.VERSION.SDK_INT <= 29
-        return Build.VERSION.SDK_INT < 29
+        return Build.VERSION.SDK_INT <= 29
     }
 
     fun checkReadFileStoragePermission(root: DocumentFile): Boolean {
@@ -28,8 +27,8 @@ class FileStorageManager(
     fun checkWriteFileStoragePermission(root: DocumentFile): Boolean {
         // на Android 10 и ниже canWrite() возвращает false, поэтому на этих устройствах не проверяем
         return isFileApiUsed() && root.isRawFile
-                || root.isWritable(context)
-                || hasAllFilesAccess && Environment.isExternalStorageManager()
+                || !hasAllFilesAccessVersion && root.isWritable(context)
+                || hasAllFilesAccessVersion && Environment.isExternalStorageManager()
                 /*|| SimpleStorage.hasStorageAccess(
                         context = context,
                         fullPath = root.getAbsolutePath(context),
@@ -46,14 +45,14 @@ class FileStorageManager(
             }
             // если версия Android еще использует File Api, то преобразуем uri (например, со схемой content://)
             // в формат для File Api (uri со схемой file://)
-            isFileApiUsed() || hasAllFilesAccess -> {
+            isFileApiUsed() || hasAllFilesAccessVersion -> {
                 DocumentFileCompat.fromFullPath(
                     context = context,
                     fullPath = folder.getAbsolutePath(context),
                     documentType = DocumentFileType.FOLDER,
                     requiresWriteAccess = true,
                 )
-                //folder.toRawDocumentFile(getContext())
+                //folder.toRawDocumentFile(context)
             }
             // иначе используем Scoped Storage и DocumentApi (в т.ч. со схемой content://)
             else -> {

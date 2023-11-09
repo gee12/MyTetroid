@@ -25,6 +25,7 @@ import com.gee12.mytetroid.model.permission.TetroidPermission
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.TetroidActivity
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
+import com.gee12.mytetroid.ui.dialogs.FullFileStoragePermissionDialog
 import com.gee12.mytetroid.ui.dialogs.storage.DeleteStorageDialog
 import com.gee12.mytetroid.ui.dialogs.storage.StorageFieldsDialog
 import com.gee12.mytetroid.ui.settings.storage.StorageSettingsActivity
@@ -32,6 +33,7 @@ import com.gee12.mytetroid.ui.storage.StorageEvent
 import com.gee12.mytetroid.ui.storage.StorageViewModel
 import com.gee12.mytetroid.ui.storage.info.StorageInfoActivity
 import com.github.clans.fab.FloatingActionMenu
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.core.scope.get
 
@@ -123,7 +125,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
                 )
             }
             is StoragesEvent.AddedNewStorage -> {
-                createStorageFiles(event.storage)
+                checkPermissionsAndInitAddedStorage(event.storage)
             }
         }
     }
@@ -164,7 +166,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
         setResult(RESULT_OK, intent)
     }
 
-    private fun createStorageFiles(storage: TetroidStorage) {
+    private fun checkPermissionsAndInitAddedStorage(storage: TetroidStorage) {
         val tempKoinScope = ScopeSource.createNew().scope
         val storageViewModel: StorageViewModel = tempKoinScope.get(StorageViewModel::class.java)
 
@@ -192,6 +194,18 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
                             storageViewModel.initStorage()
                         }
                     }
+                    is BaseEvent.Permission.ShowRequest -> {
+                        if (event.permission is TetroidPermission.FileStorage
+                            && event.requestCode == PermissionRequestCode.CREATE_STORAGE_FILES
+                        ) {
+                            showFileStoragePermissionRequest(event.permission, event.requestCode, storage)
+                        } else {
+                            showPermissionRequest(
+                                permission = event.permission,
+                                requestCallback = event.requestCallback,
+                            )
+                        }
+                    }
                     else -> Unit
                 }
             }
@@ -200,7 +214,58 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
         if (storage.isNew) {
             showProgress(R.string.state_storage_files_creating)
         }
-        storageViewModel.checkPermissionsAndInitStorage(storage)
+        lifecycleScope.launch(Dispatchers.IO) {
+            storageViewModel.checkPermissionsAndInitStorage(storage)
+        }
+    }
+
+    private fun showPermissionRequest(
+        permission: TetroidPermission,
+        requestCallback: (() -> Unit)?
+    ) {
+        // диалог с объяснием зачем нужно разрешение
+        AskDialogs.showYesDialog(
+            context = this,
+            message = permission.getPermissionRequestMessage(resourcesProvider),
+            onApply = {
+                requestCallback?.invoke()
+            },
+        )
+    }
+
+    private fun showFileStoragePermissionRequest(
+        permission: TetroidPermission.FileStorage,
+        requestCode: PermissionRequestCode,
+        storage: TetroidStorage,
+    ) {
+        if (viewModel.buildInfoProvider.hasAllFilesAccessVersion()) {
+            viewModel.permissionManager.requestWriteExtStoragePermissions(
+                activity = this,
+                requestCode = requestCode,
+                onManualPermissionRequest = { callback ->
+                    FullFileStoragePermissionDialog(
+                        onSuccess = {
+                            callback()
+                        },
+                        onCancel = {}
+                    ).showIfPossible(supportFragmentManager)
+                },
+            )
+        } else {
+            AskDialogs.showOkCancelDialog(
+                context = this,
+                title = getString(R.string.ask_permission_on_storage_folder_title),
+                message = getString(R.string.ask_permission_on_storage_folder_mask, storage.name),
+                isCancelable = false,
+                onYes = {
+                    requestFileStorageAccess(
+                        uri = permission.uri,
+                        requestCode = requestCode,
+                    )
+                },
+                onCancel = {}
+            )
+        }
     }
 
     private fun onStorageFilesCreated(storage: TetroidStorage) {

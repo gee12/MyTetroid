@@ -516,20 +516,6 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         }
     }
 
-    private fun showPermissionRequest(
-        permission: TetroidPermission,
-        requestCallback: () -> Unit
-    ) {
-        // диалог с объяснием зачем нужно разрешение
-        AskDialogs.showYesDialog(
-            context = this,
-            message = permission.getPermissionRequestMessage(resourcesProvider),
-            onApply = {
-                requestCallback.invoke()
-            },
-        )
-    }
-
     // endregion Permissions
 
     // region Storage

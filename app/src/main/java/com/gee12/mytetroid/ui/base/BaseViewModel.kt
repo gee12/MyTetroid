@@ -92,15 +92,6 @@ abstract class BaseViewModel(
 
     //region Permission
 
-    fun requestFileStorageAccess(
-        permission: TetroidPermission,
-        requestCode: PermissionRequestCode
-    ) {
-        launchOnMain {
-            sendEvent(BaseEvent.Permission.Check(permission, requestCode))
-        }
-    }
-
     fun checkAndRequestReadFileStoragePermission(
         uri: Uri,
         requestCode: PermissionRequestCode,
@@ -111,9 +102,9 @@ abstract class BaseViewModel(
             if (fileStorageManager.checkReadFileStoragePermission(file)) {
                 onPermissionGranted(permission, requestCode)
             } else {
-                requestFileStorageAccess(permission, requestCode)
+                showManualPermissionRequest(permission, requestCode)
             }
-        } ?: requestFileStorageAccess(permission, requestCode)
+        } ?: showManualPermissionRequest(permission, requestCode)
     }
 
     fun checkAndRequestWriteFileStoragePermission(
@@ -126,9 +117,9 @@ abstract class BaseViewModel(
             if (fileStorageManager.checkWriteFileStoragePermission(file)) {
                 onPermissionGranted(permission, requestCode)
             } else {
-                requestFileStorageAccess(permission, requestCode)
+                showManualPermissionRequest(permission, requestCode)
             }
-        } ?: requestFileStorageAccess(permission, requestCode)
+        } ?: showManualPermissionRequest(permission, requestCode)
     }
 
     fun checkCameraPermission(activity: Activity) {
@@ -228,10 +219,11 @@ abstract class BaseViewModel(
 
     open fun showManualPermissionRequest(
         permission: TetroidPermission,
-        requestCallback: () -> Unit
+        requestCode: PermissionRequestCode,
+        requestCallback: (() -> Unit)? = null,
     ) {
         launchOnMain {
-            sendEvent(BaseEvent.Permission.ShowRequest(permission, requestCallback))
+            sendEvent(BaseEvent.Permission.ShowRequest(permission, requestCode, requestCallback))
         }
     }
 

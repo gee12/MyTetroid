@@ -31,7 +31,7 @@ class PermissionManager(
     }
 
     // has permission MANAGE_EXTERNAL_STORAGE
-    private val hasAllFilesAccess = buildInfoProvider.hasAllFilesAccessVersion()
+    private val hasAllFilesAccessVersion = buildInfoProvider.hasAllFilesAccessVersion()
 
     /**
      * Проверка разрешения на запись во внешнюю память.
@@ -39,7 +39,7 @@ class PermissionManager(
     fun hasWriteExtStoragePermission(context: Context): Boolean {
         return when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-                if (hasAllFilesAccess) {
+                if (hasAllFilesAccessVersion) {
                     Environment.isExternalStorageManager()
                 } else {
                     // используем SAF, специально разрешения спрашивать не нужно
@@ -64,7 +64,7 @@ class PermissionManager(
         onManualPermissionRequest: (() -> Unit) -> Unit
     ) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (hasAllFilesAccess) {
+            if (hasAllFilesAccessVersion) {
                 logger.log(activity.getString(R.string.log_permission_request_mask, Manifest.permission.MANAGE_EXTERNAL_STORAGE), false)
                 onManualPermissionRequest {
                     requestManageExternalStoragePermission(activity, requestCode)

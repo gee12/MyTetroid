@@ -130,7 +130,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
             fileStorageHelper = SimpleStorageHelper(this, savedInstanceState)
             // ради оптимизации удаляются "повторные" persistable uri, к которым юзер предоставил доступ в SAF,
             // и оставляются только "родительские", из-за чего происходит циклический запрос доступа на Android >= 11
-            fileStorageHelper?.storage?.isCleanupRedundantUriPermissions = false //
+            fileStorageHelper?.storage?.isCleanupRedundantUriPermissions = false
             initFileStorage(savedInstanceState)
         }
 
@@ -239,9 +239,10 @@ abstract class TetroidActivity<VM : BaseViewModel>
         requestCode: PermissionRequestCode,
     ) {
         requestCodeForStorageAccess = requestCode
-        openFolderPicker(
-            requestCode = requestCode,
-            initialPath = uri.toString(),
+        fileStorageHelper?.requestStorageAccess(
+        //fileStorageHelper.openFolderPicker(
+            requestCode = requestCode.code,
+            initialPath = FileFullPath(this, fullPath = uri.toString()),
         )
     }
 

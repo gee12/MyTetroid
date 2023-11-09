@@ -16,6 +16,8 @@ import com.gee12.mytetroid.model.permission.TetroidPermission
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.TetroidSettingsActivity
 import com.gee12.mytetroid.ui.base.TetroidStorageSettingsFragment
+import com.gee12.mytetroid.ui.dialogs.AskDialogs
+import com.gee12.mytetroid.ui.dialogs.FullFileStoragePermissionDialog
 import com.gee12.mytetroid.ui.storage.StorageEvent
 
 /**
@@ -97,6 +99,18 @@ class StorageSettingsActivity : TetroidSettingsActivity<StorageSettingsViewModel
                     viewModel.initStorage()
                 }
             }
+            is BaseEvent.Permission.ShowRequest -> {
+                if (event.permission is TetroidPermission.FileStorage
+                    && event.requestCode == PermissionRequestCode.OPEN_STORAGE_FOLDER
+                ) {
+                    showFileStoragePermissionRequest(event.permission, event.requestCode)
+                } else {
+                    showPermissionRequest(
+                        permission = event.permission,
+                        requestCallback = event.requestCallback,
+                    )
+                }
+            }
             else -> super.onBaseEvent(event)
         }
     }
@@ -152,6 +166,54 @@ class StorageSettingsActivity : TetroidSettingsActivity<StorageSettingsViewModel
     }
 
     // endregion Storage
+
+    protected fun showPermissionRequest(
+        permission: TetroidPermission,
+        requestCallback: (() -> Unit)?
+    ) {
+        // диалог с объяснием зачем нужно разрешение
+        AskDialogs.showYesDialog(
+            context = this,
+            message = permission.getPermissionRequestMessage(resourcesProvider),
+            onApply = {
+                requestCallback?.invoke()
+            },
+        )
+    }
+
+    protected fun showFileStoragePermissionRequest(
+        permission: TetroidPermission.FileStorage,
+        requestCode: PermissionRequestCode,
+    ) {
+        if (viewModel.buildInfoProvider.hasAllFilesAccessVersion()) {
+            viewModel.permissionManager.requestWriteExtStoragePermissions(
+                activity = this,
+                requestCode = requestCode,
+                onManualPermissionRequest = { callback ->
+                    FullFileStoragePermissionDialog(
+                        onSuccess = {
+                            callback()
+                        },
+                        onCancel = {}
+                    ).showIfPossible(supportFragmentManager)
+                },
+            )
+        } else {
+            AskDialogs.showOkCancelDialog(
+                context = this,
+                title = getString(R.string.ask_permission_on_storage_folder_title),
+                message = getString(R.string.ask_permission_on_storage_folder_mask, viewModel.storage?.name.orEmpty()),
+                isCancelable = false,
+                onYes = {
+                    requestFileStorageAccess(
+                        uri = permission.uri,
+                        requestCode = requestCode,
+                    )
+                },
+                onCancel = {}
+            )
+        }
+    }
 
     private fun setWarningMenuItem(isVisible: Boolean, onClick: (() -> Unit)? = null) {
         optionsMenu?.findItem(R.id.action_error)?.let {

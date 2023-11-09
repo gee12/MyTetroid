@@ -7,6 +7,7 @@ import com.gee12.mytetroid.domain.manager.PermissionManager
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 
 sealed class TetroidPermission {
+    object FullFileStorage : TetroidPermission()
     sealed class FileStorage(val uri: Uri) : TetroidPermission() {
         class Read(uri: Uri) : FileStorage(uri)
         class Write(uri: Uri) : FileStorage(uri)
@@ -31,6 +32,7 @@ sealed class TetroidPermission {
 
     fun getPermissionRequestMessage(resourcesProvider: IResourcesProvider): String {
         return when (this) {
+            FullFileStorage -> R.string.ask_permission_on_all_files_on_device_title
             is FileStorage.Read -> R.string.ask_request_read_ext_storage
             is FileStorage.Write -> R.string.ask_request_write_ext_storage
             Camera -> R.string.ask_request_camera

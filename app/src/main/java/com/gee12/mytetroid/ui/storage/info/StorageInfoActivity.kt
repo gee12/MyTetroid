@@ -68,6 +68,18 @@ class StorageInfoActivity : TetroidStorageActivity<StorageInfoViewModel>() {
                     viewModel.initStorage()
                 }
             }
+            is BaseEvent.Permission.ShowRequest -> {
+                if (event.permission is TetroidPermission.FileStorage
+                    && event.requestCode == PermissionRequestCode.OPEN_STORAGE_FOLDER
+                ) {
+                    showFileStoragePermissionRequest(event.permission, event.requestCode)
+                } else {
+                    showPermissionRequest(
+                        permission = event.permission,
+                        requestCallback = event.requestCallback,
+                    )
+                }
+            }
             else -> super.onBaseEvent(event)
         }
     }

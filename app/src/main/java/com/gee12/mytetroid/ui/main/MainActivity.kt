@@ -277,32 +277,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             is BaseEvent.Permission -> {
                 onPermissionEvent(event)
             }
-            is BaseEvent.InitUI -> {
-                initUI(
-                    isLoaded = event.result,
-                    isOnlyFavorites = event.isLoadFavoritesOnly,
-                    isOpenLastNode = event.isHandleReceivedIntent,
-                    isAllNodesOpening = event.isAllNodesLoading,
-                )
-            }
-            is BaseEvent.UpdateToolbar -> {
-                updateMainToolbar(event.viewId, event.title)
-            }
-            BaseEvent.HandleReceivedIntent -> {
-                checkReceivedIntent(receivedIntent)
-            }
-            is BaseEvent.OpenPage -> {
-                setCurrentPage(event.pageId)
-            }
-            is BaseEvent.ShowMainView -> {
-                mainPage.showView(event.viewId)
-            }
-            BaseEvent.ClearMainView -> {
-                mainPage.clearView()
-            }
-            BaseEvent.CloseFoundView -> {
-                closeFoundFragment()
-            }
             is BaseEvent.TaskStarted -> {
                 drawerStateBeforeLock = taskMainPreExecute(event.titleResId ?: R.string.task_wait)
             }
@@ -499,7 +473,11 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 research()
             }
             is MainEvent.GlobalSearchFinished -> {
-                onGlobalSearchFinished(event.found, event.profile)
+                onGlobalSearchFinished(
+                    found = event.found,
+                    profile = event.profile,
+                    isExistEncryptedNodes = event.isExistEncryptedNodes,
+                )
             }
             is MainEvent.AskForOperationWithoutFolder -> {
                 askForOperationWithoutFolder(clipboardParams = event.clipboardParams)
@@ -662,7 +640,12 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     private fun onPermissionEvent(event: BaseEvent.Permission) {
         when (event) {
             is BaseEvent.Permission.Check -> {
-                onRequestPermission(event.permission, event.requestCode)
+                if (event.permission is TetroidPermission.FileStorage.Write) {
+                    viewModel.checkAndRequestWriteFileStoragePermission(
+                        uri = event.permission.uri,
+                        requestCode = PermissionRequestCode.OPEN_STORAGE_FOLDER,
+                    )
+                }
             }
             is BaseEvent.Permission.Granted -> {
                 onPermissionGranted(event.permission, event.requestCode)
@@ -670,63 +653,24 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             is BaseEvent.Permission.Canceled -> {
                 onPermissionCanceled(event.requestCode)
             }
-            is BaseEvent.Permission.ShowRequest -> showPermissionRequest(
-                permission = event.permission,
-                requestCallback = event.requestCallback,
-            )
+            is BaseEvent.Permission.ShowRequest -> {
+                if (event.permission is TetroidPermission.FileStorage
+                    && event.requestCode == PermissionRequestCode.OPEN_STORAGE_FOLDER
+                ) {
+                    showFileStoragePermissionRequest(event.permission, event.requestCode)
+                } else {
+                    showPermissionRequest(
+                        permission = event.permission,
+                        requestCallback = event.requestCallback,
+                    )
+                }
+            }
         }
     }
 
     // endregion Events
 
     // region Permissions
-
-    private fun showPermissionRequest(
-        permission: TetroidPermission,
-        requestCallback: () -> Unit
-    ) {
-        // диалог с объяснием зачем нужно разрешение
-        AskDialogs.showYesDialog(
-            context = this,
-            message = permission.getPermissionRequestMessage(resourcesProvider),
-            onApply = {
-                requestCallback.invoke()
-            },
-        )
-    }
-
-    private fun onRequestPermission(
-        permission: TetroidPermission,
-        requestCode: PermissionRequestCode,
-    ) {
-        when (permission) {
-            is TetroidPermission.FileStorage -> {
-                if (requestCode == PermissionRequestCode.OPEN_STORAGE_FOLDER) {
-                    askForPermissionOnStorageFolder(permission, requestCode)
-                }
-            }
-            else -> {}
-        }
-    }
-
-    private fun askForPermissionOnStorageFolder(
-        permission: TetroidPermission.FileStorage,
-        requestCode: PermissionRequestCode,
-    ) {
-        AskDialogs.showOkCancelDialog(
-            context = this,
-            title = getString(R.string.ask_permission_on_storage_folder_title),
-            message = getString(R.string.ask_permission_on_storage_folder_mask, viewModel.storage?.name.orEmpty()),
-            isCancelable = false,
-            onYes = {
-                requestFileStorageAccess(
-                    uri = permission.uri,
-                    requestCode = requestCode,
-                )
-            },
-            onCancel = {}
-        )
-    }
 
     override fun onPermissionGranted(
         permission: TetroidPermission?,

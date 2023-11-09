@@ -235,7 +235,7 @@ open class StorageViewModel(
      * Запуск первичной инициализации хранилища.
      * Начинается с проверки и предоставления разрешения на доступ к хранилищу устройства.
      */
-    fun checkPermissionsAndInitStorage(storage: TetroidStorage) {
+    suspend fun checkPermissionsAndInitStorage(storage: TetroidStorage) {
         // сразу сбрасываем все данные о предыдущем хранилище, сохраненные в памяти (если было загружено)
         clearStorageDataFromMemory()
 
@@ -245,9 +245,16 @@ open class StorageViewModel(
 
         val storageFolderUri = storage.uri.parseUri()
 
+        val optimizedStorageFolderUri = DocumentFileCompat.fromUri(getContext(), storageFolderUri)?.let { file ->
+            fileStorageManager.checkFolder(file)?.uri?.also {
+                storage.uri = it.toString()
+                updateStorageInDb(storage)
+            }
+        } ?: storageFolderUri
+
         checkAndRequestFileStoragePermission(
             storage = storage,
-            uri = storageFolderUri,
+            uri = optimizedStorageFolderUri,
             requestCode = PermissionRequestCode.OPEN_STORAGE_FOLDER,
         )
     }
@@ -296,12 +303,12 @@ open class StorageViewModel(
 
                         syncAndInitStorage(activity)
                     } else {
-                        requestFileStorageAccess(
+                        showManualPermissionRequest(
                             permission = TetroidPermission.FileStorage.Write(storageRootUri),
                             requestCode = PermissionRequestCode.OPEN_STORAGE_FOLDER,
                         )
                     }
-                } ?: requestFileStorageAccess(
+                } ?: showManualPermissionRequest(
                         permission = TetroidPermission.FileStorage.Write(storageRootUri),
                         requestCode = PermissionRequestCode.OPEN_STORAGE_FOLDER,
                     )

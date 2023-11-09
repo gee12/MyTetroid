@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.model.permission
 
 enum class PermissionRequestCode(val code: Int) {
+    FULL_FILE_ACCESS(100),
     OPEN_STORAGE_FOLDER(101),
     CHANGE_STORAGE_FOLDER(102),
     SELECT_FOLDER_FOR_NEW_STORAGE(103),
@@ -16,6 +17,7 @@ enum class PermissionRequestCode(val code: Int) {
 
     fun toPermission(): TetroidPermission? {
         return when (this) {
+            FULL_FILE_ACCESS,
             OPEN_STORAGE_FOLDER,
             CHANGE_STORAGE_FOLDER,
             SELECT_FOLDER_FOR_NEW_STORAGE,
