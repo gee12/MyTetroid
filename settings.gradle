@@ -1,11 +1,11 @@
 include ':app'
 include ':wysiwyg-editor'
-project(':wysiwyg-editor').projectDir = new File(settingsDir, '../../Android-HTML-WYSIWYG-Editor/richwysiwygeditor')
+project(':wysiwyg-editor').projectDir = new File(settingsDir, '../HtmlEditor/richwysiwygeditor')
 include ':multi-listview'
-project(':multi-listview').projectDir = new File(settingsDir, '../../android-multi-level-listview/multi-level-listview/')
+project(':multi-listview').projectDir = new File(settingsDir, '../MultiLevelListview/multi-level-listview/')
 include ':pinlock-view'
-project(':pinlock-view').projectDir = new File(settingsDir, '../../Android-PinLockView/pinlockview/')
+project(':pinlock-view').projectDir = new File(settingsDir, '../PinLockView/pinlockview/')
 include ':image-picker'
-project(':image-picker').projectDir = new File(settingsDir, '../../android-image-picker/imagepicker/')
+project(':image-picker').projectDir = new File(settingsDir, '../ImagePicker/imagepicker/')
 include ':simple-storage'
-project(':simple-storage').projectDir = new File(settingsDir, '../../SimpleStorage/storage/')
+project(':simple-storage').projectDir = new File(settingsDir, '../SimpleStorage/storage/')
