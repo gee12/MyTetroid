@@ -79,6 +79,14 @@ object UseCasesModule {
             )
         }
 
+        single {
+            ReadTextBlocksFromFileUseCase()
+        }
+
+        single {
+            ReadTextBlocksFromStringUseCase()
+        }
+
         scope<ScopeSource> {
 
             //region Interactors

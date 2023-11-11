@@ -47,6 +47,16 @@
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         />
 
+    <TextView
+        android:id="@+id/text_view_empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="@string/title_logs_is_missing"
+        android:visibility="gone"
+        tools:visibility="visible"/>
+
     <LinearLayout
         android:id="@+id/layout_read_error"
         android:layout_width="match_parent"
@@ -55,6 +65,7 @@
         android:padding="5dp"
         android:layout_gravity="center"
         android:visibility="gone"
+        tools:visibility="visible"
         android:orientation="vertical">
 
         <TextView

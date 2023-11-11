@@ -782,7 +782,7 @@
     <string name="log_dir_creating_error">Unable to create directory to save log:&#160;</string>
     <string name="log_created_log_dir">The log directory was created:&#160;</string>
     <string name="log_file_read_error">Log file read error:&#160;</string>
-    <string name="log_logs_is_missing">Logs is missing</string>
+    <string name="title_logs_is_missing">Logs is missing</string>
     <string name="log_selected_files_is_missing">Missing selected image files</string>
     <string name="log_start_image_file_saving_mask">Start saving image [%1$s] to record id=%2$s</string>
     <string name="log_start_image_file_converting_mask">Start converting image file to [%s]</string>

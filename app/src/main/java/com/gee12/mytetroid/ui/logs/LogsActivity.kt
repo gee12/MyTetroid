@@ -3,7 +3,6 @@ package com.gee12.mytetroid.ui.logs
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.text.TextUtils
 import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
@@ -12,10 +11,8 @@ import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.ui.base.TetroidActivity
 import com.gee12.mytetroid.ui.base.BaseEvent
-import java.io.IOException
 
 /**
  * Активность для просмотра логов.
@@ -48,64 +45,68 @@ class LogsActivity : TetroidActivity<LogsViewModel>() {
 
     override fun onBaseEvent(event: BaseEvent) {
         when (event) {
-            LogsEvent.Loading.InProcess -> {
-                window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-                setProgressVisibility(true)
+            LogsEvent.LoadFromFile.InProcess,
+            LogsEvent.LoadFromBuffer.InProcess -> {
+                showProgress()
             }
-
-            is LogsEvent.Loading.Success,
-            is LogsEvent.Loading.Failed -> {
-                window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
-                setProgressVisibility(false)
-
-                when (event) {
-                    is LogsEvent.Loading.Success -> {
-                        textAdapter.setItems(event.data)
-                    }
-                    is LogsEvent.Loading.Failed -> {
-                        val mes = "%s%s\n\n%s".format(getString(R.string.log_file_read_error), viewModel.logger.fullFileName, event.text)
-                        (findViewById<View>(R.id.text_view_error) as TextView).text = mes
-                        layoutError.visibility = View.VISIBLE
-                        recycleView.visibility = View.GONE
-
-                        // выводим логи текущего сеанса запуска приложения
-                        findViewById<View>(R.id.button_show_cur_logs).setOnClickListener {
-                            showBufferLogs()
-                        }
-                    }
-                    else -> {}
-                }
-
-                scrollToBottom()
+            is LogsEvent.LoadFromFile.LogPathIsEmpty -> {
+                showError(getString(R.string.error_log_file_path_is_null), isFromBuffer = false)
             }
-
-            LogsEvent.ShowBufferLogs -> {
-                showBufferLogs()
+            is LogsEvent.LoadFromFile.Failed-> {
+                val errorText = event.failure.ex?.localizedMessage.orEmpty()
+                val errorMessage = "%s%s\n\n%s".format(getString(R.string.log_file_read_error), event.logFullFileName, errorText)
+                showError(errorMessage, isFromBuffer = false)
+            }
+            is LogsEvent.LoadFromBuffer.Failed -> {
+                val errorMessage = event.failure.ex?.localizedMessage.orEmpty()
+                showError(errorMessage, isFromBuffer = true)
+            }
+            is LogsEvent.LoadFromFile.Success -> {
+                showLogs(event.data)
+            }
+            is LogsEvent.LoadFromBuffer.Success-> {
+                showLogs(event.data)
             }
             else -> super.onBaseEvent(event)
         }
     }
 
-    private fun showBufferLogs() {
-        val curLogs = viewModel.getLogsBufferString()
-        if (!TextUtils.isEmpty(curLogs)) {
-            layoutError.visibility = View.GONE
-            recycleView.visibility = View.VISIBLE
+    private fun showProgress() {
+        window.setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        setProgressVisibility(true)
+    }
 
-//            textAdapter.setItem(curLogs)
-            try {
-                // разбиваем весь поток строк логов на блоки
-                // TODO: в IO поток ?
-                val logsBlocks: List<String> = FileUtils.splitToBlocks(curLogs, LogsViewModel.LINES_IN_RECYCLER_VIEW_ITEM)
-                textAdapter.setItems(logsBlocks)
-            } catch (e: IOException) {
-                viewModel.logError(R.string.log_error_logs_reading_from_memory)
-                textAdapter.setItem(curLogs)
-            }
-            scrollToBottom()
-        } else {
-            viewModel.logWarning(getString(R.string.log_logs_is_missing))
+    private fun showError(errorMessage: String, isFromBuffer: Boolean) {
+        window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        setProgressVisibility(false)
+
+        layoutError.isVisible = true
+        (findViewById<View>(R.id.text_view_error) as TextView).also {
+            it.isVisible = true
+            it.text = errorMessage
         }
+        (findViewById<View>(R.id.text_view_cur_logs)).isVisible = !isFromBuffer
+        (findViewById<View>(R.id.button_show_cur_logs)).isVisible = !isFromBuffer
+        (findViewById<View>(R.id.text_view_empty)).isVisible = false
+        recycleView.isVisible = false
+
+        findViewById<View>(R.id.button_show_cur_logs).setOnClickListener {
+            // выводим логи текущего сеанса запуска приложения
+            viewModel.loadLogsFromBuffer()
+        }
+    }
+
+    private fun showLogs(data: List<String>) {
+        window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+        setProgressVisibility(false)
+
+        textAdapter.setItems(data)
+        layoutError.isVisible = false
+        recycleView.isVisible = true
+
+        scrollToBottom()
+
+        (findViewById<View>(R.id.text_view_empty)).isVisible = data.isEmpty()
     }
 
     /**

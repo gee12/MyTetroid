@@ -365,6 +365,8 @@ object ViewModelsModule {
                 failureHandler = get(),
                 settingsManager = get(),
                 appPathProvider = get(),
+                readTextBlocksFromFileUseCase = get(),
+                readTextBlocksFromStringUseCase = get(),
             )
         }
 

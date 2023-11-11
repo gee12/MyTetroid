@@ -1,7 +1,6 @@
 package com.gee12.mytetroid.common.utils;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 
@@ -9,59 +8,13 @@ import com.gee12.mytetroid.R;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
 public class FileUtils {
-
-    /**
-     * Построчное чтение текстового файла с формированием результата в виде блоков.
-     * @param fileUri
-     * @return
-     * @throws IOException
-     */
-    public static ArrayList<String> readTextFile(Uri fileUri, int linesInBlock) throws IOException {
-        if (fileUri == null)
-            return null;
-        /*ArrayList<String> blocks = new ArrayList<>();
-        StringBuilder sb = new StringBuilder();
-        BufferedReader br = new BufferedReader(new FileReader(new File(fileUri.getPath())));
-        String line;
-        int counter = 0;
-        while ((line = br.readLine()) != null) {
-            sb.append(line);
-            if (++counter >= linesInBlock) {
-                counter = 0;
-                blocks.add(sb.toString());
-                sb.setLength(0);
-            } else {
-                sb.append('\n');
-            }
-        }
-        if (counter > 0) {
-            blocks.add(sb.toString());
-        }
-        br.close();*/
-        return readToBlocks(new BufferedReader(new FileReader(new File(fileUri.getPath()))), linesInBlock);
-    }
-
-    /**
-     * Разбиение строки на блоки.
-     * @param s
-     * @param linesInBlock
-     * @return
-     * @throws IOException
-     */
-    public static  ArrayList<String> splitToBlocks(String s, int linesInBlock) throws IOException {
-        if (s == null)
-            return null;
-        return readToBlocks(new BufferedReader(new StringReader(s)), linesInBlock);
-    }
 
     /**
      * Разбиение потока на блоки.

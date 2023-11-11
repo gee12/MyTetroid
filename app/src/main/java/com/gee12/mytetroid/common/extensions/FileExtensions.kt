@@ -117,6 +117,14 @@ fun String.isDirEmpty(): Boolean {
     return isEmpty() || toFile().isDirEmpty()
 }
 
+fun String.createFileIsNotExist(): File {
+    return File(this).also { file ->
+        if (!file.exists()) {
+            file.createNewFile()
+        }
+    }
+}
+
 fun InputStream.readBytes(): ByteArray {
     return use {
         it.kotlinReadBytes()

@@ -1,16 +1,19 @@
 package com.gee12.mytetroid.ui.logs
 
 import android.app.Application
-import android.net.Uri
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.common.extensions.createFileIsNotExist
+import com.gee12.mytetroid.common.onFailure
+import com.gee12.mytetroid.common.onSuccess
 import com.gee12.mytetroid.data.settings.CommonSettings
-import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 import com.gee12.mytetroid.domain.provider.IAppPathProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
+import com.gee12.mytetroid.domain.usecase.file.ReadTextBlocksFromFileUseCase
+import com.gee12.mytetroid.domain.usecase.file.ReadTextBlocksFromStringUseCase
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.ui.base.BaseViewModel
 import kotlinx.coroutines.*
@@ -25,6 +28,8 @@ class LogsViewModel(
     failureHandler: IFailureHandler,
     settingsManager: CommonSettingsManager,
     appPathProvider: IAppPathProvider,
+    private val readTextBlocksFromFileUseCase: ReadTextBlocksFromFileUseCase,
+    private val readTextBlocksFromStringUseCase: ReadTextBlocksFromStringUseCase,
 ) : BaseViewModel(
     app = app,
     buildInfoProvider = buildInfoProvider,
@@ -44,37 +49,65 @@ class LogsViewModel(
 
 
     fun loadLogs() {
+        if (CommonSettings.isWriteLogToFile(getContext())) {
+            loadLogsFromFile()
+        } else {
+            loadLogsFromBuffer()
+        }
+    }
+
+    /**
+     * Читаем лог-файл, разбивая его на блоки.
+     */
+    private fun loadLogsFromFile() {
         launchOnMain {
-            if (CommonSettings.isWriteLogToFile(getContext())) {
-                // читаем лог-файл
-                log(R.string.log_open_log_file)
-                sendEvent(LogsEvent.Loading.InProcess)
+            // читаем лог-файл
+            log(R.string.log_open_log_file)
+            sendEvent(LogsEvent.LoadFromFile.InProcess)
 
-                if (logger.fullFileName == null) {
-                    sendEvent(LogsEvent.Loading.Failed(getString(R.string.error_log_file_path_is_null)))
-                    return@launchOnMain
-                }
-
-                try {
-                    val data = withIo {
-                        val fileUri = Uri.parse(logger.fullFileName)
-                        FileUtils.readTextFile(fileUri, LINES_IN_RECYCLER_VIEW_ITEM)
-                    }
-                    sendEvent(LogsEvent.Loading.Success(data))
-                } catch (ex: Exception) {
-                    // ошибка чтения
-                    val text = ex.localizedMessage.orEmpty()
-                    logError(text, true)
-
-                    sendEvent(LogsEvent.Loading.Failed(text))
-                }
+            val logFullFileName = logger.fullFileName
+            if (logFullFileName == null) {
+                sendEvent(LogsEvent.LoadFromFile.LogPathIsEmpty)
             } else {
-                // выводим логи текущего сеанса запуска приложения
-                sendEvent(LogsEvent.ShowBufferLogs)
+                withIo {
+                    logFullFileName.createFileIsNotExist()
+                    readTextBlocksFromFileUseCase.run(
+                        ReadTextBlocksFromFileUseCase.Params(
+                            fullFileName = logFullFileName,
+                            linesInBlock = LINES_IN_RECYCLER_VIEW_ITEM,
+                        )
+                    )
+                }.onFailure {
+                    logFailure(it, show = false)
+                    sendEvent(LogsEvent.LoadFromFile.Failed(it, logFullFileName))
+                }.onSuccess { data ->
+                    sendEvent(LogsEvent.LoadFromFile.Success(data))
+                }
             }
         }
     }
 
-    fun getLogsBufferString() = logger.bufferString
+    /**
+     * Выводим логи текущего сеанса запуска приложения, разбивая поток на блоки.
+     */
+    fun loadLogsFromBuffer() {
+        launchOnMain {
+            sendEvent(LogsEvent.LoadFromBuffer.InProcess)
+
+            withIo {
+                readTextBlocksFromStringUseCase.run(
+                    ReadTextBlocksFromStringUseCase.Params(
+                        data = logger.bufferString,
+                        linesInBlock = LINES_IN_RECYCLER_VIEW_ITEM,
+                    )
+                )
+            }.onFailure {
+                logFailure(it, show = false)
+                sendEvent(LogsEvent.LoadFromBuffer.Failed(it))
+            }.onSuccess { data ->
+                sendEvent(LogsEvent.LoadFromBuffer.Success(data))
+            }
+        }
+    }
 
 }

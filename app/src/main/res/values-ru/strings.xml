@@ -687,7 +687,7 @@
     <string name="log_dir_creating_error">Не удается создать каталог для сохранения лога:&#160;</string>
     <string name="log_created_log_dir">Создан каталог для лог-файла:&#160;</string>
     <string name="log_file_read_error">Ошибка чтения лог-файла:&#160;</string>
-    <string name="log_logs_is_missing">Логи отсутствуют</string>
+    <string name="title_logs_is_missing">Логи отсутствуют</string>
     <string name="log_selected_files_is_missing">Отсутствуют выбранные файлы изображений</string>
     <string name="log_start_image_file_saving_mask">Начало сохранения изображения [%1$s] в запись id=%2$s</string>
     <string name="log_start_image_file_converting_mask">Начало конвертирования файла изображения в [%s]</string>
