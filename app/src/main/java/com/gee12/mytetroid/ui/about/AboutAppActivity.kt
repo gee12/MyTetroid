@@ -8,35 +8,31 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.extensions.getAppVersionName
-import com.gee12.mytetroid.di.ScopeSource
-import com.gee12.mytetroid.logs.ITetroidLogger
+import com.gee12.mytetroid.ui.base.TetroidActivity
 
 /**
  * Активность для просмотра информации о приложении.
  */
-class AboutActivity() : AppCompatActivity() {
+class AboutAppActivity : TetroidActivity<AboutAppViewModel>() {
 
-    private val logger: ITetroidLogger by ScopeSource.current.scope.inject()
+
+    override fun getLayoutResourceId() = R.layout.activity_about_app
+
+    override fun getViewModelClazz() = AboutAppViewModel::class.java
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_about)
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        val tvVersion = findViewById<TextView>(R.id.text_view_version)
-        tvVersion.text = this.getAppVersionName()
-        val bRateApp = findViewById<Button>(R.id.button_rate_app)
-        bRateApp.setOnClickListener {
-            rateApp()
+        findViewById<TextView>(R.id.text_view_version).also {
+            it.text = this.getAppVersionName()
         }
-
-        logger.logDebug(getString(R.string.log_activity_opened_mask, this.javaClass.simpleName))
+        findViewById<Button>(R.id.button_rate_app).also {
+            it.setOnClickListener {
+                rateApp()
+            }
+        }
     }
 
     private fun rateApp() {
@@ -73,12 +69,10 @@ class AboutActivity() : AppCompatActivity() {
     }
 
     companion object {
-
         fun start(context: Context) {
-            val intent = Intent(context, AboutActivity::class.java)
+            val intent = Intent(context, AboutAppActivity::class.java)
             context.startActivity(intent)
         }
-
     }
 
 }

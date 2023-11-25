@@ -33,7 +33,7 @@ import com.gee12.mytetroid.logs.Message
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.model.permission.TetroidPermission
 import com.gee12.mytetroid.ui.TetroidMessage
-import com.gee12.mytetroid.ui.about.AboutActivity
+import com.gee12.mytetroid.ui.about.AboutAppActivity
 import com.gee12.mytetroid.ui.base.views.ActivityDoubleTapListener
 import com.gee12.mytetroid.ui.record.RecordActivity
 import kotlinx.coroutines.launch
@@ -463,7 +463,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
                 return true
             }
             R.id.action_about_app -> {
-                AboutActivity.start(this)
+                AboutAppActivity.start(this)
                 return true
             }
             android.R.id.home -> {

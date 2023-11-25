@@ -147,7 +147,7 @@ abstract class BaseDialogFragment : DialogFragment() {
 
     protected fun showKeyboard(view: View, isResizeWindow: Boolean = true) {
         if (isResizeWindow) {
-            dialog.window?.resizeWindowWithKeyboard(view)
+            dialog.window?.resizeWindowWithKeyboard(dialogView)
         }
         dialog.window?.decorView?.post { view.focusAndShowKeyboard() }
     }

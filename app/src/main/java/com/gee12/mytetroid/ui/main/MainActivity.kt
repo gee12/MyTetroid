@@ -2499,6 +2499,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 else -> Unit
             }
         }
+        mainPage?.onProgressVisibilityChanged(isVisible)
     }
 
     // endregion IAndroidComponent

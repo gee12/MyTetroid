@@ -8,6 +8,8 @@ import android.text.TextWatcher
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 
 
 fun EditText.addAfterTextChangedListener(listener: (String) -> Unit) {
@@ -80,14 +82,15 @@ fun View.hideKeyboard() {
     post { imm.hideSoftInputFromWindow(windowToken, 0) }
 }
 
-fun Window.resizeWindowWithKeyboard(view: View) {
+fun Window.resizeWindowWithKeyboard(rootView: View) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        view.setOnApplyWindowInsetsListener { _, windowInsets ->
-            val imeHeight = windowInsets.getInsets(WindowInsets.Type.ime()).bottom
-            view.setPadding(0, 0, 0, imeHeight)
+        ViewCompat.setOnApplyWindowInsetsListener(decorView) { _, windowInsets ->
+            val imeHeight = windowInsets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+            val navigationBarHeight = windowInsets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            rootView.setPadding(0, 0, 0, imeHeight - navigationBarHeight)
             windowInsets
         }
-        setDecorFitsSystemWindows(true)
+        //WindowCompat.setDecorFitsSystemWindows(this, false)
     } else {
         @Suppress("DEPRECATION")
         setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)

@@ -669,6 +669,10 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
 
     // endregion ContextMenu
 
+    fun onProgressVisibilityChanged(isVisible: Boolean) {
+        tvRecordsEmpty.isVisible = !isVisible
+    }
+
     fun onBackPressed(): Boolean {
         val curView = viewFlipperMain.displayedChild + 1
         return viewModel.onMainViewBackPressed(curView)

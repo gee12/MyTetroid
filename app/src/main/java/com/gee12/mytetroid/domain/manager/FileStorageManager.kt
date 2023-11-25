@@ -18,6 +18,10 @@ class FileStorageManager(
         return Build.VERSION.SDK_INT <= 29
     }
 
+    fun isExternalStorageManager(): Boolean {
+        return Build.VERSION.SDK_INT >= 30 && Environment.isExternalStorageManager()
+    }
+
     fun checkReadFileStoragePermission(root: DocumentFile): Boolean {
         // на Android 10 и ниже canRead() возвращает false, поэтому на этих устройствах не проверяем
         return isFileApiUsed() && root.isRawFile
@@ -28,7 +32,7 @@ class FileStorageManager(
         // на Android 10 и ниже canWrite() возвращает false, поэтому на этих устройствах не проверяем
         return isFileApiUsed() && root.isRawFile
                 || !hasAllFilesAccessVersion && root.isWritable(context)
-                || hasAllFilesAccessVersion && Environment.isExternalStorageManager()
+                || hasAllFilesAccessVersion && isExternalStorageManager()
                 /*|| SimpleStorage.hasStorageAccess(
                         context = context,
                         fullPath = root.getAbsolutePath(context),

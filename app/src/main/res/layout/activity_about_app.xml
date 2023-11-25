@@ -7,21 +7,13 @@
     android:id="@+id/layout_coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.about.AboutActivity">
+    tools:context=".ui.about.AboutAppActivity"
+    style="@style/RootLayout">
 
-    <com.google.android.material.appbar.AppBarLayout
+    <include
+        layout="@layout/layout_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
-
-    </com.google.android.material.appbar.AppBarLayout>
+        android:layout_height="wrap_content" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -32,8 +24,8 @@
 
         <ImageView
             android:id="@+id/image_view_icon"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
             android:layout_alignParentStart="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
@@ -49,6 +41,8 @@
             android:layout_toRightOf="@id/image_view_icon"
             android:paddingStart="10dp"
             android:paddingLeft="10dp"
+            android:paddingTop="6dp"
+            android:textColor="@color/text_1"
             android:text="@string/main_header_title"
             android:textSize="@dimen/font_big" />
 
@@ -61,6 +55,7 @@
             android:layout_toRightOf="@id/image_view_icon"
             android:paddingStart="10dp"
             android:paddingLeft="10dp"
+            android:textColor="@color/text_2"
             android:text="@string/title_version_label" />
 
         <TextView
@@ -72,6 +67,7 @@
             android:layout_toRightOf="@id/text_view_ver_label"
             android:paddingStart="5dp"
             android:paddingLeft="5dp"
+            android:textColor="@color/text_2"
             android:text="1.0" />
 
         <com.gee12.mytetroid.ui.base.views.TextViewHtml
@@ -84,8 +80,8 @@
             android:text="@string/app_summ_html"
             android_ex:isHtml="true"
             android_ex:withLinks="true"
-            android:textColorLink="@color/colorBlueDark"
-            />
+            android:textColorLink="@color/link_blue"
+            android:textColor="@color/text_1" />
 
         <TextView
             android:id="@+id/text_view_lic"
@@ -93,7 +89,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/text_view_app_summ"
             android:paddingTop="10dp"
-            android:text="@string/title_license_gnu_gpl_v3_0" />
+            android:text="@string/title_license_gnu_gpl_v3_0"
+            android:textColor="@color/text_1" />
 
         <com.gee12.mytetroid.ui.base.views.TextViewHtml
             android:id="@+id/text_view_url"
@@ -104,8 +101,9 @@
             android:text="@string/project_url_html"
             android_ex:isHtml="true"
             android_ex:withLinks="true"
-            android:textColorLink="@color/colorBlueDark"
-            android:focusable="true" />
+            android:textColorLink="@color/link_blue"
+            android:focusable="true"
+            android:textColor="@color/text_1" />
 
         <com.gee12.mytetroid.ui.base.views.TextViewHtml
             android:id="@+id/text_view_policy"
@@ -116,8 +114,9 @@
             android:text="@string/policy_link_html"
             android_ex:isHtml="true"
             android_ex:withLinks="true"
-            android:textColorLink="@color/colorBlueDark"
-            android:focusable="true" />
+            android:textColorLink="@color/link_blue"
+            android:focusable="true"
+            android:textColor="@color/text_1" />
 
         <Button
             android:id="@+id/button_rate_app"
@@ -126,7 +125,6 @@
             android:layout_below="@+id/text_view_policy"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="24dp"
-            android:padding="20dp"
             android:text="@string/title_rate_app" >
 
         </Button>

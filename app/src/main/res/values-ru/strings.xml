@@ -201,6 +201,7 @@
     <string name="title_empty_tag"><![CDATA[<без меток>]]></string>
     <string name="title_tags_search_mode_subtitle">Искать по меткам:</string>
     <string name="title_storage_currently_in_use_mask">Хранилище «%s» в данный момент используется</string>
+    <string name="title_record_fields">Свойства записи</string>
     <string name="title_mytetroid_slogan">Персональная база знаний</string>
     <string name="title_settings_theme">Тема</string>
 
@@ -332,10 +333,9 @@
     <string name="pref_request_pin_code">Использовать ПИН-код</string>
     <string name="pref_request_pin_code_summ">Если пароль у хранилища сохранен, запрашивать ПИН-код для доступа к зашифрованным данным</string>
     <string name="pref_fix_empty_paragraphs">Исправлять html при сохранении</string>
-    <string name="pref_fix_empty_paragraphs_summ">Исправлять html-текст заметки для корректного отображения в MyTetra</string>
+    <string name="pref_fix_empty_paragraphs_summ">Исправлять html-текст заметки для корректного отображения в настольной версии программы MyTetra</string>
     <string name="pref_show_record_fields">Показывать свойства записи</string>
     <string name="pref_show_record_fields_summ">При открытии записи отображать панель со ее свойствами?</string>
-    <string name="title_record_fields">Свойства записи</string>
     <string name="pref_editor_toolbar_buttons_size_title">Размер кнопок в редакторе</string>
     <string name="pref_editor_toolbar_buttons_size_summ">Размер кнопок в нижней панели инструментов редактора текста</string>
     <string name="pref_show_record_fields_yes">Отображать</string>

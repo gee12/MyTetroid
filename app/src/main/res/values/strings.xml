@@ -205,6 +205,7 @@
     <string name="title_empty_tag"><![CDATA[<no tags>]]></string>
     <string name="title_tags_search_mode_subtitle">Search by tags:</string>
     <string name="title_storage_currently_in_use_mask">Storage «%s» is currently in use</string>
+    <string name="title_record_fields">Record fields</string>
     <string name="title_mytetroid_slogan">Personal knowledge base</string>
     <string name="title_settings_theme">Theme</string>
 
@@ -395,7 +396,7 @@
     <string name="pref_request_pin_code_summ">If the storage password is saved, prompt for a PIN to access encrypted data</string>
     <string name="pref_key_fix_empty_paragraphs" translatable="false">pref_key_fix_empty_paragraphs</string>
     <string name="pref_fix_empty_paragraphs">Fix html on save</string>
-    <string name="pref_fix_empty_paragraphs_summ">Correct html-text of a note for correct display in MyTetra</string>
+    <string name="pref_fix_empty_paragraphs_summ">Correct html-text of a note for correct display in desktop version MyTetra</string>
     <string name="pref_key_quickly_node_id" translatable="false">pref_key_quickly_node_id</string>
     <string name="pref_key_quickly_node_name" translatable="false">pref_key_quickly_node_name</string>
     <string name="pref_key_show_record_fields" translatable="false">pref_key_show_record_fields</string>
@@ -403,7 +404,6 @@
     <string name="pref_key_editor_toolbar_buttons_size" translatable="false">editor_toolbar_buttons_size</string>
     <string name="pref_show_record_fields">Show record fields</string>
     <string name="pref_show_record_fields_summ">Whether to open the panel with record properties when opening a record</string>
-    <string name="title_record_fields">Record fields</string>
     <string name="pref_editor_toolbar_buttons_size_title">Editor toolbar buttons size</string>
     <string name="pref_editor_toolbar_buttons_size_summ">Size of buttons in bottom toolbar in text editor</string>
     <string name="pref_show_record_fields_yes">Show</string>

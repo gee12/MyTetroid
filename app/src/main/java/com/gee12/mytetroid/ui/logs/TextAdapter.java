@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.ui.logs;
 
+import android.graphics.text.LineBreaker;
 import android.os.Build;
 import android.text.Layout;
 import android.view.LayoutInflater;
@@ -31,8 +32,8 @@ public class TextAdapter extends RecyclerView.Adapter<TextAdapter.TextViewHolder
             super(itemView);
             this.textView = (AppCompatTextView) itemView;
             // убираем перенос слов, замедляющий работу
-            if (Build.VERSION.SDK_INT >= 23) {
-                textView.setBreakStrategy(Layout.BREAK_STRATEGY_SIMPLE);
+            if (Build.VERSION.SDK_INT >= 29) {
+                textView.setBreakStrategy(LineBreaker.BREAK_STRATEGY_SIMPLE);
                 textView.setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NONE);
             }
             this.params = textView.getTextMetricsParamsCompat();

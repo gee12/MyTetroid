@@ -26,7 +26,9 @@ abstract class TetroidSettingsActivity<VM : BaseViewModel> : TetroidActivity<VM>
         delegate.onCreate(savedInstanceState)
         super.onCreate(savedInstanceState)
 
-        startDefaultFragment()
+        if (supportFragmentManager.backStackEntryCount == 0) {
+            startDefaultFragment()
+        }
     }
 
     protected abstract fun startDefaultFragment()
