@@ -29,7 +29,7 @@ public class TextAdapter extends RecyclerView.Adapter<TextAdapter.TextViewHolder
 
         TextViewHolder(@NonNull View itemView) {
             super(itemView);
-            this.textView = itemView.findViewById(R.id.text_view);
+            this.textView = (AppCompatTextView) itemView;
             // убираем перенос слов, замедляющий работу
             if (Build.VERSION.SDK_INT >= 23) {
                 textView.setBreakStrategy(Layout.BREAK_STRATEGY_SIMPLE);
@@ -75,7 +75,7 @@ public class TextAdapter extends RecyclerView.Adapter<TextAdapter.TextViewHolder
     @Override
     public TextViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_item_text, parent, false);
+                .inflate(R.layout.list_item_logs, parent, false);
         return new TextViewHolder(view);
     }
 

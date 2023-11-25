@@ -60,7 +60,7 @@ class AttachInfoDialog(
         val tvSize = dialogView.findViewById<TextView>(R.id.text_view_size)
         if (sizeString == null) {
             sizeString = getString(R.string.title_file_is_missing)
-            tvSize?.setTextColor(ContextCompat.getColor(requireActivity().applicationContext, R.color.colorDarkRed))
+            tvSize?.setTextColor(ContextCompat.getColor(requireActivity().applicationContext, R.color.error_2))
         }
         tvSize?.text = sizeString
     }

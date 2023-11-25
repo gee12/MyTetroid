@@ -6,7 +6,8 @@
     android:id="@+id/layout_coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.search.SearchActivity">
+    tools:context=".ui.search.SearchActivity"
+    style="@style/RootLayout">
 
     <include
         layout="@layout/layout_toolbar"
@@ -25,9 +26,9 @@
 
             <RelativeLayout
                 android:id="@+id/layout_query"
-                android:layout_width="fill_parent"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp">
+                android:layout_marginTop="8dp">
 
                 <EditText
                     android:id="@+id/edit_text_query"
@@ -37,7 +38,8 @@
                     android:layout_toStartOf="@id/button_clear"
                     android:maxLines="1"
                     android:inputType="text"
-                    android:hint="@string/search_hint_input_query" />
+                    android:hint="@string/search_hint_input_query"
+                    tools:text="test query"/>
 
                 <ImageButton
                     android:id="@+id/button_clear"
@@ -52,11 +54,10 @@
 
             <TextView
                 android:id="@+id/text_view_search_in"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:layout_below="@id/layout_query"
-                android:paddingTop="10dp"
-                android:paddingBottom="@dimen/checkbox_vert_padding"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"
+                style="@style/AppLabelInLayout"
                 android:text="@string/search_search_in"/>
 
             <CheckBox
@@ -67,6 +68,7 @@
                 android:checked="true"
                 android:paddingTop="@dimen/checkbox_vert_padding"
                 android:paddingBottom="@dimen/checkbox_vert_padding"
+                style="@style/AppCheckbox"
                 android:text="@string/search_in_record_text" />
 
             <CheckBox
@@ -77,6 +79,7 @@
                 android:checked="true"
                 android:paddingTop="@dimen/checkbox_vert_padding"
                 android:paddingBottom="@dimen/checkbox_vert_padding"
+                style="@style/AppCheckbox"
                 android:text="@string/search_in_record_name" />
 
             <CheckBox
@@ -87,6 +90,7 @@
                 android:checked="true"
                 android:paddingTop="@dimen/checkbox_vert_padding"
                 android:paddingBottom="@dimen/checkbox_vert_padding"
+                style="@style/AppCheckbox"
                 android:text="@string/search_in_record_author" />
 
             <CheckBox
@@ -97,6 +101,7 @@
                 android:checked="true"
                 android:paddingTop="@dimen/checkbox_vert_padding"
                 android:paddingBottom="@dimen/checkbox_vert_padding"
+                style="@style/AppCheckbox"
                 android:text="@string/search_in_record_url" />
 
             <CheckBox
@@ -107,6 +112,7 @@
                 android:checked="true"
                 android:paddingTop="@dimen/checkbox_vert_padding"
                 android:paddingBottom="@dimen/checkbox_vert_padding"
+                style="@style/AppCheckbox"
                 android:text="@string/search_in_tags" />
 
             <CheckBox
@@ -117,6 +123,7 @@
                 android:checked="true"
                 android:paddingTop="@dimen/checkbox_vert_padding"
                 android:paddingBottom="@dimen/checkbox_vert_padding"
+                style="@style/AppCheckbox"
                 android:text="@string/search_in_nodes" />
 
             <CheckBox
@@ -127,6 +134,7 @@
                 android:checked="true"
                 android:paddingTop="@dimen/checkbox_vert_padding"
                 android:paddingBottom="@dimen/checkbox_vert_padding"
+                style="@style/AppCheckbox"
                 android:text="@string/search_in_file_names" />
 
             <CheckBox
@@ -137,15 +145,15 @@
                 android:checked="true"
                 android:paddingTop="@dimen/checkbox_vert_padding"
                 android:paddingBottom="@dimen/checkbox_vert_padding"
+                style="@style/AppCheckbox"
                 android:text="@string/search_in_ids" />
 
             <TextView
                 android:id="@+id/text_view_other_options"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:layout_below="@id/check_box_ids"
                 android:paddingTop="15dp"
-                android:paddingBottom="@dimen/spinner_vert_padding"
+                android:paddingBottom="8dp"
+                style="@style/AppLabelInLayout"
                 android:text="@string/search_other_options"/>
 
             <Spinner
@@ -153,44 +161,44 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/text_view_other_options"
-                android:paddingTop="@dimen/spinner_vert_padding"
-                android:paddingBottom="@dimen/spinner_vert_padding" />
+                android:layout_marginStart="8dp"
+                tools:listitem="@layout/list_item_spinner"/>
 
             <Spinner
                 android:id="@+id/spinner_in_whole_words"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/spinner_split_to_words"
-                android:paddingTop="@dimen/spinner_vert_padding"
-                android:paddingBottom="@dimen/spinner_vert_padding"
-                />
+                android:layout_marginStart="8dp"
+                tools:listitem="@layout/list_item_spinner"/>
 
             <Spinner
                 android:id="@+id/spinner_in_cur_node"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/spinner_in_whole_words"
-                android:paddingTop="@dimen/spinner_vert_padding"
-                android:paddingBottom="@dimen/spinner_vert_padding"
-                />
+                android:layout_marginStart="8dp"
+                tools:listitem="@layout/list_item_spinner"/>
 
             <RelativeLayout
                 android:id="@+id/layout_node"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/spinner_in_cur_node"
-                android:paddingTop="@dimen/spinner_vert_padding"
-                android:paddingBottom="@dimen/spinner_vert_padding"
-                android:layout_marginLeft="20dp">
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:layout_marginStart="20dp">
 
                 <EditText
                     android:id="@+id/edit_text_node"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_toLeftOf="@id/button_node"
                     android:layout_toStartOf="@id/button_node"
                     android:inputType="none"
                     android:clickable="false"
                     android:focusable="false"
-                    style="@style/dialog_text_edit"/>
+                    tools:text="test node name"/>
 
                 <ImageButton
                     android:id="@+id/button_node"
@@ -213,6 +221,6 @@
         layout="@layout/layout_progress_bar"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="invisible"/>
+        android:visibility="gone"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

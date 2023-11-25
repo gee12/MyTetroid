@@ -141,9 +141,9 @@ class SearchActivity : TetroidStorageActivity<StorageViewModel>() {
         val adapter = ArrayAdapter.createFromResource(
             this,
             arrayId,
-            android.R.layout.simple_spinner_item
+            R.layout.list_item_spinner
         )
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        adapter.setDropDownViewResource(R.layout.list_item_spinner_dropdown)
         spinner.adapter = adapter
     }
 

@@ -67,7 +67,7 @@ abstract class RecordsBaseListAdapter(
         viewHolder.nameView.setTextColor(
             ContextCompat.getColor(
                 context,
-                if (nonCryptedOrDecrypted) R.color.colorBaseText else R.color.colorLightText
+                if (nonCryptedOrDecrypted) R.color.text_1 else R.color.text_3
             )
         )
         // ветка
@@ -115,7 +115,7 @@ abstract class RecordsBaseListAdapter(
         }
         // выделение записи
         var backgroundColor = if (lastOpenedRecordId == record.id) {
-            ContextCompat.getColor(context, R.color.colorLastOpenedRecord)
+            ContextCompat.getColor(context, R.color.background_last_opened_record)
         } else {
             null
         }

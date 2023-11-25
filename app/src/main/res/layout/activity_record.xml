@@ -26,152 +26,13 @@
             android:layout_alignParentTop="true"
             app:el_duration="300"
             app:el_expanded="false"
-            app:el_parallax="0.5">
+            app:el_parallax="0.5"
+            tools:el_expanded="true">
 
-            <RelativeLayout
+            <include
+                layout="@layout/layout_record_fields"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:theme="@style/ThemeOverlay.AppCompat.Dark"
-                android:background="@drawable/side_nav_bar"
-                android:textColor="@color/colorLightText3">
-
-                <TextView
-                    android:id="@+id/label_record_tags"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentTop="true"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true"
-                    android:paddingLeft="2dp"
-                    android:paddingRight="2dp"
-                    android:paddingTop="0dp"
-                    android:paddingBottom="0dp"
-                    android:text="@string/label_tags"
-                    android:textColor="@color/colorLightLabelText"/>
-
-                <TextView
-                    android:id="@+id/text_view_record_tags"
-                    android:layout_toRightOf="@id/label_record_tags"
-                    android:layout_toEndOf="@id/label_record_tags"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="3dp"
-                    android:paddingRight="3dp"
-                    android:paddingTop="0dp"
-                    android:paddingBottom="0dp"
-                    android:textColor="@color/colorLightLabelText"
-                    android:textColorLink="@color/colorBlueDark"/>
-
-                <TextView
-                    android:id="@+id/label_record_author"
-                    android:layout_below="@id/text_view_record_tags"
-                    android:layout_alignParentLeft="true"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="2dp"
-                    android:text="@string/label_author"
-                    android:layout_alignParentStart="true"
-                    android:textColor="@color/colorLightLabelText" />
-
-                <TextView
-                    android:id="@+id/text_view_record_author"
-                    android:layout_below="@id/text_view_record_tags"
-                    android:layout_toRightOf="@id/label_record_author"
-                    android:layout_toEndOf="@id/label_record_author"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/label_author"
-                    android:padding="2dp" />
-
-                <TextView
-                    android:id="@+id/label_record_url"
-                    android:layout_below="@id/text_view_record_author"
-                    android:layout_alignParentLeft="true"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="2dp"
-                    android:text="@string/label_url"
-                    android:layout_alignParentStart="true"
-                    android:textColor="@color/colorLightLabelText" />
-
-                <TextView
-                    android:id="@+id/text_view_record_url"
-                    android:layout_below="@id/text_view_record_author"
-                    android:layout_toRightOf="@id/label_record_url"
-                    android:layout_toEndOf="@id/label_record_url"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="bottom"
-                    android:autoLink="web"
-                    android:textColorLink="@color/colorBlueDark"
-                    android:padding="2dp"/>
-
-                <TextView
-                    android:id="@+id/label_record_created"
-                    android:layout_below="@id/text_view_record_url"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="2dp"
-                    android:text="@string/label_created"
-                    android:textColor="@color/colorLightLabelText" />
-
-                <TextView
-                    android:id="@+id/text_view_record_created"
-                    android:layout_below="@id/text_view_record_url"
-                    android:layout_toRightOf="@id/label_record_created"
-                    android:layout_toEndOf="@id/label_record_created"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="3dp"
-                    android:paddingRight="3dp"
-                    android:paddingTop="3dp"
-                    android:paddingBottom="0dp" />
-
-                <TextView
-                    android:id="@+id/label_record_edited"
-                    android:layout_below="@id/text_view_record_created"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:padding="2dp"
-                    android:text="@string/label_text_edited"
-                    android:textColor="@color/colorLightLabelText"
-                    android:visibility="gone" />
-
-                <TextView
-                    android:id="@+id/text_view_record_edited"
-                    android:layout_below="@id/text_view_record_created"
-                    android:layout_toRightOf="@id/label_record_edited"
-                    android:layout_toEndOf="@id/label_record_edited"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="3dp"
-                    android:paddingRight="3dp"
-                    android:paddingTop="3dp"
-                    android:paddingBottom="0dp"
-                    android:visibility="gone" />
-
-                <!--<ImageButton
-                    android:id="@+id/button_edit_fields"
-                    android:layout_below="@id/text_view_record_url"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentEnd="true"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:scaleType="fitCenter"
-                    android:layout_marginRight="2dp"
-                    android:layout_marginEnd="2dp"
-                    android:layout_marginBottom="0dp"
-                    android:src="@drawable/ic_edit_fields"
-                    android:alpha="0.8"
-                    android:background="@android:color/transparent"
-                    />-->
-
-            </RelativeLayout>
+                android:layout_height="wrap_content"/>
 
         </net.cachapa.expandablelayout.ExpandableLayout>
 
@@ -225,9 +86,10 @@
             android:layout_alignParentRight="false"
             android:layout_toLeftOf="@id/button_find_next"
             android:src="@drawable/ic_arrow_prev_white"
-            app:backgroundTint="@color/colorGray_50"
+            app:backgroundTint="@color/color_gray_50"
             android:visibility="gone"
-            style="@style/fab"/>
+            tools:visibility="visible"
+            style="@style/Fab"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/button_find_next"
@@ -236,17 +98,18 @@
             android:layout_alignParentRight="false"
             android:layout_toLeftOf="@id/button_toggle_fields"
             android:src="@drawable/ic_arrow_next_white"
-            app:backgroundTint="@color/colorGray_50"
+            app:backgroundTint="@color/color_gray_50"
             android:visibility="gone"
-            style="@style/fab"/>
+            tools:visibility="visible"
+            style="@style/Fab"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/button_toggle_fields"
             android:layout_alignParentTop="true"
             android:layout_alignParentBottom="false"
             android:src="@drawable/ic_arrow_drop_down_white"
-            app:backgroundTint="@color/colorAccent_50"
-            style="@style/fab"/>
+            app:backgroundTint="@color/accent_50"
+            style="@style/Fab"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/button_fullscreen"
@@ -255,7 +118,8 @@
             android:src="@drawable/ic_fullscreen"
             app:backgroundTint="@color/fab"
             android:visibility="gone"
-            style="@style/fab" />
+            tools:visibility="visible"
+            style="@style/Fab" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/button_scroll_top"
@@ -265,7 +129,8 @@
             android:src="@drawable/ic_arrow_up_white"
             app:backgroundTint="@color/fab"
             android:visibility="gone"
-            style="@style/fab"/>
+            tools:visibility="visible"
+            style="@style/Fab"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/button_scroll_bottom"
@@ -274,7 +139,8 @@
             android:src="@drawable/ic_arrow_down_white"
             app:backgroundTint="@color/fab"
             android:visibility="gone"
-            style="@style/fab"/>
+            tools:visibility="visible"
+            style="@style/Fab"/>
 
     </RelativeLayout>
 

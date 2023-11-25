@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp"
+    android:background="@drawable/side_nav_bar">
+
+    <TextView
+        android:id="@+id/label_record_tags"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:paddingLeft="2dp"
+        android:paddingRight="2dp"
+        android:paddingTop="0dp"
+        android:paddingBottom="0dp"
+        style="@style/RecordLabel"
+        android:text="@string/label_tags"/>
+
+    <TextView
+        android:id="@+id/text_view_record_tags"
+        android:layout_toRightOf="@id/label_record_tags"
+        android:layout_toEndOf="@id/label_record_tags"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="3dp"
+        android:paddingRight="3dp"
+        android:paddingTop="0dp"
+        android:paddingBottom="0dp"
+        style="@style/RecordValue"
+        android:textColorLink="@color/link_blue"
+        tools:text="test tag1, test tag2, tag3"/>
+
+    <TextView
+        android:id="@+id/label_record_author"
+        android:layout_below="@id/text_view_record_tags"
+        android:layout_alignParentLeft="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="2dp"
+        style="@style/RecordLabel"
+        android:text="@string/label_author"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:id="@+id/text_view_record_author"
+        android:layout_below="@id/text_view_record_tags"
+        android:layout_toRightOf="@id/label_record_author"
+        android:layout_toEndOf="@id/label_record_author"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="2dp"
+        style="@style/RecordValue"
+        tools:text="test author" />
+
+    <TextView
+        android:id="@+id/label_record_url"
+        android:layout_below="@id/text_view_record_author"
+        android:layout_alignParentLeft="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="2dp"
+        style="@style/RecordLabel"
+        android:text="@string/label_url"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:id="@+id/text_view_record_url"
+        android:layout_below="@id/text_view_record_author"
+        android:layout_toRightOf="@id/label_record_url"
+        android:layout_toEndOf="@id/label_record_url"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="bottom"
+        android:autoLink="web"
+        android:textColorLink="@color/link_blue"
+        android:padding="2dp"
+        style="@style/RecordValue"
+        tools:text="https://example.com"/>
+
+    <TextView
+        android:id="@+id/label_record_created"
+        android:layout_below="@id/text_view_record_url"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="2dp"
+        style="@style/RecordLabel"
+        android:text="@string/label_created"/>
+
+    <TextView
+        android:id="@+id/text_view_record_created"
+        android:layout_below="@id/text_view_record_url"
+        android:layout_toRightOf="@id/label_record_created"
+        android:layout_toEndOf="@id/label_record_created"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="3dp"
+        android:paddingRight="3dp"
+        android:paddingTop="3dp"
+        android:paddingBottom="0dp"
+        style="@style/RecordValue"
+        tools:text="01.01.2001 10:10" />
+
+    <TextView
+        android:id="@+id/label_record_edited"
+        android:layout_below="@id/text_view_record_created"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="2dp"
+        style="@style/RecordLabel"
+        android:text="@string/label_text_edited"
+        android:visibility="gone"
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/text_view_record_edited"
+        android:layout_below="@id/text_view_record_created"
+        android:layout_toRightOf="@id/label_record_edited"
+        android:layout_toEndOf="@id/label_record_edited"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingLeft="3dp"
+        android:paddingRight="3dp"
+        android:paddingTop="3dp"
+        android:paddingBottom="0dp"
+        android:visibility="gone"
+        tools:visibility="visible"
+        style="@style/RecordValue"
+        tools:text="01.01.2001 10:10" />
+
+</RelativeLayout>

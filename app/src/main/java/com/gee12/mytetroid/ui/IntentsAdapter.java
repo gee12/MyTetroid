@@ -55,9 +55,9 @@ public class IntentsAdapter extends BaseAdapter {
             }
             summView.setText(parts[1]);
 
-            int titleColorId = (active) ? R.color.colorBaseText : R.color.colorLightText;
+            int titleColorId = (active) ? R.color.text_1 : R.color.text_3;
             titleView.setTextColor(ContextCompat.getColor(mContext.getApplicationContext(), titleColorId));
-            int summColorId = (active) ? R.color.colorBase2Text : R.color.colorLightText;
+            int summColorId = (active) ? R.color.text_2 : R.color.text_3;
             summView.setTextColor(ContextCompat.getColor(mContext.getApplicationContext(), summColorId));
         }
     }

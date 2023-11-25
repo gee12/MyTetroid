@@ -1,72 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:columnCount="2"
     android:rowCount="7"
     android:shrinkColumns="1"
-    android:padding="16dp">
+    android:padding="16dp"
+    style="@style/RootLayout">
 
     <TableRow>
         <TextView
             android:text="@string/label_id"
-            style="@style/grid_cell_label"/>
+            style="@style/GridCellLabel"/>
 
         <TextView
             android:id="@+id/text_view_id"
-            style="@style/grid_cell_value"/>
+            style="@style/GridCellValue"
+            tools:text="1234567890987654321"/>
     </TableRow>
 
     <TableRow>
         <TextView
             android:text="@string/label_record"
-            style="@style/grid_cell_label"/>
+            style="@style/GridCellLabel"/>
 
         <TextView
             android:id="@+id/text_view_record"
-            style="@style/grid_cell_value"/>
+            style="@style/GridCellValue"
+            tools:text="test record name"/>
     </TableRow>
 
     <TableRow>
         <TextView
             android:text="@string/label_attach_crypted"
-            style="@style/grid_cell_label"/>
+            style="@style/GridCellLabel"/>
 
         <TextView
             android:id="@+id/text_view_crypted"
-            style="@style/grid_cell_value"/>
+            style="@style/GridCellValue"
+            tools:text="No"/>
     </TableRow>
 
     <TableRow
         android:id="@+id/table_row_edited"
-        android:visibility="gone">
+        android:visibility="gone"
+        tools:visibility="visible">
         <TextView
             android:text="@string/label_edited"
-            style="@style/grid_cell_label"/>
+            style="@style/GridCellLabel"/>
 
         <TextView
             android:id="@+id/text_view_edited"
-            style="@style/grid_cell_value"/>
+            style="@style/GridCellValue"
+            tools:text="01.01.2001 10:10"/>
     </TableRow>
 
     <TableRow>
         <TextView
             android:text="@string/label_path"
-            style="@style/grid_cell_label"/>
+            style="@style/GridCellLabel"/>
 
         <TextView
             android:id="@+id/text_view_path"
-            style="@style/grid_cell_value"/>
+            style="@style/GridCellValue"
+            tools:text="test/path/to/file"/>
     </TableRow>
 
     <TableRow>
         <TextView
             android:text="@string/label_file_size"
-            style="@style/grid_cell_label"/>
+            style="@style/GridCellLabel"/>
 
         <TextView
             android:id="@+id/text_view_size"
-            style="@style/grid_cell_value"/>
+            style="@style/GridCellValue"
+            tools:text="100 Kb"/>
     </TableRow>
 
 </TableLayout>

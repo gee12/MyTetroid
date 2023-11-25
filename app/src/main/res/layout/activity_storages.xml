@@ -6,7 +6,8 @@
     android:id="@+id/layout_coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.storages.StoragesActivity">
+    tools:context=".ui.storages.StoragesActivity"
+    style="@style/RootLayout">
 
     <include
         layout="@layout/layout_toolbar"
@@ -30,8 +31,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:padding="@dimen/tv_empty_padding"
-        android:textColor="@color/emptySearch"
+        style="@style/LabelEmptyList"
         android:textAlignment="center"
         android:gravity="center_horizontal"
         android:text="@string/title_storages_empty_label"
@@ -41,8 +41,8 @@
     <com.github.clans.fab.FloatingActionMenu
         android:id="@+id/fab_add_storage"
         app:menu_icon="@android:drawable/ic_input_add"
-        style="@style/fab_clans_menu"
-        app:menu_labels_style="@style/fab_clans_label"
+        style="@style/FabClansMenu"
+        app:menu_labels_style="@style/FabClansLabel"
         app:layout_anchor="@id/recycle_view"
         app:layout_anchorGravity="bottom|right|end"
         android:contentDescription="@string/title_add_storage">
@@ -51,13 +51,13 @@
             android:id="@+id/fab_add_existing_storage"
             android:src="@drawable/ic_add_existing_storage_white"
             app:fab_label="@string/title_open_storage"
-            style="@style/fab_clans_button" />
+            style="@style/FabClansButton" />
 
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/fab_create_new_storage"
             android:src="@drawable/ic_create_new_storage_white"
             app:fab_label="@string/title_create_storage"
-            style="@style/fab_clans_button" />
+            style="@style/FabClansButton" />
 
     </com.github.clans.fab.FloatingActionMenu>
 

@@ -25,7 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
-        android:textColor="@color/colorBaseText"
+        android:textColor="@color/text_1"
         android:textSize="@dimen/font_default"
         android:layout_toEndOf="@id/file_view_icon" />
 
@@ -38,7 +38,7 @@
         android:layout_alignParentBottom="true"
         android:layout_marginLeft="5dp"
         android:layout_marginStart="5dp"
-        android:textColor="@color/colorLightText"
+        android:textColor="@color/text_3"
         android:textSize="@dimen/font_small" />
 
     <TextView
@@ -50,7 +50,7 @@
         android:layout_width="wrap_content"
         android:textAlignment="viewEnd"
         android:layout_height="match_parent"
-        android:textColor="@color/colorLightText"
+        android:textColor="@color/text_3"
         android:textSize="@dimen/font_small"
         android:layout_alignParentEnd="true"
         android:layout_toEndOf="@id/file_view_icon"

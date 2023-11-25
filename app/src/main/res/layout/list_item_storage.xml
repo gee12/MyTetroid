@@ -23,7 +23,7 @@
         app:layout_constraintEnd_toStartOf="@id/image_view_current"
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintHorizontal_chainStyle="packed"
-        android:textColor="@color/colorBaseText"
+        android:textColor="@color/text_1"
         android:paddingBottom="3dp"
         android:paddingRight="3dp"
         android:paddingEnd="3dp"
@@ -75,7 +75,7 @@
         android:paddingTop="3dp"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
-        android:textColor="@color/colorBase2Text"
+        android:textColor="@color/text_2"
         tools:text="@tools:sample/lorem"
         android:textSize="@dimen/font_small" />
 
@@ -100,7 +100,7 @@
         android:paddingTop="2dp"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
-        android:textColor="@color/colorRed"
+        android:textColor="@color/error_1"
         tools:text="@tools:sample/lorem"
         android:textSize="@dimen/font_small" />
 

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="text_primary">#E7E7E7</color>
+    <color name="text_primary_disabled">#777</color>
+    <color name="text_secondary">#999</color>
+    <color name="text_secondary_disabled">#555</color>
+
+    <color name="text_1">#E7E7E7</color>
+    <color name="text_2">#AAA</color>
+    <color name="text_3">#999</color>
+    <color name="text_4">#777</color>
+    <color name="text_5">#444</color>
+    <color name="link_blue">#4F63E1</color>
+    <color name="error_1">#DF3A3A</color>
+    <color name="error_2">#E00</color>
+
+    <color name="accent">#009990</color>
+    <color name="accent_50">#4D01B8AD</color>
+
+    <color name="color_progress_50">#BF26262C</color>
+    <color name="color_gray_50">#668B8B8B</color>
+    <color name="color_green_50">#4D608532</color>
+    <color name="color_green_dark_50">#AA335308</color>
+    <color name="color_blue_50">#8000BCD4</color>
+
+    <color name="tab_layout_title">#777</color>
+    <color name="tab_layout_title_selected">#AAA</color>
+    <color name="tab_layout_indicator">@color/accent</color>
+
+    <color name="screen_title_1">#E0E0E0</color>
+    <color name="screen_title_2">#AAA</color>
+
+    <color name="record_field_label">#7878A6</color>
+    <color name="record_field_value">#CCC</color>
+
+    <color name="background_default">#2C2C33</color>
+    <color name="background_dialog_default">#313139</color>
+    <color name="background_button">#373740</color>
+    <color name="background_highlight">#445E44</color>
+    <color name="background_selected">#303850</color>
+
+    <color name="background_current_node">@color/background_selected</color>
+    <color name="background_last_opened_record">@color/background_selected</color>
+    <color name="background_selected_tag">@color/background_selected</color>
+    <color name="text_empty_list">#888</color>
+    <color name="list_separator">#272727</color>
+
+    <color name="icon_tint">#AAA</color>
+
+    <color name="title_start_color">#122442</color>
+    <color name="title_middle_color">#1F2853</color>
+    <color name="title_end_color">#2B355E</color>
+
+    <color name="fab_color_text">#E7E7E7</color>
+    <color name="fab_color_normal">@color/color_green_50</color>
+    <color name="fab_color_normal_dark">@color/color_green_dark_50</color>
+    <color name="fab_color_pressed">#608532</color>
+    <color name="fab_color_pressed_dark">#2E4C07</color>
+    <color name="fab_color_ripple">#99FFFFFF</color>
+
+</resources>

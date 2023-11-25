@@ -79,7 +79,7 @@ class RecordInfoDialog(
             val tvSize = dialogView.findViewById<TextView>(R.id.text_view_size)
             if (size == null) {
                 size = requireContext().getString(R.string.title_folder_is_missing)
-                tvSize.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorDarkRed))
+                tvSize.setTextColor(ContextCompat.getColor(requireContext(), R.color.error_2))
             }
             tvSize.text = size
         }

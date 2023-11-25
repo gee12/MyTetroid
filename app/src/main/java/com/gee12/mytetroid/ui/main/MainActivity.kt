@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.SearchManager
 import android.content.Intent
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.view.*
@@ -1228,7 +1229,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         favoritesNode.setBackgroundColor(
             ContextCompat.getColor(
                 this,
-                if (isCurNode) R.color.colorCurNode else R.color.transparent
+                if (isCurNode) R.color.background_current_node else R.color.transparent
             )
         )
     }
@@ -1519,7 +1520,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         tvName.setTextColor(
             ContextCompat.getColor(
                 this,
-                if (size > 0) R.color.colorBaseText else R.color.colorLightText
+                if (size > 0) R.color.text_1 else R.color.text_3
             )
         )
         val favoritesCountView = findViewById<TextView>(R.id.favorites_count)
@@ -1623,8 +1624,9 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      * FIXME: Заменить на использование AlertDialog ? (чтобы посередине экрана)
      */
     @SuppressLint("RestrictedApi", "NonConstantResourceId")
-    private fun showNodePopupMenu(v: View, node: TetroidNode, pos: Int) {
-        val popupMenu = PopupMenu(this, v) //, Gravity.CENTER_HORIZONTAL);
+    private fun showNodePopupMenu(view: View, node: TetroidNode, pos: Int) {
+        val wrapper = ContextThemeWrapper(this, R.style.AppPopupMenu)
+        val popupMenu = PopupMenu(wrapper, view)
         popupMenu.inflate(R.menu.node_context)
         val menu = popupMenu.menu
         val parentNode = node.parentNode
@@ -1722,7 +1724,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 else -> false
             }
         }
-        setForceShowMenuIcons(v, menu as MenuBuilder)
+        setForceShowMenuIcons(view, menu as MenuBuilder)
     }
 
     // endregion ContextMenus
@@ -2144,6 +2146,10 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      * Настройка элемента для фильтра веток.
      */
     private fun initNodesSearchView(searchView: SearchView, nodesHeader: View) {
+        searchView.findViewById<EditText>(androidx.appcompat.R.id.search_src_text).also {
+            // через стиль не получилось, т.к. внутри AppCompatAutoCompleteTextView
+            it.setTextColor(Color.WHITE)
+        }
         val tvHeader = nodesHeader.findViewById<TextView>(R.id.text_view_nodes_header)
         val ivIcon = nodesHeader.findViewById<ImageView>(R.id.image_view_app_icon)
         object : SearchViewXListener(searchView) {
@@ -2181,6 +2187,10 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      * Настройка элемента для фильтра меток.
      */
     private fun initTagsSearchView(searchView: SearchView, tagsHeader: View) {
+        searchView.findViewById<EditText>(androidx.appcompat.R.id.search_src_text).also {
+            // через стиль не получилось, т.к. внутри AppCompatAutoCompleteTextView
+            it.setTextColor(Color.WHITE)
+        }
         val tvHeader = tagsHeader.findViewById<TextView>(R.id.text_view_tags_header)
         object : SearchViewXListener(searchView) {
             override fun onClose() {

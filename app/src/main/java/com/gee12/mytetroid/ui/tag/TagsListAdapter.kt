@@ -71,7 +71,7 @@ class TagsListAdapter(
         val (key, tag) = getItem(position)
 
         val backgroundColor = if (checkIsSelected(tag)) {
-            ContextCompat.getColor(context, R.color.colorSelectedTag)
+            ContextCompat.getColor(context, R.color.background_selected_tag)
         } else {
             Color.TRANSPARENT
         }
@@ -88,11 +88,11 @@ class TagsListAdapter(
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
             viewHolder.nameCountView.text = nameCount
-            viewHolder.nameCountView.setTextColor(ContextCompat.getColor(context, R.color.colorLightText))
+            viewHolder.nameCountView.setTextColor(ContextCompat.getColor(context, R.color.text_3))
         } else {
             val nameCount = SpannableString("$key $recordsCount")
             nameCount.setSpan(
-                ForegroundColorSpan(ContextCompat.getColor(context, R.color.colorBase2Text)),
+                ForegroundColorSpan(ContextCompat.getColor(context, R.color.text_2)),
                 key.length + 1, nameCount.length,
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
@@ -102,7 +102,7 @@ class TagsListAdapter(
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
             viewHolder.nameCountView.text = nameCount
-            viewHolder.nameCountView.setTextColor(ContextCompat.getColor(context, R.color.colorBaseText))
+            viewHolder.nameCountView.setTextColor(ContextCompat.getColor(context, R.color.text_1))
         }
 
         view.setOnClickListener {

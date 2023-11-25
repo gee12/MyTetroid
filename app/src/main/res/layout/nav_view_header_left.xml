@@ -17,10 +17,7 @@
         android:layout_gravity="top"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:paddingTop="@dimen/nav_header_vertical_spacing"
         android:src="@drawable/ic_mytetroid" />
-    <!--android:paddingRight="12dp"-->
-    <!--android:paddingEnd="12dp"-->
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -32,8 +29,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignParentBottom="false"
+            android:textColor="@color/screen_title_1"
             android:text="@string/main_header_title"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textSize="14sp"
             android:paddingLeft="12dp"
             android:paddingRight="6dp"/>
@@ -44,8 +41,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/text_view_app_name"
             android:text="@string/subtitle_nodes"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textSize="@dimen/nav_view_headers_text_size"
+            android:textColor="@color/screen_title_1"
+            android:textSize="18sp"
             android:textStyle="italic"
             android:paddingTop="3dp"
             android:paddingLeft="12dp"

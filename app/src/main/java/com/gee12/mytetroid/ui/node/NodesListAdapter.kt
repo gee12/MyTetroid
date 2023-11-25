@@ -95,7 +95,7 @@ class NodesListAdapter(
             val recordsCount = "[%d]".format(node.recordsCount)
             val nameCount = SpannableString("$name $recordsCount")
             nameCount.setSpan(
-                ForegroundColorSpan(ContextCompat.getColor(context, R.color.colorBase2Text)),
+                ForegroundColorSpan(ContextCompat.getColor(context, R.color.text_2)),
                 name.length + 1, nameCount.length,
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
@@ -105,10 +105,10 @@ class NodesListAdapter(
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
             )
             viewHolder.nameCountView.text = nameCount
-            viewHolder.nameCountView.setTextColor(ContextCompat.getColor(context, R.color.colorBaseText))
+            viewHolder.nameCountView.setTextColor(ContextCompat.getColor(context, R.color.text_1))
         } else {
             viewHolder.nameCountView.text = name
-            viewHolder.nameCountView.setTextColor(ContextCompat.getColor(context, R.color.colorLightText))
+            viewHolder.nameCountView.setTextColor(ContextCompat.getColor(context, R.color.text_3))
         }
         // вьюшка всего заголовка ветки (с иконкой и именем)
 //        ((RelativeLayout.LayoutParams)viewHolder.headerView.getLayoutParams()).setMargins(20 * node.getLevel(),0,50,0);
@@ -132,7 +132,7 @@ class NodesListAdapter(
 
         // подсветка
         if (curNode == node) {
-            view.setBackgroundColor(ContextCompat.getColor(context, R.color.colorCurNode))
+            view.setBackgroundColor(ContextCompat.getColor(context, R.color.background_current_node))
         } else if (node.isCrypted && isHighlightCryptedNodes) {
             view.setBackgroundColor(highlightColor)
         } else {

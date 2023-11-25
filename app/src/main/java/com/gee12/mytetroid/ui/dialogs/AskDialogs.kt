@@ -154,6 +154,7 @@ object AskDialogs {
 
     fun showDialog(
         context: Context,
+        theme: Int = R.style.AppDialog,
         title: CharSequence? = null,
         message: CharSequence,
         isCancelable: Boolean,
@@ -167,6 +168,7 @@ object AskDialogs {
     ) {
         BaseAskDialog.show(
             context = context,
+            theme = theme,
             title = title,
             message = message,
             isCancelable = isCancelable,

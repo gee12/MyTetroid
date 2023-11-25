@@ -281,7 +281,7 @@ class TagsFragment : TetroidFragment<MainViewModel>() {
         }
         menuItem?.let {
             val title = SpannableString(it.title)
-            val textColor = ContextCompat.getColor(context, R.color.colorLightText)
+            val textColor = ContextCompat.getColor(context, R.color.text_3)
             title.setSpan(ForegroundColorSpan(textColor), 0, title.length, 0)
             it.setTitle(title)
         }

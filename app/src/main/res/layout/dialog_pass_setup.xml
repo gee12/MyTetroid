@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     xmlns:android_ex="http://schemas.android.com/apk/res-auto"
     android:id="@+id/custom_dialog_layout_design_user_input"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    style="@style/RootLayout">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -12,32 +14,38 @@
         android:padding="16dp">
 
         <com.gee12.mytetroid.ui.base.views.TextViewHtml
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:id="@+id/text_view_header"
             android:text="@string/text_pass_input_html"
             android_ex:isHtml="true"
             android:layout_marginBottom="8pt"
             android:textSize="@dimen/font_small"
-            style="@style/dialog_labels"/>
+            style="@style/Text"/>
 
         <TextView
             android:text="@string/label_pass"
-            style="@style/dialog_labels"/>
+            style="@style/AppLabelInLayout"/>
 
         <EditText
             android:id="@+id/edit_text_pass"
             android:inputType="text|textPassword"
-            style="@style/dialog_text_edit">
+            style="@style/AppEditTextInLayout"
+            tools:text="12345">
+
             <requestFocus/>
+
         </EditText>
 
         <TextView
             android:text="@string/label_confirm_pass"
-            style="@style/dialog_labels"/>
+            style="@style/AppLabelInLayout"/>
 
         <EditText
             android:id="@+id/edit_text_confirm_pass"
             android:inputType="text|textPassword"
-            style="@style/dialog_text_edit"/>
+            style="@style/AppEditTextInLayout"
+            tools:text="12345"/>
 
     </LinearLayout>
 

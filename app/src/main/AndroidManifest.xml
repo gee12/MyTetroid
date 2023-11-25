@@ -69,7 +69,6 @@
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name"
             android:launchMode="standard"
-            android:theme="@style/AppTheme.NoActionBar"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -81,7 +80,6 @@
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name"
             android:launchMode="singleTop"
-            android:theme="@style/AppTheme.NoActionBar"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
@@ -104,7 +102,6 @@
             android:label="@string/title_storages"
             android:launchMode="singleTop"
             android:parentActivityName=".ui.main.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
@@ -121,8 +118,7 @@
             android:configChanges="orientation|screenSize"
             android:label="@string/title_storage_settings"
             android:parentActivityName=".ui.main.MainActivity"
-            android:launchMode="singleTop"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:launchMode="singleTop">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.storages.StoragesActivity" />
@@ -132,7 +128,6 @@
             android:configChanges="orientation|screenSize"
             android:launchMode="singleTop"
             android:parentActivityName=".ui.main.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
@@ -149,8 +144,7 @@
             android:configChanges="orientation|screenSize"
             android:label="@string/action_common_settings"
             android:parentActivityName=".ui.main.MainActivity"
-            android:launchMode="singleTop"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:launchMode="singleTop">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.main.MainActivity" />
@@ -159,19 +153,16 @@
             android:name=".ui.search.SearchActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_global_search"
-            android:parentActivityName=".ui.main.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:parentActivityName=".ui.main.MainActivity" />
         <activity
             android:name=".ui.storage.info.StorageInfoActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_storage_info"
-            android:parentActivityName=".ui.main.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:parentActivityName=".ui.main.MainActivity" />
         <activity
             android:name=".ui.logs.LogsActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_log_file_content"
-            android:theme="@style/AppTheme.NoActionBar"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.gee12.mytetroid.activities.LogsActivity" />
@@ -183,13 +174,11 @@
             android:name=".ui.node.icon.IconsActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_node_icon_choice"
-            android:parentActivityName=".ui.main.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:parentActivityName=".ui.main.MainActivity" />
         <activity
             android:name=".ui.about.AboutActivity"
             android:configChanges="orientation|screenSize"
-            android:label="@string/title_about_app"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:label="@string/title_about_app" />
     </application>
 
 </manifest>

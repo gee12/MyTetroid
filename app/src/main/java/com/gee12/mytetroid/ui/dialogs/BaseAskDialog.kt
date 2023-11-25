@@ -10,6 +10,7 @@ object BaseAskDialog {
 
     fun show(
         context: Context,
+        theme: Int = 0,
         title: CharSequence? = null,
         message: CharSequence,
         isCancelable: Boolean,
@@ -21,7 +22,7 @@ object BaseAskDialog {
         onCancel: (() -> Unit)? = null,
         onDismiss: (() -> Unit)? = null,
     ) {
-        val builder = AlertDialog.Builder(context).apply {
+        val builder = AlertDialog.Builder(context, theme).apply {
             title?.also { setTitle(it) }
             setMessage(message)
             setCancelable(isCancelable)

@@ -32,7 +32,7 @@
         android:ellipsize="end"
         android:maxLines="1"
         android:scrollHorizontally="false"
-        android:textColor="@color/colorBaseText"
+        android:textColor="@color/text_1"
         android:textSize="@dimen/font_small"
         tools:text="@tools:sample/cities"/>
 

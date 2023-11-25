@@ -66,10 +66,10 @@ class SelectedTagsListAdapter(
         if (tag.isEmpty) {
             val emptyTag = resourcesProvider.getString(R.string.title_empty_tag)
             viewHolder.nameCountView.text = emptyTag
-            viewHolder.nameCountView.setTextColor(ContextCompat.getColor(context, R.color.colorLightText))
+            viewHolder.nameCountView.setTextColor(ContextCompat.getColor(context, R.color.text_3))
         } else {
             viewHolder.nameCountView.text = tag.name
-            viewHolder.nameCountView.setTextColor(ContextCompat.getColor(context, R.color.colorBaseText))
+            viewHolder.nameCountView.setTextColor(ContextCompat.getColor(context, R.color.text_1))
         }
 
         viewHolder.cancelImageButton.setOnClickListener {

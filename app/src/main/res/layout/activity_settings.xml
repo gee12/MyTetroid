@@ -8,7 +8,8 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="false"
     android:orientation="vertical"
-    tools:context=".ui.settings.SettingsActivity">
+    tools:context=".ui.settings.SettingsActivity"
+    style="@style/RootLayout">
 
     <include
         layout="@layout/layout_toolbar"
@@ -26,7 +27,7 @@
         android:id="@+id/layout_progress_bar"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/colorProgress_50"
+        android:background="@color/color_progress_50"
         android:clickable="true"
         android:gravity="center"
         android:orientation="vertical"

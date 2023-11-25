@@ -6,7 +6,8 @@
     android:id="@+id/layout_coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.logs.LogsActivity">
+    tools:context=".ui.logs.LogsActivity"
+    style="@style/RootLayout">
 
     <include
         layout="@layout/layout_toolbar"
@@ -73,7 +74,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:textColor="@color/colorDarkRed"
+            android:textColor="@color/error_1"
             android:text="@string/log_file_read_error"
             android:background="@null"/>
 

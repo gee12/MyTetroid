@@ -6,7 +6,8 @@
     android:id="@+id/layout_coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.node.icon.IconsActivity">
+    tools:context=".ui.node.icon.IconsActivity"
+    style="@style/RootLayout">
 
     <include
         layout="@layout/layout_toolbar"
@@ -46,7 +47,7 @@
             app:layout_constraintTop_toBottomOf="@id/spinner_folders"
             app:layout_constraintBottom_toTopOf="@id/button_clear_icon"
             android:choiceMode="singleChoice"
-            android:listSelector="@color/colorCurNode"
+            android:listSelector="@color/background_current_node"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="10dp"/>
 

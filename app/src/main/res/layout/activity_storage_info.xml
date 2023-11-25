@@ -6,7 +6,8 @@
     android:id="@+id/layout_coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.storage.info.StorageInfoActivity">
+    tools:context=".ui.storage.info.StorageInfoActivity"
+    style="@style/RootLayout">
 
     <include
         layout="@layout/layout_toolbar"
@@ -27,7 +28,7 @@
             <TextView
                 android:id="@+id/label_name"
                 android:layout_width="0dp"
-                style="@style/grid_cell_label"
+                style="@style/GridCellLabel"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/text_view_name"
                 app:layout_constraintTop_toTopOf="parent"
@@ -36,7 +37,7 @@
 
             <TextView
                 android:id="@+id/text_view_name"
-                style="@style/grid_cell_value"
+                style="@style/GridCellValue"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/label_name"
                 app:layout_constraintTop_toTopOf="parent"
@@ -60,14 +61,14 @@
 
                 <TextView
                     android:id="@+id/label_path"
-                    style="@style/grid_cell_label"
+                    style="@style/GridCellLabel"
                     android:text="@string/label_storage_path"/>
 
                 <TextView
                     android:id="@+id/text_view_path"
                     android:layout_weight="1"
                     android:gravity="end"
-                    style="@style/grid_cell_value"
+                    style="@style/GridCellValue"
                     tools:text="@tools:sample/full_names"/>
 
             </LinearLayout>
@@ -82,14 +83,14 @@
 
                 <TextView
                     android:id="@+id/label_uri"
-                    style="@style/grid_cell_label"
+                    style="@style/GridCellLabel"
                     android:text="@string/label_storage_uri"/>
 
                 <TextView
                     android:id="@+id/text_view_uri"
                     android:layout_weight="1"
                     android:gravity="end"
-                    style="@style/grid_cell_value"
+                    style="@style/GridCellValue"
                     tools:text="@tools:sample/full_names"/>
 
             </LinearLayout>
@@ -98,7 +99,7 @@
             <TextView
                 android:id="@+id/label_size"
                 android:layout_width="0dp"
-                style="@style/grid_cell_label"
+                style="@style/GridCellLabel"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/text_view_size"
                 app:layout_constraintTop_toBottomOf="@id/layout_uri"
@@ -107,7 +108,7 @@
 
             <TextView
                 android:id="@+id/text_view_size"
-                style="@style/grid_cell_value"
+                style="@style/GridCellValue"
                 app:layout_constraintStart_toEndOf="@id/label_size"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/layout_uri"
@@ -135,7 +136,7 @@
             <TextView
                 android:id="@+id/label_last_edit"
                 android:layout_width="0dp"
-                style="@style/grid_cell_label"
+                style="@style/GridCellLabel"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/text_view_last_edit"
                 app:layout_constraintTop_toBottomOf="@id/barrier_size"
@@ -144,7 +145,7 @@
 
             <TextView
                 android:id="@+id/text_view_last_edit"
-                style="@style/grid_cell_value"
+                style="@style/GridCellValue"
                 app:layout_constraintStart_toEndOf="@id/label_last_edit"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/barrier_size"
@@ -167,6 +168,7 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/label_last_edit"
+                android:gravity="center_horizontal"
                 android:layout_marginTop="12dp"
                 android:layout_marginBottom="12dp"
                 android:visibility="gone"
@@ -182,13 +184,13 @@
 
                 <TextView
                     android:id="@+id/text_view_error"
-                    style="@style/grid_cell_value"
+                    style="@style/GridCellValue"
                     android:layout_toEndOf="@id/image_view_error"
                     android:layout_toRightOf="@id/image_view_error"
                     android:paddingStart="6dp"
                     android:paddingLeft="6dp"
                     android:paddingTop="2dp"
-                    android:textColor="@color/colorRed"
+                    android:textColor="@color/error_1"
                     android:textSize="@dimen/font_small"
                     tools:text="@tools:sample/lorem" />
 
@@ -202,8 +204,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/layout_error"
                 android:layout_marginTop="24dp"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
+                android:gravity="center_horizontal"
                 android:orientation="vertical"
                 android:visibility="gone"
                 tools:visibility="visible">
@@ -212,18 +213,16 @@
                     android:id="@+id/text_view_load_storage"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
                     android:padding="6dp"
                     android:textAlignment="center"
-                    android:textColor="@color/emptySearch"
+                    android:textColor="@color/error_2"
                     android:text="@string/title_need_load_storage_to_view_info" />
 
                 <Button
                     android:id="@+id/button_load_storage"
                     android:layout_width="240dp"
-                    android:layout_height="60dp"
+                    android:layout_height="wrap_content"
                     android:layout_margin="5dp"
-                    android:layout_gravity="center_horizontal"
                     android:text="@string/action_load_storage"
                     android:drawableLeft="@drawable/ic_reload"
                     android:drawableStart="@drawable/ic_reload"/>
@@ -242,7 +241,7 @@
 
                 <View
                     android:id="@+id/separ"
-                    style="@style/stats_line"/>
+                    style="@style/StatsLine"/>
 
                 <TableLayout
                     android:layout_width="match_parent"
@@ -255,11 +254,11 @@
 
                     <TableRow>
                         <TextView
-                            style="@style/grid_cell_label"
+                            style="@style/GridCellLabel"
                             android:text="@string/stats_nodes_count" />
                         <TextView
                             android:id="@+id/text_view_stats_nodes_count"
-                            style="@style/grid_cell_value"
+                            style="@style/GridCellValue"
                             tools:text="@tools:sample/us_zipcodes"/>
                     </TableRow>
 
@@ -268,10 +267,10 @@
                             android:text="@string/stats_crypt_nodes_count"
                             android:paddingLeft="15dp"
                             android:paddingStart="15dp"
-                            style="@style/grid_cell_label"/>
+                            style="@style/GridCellLabel"/>
                         <TextView
                             android:id="@+id/text_view_stats_crypt_nodes_count"
-                            style="@style/grid_cell_value"
+                            style="@style/GridCellValue"
                             tools:text="@tools:sample/us_zipcodes"/>
                     </TableRow>
 
@@ -287,40 +286,40 @@
                     </TableRow>-->
 
                     <TableRow>
-                        <View style="@style/stats_line" android:layout_span="2"/>
+                        <View style="@style/StatsLine" android:layout_span="2"/>
                     </TableRow>
 
                     <TableRow>
                         <TextView
                             android:text="@string/stats_max_subnodes"
-                            style="@style/grid_cell_label"/>
+                            style="@style/GridCellLabel"/>
                         <TextView
                             android:id="@+id/text_view_stats_max_subnodes"
-                            style="@style/grid_cell_value"
+                            style="@style/GridCellValue"
                             tools:text="@tools:sample/us_zipcodes"/>
                     </TableRow>
 
                     <TableRow>
                         <TextView
                             android:text="@string/stats_max_depth"
-                            style="@style/grid_cell_label"/>
+                            style="@style/GridCellLabel"/>
                         <TextView
                             android:id="@+id/text_view_stats_max_depth"
-                            style="@style/grid_cell_value"
+                            style="@style/GridCellValue"
                             tools:text="@tools:sample/us_zipcodes"/>
                     </TableRow>
 
                     <TableRow>
-                        <View style="@style/stats_line" android:layout_span="2"/>
+                        <View style="@style/StatsLine" android:layout_span="2"/>
                     </TableRow>
 
                     <TableRow>
                         <TextView
                             android:text="@string/stats_records_count"
-                            style="@style/grid_cell_label"/>
+                            style="@style/GridCellLabel"/>
                         <TextView
                             android:id="@+id/text_view_stats_records_count"
-                            style="@style/grid_cell_value"
+                            style="@style/GridCellValue"
                             tools:text="@tools:sample/us_zipcodes"/>
                     </TableRow>
 
@@ -329,38 +328,38 @@
                             android:text="@string/stats_crypt_records_count"
                             android:paddingLeft="15dp"
                             android:paddingStart="15dp"
-                            style="@style/grid_cell_label"/>
+                            style="@style/GridCellLabel"/>
                         <TextView
                             android:id="@+id/text_view_stats_crypt_records_count"
-                            style="@style/grid_cell_value"
+                            style="@style/GridCellValue"
                             tools:text="@tools:sample/us_zipcodes"/>
                     </TableRow>
 
                     <TableRow>
-                        <View style="@style/stats_line" android:layout_span="2"/>
+                        <View style="@style/StatsLine" android:layout_span="2"/>
                     </TableRow>
 
                     <TableRow>
                         <TextView
                             android:text="@string/stats_files_count"
-                            style="@style/grid_cell_label"/>
+                            style="@style/GridCellLabel"/>
                         <TextView
                             android:id="@+id/text_view_stats_files_count"
-                            style="@style/grid_cell_value"
+                            style="@style/GridCellValue"
                             tools:text="@tools:sample/us_zipcodes"/>
                     </TableRow>
 
                     <TableRow>
-                        <View style="@style/stats_line" android:layout_span="2"/>
+                        <View style="@style/StatsLine" android:layout_span="2"/>
                     </TableRow>
 
                     <TableRow>
                         <TextView
                             android:text="@string/stats_tags_count"
-                            style="@style/grid_cell_label"/>
+                            style="@style/GridCellLabel"/>
                         <TextView
                             android:id="@+id/text_view_stats_tags_count"
-                            style="@style/grid_cell_value"
+                            style="@style/GridCellValue"
                             tools:text="@tools:sample/us_zipcodes"/>
                     </TableRow>
 
@@ -370,24 +369,24 @@
                             android:text="@string/stats_unique_tags_count"
                             android:paddingLeft="15dp"
                             android:paddingStart="15dp"
-                            style="@style/grid_cell_label"/>
+                            style="@style/GridCellLabel"/>
                         <TextView
                             android:id="@+id/text_view_stats_unique_tags_count"
-                            style="@style/grid_cell_value"
+                            style="@style/GridCellValue"
                             tools:text="@tools:sample/us_zipcodes"/>
                     </TableRow>
 
                     <TableRow>
-                        <View style="@style/stats_line" android:layout_span="2"/>
+                        <View style="@style/StatsLine" android:layout_span="2"/>
                     </TableRow>
 
                     <TableRow>
                         <TextView
                             android:text="@string/stats_authors_count"
-                            style="@style/grid_cell_label"/>
+                            style="@style/GridCellLabel"/>
                         <TextView
                             android:id="@+id/text_view_stats_authors_count"
-                            style="@style/grid_cell_value"
+                            style="@style/GridCellValue"
                             tools:text="@tools:sample/us_zipcodes"/>
                     </TableRow>
 

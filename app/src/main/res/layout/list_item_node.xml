@@ -19,7 +19,7 @@
         android:layout_toStartOf="@id/node_view_arrow"
         android:layout_marginRight="2dp"
         android:layout_marginEnd="2dp"
-        android:padding="@dimen/data_item_row_padding">
+        android:padding="5dp">
 
         <ImageView
             android:id="@+id/node_view_icon"
@@ -39,13 +39,13 @@
             android:id="@+id/node_view_name_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:minHeight="24dp"
             app:layout_constraintStart_toEndOf="@+id/node_view_icon"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_gravity="center_vertical"
-            android:layout_marginLeft="@dimen/offset_default"
-            android:layout_marginRight="@dimen/offset_default"
-            android:textColor="@color/colorBaseText"
+            android:layout_marginHorizontal="@dimen/margin_horizontal_default"
+            android:textColor="@color/text_1"
             tools:text="@tools:sample/cities"
             android:textSize="16sp" />
 
@@ -60,7 +60,7 @@
         android:layout_alignParentEnd="true"
         android:src="@drawable/ic_move_down"
         android:scaleType="center"
-        android:background="@color/colorLightText3"
+        android:background="@color/background_button"
         tools:ignore="DuplicateIds" />
 
 </RelativeLayout>

@@ -23,10 +23,10 @@
             android:layout_width="match_parent"
             android:layout_height="34dp"
             android:background="@drawable/side_nav_bar"
-            app:tabTextAppearance="@style/main_tab_layout"
-            app:tabIndicatorColor="@color/white"
-            app:tabTextColor="@color/colorLightText2"
-            app:tabSelectedTextColor="@color/colorLightText3" />
+            app:tabTextAppearance="@style/MainTabLayout"
+            app:tabIndicatorColor="@color/tab_layout_indicator"
+            app:tabTextColor="@color/tab_layout_title"
+            app:tabSelectedTextColor="@color/tab_layout_title_selected" />
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/fragment_container_main"

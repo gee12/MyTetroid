@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    style="@style/RootLayout">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -22,85 +22,75 @@
 
             <TextView
                 android:id="@+id/label_name"
-                style="@style/dialog_labels"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                style="@style/AppLabelInLayout"
                 android:text="@string/label_name"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <EditText
                 android:id="@+id/edit_text_name"
-                style="@style/dialog_text_edit"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:inputType="text|textCapSentences"
                 app:layout_constraintStart_toStartOf="@id/label_name"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/label_name">
+                app:layout_constraintTop_toBottomOf="@id/label_name"
+                tools:text="test record name">
 
-                <requestFocus
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                <requestFocus/>
 
             </EditText>
 
             <TextView
                 android:id="@+id/label_author"
-                style="@style/dialog_labels"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                style="@style/AppLabelInLayout"
                 android:text="@string/label_author"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/edit_text_name" />
 
             <EditText
                 android:id="@+id/edit_text_author"
-                style="@style/dialog_text_edit"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:inputType="text|textCapWords"
                 app:layout_constraintStart_toStartOf="@id/label_author"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/label_author" />
+                app:layout_constraintTop_toBottomOf="@id/label_author"
+                tools:text="test author" />
 
             <TextView
                 android:id="@+id/label_url"
-                style="@style/dialog_labels"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                style="@style/AppLabelInLayout"
                 android:text="@string/label_url"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/edit_text_author" />
 
             <EditText
                 android:id="@+id/edit_text_url"
-                style="@style/dialog_text_edit"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:inputType="textUri"
                 app:layout_constraintStart_toStartOf="@id/label_url"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/label_url" />
+                app:layout_constraintTop_toBottomOf="@id/label_url"
+                tools:text="https://example.com" />
 
             <TextView
                 android:id="@+id/label_tags"
-                style="@style/dialog_labels"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                style="@style/AppLabelInLayout"
                 android:text="@string/label_tags"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/edit_text_url" />
 
             <EditText
                 android:id="@+id/edit_text_tags"
-                style="@style/dialog_text_edit"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:inputType="text"
                 app:layout_constraintStart_toStartOf="@id/label_tags"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/label_tags" />
+                app:layout_constraintTop_toBottomOf="@id/label_tags"
+                tools:text="test tag 1, test tag 2, tag 3" />
 
             <RelativeLayout
                 android:id="@+id/layout_node"
@@ -115,21 +105,23 @@
 
                 <TextView
                     android:id="@+id/label_node"
-                    style="@style/dialog_labels"
+                    style="@style/AppLabelInLayout"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentTop="true"
                     android:text="@string/label_node" />
 
                 <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:id="@+id/edit_text_node"
-                    style="@style/dialog_text_edit"
                     android:layout_below="@id/label_node"
                     android:layout_toStartOf="@id/button_node"
                     android:layout_toLeftOf="@id/button_node"
                     android:clickable="false"
                     android:focusable="false"
-                    android:inputType="none" />
+                    android:inputType="none"
+                    tools:text="test node name"/>
                 <!--        android:editable="false"-->
                 <!--        android:textIsSelectable="false"-->
 
@@ -148,11 +140,11 @@
 
             <CheckedTextView
                 android:id="@+id/check_box_favor"
-                style="@style/dialog_labels"
+                style="@style/AppLabelInLayout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+                android:checkMark="@drawable/checkbox_selector_gray"
                 android:checked="false"
                 android:gravity="end|center_vertical"
                 android:text="@string/label_favorite"
@@ -172,12 +164,12 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:background="@color/colorProgress_50"
+            android:background="@color/color_progress_50"
             android:clickable="true"
             android:gravity="center"
             android:orientation="vertical"
             android:visibility="gone"
-            tools:visibility="visible">
+            tools:visibility="invisible">
 
             <ProgressBar
                 android:id="@+id/progress_bar"

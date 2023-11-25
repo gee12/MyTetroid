@@ -5,15 +5,15 @@
     android:id="@+id/app_bar_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:theme="@style/AppTheme.AppBarOverlay">
+    android:theme="@style/AppToolbar">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@drawable/side_nav_bar"
-        app:theme="@style/AppTheme.AppBarOverlay"
-        app:popupTheme="@style/AppTheme.PopupOverlay">
+        android:theme="@style/AppToolbar"
+        app:popupTheme="@style/AppPopupMenu">
 <!--    android:background="?attr/colorPrimary"-->
 
         <RelativeLayout
@@ -34,8 +34,8 @@
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:singleLine="true"
-                    android:textColor="@color/colorLightText3"
-                    android:textSize="@dimen/font_app_title"
+                    android:textColor="@color/screen_title_1"
+                    android:textSize="20sp"
                     tools:text="Заголовок"/>
 
                 <TextView
@@ -45,7 +45,7 @@
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:singleLine="true"
-                    android:textColor="@color/colorLightText"
+                    android:textColor="@color/screen_title_2"
                     android:textSize="@dimen/font_small_small"
                     android:textStyle="italic"
                     tools:text="Подзаголовок" />
@@ -60,8 +60,8 @@
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:singleLine="true"
-                android:textColor="@color/colorLightText3"
-                android:textSize="@dimen/font_app_title"
+                android:textColor="@color/screen_title_1"
+                android:textSize="20sp"
                 tools:text="Одинарный заголовок" />
 
         </RelativeLayout>

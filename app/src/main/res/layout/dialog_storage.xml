@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingStart="10dp"
-    android:paddingEnd="0dp">
+    android:paddingEnd="0dp"
+    style="@style/RootLayout">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -24,10 +23,12 @@
                 android:text="@string/label_path"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentStart="true"
-                style="@style/dialog_labels"/>
+                style="@style/AppLabelInLayout"/>
 
             <EditText
                 android:id="@+id/edit_text_path"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_below="@id/label_path"
                 android:layout_toStartOf="@id/button_path"
                 android:gravity="start|top"
@@ -41,8 +42,7 @@
                 android:scrollbarStyle="insideInset"
                 android:scrollbars="vertical"
                 android:hint="@string/title_select_folder"
-                tools:text="/storage/emulated/0/Download/Repositories/NewTestStorage"
-                style="@style/dialog_text_edit"/>
+                tools:text="/storage/emulated/0/Download/Repositories/NewTestStorage"/>
 
             <ImageButton
                 android:id="@+id/button_path"
@@ -58,12 +58,13 @@
 
         <TextView
             android:text="@string/label_name"
-            style="@style/dialog_labels"/>
+            style="@style/AppLabelInLayout"/>
 
         <EditText
             android:id="@+id/edit_text_name"
             android:inputType="text|textCapSentences"
-            style="@style/dialog_text_edit"/>
+            style="@style/AppEditTextInLayout"
+            tools:text="NewTestStorage"/>
 
         <CheckedTextView
             android:id="@+id/check_box_is_default"
@@ -71,9 +72,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:gravity="end|center_vertical"
-            android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+            android:checkMark="@drawable/checkbox_selector_gray"
             android:text="@string/label_default_storage"
-            style="@style/dialog_labels"/>
+            style="@style/AppLabelInLayout"
+            tools:checked="true"/>
 
         <CheckedTextView
             android:id="@+id/check_box_read_only"
@@ -81,9 +83,9 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:gravity="end|center_vertical"
-            android:checkMark="?android:attr/listChoiceIndicatorMultiple"
+            android:checkMark="@drawable/checkbox_selector_gray"
             android:text="@string/label_read_only"
-            style="@style/dialog_labels"/>
+            style="@style/AppLabelInLayout"/>
 
     </LinearLayout>
 

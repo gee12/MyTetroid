@@ -88,7 +88,7 @@ class IconsListAdapter(
 
     private fun setSelected(view: View, isSelected: Boolean) {
         val color = if (isSelected) {
-            ContextCompat.getColor(context, R.color.colorCurNode)
+            ContextCompat.getColor(context, R.color.background_current_node)
         } else {
             Color.TRANSPARENT
         }

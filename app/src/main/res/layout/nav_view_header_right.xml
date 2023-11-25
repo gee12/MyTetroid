@@ -7,9 +7,9 @@
     android:background="@drawable/side_nav_bar"
     android:gravity="bottom"
     android:orientation="horizontal"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingStart="16dp"
     android:paddingTop="6dp"
-    android:paddingRight="6dp"
+    android:paddingEnd="6dp"
     android:paddingBottom="6dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
@@ -30,9 +30,9 @@
             android:paddingLeft="10dp"
             android:layout_centerVertical="true"
             android:text="@string/subtitle_tags"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="@color/screen_title_1"
             android:textStyle="italic"
-            android:textSize="@dimen/nav_view_headers_text_size" />
+            android:textSize="18sp" />
 
         <androidx.appcompat.widget.SearchView
             android:id="@+id/search_view_tags"

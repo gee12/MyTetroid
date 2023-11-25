@@ -44,10 +44,10 @@
         android:title="@string/pref_is_highlight_crypted_nodes" />
 
     <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
-        android:defaultValue="@color/colorHighlight"
+        android:defaultValue="@color/background_highlight"
         android:enabled="false"
         android:key="@string/pref_key_highlight_attach_color"
-        android:title="@string/pref_highlight_attach_color" />
+        android:title="@string/pref_highlight_attach_color"/>
 
     <com.gee12.mytetroid.ui.base.views.prefs.DateTimeFormatPreference
         android:defaultValue="@string/def_date_format_string"

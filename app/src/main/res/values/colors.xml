@@ -1,40 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorBaseText">#444</color>
-    <color name="colorBase2Text">#777</color>
-    <color name="colorLightText">#BBB</color>
-    <color name="colorLightText2">#CCC</color>
-    <color name="colorLightText3">#EEE</color>
-    <color name="colorBlue">#3F51B5</color>
-    <color name="colorLightLabelText">#a4a4e4</color>
-    <color name="colorBlueDark">#303F9F</color>
-    <color name="colorAccent">#009990</color>
-    <color name="colorRed">#AA0000</color>
-    <color name="colorDarkRed">#810000</color>
-    <color name="colorAccent_50">#4D01B8AD</color>
-    <color name="colorHighlight">#E5FFE5</color>
-    <color name="colorProgress_50">#BFEEEEEE</color>
-    <color name="colorGray_50">#668B8B8B</color>
-    <color name="colorGreen_50">#4D86B945</color>
-    <color name="colorGreenDark_50">#AA49780b</color>
-    <color name="colorBlue_50">#8000BCD4</color>
-    <color name="colorCurNode">#E8EDFF</color>
-    <color name="colorLastOpenedRecord">#E8EDFF</color>
-    <color name="colorSelectedTag">#E8EDFF</color>
-    <color name="emptySearch">#BBB</color>
-    <color name="colorGreenDark">#49780b</color>
+    <color name="text_primary">#444</color>
+    <color name="text_primary_disabled">#999</color>
+    <color name="text_secondary">#777</color>
+    <color name="text_secondary_disabled">#BBB</color>
 
-    <color name="main_dark_color">#5A79AE</color>
-    <color name="main_center_color">#8391DA</color>
-    <color name="main_light_color">#A4B2E4</color>
+    <color name="text_1">#444</color>
+    <color name="text_2">#777</color>
+    <color name="text_3">#BBB</color>
+    <color name="text_4">#CCC</color>
+    <color name="text_5">#EEE</color>
+    <color name="link_blue">#303F9F</color>
+    <color name="error_1">#AA0000</color>
+    <color name="error_2">#810000</color>
 
-    <color name="fab_color_normal">@color/colorGreen_50</color>
-    <color name="fab_color_normal_dark">@color/colorGreenDark_50</color>
+    <color name="accent">#009990</color>
+    <color name="accent_50">#4D01B8AD</color>
+
+    <color name="color_progress_50">#BFEEEEEE</color>
+    <color name="color_gray_50">#668B8B8B</color>
+    <color name="color_green_50">#4D86B945</color>
+    <color name="color_green_dark_50">#AA49780b</color>
+    <color name="color_blue_50">#8000BCD4</color>
+
+    <color name="screen_title_1">#EEE</color>
+    <color name="screen_title_2">#BBB</color>
+
+    <color name="tab_layout_title">#BBB</color>
+    <color name="tab_layout_title_selected">#EEE</color>
+    <color name="tab_layout_indicator">@color/white</color>
+
+    <color name="record_field_label">#a4a4e4</color>
+    <color name="record_field_value">#EEE</color>
+
+    <color name="background_default">#f6f6fc</color>
+    <color name="background_dialog_default">#ECECF3</color>
+    <color name="background_button">#D7DCFA</color>
+    <color name="background_highlight">#E5FFE5</color>
+    <color name="background_selected">#E8EDFF</color>
+
+    <color name="background_current_node">@color/background_selected</color>
+    <color name="background_last_opened_record">@color/background_selected</color>
+    <color name="background_selected_tag">@color/background_selected</color>
+    <color name="text_empty_list">#BBB</color>
+    <color name="list_separator">#EAEAEA</color>
+
+    <color name="icon_tint">#777</color>
+
+    <color name="title_start_color">#5A79AE</color>
+    <color name="title_middle_color">#8391DA</color>
+    <color name="title_end_color">#A4B2E4</color>
+
+    <color name="fab_color_text">#E7E7E7</color>
+    <color name="fab_color_normal">@color/color_green_50</color>
+    <color name="fab_color_normal_dark">@color/color_green_dark_50</color>
     <color name="fab_color_pressed">#86B945</color>
     <color name="fab_color_pressed_dark">#FF49780b</color>
     <color name="fab_color_ripple">#99FFFFFF</color>
-
-    <color name="list_view_divider_color">#DDD</color>
-    <color name="recycler_view_divider_color">#DDD</color>
 
 </resources>

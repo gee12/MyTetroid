@@ -7,7 +7,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".ui.splash.SplashActivity">
+    tools:context=".ui.splash.SplashActivity"
+    style="@style/RootLayout">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
@@ -18,8 +19,8 @@
 
         <ImageView
             android:id="@+id/image_view_icon"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -32,7 +33,9 @@
             android:layout_height="wrap_content"
             app:layout_constraintStart_toEndOf="@id/image_view_icon"
             app:layout_constraintTop_toTopOf="@id/image_view_icon"
-            android:layout_marginStart="10dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="6dp"
+            android:textColor="@color/text_1"
             android:text="@string/main_header_title"
             android:textSize="@dimen/font_big" />
 
@@ -43,6 +46,7 @@
             app:layout_constraintStart_toEndOf="@id/image_view_icon"
             app:layout_constraintTop_toBottomOf="@id/text_view_name"
             android:layout_marginStart="10dp"
+            android:textColor="@color/text_3"
             android:text="@string/title_version_label" />
 
         <TextView
@@ -52,6 +56,7 @@
             app:layout_constraintStart_toEndOf="@id/text_view_ver_label"
             app:layout_constraintTop_toBottomOf="@id/text_view_name"
             android:layout_marginStart="5dp"
+            android:textColor="@color/text_3"
             tools:text="1.0" />
 
         <include
@@ -79,7 +84,7 @@
             android:textSize="16sp"
             android:gravity="center_horizontal"
             android:textStyle="italic"
-            android:textColor="@color/colorLightText2"
+            android:textColor="@color/text_4"
             android:text="@string/title_mytetroid_slogan" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

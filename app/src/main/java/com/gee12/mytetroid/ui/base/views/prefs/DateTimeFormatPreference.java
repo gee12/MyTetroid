@@ -33,7 +33,7 @@ public class DateTimeFormatPreference extends DialogPreference {
 
     @Override
     public int getDialogLayoutResource() {
-        return R.xml.pref_datetime_layout;
+        return R.layout.layout_pref_datetime;
     }
 
     public void setValue(String value) {

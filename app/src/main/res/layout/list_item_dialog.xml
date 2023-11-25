@@ -13,7 +13,7 @@
         android:id="@+id/text_view_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@color/colorBaseText"
+        android:textColor="@color/text_1"
         android:paddingBottom="3dp"
         tools:text="Пункт меню"
         android:textSize="@dimen/font_default" />
@@ -22,7 +22,7 @@
         android:id="@+id/text_view_summ"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@color/colorBase2Text"
+        android:textColor="@color/text_2"
         tools:text="Подпись пункта меню на нескольких строках с длинной надписью"
         android:textSize="@dimen/font_small" />
 

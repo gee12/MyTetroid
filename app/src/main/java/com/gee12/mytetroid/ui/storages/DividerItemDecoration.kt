@@ -17,7 +17,7 @@ class DividerItemDecoration(
     private val orientation: Int,
     private val spaceBetweenRes: Int,
     private var dividerDrawable: Drawable = ColorDrawable(
-        ContextCompat.getColor(context, R.color.recycler_view_divider_color)
+        ContextCompat.getColor(context, R.color.list_separator)
     )
 ) : RecyclerView.ItemDecoration() {
 

@@ -5,10 +5,8 @@
     android:layout_height="wrap_content">
 
     <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
         android:layout_alignParentTop="true"
-        android:background="@color/list_view_divider_color"/>
+        style="@style/SeparatorVertical"/>
 
     <View
         android:layout_width="match_parent"

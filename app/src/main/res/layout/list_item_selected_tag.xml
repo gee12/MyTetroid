@@ -18,7 +18,7 @@
         app:layout_constraintStart_toStartOf="parent"
         android:scaleType="center"
         android:src="@drawable/ic_tag_outlined"
-        android:tint="@color/blue_gray_light" />
+        app:tint="@color/blue_gray_light" />
 
     <TextView
         android:id="@+id/tag_view_name_count"
@@ -28,7 +28,7 @@
         app:layout_constraintStart_toEndOf="@id/image_view_tag"
         app:layout_constraintEnd_toStartOf="@id/button_cancel_tag"
         android:layout_marginStart="6dp"
-        android:textColor="@color/colorBaseText"
+        android:textColor="@color/text_1"
         android:textSize="@dimen/font_default"
         tools:text="@tools:sample/cities" />
 

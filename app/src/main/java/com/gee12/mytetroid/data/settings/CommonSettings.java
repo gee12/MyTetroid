@@ -439,7 +439,7 @@ public class CommonSettings {
      * По-умолчанию - светло зеленый.
      */
     public static int getHighlightColor(Context context) {
-        return getInt(context, R.string.pref_key_highlight_attach_color, R.color.colorHighlight);
+        return getInt(context, R.string.pref_key_highlight_attach_color, R.color.background_highlight);
     }
 
     public static int[] getPickedColors(Context context) {

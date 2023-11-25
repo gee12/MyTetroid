@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/custom_dialog_layout_design_user_input"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="10dp">
+    android:padding="10dp"
+    style="@style/RootLayout">
 
     <EditText
         android:id="@+id/edit_text_pass"
         android:inputType="text|textPassword"
-        style="@style/dialog_text_edit">
+        style="@style/AppEditTextInLayout"
+        tools:text="12345">
+
         <requestFocus/>
+
     </EditText>
 
 </LinearLayout>

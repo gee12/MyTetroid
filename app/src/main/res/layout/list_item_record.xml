@@ -28,7 +28,7 @@
         android:layout_toRightOf="@id/record_view_icon"
         android:layout_toEndOf="@id/record_view_icon"
         android:layout_gravity="center_vertical"
-        android:textColor="@color/colorBaseText"
+        android:textColor="@color/text_1"
         android:paddingLeft="3dp"
         android:paddingStart="3dp"
         android:paddingTop="5dp"
@@ -48,7 +48,7 @@
         android:paddingStart="3dp"
         android:layout_marginRight="8dp"
         android:layout_marginEnd="8dp"
-        android:textColor="@color/colorLightText"
+        android:textColor="@color/text_3"
         android:textSize="@dimen/font_small_small"/>
 
     <TextView
@@ -63,7 +63,7 @@
         android:textAlignment="textStart"
         android:layout_gravity="start"
         android:lineSpacingExtra="-2sp"
-        android:textColor="@color/colorLightText"
+        android:textColor="@color/text_3"
         android:textSize="@dimen/font_small_small" />
 
     <TextView
@@ -78,7 +78,7 @@
         android:textAlignment="textStart"
         android:layout_gravity="start"
         android:lineSpacingExtra="-2sp"
-        android:textColor="@color/colorLightText"
+        android:textColor="@color/text_3"
         android:text="атвор 1, автор 2, автор 3, \nавтор 4, автор 5, автор 6"
         android:textSize="@dimen/font_small_small" />
 <!--    android:layout_toLeftOf="@id/record_view_tags"-->
@@ -97,7 +97,7 @@
         android:textAlignment="textStart"
         android:layout_gravity="start"
         android:lineSpacingExtra="-2sp"
-        android:textColor="@color/colorLightText"
+        android:textColor="@color/text_3"
         android:text="234 6789 456 890 2345 6789 456"
         android:textSize="@dimen/font_small_small" />
 
@@ -120,7 +120,7 @@
             android:layout_height="wrap_content"
             android:textAlignment="textEnd"
             android:layout_gravity="end"
-            android:textColor="@color/colorLightText"
+            android:textColor="@color/text_3"
             android:text="10.10.10"
             android:textSize="@dimen/font_small_small" />
         <!--    android:layout_toRightOf="@id/record_view_tags"
@@ -135,7 +135,7 @@
             android:layout_height="wrap_content"
             android:textAlignment="textEnd"
             android:layout_gravity="end"
-            android:textColor="@color/colorLightText"
+            android:textColor="@color/text_3"
             android:text="11.11.10"
             android:textSize="@dimen/font_small_small" />
 <!--        android:layout_below="@id/record_view_created"-->
