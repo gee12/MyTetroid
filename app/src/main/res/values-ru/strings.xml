@@ -202,11 +202,16 @@
     <string name="title_tags_search_mode_subtitle">Искать по меткам:</string>
     <string name="title_storage_currently_in_use_mask">Хранилище «%s» в данный момент используется</string>
     <string name="title_mytetroid_slogan">Персональная база знаний</string>
+    <string name="title_settings_theme">Тема</string>
 
     <string name="subtitle_main_page_node_records">ВЕТКА</string>
     <string name="subtitle_main_page_record_files">ФАЙЛЫ</string>
     <string name="subtitle_main_page_tag_records">МЕТКА</string>
     <string name="subtitle_main_page_multiple_tags_records">МЕТКИ</string>
+
+    <string name="title_settings_theme_system">Как в системе</string>
+    <string name="title_settings_theme_light">Светлая</string>
+    <string name="title_settings_theme_dark">Темная</string>
 
     <string name="text_intent_create_text">Вставить в новую запись;Создать новую запись и добавить переданный текст</string>
     <string name="text_intent_create_image">Вставить в новую запись;Создать новую запись и добавить переданное(ые) изображение(я) в ее текст</string>

@@ -3,8 +3,11 @@ package com.gee12.mytetroid
 import androidx.multidex.MultiDex
 import androidx.multidex.MultiDexApplication
 import com.gee12.mytetroid.di.modules.*
+import com.gee12.mytetroid.domain.AppThemeHelper
+import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
+import org.koin.android.ext.android.inject
 
 
 class AppKoin : MultiDexApplication() {
@@ -25,6 +28,12 @@ class AppKoin : MultiDexApplication() {
             )
         }
 
+        setTheme()
+    }
+
+    private fun setTheme() {
+        val settingsManager: CommonSettingsManager by inject()
+        AppThemeHelper.setTheme(settingsManager.getTheme())
     }
 }
 

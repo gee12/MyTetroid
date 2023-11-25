@@ -206,11 +206,16 @@
     <string name="title_tags_search_mode_subtitle">Search by tags:</string>
     <string name="title_storage_currently_in_use_mask">Storage «%s» is currently in use</string>
     <string name="title_mytetroid_slogan">Personal knowledge base</string>
+    <string name="title_settings_theme">Theme</string>
 
     <string name="subtitle_main_page_node_records">NODE</string>
     <string name="subtitle_main_page_record_files">FILES</string>
     <string name="subtitle_main_page_tag_records">TAG</string>
     <string name="subtitle_main_page_multiple_tags_records">TAGS</string>
+
+    <string name="title_settings_theme_system">System default</string>
+    <string name="title_settings_theme_light">Light</string>
+    <string name="title_settings_theme_dark">Dark</string>
 
     <string name="text_intent_create_text">Insert into a new record; Create a new record and add the transferred text</string>
     <string name="text_intent_create_image">Insert into a new record; Create a new record and add the transferred image (s) to its text</string>
@@ -394,6 +399,7 @@
     <string name="pref_key_quickly_node_id" translatable="false">pref_key_quickly_node_id</string>
     <string name="pref_key_quickly_node_name" translatable="false">pref_key_quickly_node_name</string>
     <string name="pref_key_show_record_fields" translatable="false">pref_key_show_record_fields</string>
+    <string name="pref_key_theme" translatable="false">pref_key_theme</string>
     <string name="pref_key_editor_toolbar_buttons_size" translatable="false">editor_toolbar_buttons_size</string>
     <string name="pref_show_record_fields">Show record fields</string>
     <string name="pref_show_record_fields_summ">Whether to open the panel with record properties when opening a record</string>

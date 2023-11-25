@@ -10,6 +10,8 @@ import com.gee12.htmlwysiwygeditor.ActionButtonSize
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.extensions.getTitle
 import com.gee12.mytetroid.data.settings.CommonSettings
+import com.gee12.mytetroid.domain.AppThemeHelper
+import com.gee12.mytetroid.model.enums.AppTheme
 import com.gee12.mytetroid.ui.base.views.prefs.DateTimeFormatPreference
 import com.gee12.mytetroid.ui.base.views.DateTimeFormatDialog
 import com.gee12.mytetroid.ui.base.TetroidSettingsFragment
@@ -38,6 +40,13 @@ class SettingsDisplayFragment : TetroidSettingsFragment() {
                 it.setEntryValues(arrayId)
                 it.setEntries(arrayId)
             }
+        }
+
+        // тема
+        findPreference<ListPreference>(getString(R.string.pref_key_theme))?.also {
+            it.entryValues = AppTheme.values().map { it.id }.toTypedArray()
+            it.setDefaultValue(AppTheme.LIGHT.id)
+            it.summary = settingsManager.getTheme().getString(resourcesProvider)
         }
 
         // панель со свойствами записи
@@ -78,6 +87,12 @@ class SettingsDisplayFragment : TetroidSettingsFragment() {
             getString(R.string.pref_key_date_format_string) -> {
                 // меняем формат даты
                 // TODO
+            }
+            getString(R.string.pref_key_theme) -> {
+                settingsManager.getTheme().also { theme ->
+                    AppThemeHelper.setTheme(theme)
+                    updateSummary(R.string.pref_key_theme, theme.getString(resourcesProvider))
+                }
             }
             getString(R.string.pref_key_show_record_fields) -> {
                 updateSummary(R.string.pref_key_show_record_fields, CommonSettings.getShowRecordFields(context))

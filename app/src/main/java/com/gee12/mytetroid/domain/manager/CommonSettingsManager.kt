@@ -13,6 +13,7 @@ import com.gee12.mytetroid.domain.SortHelper
 import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
+import com.gee12.mytetroid.model.enums.AppTheme
 import com.gee12.mytetroid.model.enums.TagsSearchMode
 
 class CommonSettingsManager(
@@ -96,6 +97,14 @@ class CommonSettingsManager(
 
     fun isAskPassOnStart(): Boolean {
         return CommonSettings.isAskPassOnStart(context)
+    }
+
+    fun setTheme(theme: AppTheme) {
+        setString(R.string.pref_key_theme, theme.id)
+    }
+
+    fun getTheme(default: AppTheme = AppTheme.LIGHT): AppTheme {
+        return AppTheme.getById(getString(R.string.pref_key_theme) ?: default.id) ?: default
     }
 
     /**

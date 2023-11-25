@@ -19,6 +19,11 @@
         <item>@string/pref_when_ask_password_on_select</item>
         <item>@string/pref_when_ask_password_on_start</item>
     </string-array>
+    <string-array name="settings_theme_entries">
+        <item>@string/title_settings_theme_system</item>
+        <item>@string/title_settings_theme_light</item>
+        <item>@string/title_settings_theme_dark</item>
+    </string-array>
     <string-array name="show_record_fields_entries">
         <item>@string/pref_show_record_fields_yes</item>
         <item>@string/pref_show_record_fields_no</item>

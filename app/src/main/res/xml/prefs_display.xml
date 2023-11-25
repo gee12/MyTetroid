@@ -1,5 +1,13 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:key="pref_key_screen">
+
+    <ListPreference
+        android:entries="@array/settings_theme_entries"
+        android:dialogTitle="@string/title_settings_theme"
+        android:key="@string/pref_key_theme"
+        tools:summary="@string/title_settings_theme_light"
+        android:title="@string/title_settings_theme" />
 
     <CheckBoxPreference
         android:defaultValue="false"
