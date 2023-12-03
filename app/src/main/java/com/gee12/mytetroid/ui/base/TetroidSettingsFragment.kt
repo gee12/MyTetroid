@@ -79,7 +79,7 @@ open class TetroidSettingsFragment :
      * @param sharedPreferences
      * @param key
      */
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String) {}
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {}
 
     fun onSharedPreferenceChanged(key: String) {
         onSharedPreferenceChanged(baseViewModel.settingsManager.settings, key)
