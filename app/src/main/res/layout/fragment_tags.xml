@@ -15,6 +15,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
         android:orientation="vertical"
         android:visibility="gone"
         tools:visibility="visible">
@@ -42,8 +43,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="10dp"
-            android:layout_marginLeft="6dp"
-            android:layout_marginRight="6dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="6dp"
             android:divider="@null"
             android:dividerHeight="0dp"
             tools:listitem="@layout/list_item_selected_tag"
@@ -53,50 +54,51 @@
         <Button
             android:id="@+id/button_apply_selected_tags"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             app:layout_constraintTop_toBottomOf="@id/selected_tags_list_view"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/button_change_tags_search_mode"
+            app:layout_constraintBottom_toTopOf="@id/separator"
             android:layout_marginTop="6dp"
             android:layout_marginBottom="12dp"
-            android:layout_marginStart="6dp"
-            android:layout_marginLeft="6dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="6dp"
             android:text="@string/action_search"
-            android:drawableStart="@drawable/ic_search"
-            android:drawableLeft="@drawable/ic_search"/>
+            android:drawableStart="@drawable/ic_search"/>
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/button_change_tags_search_mode"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             app:layout_constraintTop_toBottomOf="@id/selected_tags_list_view"
             app:layout_constraintStart_toEndOf="@id/button_apply_selected_tags"
             app:layout_constraintEnd_toStartOf="@id/button_cancel_selected_tags"
+            app:layout_constraintBottom_toTopOf="@id/separator"
             android:layout_marginTop="6dp"
             android:layout_marginBottom="12dp"
             android:layout_marginEnd="6dp"
-            android:layout_marginRight="6dp"
             android:contentDescription="@string/action_select_tags_mode"
             android:src="@drawable/ic_arrow_expand"/>
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/button_cancel_selected_tags"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             app:layout_constraintTop_toBottomOf="@id/selected_tags_list_view"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/separator"
             android:layout_marginTop="6dp"
             android:layout_marginBottom="12dp"
-            android:layout_marginEnd="6dp"
-            android:layout_marginRight="6dp"
+            android:layout_marginEnd="12dp"
             android:contentDescription="@string/action_cancel"
             android:src="@drawable/ic_clear"/>
 
         <View
+            android:id="@+id/separator"
             android:layout_height="3dp"
-            app:layout_constraintTop_toBottomOf="@id/button_apply_selected_tags"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             style="@style/SeparatorVertical"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -109,8 +111,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="12dp"
-        android:layout_marginLeft="6dp"
-        android:layout_marginRight="6dp"
+        android:layout_marginStart="6dp"
+        android:layout_marginEnd="6dp"
         tools:listitem="@layout/list_item_tag"
         tools:itemCount="3" />
 
@@ -123,7 +125,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="12dp"
         android:text="@string/action_load_all_nodes"
-        android:drawableLeft="@drawable/ic_reload"
         android:drawableStart="@drawable/ic_reload"
         android:visibility="gone"
         tools:visibility="visible"/>

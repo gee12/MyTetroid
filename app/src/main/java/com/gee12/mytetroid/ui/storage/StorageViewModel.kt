@@ -7,7 +7,6 @@ import android.net.Uri
 import android.text.TextUtils
 import com.anggrayudi.storage.file.DocumentFileCompat
 import com.anggrayudi.storage.file.toRawFile
-import com.gee12.htmlwysiwygeditor.Dialogs.*
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.getExtensionWithoutComma

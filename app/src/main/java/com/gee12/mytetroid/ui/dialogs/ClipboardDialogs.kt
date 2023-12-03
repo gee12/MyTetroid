@@ -6,9 +6,9 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import com.gee12.htmlwysiwygeditor.dialog.AskDialogBuilder
 import com.gee12.mytetroid.model.TetroidObject
 import com.gee12.mytetroid.model.FoundType
-import com.gee12.htmlwysiwygeditor.Dialogs.AskDialogBuilder
 import com.gee12.mytetroid.R
 
 object ClipboardDialogs {
@@ -170,7 +170,11 @@ object ClipboardDialogs {
     }
 
     private fun createListDialog(context: Context, dataSet: Array<String>, callback: IDialogListResult?) {
-        val builder = AskDialogBuilder.create(context, R.layout.dialog_list_view)
+        val builder = AskDialogBuilder.create(
+            context = context,
+            layoutResId = R.layout.dialog_list_view,
+            themeResId = R.style.AppDialog,
+        )
         builder.setTitle(R.string.title_insert_as)
         val dialog = builder.create()
         val listView = builder.view.findViewById<ListView>(R.id.list_view)

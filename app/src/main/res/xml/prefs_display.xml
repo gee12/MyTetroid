@@ -3,11 +3,18 @@
     android:key="pref_key_screen">
 
     <ListPreference
-        android:entries="@array/settings_theme_entries"
-        android:dialogTitle="@string/title_settings_theme"
-        android:key="@string/pref_key_theme"
-        tools:summary="@string/title_settings_theme_light"
-        android:title="@string/title_settings_theme" />
+        android:entries="@array/settings_app_theme_entries"
+        android:dialogTitle="@string/title_settings_app_theme"
+        android:key="@string/pref_key_app_theme"
+        tools:summary="@string/title_settings_app_theme_light"
+        android:title="@string/title_settings_app_theme" />
+
+    <ListPreference
+        android:entries="@array/settings_editor_theme_entries"
+        android:dialogTitle="@string/title_settings_editor_theme"
+        android:key="@string/pref_key_editor_theme"
+        tools:summary="@string/title_settings_editor_theme_as_app_theme"
+        android:title="@string/title_settings_editor_theme" />
 
     <CheckBoxPreference
         android:defaultValue="false"

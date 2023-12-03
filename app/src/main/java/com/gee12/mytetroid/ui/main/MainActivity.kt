@@ -1229,7 +1229,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         favoritesNode.setBackgroundColor(
             ContextCompat.getColor(
                 this,
-                if (isCurNode) R.color.background_current_node else R.color.transparent
+                if (isCurNode) R.color.background_current_node else android.R.color.transparent
             )
         )
     }

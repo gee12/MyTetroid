@@ -2,7 +2,7 @@ package com.gee12.mytetroid.domain.manager
 
 import android.content.Context
 import android.preference.PreferenceManager
-import com.gee12.htmlwysiwygeditor.ActionButtonSize
+import com.gee12.htmlwysiwygeditor.enums.ActionButtonSize
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.extensions.getExternalPublicDocsOrAppDir
 import com.gee12.mytetroid.common.utils.Utils
@@ -14,6 +14,7 @@ import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.enums.AppTheme
+import com.gee12.mytetroid.model.enums.EditorTheme
 import com.gee12.mytetroid.model.enums.TagsSearchMode
 
 class CommonSettingsManager(
@@ -99,12 +100,20 @@ class CommonSettingsManager(
         return CommonSettings.isAskPassOnStart(context)
     }
 
-    fun setTheme(theme: AppTheme) {
-        setString(R.string.pref_key_theme, theme.id)
+    fun setAppTheme(theme: AppTheme) {
+        setString(R.string.pref_key_app_theme, theme.id)
     }
 
-    fun getTheme(default: AppTheme = AppTheme.LIGHT): AppTheme {
-        return AppTheme.getById(getString(R.string.pref_key_theme) ?: default.id) ?: default
+    fun setEditorTheme(theme: AppTheme) {
+        setString(R.string.pref_key_editor_theme, theme.id)
+    }
+
+    fun getAppTheme(default: AppTheme = AppTheme.LIGHT): AppTheme {
+        return AppTheme.getById(getString(R.string.pref_key_app_theme) ?: default.id) ?: default
+    }
+
+    fun getEditorTheme(default: EditorTheme = EditorTheme.AS_APP_THEME): EditorTheme {
+        return EditorTheme.getById(getString(R.string.pref_key_editor_theme) ?: default.id) ?: default
     }
 
     /**

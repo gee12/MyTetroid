@@ -9,7 +9,7 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.extensions.setSelectionAtEnd
 import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import com.gee12.mytetroid.ui.storage.StorageViewModel
-import com.lumyjuwon.richwysiwygeditor.RichEditor.Utils
+import com.gee12.htmlwysiwygeditor.utils.Utils
 import java.util.*
 
 class PinCodeLengthDialog(
@@ -50,7 +50,7 @@ class PinCodeLengthDialog(
             if (size != null && size >= minSize && size <= maxSize) {
                 callback.onApply(size)
             } else {
-                viewModel.showMessage(getString(R.string.invalid_number) + s)
+                viewModel.showMessage(getString(R.string.invalid_number_mask) + s)
             }
         }
         setNegativeButton(R.string.answer_cancel) { _, _ -> callback.onCancel() }

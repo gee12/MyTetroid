@@ -117,6 +117,7 @@ class NodesListAdapter(
         // стрелка раскрытия/закрытия ветки
         if (itemInfo.isExpandable && node.isNonCryptedOrDecrypted) {
             viewHolder.arrowView.visibility = View.VISIBLE
+            viewHolder.arrowView.setBackgroundColor(ContextCompat.getColor(context, R.color.background_drop_down_button))
             viewHolder.arrowView.setImageResource(if (itemInfo.isExpanded) R.drawable.ic_arrow_collapse else R.drawable.ic_arrow_expand)
         } else {
             viewHolder.arrowView.visibility = View.GONE
@@ -133,6 +134,7 @@ class NodesListAdapter(
         // подсветка
         if (curNode == node) {
             view.setBackgroundColor(ContextCompat.getColor(context, R.color.background_current_node))
+            viewHolder.arrowView.setBackgroundColor(ContextCompat.getColor(context, R.color.background_current_node))
         } else if (node.isCrypted && isHighlightCryptedNodes) {
             view.setBackgroundColor(highlightColor)
         } else {

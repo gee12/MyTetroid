@@ -28,14 +28,15 @@
 
     <color name="tab_layout_title">#BBB</color>
     <color name="tab_layout_title_selected">#EEE</color>
-    <color name="tab_layout_indicator">@color/white</color>
+    <color name="tab_layout_indicator">#FFF</color>
 
     <color name="record_field_label">#a4a4e4</color>
     <color name="record_field_value">#EEE</color>
 
-    <color name="background_default">#f6f6fc</color>
-    <color name="background_dialog_default">#ECECF3</color>
+    <color name="background_default">#F6F6FC</color>
+    <color name="background_dialog_default">#F6F6FC</color>
     <color name="background_button">#D7DCFA</color>
+    <color name="background_drop_down_button">#EEF0F8</color>
     <color name="background_highlight">#E5FFE5</color>
     <color name="background_selected">#E8EDFF</color>
 
@@ -57,5 +58,6 @@
     <color name="fab_color_pressed">#86B945</color>
     <color name="fab_color_pressed_dark">#FF49780b</color>
     <color name="fab_color_ripple">#99FFFFFF</color>
+    <color name="fab_background">#2C86B945</color>
 
 </resources>

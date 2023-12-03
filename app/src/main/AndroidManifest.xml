@@ -118,6 +118,7 @@
             android:configChanges="orientation|screenSize"
             android:label="@string/title_storage_settings"
             android:parentActivityName=".ui.main.MainActivity"
+            android:theme="@style/AppPreferenceTheme"
             android:launchMode="singleTop">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -144,6 +145,7 @@
             android:configChanges="orientation|screenSize"
             android:label="@string/action_common_settings"
             android:parentActivityName=".ui.main.MainActivity"
+            android:theme="@style/AppPreferenceTheme"
             android:launchMode="singleTop">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

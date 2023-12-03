@@ -34,7 +34,7 @@ import androidx.lifecycle.lifecycleScope
 import com.anggrayudi.storage.file.getAbsolutePath
 import com.anggrayudi.storage.file.mimeType
 import com.anggrayudi.storage.file.openInputStream
-import com.gee12.htmlwysiwygeditor.ActionState
+import com.gee12.htmlwysiwygeditor.enums.ActionState
 import com.gee12.htmlwysiwygeditor.IImagePicker
 import com.gee12.htmlwysiwygeditor.INetworkWorker
 import com.gee12.htmlwysiwygeditor.IVoiceInputListener
@@ -76,9 +76,9 @@ import com.gee12.mytetroid.ui.storage.info.StorageInfoActivity.Companion.start
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
-import com.lumyjuwon.richwysiwygeditor.IColorPicker
-import com.lumyjuwon.richwysiwygeditor.RichEditor.EditableWebView.*
-import com.lumyjuwon.richwysiwygeditor.WysiwygEditor
+import com.gee12.htmlwysiwygeditor.IColorPicker
+import com.gee12.htmlwysiwygeditor.EditableWebView.*
+import com.gee12.htmlwysiwygeditor.WysiwygEditor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.cachapa.expandablelayout.ExpandableLayout
@@ -92,7 +92,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     ILinkLoadListener, 
     IHtmlReceiveListener, 
     IImagePicker,
-    IColorPicker, 
+    IColorPicker,
     INetworkWorker,
     IVoiceInputListener,
     ColorPickerDialogListener, 
@@ -171,6 +171,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         webView.loadContentListener = { uri ->
             loadPageContent(uri)
         }
+        //webView.setBackgroundColor(ContextCompat.getColor(this, R.color.background_web_view))
 
         mTextViewTags = findViewById(R.id.text_view_record_tags)
         mTextViewTags.movementMethod = LinkMovementMethod.getInstance()
@@ -738,7 +739,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         if (defColor == 0) {
             // если не передали цвет, то достаем последний из сохраненных
             val savedColors = CommonSettings.getPickedColors(this)
-            defColor = if (savedColors != null && savedColors.isNotEmpty()) savedColors[savedColors.size - 1] else Color.BLACK
+            defColor = savedColors?.lastOrNull() ?: Color.BLACK
         }
         ColorPickerDialog.newBuilder()
             .setColor(defColor)

@@ -34,8 +34,9 @@
     <color name="record_field_value">#CCC</color>
 
     <color name="background_default">#2C2C33</color>
-    <color name="background_dialog_default">#313139</color>
+    <color name="background_dialog_default">#2C2C33</color>
     <color name="background_button">#373740</color>
+    <color name="background_drop_down_button">#313139</color>
     <color name="background_highlight">#445E44</color>
     <color name="background_selected">#303850</color>
 
@@ -57,5 +58,6 @@
     <color name="fab_color_pressed">#608532</color>
     <color name="fab_color_pressed_dark">#2E4C07</color>
     <color name="fab_color_ripple">#99FFFFFF</color>
+    <color name="fab_background">#2C86B945</color>
 
 </resources>

@@ -116,7 +116,7 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentBottom="false"
             android:src="@drawable/ic_fullscreen"
-            app:backgroundTint="@color/fab"
+            app:backgroundTint="@color/fab_background"
             android:visibility="gone"
             tools:visibility="visible"
             style="@style/Fab" />
@@ -127,7 +127,7 @@
             android:layout_alignParentBottom="false"
             android:layout_below="@id/button_toggle_fields"
             android:src="@drawable/ic_arrow_up_white"
-            app:backgroundTint="@color/fab"
+            app:backgroundTint="@color/fab_background"
             android:visibility="gone"
             tools:visibility="visible"
             style="@style/Fab"/>
@@ -137,7 +137,7 @@
             android:layout_alignParentTop="false"
             android:layout_alignParentBottom="true"
             android:src="@drawable/ic_arrow_down_white"
-            app:backgroundTint="@color/fab"
+            app:backgroundTint="@color/fab_background"
             android:visibility="gone"
             tools:visibility="visible"
             style="@style/Fab"/>

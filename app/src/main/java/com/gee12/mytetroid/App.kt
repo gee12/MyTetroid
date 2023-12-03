@@ -33,7 +33,7 @@ class AppKoin : MultiDexApplication() {
 
     private fun setTheme() {
         val settingsManager: CommonSettingsManager by inject()
-        AppThemeHelper.setTheme(settingsManager.getTheme())
+        AppThemeHelper.setAppTheme(settingsManager.getAppTheme())
     }
 }
 

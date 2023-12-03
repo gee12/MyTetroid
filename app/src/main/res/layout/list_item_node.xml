@@ -17,7 +17,6 @@
         android:layout_alignParentEnd="false"
         android:layout_toLeftOf="@id/node_view_arrow"
         android:layout_toStartOf="@id/node_view_arrow"
-        android:layout_marginRight="2dp"
         android:layout_marginEnd="2dp"
         android:padding="5dp">
 
@@ -30,7 +29,6 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_gravity="center_vertical"
-            android:layout_marginRight="2dp"
             android:layout_marginEnd="2dp"
             tools:src="@tools:sample/avatars"
             android:visibility="gone"/>
@@ -60,7 +58,7 @@
         android:layout_alignParentEnd="true"
         android:src="@drawable/ic_move_down"
         android:scaleType="center"
-        android:background="@color/background_button"
+        android:background="@color/background_drop_down_button"
         tools:ignore="DuplicateIds" />
 
 </RelativeLayout>

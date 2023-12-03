@@ -12,11 +12,10 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentBottom="false"
         android:layout_alignParentLeft="true"
-        android:layout_marginRight="5dp"
+        android:layout_marginEnd="5dp"
         android:layout_width="24dp"
         android:layout_height="24dp"
         android:src="@drawable/ic_file"
-        android:layout_marginEnd="5dp"
         android:layout_alignParentStart="true" />
 
     <TextView

@@ -6,7 +6,7 @@ import com.gee12.mytetroid.ui.record.RecordActivity;
 import com.gee12.mytetroid.ui.dialogs.ClipboardDialogs;
 import com.gee12.mytetroid.model.TetroidObject;
 import com.gee12.mytetroid.common.utils.UriUtils;
-import com.lumyjuwon.richwysiwygeditor.RichEditor.EditableWebView;
+import com.gee12.htmlwysiwygeditor.EditableWebView;
 
 /**
  * Вспомогательный класс для получения данных из буфера обмена и вывода списка вариантов их обработки

@@ -3,18 +3,23 @@ package com.gee12.mytetroid.ui.record
 import android.content.Context
 import android.util.AttributeSet
 import com.gee12.htmlwysiwygeditor.ActionButton
-import com.gee12.htmlwysiwygeditor.ActionButtonSize
-import com.gee12.htmlwysiwygeditor.ActionType
-import com.gee12.htmlwysiwygeditor.Dialogs
+import com.gee12.htmlwysiwygeditor.enums.ActionButtonSize
+import com.gee12.htmlwysiwygeditor.enums.ActionType
+import com.gee12.htmlwysiwygeditor.dialog.ImageDimensDialog
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.domain.HtmlHelper
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.model.TetroidImage
 import com.gee12.mytetroid.ui.dialogs.AskDialogs.showYesNoDialog
-import com.lumyjuwon.richwysiwygeditor.WysiwygEditor
+import com.gee12.htmlwysiwygeditor.WysiwygEditor
+import com.gee12.mytetroid.domain.AppThemeHelper.setNightMode
 
-class TetroidEditor : WysiwygEditor {
+class TetroidEditor @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyle: Int = 0
+) : WysiwygEditor(context, attrs, defStyle) {
 
     private var settingsManager: CommonSettingsManager? = null
 
@@ -36,20 +41,6 @@ class TetroidEditor : WysiwygEditor {
     override val toolbarButtonsSize: ActionButtonSize
         get() = settingsManager?.getEditorButtonsSize() ?: ActionButtonSize.MEDIUM
 
-    constructor(context: Context) : super(context) {
-        init()
-    }
-
-    constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
-        init()
-    }
-
-    constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
-        init()
-    }
-
-    protected fun init() {}
-
     fun init(settingsManager: CommonSettingsManager) {
         this.settingsManager = settingsManager
         onSettingsChanged()
@@ -57,6 +48,12 @@ class TetroidEditor : WysiwygEditor {
 
     fun onSettingsChanged() {
         initToolbar()
+
+        settingsManager?.getAppTheme()?.also { appTheme ->
+            settingsManager?.getEditorTheme()?.also { editorTheme ->
+                webView.setNightMode(appTheme, editorTheme)
+            }
+        }
     }
 
 //    override val actionButtons: List<ActionButton>
@@ -102,19 +99,25 @@ class TetroidEditor : WysiwygEditor {
 //        }
     }
 
-    override fun initButton(
+    override fun setupActionButton(
         button: ActionButton,
         actionType: ActionType,
         isEditable: Boolean,
         isCheckable: Boolean,
         isPopup: Boolean,
         isAction: Boolean,
+        onClick: (() -> Unit)?,
     ) {
-        super.initButton(button, actionType, isEditable, isCheckable, isPopup, isAction)
+        super.setupActionButton(button, actionType, isEditable, isCheckable, isPopup, isAction, onClick)
+        val notAvailableYetActions = arrayOf(
+            ActionType.INSERT_TABLE,
+            ActionType.INSERT_FORMULA,
+            ActionType.EDIT_IMAGE,
+        )
         if ((App.isFreeVersion()
             && !actionType.isFree
             && actionType !in arrayOf(ActionType.INSERT_VIDEO))
-            || actionType in arrayOf(ActionType.INSERT_TABLE, ActionType.INSERT_FORMULA)
+            || actionType in notAvailableYetActions
         ) {
             button.setIsAllowed(false)
         }
@@ -126,7 +129,8 @@ class TetroidEditor : WysiwygEditor {
                 ActionType.INSERT_TABLE -> showToastNotAvailableYet()
                 ActionType.INSERT_FORMULA -> showToastNotAvailableYet()
                 ActionType.VOICE_INPUT -> showToastNotAvailableInFree()
-                else -> {}
+                ActionType.EDIT_IMAGE -> showToastNotAvailableYet()
+                else -> Unit
             }
         } else {
             super.onClickActionButton(button)
@@ -212,20 +216,24 @@ class TetroidEditor : WysiwygEditor {
         val image = images[pos]
         // выводим диалог установки размера
         val isSeveral = pos < images.size - 1
-        Dialogs.createImageDimensDialog(
-            context, image.width, image.height, isSeveral
-        ) { width: Int, height: Int, similar: Boolean ->
-            webView.insertImage(image.name, width, height)
-            if (!similar) {
-                // вновь выводим диалог установки размера
-                createImageDimensDialog(images, pos + 1)
-            } else {
-                // устанавливаем "сохраненный" размер
-                for (i in pos + 1 until images.size) {
-                    webView.insertImage(images[i].name, width, height)
+        ImageDimensDialog.show(
+            context = context,
+            curWidth = image.width,
+            curHeight = image.height,
+            isSeveral = isSeveral,
+            onApply = { width, height, similar ->
+                webView.insertImage(image.name, width, height)
+                if (!similar) {
+                    // вновь выводим диалог установки размера
+                    createImageDimensDialog(images, pos + 1)
+                } else {
+                    // устанавливаем "сохраненный" размер
+                    for (i in pos + 1 until images.size) {
+                        webView.insertImage(images[i].name, width, height)
+                    }
                 }
             }
-        }
+        )
     }
 
     private fun showToastNotAvailableInFree() {

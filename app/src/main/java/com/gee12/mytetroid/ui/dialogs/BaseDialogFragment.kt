@@ -10,7 +10,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
-import com.gee12.htmlwysiwygeditor.Dialogs
+import com.gee12.htmlwysiwygeditor.dialog.AskDialogBuilder
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.extensions.focusAndShowKeyboard
 import com.gee12.mytetroid.common.extensions.hideKeyboard
@@ -46,7 +46,11 @@ abstract class BaseDialogFragment : DialogFragment() {
 
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val builder = Dialogs.AskDialogBuilder.create(context, getLayoutResourceId(), R.style.AppDialog)
+        val builder = AskDialogBuilder.create(
+            context = requireContext(),
+            layoutResId = getLayoutResourceId(),
+            themeResId = R.style.AppDialog,
+        )
         onDialogBuilderCreated(builder)
 
         dialogView = builder.view
@@ -78,7 +82,7 @@ abstract class BaseDialogFragment : DialogFragment() {
         }
     }
 
-    open fun onDialogBuilderCreated(builder: Dialogs.AskDialogBuilder) {}
+    open fun onDialogBuilderCreated(builder: AskDialogBuilder) {}
 
     open fun onDialogCreated(dialog: AlertDialog, view: View) {}
 
