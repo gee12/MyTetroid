@@ -105,10 +105,10 @@ class SplashActivity : TetroidActivity<SplashViewModel>() {
     private fun showMigrationDialog(
         onCommit: () -> Unit,
     ) {
-        AskDialogs.showOkDialog(
+        AskDialogs.showDialog(
             context = this,
-            titleResId = R.string.title_app_updated,
-            messageResId = R.string.mes_migration_53,
+            title = resourcesProvider.getString(R.string.title_app_updated),
+            message = resourcesProvider.getString(R.string.mes_migration_53_mask, buildInfoProvider.appVersionName),
             applyResId = R.string.answer_ok,
             isCancelable = false,
             onApply = onCommit,

@@ -14,7 +14,7 @@
     <string name="hint_error"><![CDATA[<ошибка>]]></string>
 
     <string name="title_app_updated">Обновление</string>
-    <string name="mes_migration_53">Приложение обновилось на версию 5.3\n\nВ этой версии добавилась поддержка нескольких хранилищ (пока одновременно загружать можно только одно)\nПараметры вашего хранилища были автоматически перенесены в \"Основное хранилище\"</string>
+    <string name="mes_migration_53_mask">Приложение обновилось на версию %s\n\nВ этой версии добавилась поддержка нескольких хранилищ (пока одновременно загружать можно только одно)\nПараметры вашего хранилища были автоматически перенесены в \"Основное хранилище\"</string>
     <string name="mes_cant_more_one_storage_on_free">Использование нескольких хранилищ доступно в версии Pro</string>
     <string name="mes_need_migration">Для завершения обновления необходим запуск из основного окна приложения</string>
     <string name="mes_input_wrong_date_format">Введена некорректная строка формата даты/времени</string>
@@ -340,7 +340,7 @@
     <string name="pref_fix_empty_paragraphs">Исправлять html при сохранении</string>
     <string name="pref_fix_empty_paragraphs_summ">Исправлять html-текст заметки для корректного отображения в настольной версии программы MyTetra</string>
     <string name="pref_show_record_fields">Показывать свойства записи</string>
-    <string name="pref_show_record_fields_summ">При открытии записи отображать панель со ее свойствами?</string>
+    <string name="pref_show_record_fields_summ">При открытии записи отображать панель с ее свойствами?</string>
     <string name="pref_editor_toolbar_buttons_size_title">Размер кнопок в редакторе</string>
     <string name="pref_editor_toolbar_buttons_size_summ">Размер кнопок в нижней панели инструментов редактора текста</string>
     <string name="pref_show_record_fields_yes">Отображать</string>

@@ -25,6 +25,7 @@ import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
+import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 import com.gee12.mytetroid.domain.provider.IAppPathProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -58,6 +59,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
     val resourcesProvider: IResourcesProvider by inject()
     val settingsManager: CommonSettingsManager by inject()
     val appPathProvider: IAppPathProvider by inject()
+    val buildInfoProvider: BuildInfoProvider by inject()
     val logger: ITetroidLogger by inject()
 
     protected var receivedIntent: Intent? = null
