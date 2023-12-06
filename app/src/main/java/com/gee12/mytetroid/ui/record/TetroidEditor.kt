@@ -110,7 +110,6 @@ class TetroidEditor @JvmOverloads constructor(
     ) {
         super.setupActionButton(button, actionType, isEditable, isCheckable, isPopup, isAction, onClick)
         val notAvailableYetActions = arrayOf(
-            ActionType.INSERT_TABLE,
             ActionType.INSERT_FORMULA,
             ActionType.EDIT_IMAGE,
         )
@@ -126,7 +125,6 @@ class TetroidEditor @JvmOverloads constructor(
     override fun onClickActionButton(button: ActionButton) {
         if (!button.isAllowed) {
             when (button.type) {
-                ActionType.INSERT_TABLE -> showToastNotAvailableYet()
                 ActionType.INSERT_FORMULA -> showToastNotAvailableYet()
                 ActionType.VOICE_INPUT -> showToastNotAvailableInFree()
                 ActionType.EDIT_IMAGE -> showToastNotAvailableYet()
