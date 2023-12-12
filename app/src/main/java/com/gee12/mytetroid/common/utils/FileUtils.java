@@ -114,8 +114,6 @@ public class FileUtils {
             size = getFileSize(file);
         } catch (SecurityException ex) {
             throw new Exception(context.getString(R.string.error_denied_read_file_access_mask, fullFileName));
-        } catch (Exception ex) {
-            throw new Exception(context.getString(R.string.error_get_file_size_mask, fullFileName));
         }
 //        return FileUtils.fileSizeToStringBin(context, size);
         return android.text.format.Formatter.formatFileSize(context, size);
@@ -140,7 +138,7 @@ public class FileUtils {
                 if (!dir.exists())
                     continue;
                 final File[] listFiles = dir.listFiles();
-                if (listFiles == null || listFiles.length == 0)
+                if (listFiles == null)
                     continue;
                 for (final File child : listFiles) {
                     size += child.length();
@@ -168,8 +166,6 @@ public class FileUtils {
             date = getFileLastModifiedDate(file);
         } catch (SecurityException ex) {
             throw new Exception(context.getString(R.string.error_denied_read_file_access_mask, fullFileName));
-        } catch (Exception ex) {
-            throw new Exception(context.getString(R.string.error_get_file_size_mask, fullFileName));
         }
         return date;
     }

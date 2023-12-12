@@ -50,9 +50,11 @@ class AttachFileToRecordUseCase(
             uri = srcFileUri,
         ) ?: return Failure.File.Get(srcFileFullPath).toLeft()
 
-        if (!srcFile.exists()) {
+        // проверка exists почему-то не проходит, например с таким uri:
+        // content://com.miui.gallery.open/raw/%2Fstorage%2F3B01-1206%2FDCIM%2FCamera%2FIMG_20231102_092915.jpg
+        /*if (!srcFile.exists()) {
             return Failure.File.NotExist(srcFileFullPath).toLeft()
-        }
+        }*/
 
         val fileDisplayName = srcFile.name ?: "unknown"
         val ext = fileDisplayName.getExtensionWithoutComma()
@@ -77,7 +79,7 @@ class AttachFileToRecordUseCase(
             GetRecordFolderUseCase.Params(
                 record = record,
                 createIfNeed = true,
-                inTrash = false,
+                inTrash = record.isTemp,
                 showMessage = true,
             )
         ).foldResult(

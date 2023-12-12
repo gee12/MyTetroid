@@ -26,6 +26,7 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.ICallback
 import com.gee12.mytetroid.common.extensions.fromHtml
+import com.gee12.mytetroid.common.extensions.orZero
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
@@ -1996,44 +1997,36 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 }
             }
             Intent.ACTION_SEND -> {
-
                 // прием текста/изображения из другого приложения
-                val type = intent.type ?: return
-                var text: String? = null
-                var isText = false
-                val uris = ArrayList<Uri>()
-                if (type.startsWith("text/")) {
-                    isText = true
-                    text = intent.getStringExtra(Intent.EXTRA_TEXT)
+                if (intent.type?.startsWith("text/") == true) {
+                    val text = intent.getStringExtra(Intent.EXTRA_TEXT)
                     if (text == null) {
-                        viewModel.logWarning(R.string.log_not_passed_text, true)
-                        return
+                        viewModel.logWarning(R.string.log_not_passed_text, show = true)
+                    } else {
+                        viewModel.log(getString(R.string.log_receiving_intent_text))
+                        showIntentDialog(intent = intent, isText = true, text = text, imagesUri = null)
                     }
-                    viewModel.log(getString(R.string.log_receiving_intent_text))
-                } else if (type.startsWith("image/")) {
+                } else if (intent.type?.startsWith("image/") == true) {
                     // изображение
                     val imageUri = intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
                     if (imageUri == null) {
-                        viewModel.logWarning(R.string.log_not_passed_image_uri, true)
-                        return
+                        viewModel.logWarning(R.string.log_not_passed_image_uri, show = true)
+                    } else {
+                        viewModel.log(resourcesProvider.getString(R.string.log_receiving_intent_image_mask, imageUri))
+                        showIntentDialog(intent = intent, isText = false, text = null, imagesUri = listOf(imageUri))
                     }
-                    viewModel.log(getString(R.string.log_receiving_intent_image_mask, imageUri))
-                    uris.add(imageUri)
                 }
-                showIntentDialog(intent, isText, text, uris)
             }
             Intent.ACTION_SEND_MULTIPLE -> {
-
                 // прием нескольких изображений из другого приложения
-                val type = intent.type ?: return
-                if (type.startsWith("image/")) {
+                if (intent.type?.startsWith("image/") == true) {
                     val uris = intent.getParcelableArrayListExtra<Uri?>(Intent.EXTRA_STREAM)
                     if (uris == null) {
-                        viewModel.logWarning(R.string.log_not_passed_image_uri, true)
-                        return
+                        viewModel.logWarning(R.string.log_not_passed_image_uri, show = true)
+                    } else {
+                        viewModel.log(getString(R.string.log_receiving_intent_images_mask, uris.size))
+                        showIntentDialog(intent = intent, isText = false, text = null, imagesUri = uris)
                     }
-                    viewModel.log(getString(R.string.log_receiving_intent_images_mask, uris.size))
-                    showIntentDialog(intent, false, null, uris)
                 }
             }
         }
@@ -2042,14 +2035,14 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     /**
      * Отрытие диалога для вставки объектов из других приложений.
      */
-    private fun showIntentDialog(intent: Intent, isText: Boolean, text: String?, imagesUri: ArrayList<Uri>) {
+    private fun showIntentDialog(intent: Intent, isText: Boolean, text: String?, imagesUri: List<Uri>?) {
         if (viewModel.isLoadedFavoritesOnly()) {
             // если загружено только избранное, то нужно сначала загрузить все ветки,
             // чтобы добавить текст/картинку в одну из записей или в новую запись одной из веток
             val title = getString(
                 when {
                     isText -> R.string.word_received_text
-                    imagesUri.size > 1 -> R.string.word_received_images
+                    imagesUri?.size.orZero() > 1 -> R.string.word_received_images
                     else -> R.string.word_received_image
                 }
             )
@@ -2059,18 +2052,28 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 onApply = {
                     // сохраняем Intent и загружаем хранилище
                     receivedIntent = intent
-                    viewModel.loadAllNodes(false)
+                    viewModel.loadAllNodes(isHandleReceivedIntent = false)
                 },
                 onCancel = {},
             )
         } else {
-            IntentDialog(isText) { receivedData: ReceivedData ->
-                if (receivedData.isCreate) {
-                    viewModel.createRecordFromIntent(intent, isText, text!!, imagesUri, receivedData)
-                } else {
-                    // TODO: реализовать выбор имеющихся записей
+            IntentDialog(
+                resourcesProvider = resourcesProvider,
+                isText = isText,
+                onItemClick = { receivedData: ReceivedData ->
+                    if (receivedData.isCreateRecord) {
+                        viewModel.createRecordFromIntent(
+                            intent = intent,
+                            isText = isText,
+                            text = text.orEmpty(),
+                            imagesUri = imagesUri ?: emptyList(),
+                            receivedData = receivedData,
+                        )
+                    } else {
+                        // TODO: реализовать выбор имеющихся записей
+                    }
                 }
-            }
+            ).showIfPossible(supportFragmentManager)
         }
     }
 

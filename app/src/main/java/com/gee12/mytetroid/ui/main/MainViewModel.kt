@@ -527,16 +527,13 @@ class MainViewModel(
         intent: Intent,
         isText: Boolean,
         text: String,
-        imagesUri: ArrayList<Uri>,
+        imagesUri: List<Uri>,
         receivedData: ReceivedData
     ) {
         launchOnMain {
             // имя записи
             val subject = intent.getStringExtra(Intent.EXTRA_SUBJECT)
-            var url: String? = null
-            if (Build.VERSION.SDK_INT >= 17) {
-                url = intent.getStringExtra(Intent.EXTRA_ORIGINATING_URI)
-            }
+            val url: String? = intent.getStringExtra(Intent.EXTRA_ORIGINATING_URI)
             // создаем запись
             withIo {
                 createTempRecordUseCase.run(
@@ -568,6 +565,7 @@ class MainViewModel(
                                     record = record,
                                 )
                             ).onFailure {
+                                logFailure(it, show = false)
                                 hasError = true
                             }
                         }
@@ -844,10 +842,10 @@ class MainViewModel(
      * @param recordId
      * @param imagesUri
      */
-    private fun openRecordWithImages(recordId: String, imagesUri: ArrayList<Uri>) {
+    private fun openRecordWithImages(recordId: String, imagesUri: List<Uri>) {
         val bundle = Bundle()
         bundle.putString(Constants.EXTRA_OBJECT_ID, recordId)
-        bundle.putParcelableArrayList(Constants.EXTRA_IMAGES_URI, imagesUri)
+        bundle.putParcelableArrayList(Constants.EXTRA_IMAGES_URI, ArrayList(imagesUri))
         openRecord(recordId, bundle)
     }
 

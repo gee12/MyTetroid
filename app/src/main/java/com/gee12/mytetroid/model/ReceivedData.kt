@@ -1,49 +1,40 @@
-package com.gee12.mytetroid.model;
+package com.gee12.mytetroid.model
 
-import android.content.Context;
+import androidx.annotation.StringRes
+import com.gee12.mytetroid.R
+import com.gee12.mytetroid.domain.provider.IResourcesProvider
 
-import com.gee12.mytetroid.R;
+class ReceivedData(
+    val isCreateRecord: Boolean,
+    val isAttach: Boolean,
+    @StringRes val stringResId: Int,
+) {
 
-public class ReceivedData {
-    private boolean isCreate;
-    private boolean isAttach;
-    private int stringId;
-
-    public ReceivedData(boolean isCreate, boolean isAttach, int stringId) {
-        this.isCreate = isCreate;
-        this.isAttach = isAttach;
-        this.stringId = stringId;
+    fun splitTitles(resourcesProvider: IResourcesProvider): Pair<String, String> {
+        return resourcesProvider.getString(stringResId).split(";").let { parts ->
+            if (parts.size >= 2) {
+                parts[0] to parts[1]
+            } else {
+                "" to ""
+            }
+        }
     }
 
-    public boolean isCreate() {
-        return isCreate;
-    }
+    companion object {
+        fun textIntents(): List<ReceivedData> {
+            return listOf(
+                ReceivedData(true, false, R.string.text_intent_create_text),
+                ReceivedData(false, false, R.string.text_intent_exist_text)
+            )
+        }
 
-    public boolean isAttach() {
-        return isAttach;
-    }
-
-    public int getStringId() {
-        return stringId;
-    }
-
-    public static ReceivedData[] textIntents() {
-        return new ReceivedData[] {
-            new ReceivedData(true, false, R.string.text_intent_create_text),
-            new ReceivedData(false, false, R.string.text_intent_exist_text)
-        };
-    }
-
-    public static ReceivedData[] imageIntents() {
-        return new ReceivedData[] {
-                new ReceivedData(true, false, R.string.text_intent_create_image),
-                new ReceivedData(true, true, R.string.text_intent_create_image_attach),
-                new ReceivedData(false, false, R.string.text_intent_exist_image),
-                new ReceivedData(false, true, R.string.text_intent_exist_image_attach),
-        };
-    }
-
-    public String[] splitTitles(Context context) {
-        return context.getString(stringId).split(";");
+        fun imageIntents(): List<ReceivedData> {
+            return listOf(
+                ReceivedData(true, false, R.string.text_intent_create_image),
+                ReceivedData(true, true, R.string.text_intent_create_image_attach),
+                ReceivedData(false, false, R.string.text_intent_exist_image),
+                ReceivedData(false, true, R.string.text_intent_exist_image_attach)
+            )
+        }
     }
 }

@@ -1,114 +1,96 @@
-package com.gee12.mytetroid.ui;
+package com.gee12.mytetroid.ui
 
-import android.content.Context;
-import android.graphics.Typeface;
-import android.text.Html;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.style.RelativeSizeSpan;
-import android.text.style.StyleSpan;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.TextView;
+import android.content.Context
+import android.graphics.Typeface
+import android.text.Html
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.RelativeSizeSpan
+import android.text.style.StyleSpan
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.BaseAdapter
+import android.widget.TextView
+import androidx.core.content.ContextCompat
+import com.gee12.mytetroid.R
+import com.gee12.mytetroid.domain.provider.IResourcesProvider
+import com.gee12.mytetroid.model.ReceivedData
 
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
+class IntentsAdapter(
+    private val context: Context,
+    private val resourcesProvider: IResourcesProvider,
+    private val dataSet: List<ReceivedData>,
+) : BaseAdapter() {
 
-import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.model.ReceivedData;
+    private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
-public class IntentsAdapter extends BaseAdapter {
+    override fun getCount(): Int {
+        return dataSet.size
+    }
 
-    /**
-     *
-     */
-    class IntentsViewHolder {
-        TextView titleView;
-        TextView summView;
+    override fun getItem(position: Int): ReceivedData {
+        return dataSet[position]
+    }
 
-        IntentsViewHolder(@NonNull View itemView) {
-            this.titleView = itemView.findViewById(R.id.text_view_title);
-            this.summView = itemView.findViewById(R.id.text_view_summ);
+    override fun getItemId(position: Int): Long {
+        return dataSet[position].stringResId.toLong()
+    }
+
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+        val view: View
+        val viewHolder: IntentsViewHolder
+        if (convertView == null) {
+            view = inflater.inflate(R.layout.list_item_dialog, null)
+            viewHolder = IntentsViewHolder(view)
+            view.tag = viewHolder
+        } else {
+            view = convertView
+            viewHolder = convertView.tag as IntentsViewHolder
+        }
+        viewHolder.bind(position)
+        return view
+    }
+
+    override fun isEnabled(position: Int): Boolean {
+        return dataSet[position].isCreateRecord
+    }
+
+    internal inner class IntentsViewHolder(itemView: View) {
+        private var tvTitle: TextView
+        private var tvDescription: TextView
+
+        init {
+            tvTitle = itemView.findViewById(R.id.text_view_title)
+            tvDescription = itemView.findViewById(R.id.text_view_description)
         }
 
-        void bind(int pos) {
-            ReceivedData item = (ReceivedData) getItem(pos);
-            String[] parts = item.splitTitles(mContext);
-            if (parts.length < 2)
-                return;
+        fun bind(pos: Int) {
+            val item = getItem(pos)
+            val parts = item.splitTitles(resourcesProvider)
 
             // TODO: пока активны пункты только с созданием новых записей
-            boolean active = item.isCreate();
-
-            if (!active) {
-                String s = mContext.getString(R.string.title_not_implemented_yet);
-                Spannable text = new SpannableString(s);
-                text.setSpan(new StyleSpan(Typeface.BOLD), 0, s.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                text.setSpan(new RelativeSizeSpan(0.8f), 0, s.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                titleView.setText(text);
-                titleView.append("\n" + parts[0]);
+            val isActive = item.isCreateRecord
+            if (!isActive) {
+                val isNotImplementText = resourcesProvider.getString(R.string.title_not_implemented_yet)
+                tvTitle.text = SpannableString(isNotImplementText).apply {
+                    setSpan(StyleSpan(Typeface.BOLD), 0, isNotImplementText.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                    setSpan(RelativeSizeSpan(0.8f), 0, isNotImplementText.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+                tvTitle.append("\n")
+                tvTitle.append(parts.first)
             } else {
-                titleView.setText(Html.fromHtml(parts[0]));
+                tvTitle.text = Html.fromHtml(parts.first)
             }
-            summView.setText(parts[1]);
+            tvDescription.text = parts.second
 
-            int titleColorId = (active) ? R.color.text_1 : R.color.text_3;
-            titleView.setTextColor(ContextCompat.getColor(mContext.getApplicationContext(), titleColorId));
-            int summColorId = (active) ? R.color.text_2 : R.color.text_3;
-            summView.setTextColor(ContextCompat.getColor(mContext.getApplicationContext(), summColorId));
+            val titleColorId = if (isActive) R.color.text_1 else R.color.text_3
+            tvTitle.setTextColor(ContextCompat.getColor(context, titleColorId))
+
+            val descriptionColorId = if (isActive) R.color.text_2 else R.color.text_3
+            tvDescription.setTextColor(ContextCompat.getColor(context, descriptionColorId))
         }
     }
 
-    private LayoutInflater mInflater;
-    private Context mContext;
-    private ReceivedData[] mDataSet;
-
-    /**
-     *
-     * @param context
-     * @param data
-     */
-    public IntentsAdapter(Context context, ReceivedData[] data) {
-        this.mContext = context;
-        this.mDataSet = data;
-        this.mInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    }
-
-
-    @Override
-    public int getCount() {
-        return mDataSet.length;
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return mDataSet[position];
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return mDataSet[position].getStringId();
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        IntentsViewHolder viewHolder;
-        if (convertView == null) {
-            convertView = mInflater.inflate(R.layout.list_item_dialog, null);
-            viewHolder = new IntentsViewHolder(convertView);
-            convertView.setTag(viewHolder);
-        } else {
-            viewHolder = (IntentsViewHolder) convertView.getTag();
-        }
-        viewHolder.bind(position);
-        return convertView;
-    }
-
-    @Override
-    public boolean isEnabled(int position) {
-        return mDataSet[position].isCreate();
-    }
 }

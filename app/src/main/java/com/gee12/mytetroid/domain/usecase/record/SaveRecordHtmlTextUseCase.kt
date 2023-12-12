@@ -31,7 +31,7 @@ class SaveRecordHtmlTextUseCase(
             GetRecordFolderUseCase.Params(
                 record = record,
                 createIfNeed = true,
-                inTrash = false,
+                inTrash = record.isTemp,
                 showMessage = true,
             )
         ).foldResult(

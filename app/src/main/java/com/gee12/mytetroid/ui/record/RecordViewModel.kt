@@ -308,16 +308,19 @@ class RecordViewModel(
         if (isFirstLoad) {
             isFirstLoad = false
             // переключаем режим отображения
-            val defMode = if (
+            val mode = if (
                 curRecord.value!!.isNew
                 || isReceivedImages
                 || CommonSettings.isRecordEditMode(getContext())
-            ) Constants.MODE_EDIT
-            else Constants.MODE_VIEW
+            ) {
+                Constants.MODE_EDIT
+            } else {
+                Constants.MODE_VIEW
+            }
 
             // сбрасываем флаг, т.к. уже воспользовались
             curRecord.value!!.setIsNew(false)
-            switchMode(defMode)
+            switchMode(mode)
 
             /*if (defMode == MODE_EDIT) {
             ViewUtils.showKeyboard(this, mEditor.getWebView(), false);
@@ -335,7 +338,7 @@ class RecordViewModel(
         // вставляем переданные изображения
         if (isReceivedImages) {
             receivedIntent.getParcelableArrayListExtra<Uri>(Constants.EXTRA_IMAGES_URI)?.let { uris ->
-                saveImages(uris, false)
+                saveImages(uris, isCamera = false)
             }
         }
     }
@@ -346,7 +349,7 @@ class RecordViewModel(
         saveRecord(false, resultObj)
         // переключаем режим, если асинхронное сохранение было вызвано в процессе переключения режима
         if (modeToSwitch > 0) {
-            switchMode(modeToSwitch, false)
+            switchMode(modeToSwitch, isNeedSave = false)
         }
     }
 
@@ -766,6 +769,9 @@ class RecordViewModel(
             if (errorCount > 0) {
                 logWarning(getString(R.string.log_failed_to_save_images_mask, errorCount))
                 sendEvent(BaseEvent.ShowMoreInLogs)
+            } else {
+                // сбрасываем флаг, чтобы небыло зацикливания
+                isReceivedImages = false
             }
 
             sendEvent(RecordEvent.InsertImages(images = savedImages))
