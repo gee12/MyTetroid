@@ -1120,6 +1120,19 @@ class RecordViewModel(
     }
 
     /**
+     * Обработчик отмены сохранения записи.
+     */
+    fun onRecordSavingCanceled(srcResObj: ResultObj?) {
+        if (isRecordTemporary()) {
+            // удаляем запись из ветки
+            curRecord.value?.also { record ->
+                record.node.deleteRecord(record)
+            }
+        }
+        onAfterSaving(srcResObj)
+    }
+
+    /**
      * Обработчик события после сохранения записи, вызванное при ответе на запрос сохранения в диалоге.
      */
     fun onAfterSaving(srcResObj: ResultObj?) {

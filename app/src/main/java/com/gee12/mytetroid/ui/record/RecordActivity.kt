@@ -887,7 +887,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 viewModel.saveRecord(obj)
             },
             onCancel = {
-                viewModel.onAfterSaving(obj)
+                viewModel.onRecordSavingCanceled(obj)
             },
         )
     }
