@@ -145,17 +145,41 @@ class SplashActivity : TetroidActivity<SplashViewModel>() {
         if (startRecordActivity) {
             RecordActivity.start(this)
         } else {
-            MainActivity.start(this)
+            MainActivity.start(this, intent = intent)
         }
         finish()
     }
 
     companion object {
 
-        fun start(activity: Activity, startRecordActivity: Boolean = false) {
-            val intent = Intent(activity, SplashActivity::class.java)
-            intent.putExtra(Constants.EXTRA_START_RECORD_ACTIVITY, startRecordActivity)
-            activity.startActivity(intent)
+        fun start(
+            activity: Activity,
+            action: String? = null,
+            type: String? = null,
+            bundle: Bundle? = null,
+            startRecordActivity: Boolean = false,
+        ) {
+            val resultIntent = Intent(activity, SplashActivity::class.java).apply {
+                setAction(action)
+                setType(type)
+                bundle?.also {
+                    putExtras(it)
+                }
+            }
+            resultIntent.putExtra(Constants.EXTRA_START_RECORD_ACTIVITY, startRecordActivity)
+            activity.startActivity(resultIntent)
+        }
+
+        fun start(
+            activity: Activity,
+            intent: Intent,
+        ) {
+            start(
+                activity = activity,
+                action = intent.action,
+                type = intent.type,
+                bundle = intent.extras,
+            )
         }
     }
 

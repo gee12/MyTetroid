@@ -116,7 +116,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
         if (!App.isInitialized) {
             logger.log(getString(R.string.error_app_is_not_inited_restart))
-            SplashActivity.start(this)
+            SplashActivity.start(this, intent = intent)
             finishAffinity()
             return
         }
@@ -2540,14 +2540,29 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         fun start(
             activity: Activity,
             action: String? = null,
+            type: String? = null,
             bundle: Bundle? = null,
         ) {
-            val intent = Intent(activity, MainActivity::class.java)
-            intent.action = action
-            if (bundle != null) {
-                intent.putExtras(bundle)
+            val intent = Intent(activity, MainActivity::class.java).apply {
+                setAction(action)
+                setType(type)
+                bundle?.also {
+                    putExtras(it)
+                }
             }
             activity.startActivity(intent)
+        }
+
+        fun start(
+            activity: Activity,
+            intent: Intent,
+        ) {
+            start(
+                activity = activity,
+                action = intent.action,
+                type = intent.type,
+                bundle = intent.extras,
+            )
         }
     }
 

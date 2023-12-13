@@ -295,9 +295,6 @@ abstract class TetroidActivity<VM : BaseViewModel>
                 Toast.makeText(baseContext, "Non-file is received", Toast.LENGTH_SHORT).show()
             }
         }*/
-        if (savedInstanceState == null) {
-            fileStorageHelper?.storage?.checkIfFileReceived(intent)
-        }
     }
 
     override fun onStorageAccessGranted(requestCode: Int, root: DocumentFile) {}

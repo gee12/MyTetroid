@@ -309,7 +309,8 @@ class RecordViewModel(
             isFirstLoad = false
             // переключаем режим отображения
             val mode = if (
-                curRecord.value!!.isNew
+                isRecordNew()
+                || isRecordTemporary()
                 || isReceivedImages
                 || CommonSettings.isRecordEditMode(getContext())
             ) {
@@ -1006,8 +1007,8 @@ class RecordViewModel(
      * действие нужно прервать, чтобы дождаться результата из диалога
      */
     private fun onSaveRecord(showAskDialog: Boolean, obj: ResultObj?): Boolean {
-        if (isEdited) {
-            if (CommonSettings.isRecordAutoSave(getContext()) && !curRecord.value!!.isTemp) {
+        if (isEdited || isRecordTemporary()) {
+            if (CommonSettings.isRecordAutoSave(getContext()) && !isRecordTemporary()) {
                 // сохраняем без запроса
                 return saveRecord(obj)
             } else if (showAskDialog) {
