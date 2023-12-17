@@ -555,7 +555,6 @@ object UseCasesModule {
                     context = androidContext(),
                     logger = get(),
                     dataNameProvider = get(),
-                    recordPathProvider = get(),
                     getRecordFolderUseCase = get(),
                     saveRecordHtmlTextUseCase = get(),
                 )

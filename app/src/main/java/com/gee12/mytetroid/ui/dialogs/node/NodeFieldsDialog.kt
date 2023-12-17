@@ -3,7 +3,6 @@ package com.gee12.mytetroid.ui.dialogs.node
 import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.text.InputType
-import android.text.TextUtils
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton

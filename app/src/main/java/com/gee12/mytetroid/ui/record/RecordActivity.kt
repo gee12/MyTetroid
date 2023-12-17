@@ -206,12 +206,8 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         mButtonFindPrev.setOnClickListener {
             findPrev()
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            mFindListener = TextFindListener()
-            editor.webView.setFindListener(mFindListener)
-        } else {
-            // TODO: что здесь для API=15 ?
-        }
+        mFindListener = TextFindListener()
+        editor.webView.setFindListener(mFindListener)
         mScrollViewHtml = findViewById(R.id.scroll_html)
         mEditTextHtml = findViewById(R.id.edit_text_html)
         //        mEditTextHtml.setOnTouchListener(this); // работает криво
@@ -714,10 +710,10 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         if (editor.isCalledHtmlRequest) {
             // если этот метод был вызван в результате запроса isCalledHtmlRequest, то:
             editor.setHtmlRequestHandled()
-            runOnUiThread { viewModel.onHtmlRequestHandled() }
+            viewModel.onHtmlRequestHandled()
         } else {
             // метод вызывается в параллельном потоке, поэтому устанавливаем текст в основном
-            runOnUiThread {
+            lifecycleScope.launch {
                 mEditTextHtml.setText(htmlText)
                 mEditTextHtml.requestFocus()
             }
@@ -956,35 +952,24 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     }
 
     private fun exportToPdf(folder: DocumentFile) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            val printAttributes = PrintAttributes.Builder()
-                .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
-                .setResolution(PrintAttributes.Resolution("pdf", "pdf", 600, 600))
-                .setMinMargins(PrintAttributes.Margins.NO_MARGINS).build()
+        val printAttributes = PrintAttributes.Builder()
+            .setMediaSize(PrintAttributes.MediaSize.ISO_A4)
+            .setResolution(PrintAttributes.Resolution("pdf", "pdf", 600, 600))
+            .setMinMargins(PrintAttributes.Margins.NO_MARGINS).build()
 
-            val pdfFileName = "${viewModel.curRecord.value?.name.orEmpty()}.pdf"
-            val printAdapter = when {
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP -> {
-                    editor.webView.createPrintDocumentAdapter(pdfFileName)
-                }
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT -> {
-                    editor.webView.createPrintDocumentAdapter()
-                }
-                else -> {
-                    viewModel.logFailure(Failure.RequiredApiVersion(minApiVersion = Build.VERSION_CODES.KITKAT))
-                    null
-                }
-            }
-            printAdapter?.also {
-                viewModel.exportRecordTextToPdfFile(
-                    folder = folder,
-                    pdfFileName = pdfFileName,
-                    printAdapter = printAdapter,
-                    printAttributes = printAttributes,
-                )
-            }
+        val pdfFileName = "${viewModel.curRecord.value?.name.orEmpty()}.pdf"
+        val printAdapter = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            editor.webView.createPrintDocumentAdapter(pdfFileName)
         } else {
-            viewModel.logFailure(Failure.RequiredApiVersion(minApiVersion = Build.VERSION_CODES.KITKAT))
+            editor.webView.createPrintDocumentAdapter()
+        }
+        printAdapter?.also {
+            viewModel.exportRecordTextToPdfFile(
+                folder = folder,
+                pdfFileName = pdfFileName,
+                printAdapter = printAdapter,
+                printAttributes = printAttributes,
+            )
         }
     }
 
@@ -1040,9 +1025,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             editor.searchText(query)
         }
         // сбрасываем счетчик совпадений от прежнего поиска
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            mFindListener.reset()
-        }
+        mFindListener.reset()
     }
 
     private fun findPrev() {
@@ -1069,7 +1052,6 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     internal inner class TextFindListener : WebView.FindListener {
         var isStartSearch = true
         override fun onFindResultReceived(activeMatchOrdinal: Int, numberOfMatches: Int, isDoneCounting: Boolean) {
@@ -1104,6 +1086,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     /**
      * Обработка возвращаемого результата других активностей.
      */
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == Constants.REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY) {
@@ -1537,11 +1520,9 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 //            params.topMargin = fabMargin + aboveButtonHeight + fabMargin;
 //            params.rightMargin = fabMargin; // для совпадения с mButtonToggleFields
             params.addRule(RelativeLayout.BELOW, R.id.button_toggle_fields)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                params.removeRule(RelativeLayout.ALIGN_TOP)
-            }
-            //            params.topMargin = 0;
+            params.removeRule(RelativeLayout.ALIGN_TOP)
         }
+//            params.topMargin = 0;
         mButtonScrollTop.layoutParams = params
     }
 
@@ -1556,23 +1537,17 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         var params = mButtonFindNext.layoutParams as RelativeLayout.LayoutParams
         if (vis) {
             params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                params.removeRule(RelativeLayout.RIGHT_OF)
-            }
+            params.removeRule(RelativeLayout.RIGHT_OF)
         } else {
             params.addRule(RelativeLayout.RIGHT_OF, R.id.button_toggle_fields)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                params.removeRule(RelativeLayout.ALIGN_PARENT_RIGHT)
-            }
+            params.removeRule(RelativeLayout.ALIGN_PARENT_RIGHT)
         }
         mButtonFindNext.layoutParams = params
         // установим позиционирование кнопки ScrollToTop от кнопки FindNext
         if (vis) {
             params = mButtonScrollTop.layoutParams as RelativeLayout.LayoutParams
             params.addRule(RelativeLayout.BELOW, R.id.button_find_next)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                params.removeRule(RelativeLayout.ALIGN_TOP)
-            }
+            params.removeRule(RelativeLayout.ALIGN_TOP)
             mButtonScrollTop.layoutParams = params
         } else {
             updateScrollButtonLocation()

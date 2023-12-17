@@ -1,7 +1,6 @@
 package com.gee12.mytetroid.ui.base.views;
 
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 
@@ -36,7 +35,7 @@ public class DateTimeFormatDialog extends PreferenceDialogFragmentCompat {
     public void onDialogClosed(boolean positiveResult) {
         if (positiveResult) {
             String newValue = mEditText.getText().toString();
-            if (!TextUtils.isEmpty(newValue) && Utils.checkDateFormatString(newValue)) {
+            if (!newValue.isEmpty() && Utils.checkDateFormatString(newValue)) {
                 // сохраняем значение опции
                 DateTimeFormatPreference pref = (DateTimeFormatPreference) getPreference();
                 if (pref != null) {

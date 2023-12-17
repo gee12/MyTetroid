@@ -87,7 +87,7 @@ class SaveImageFromBitmapUseCase(
         }
     }
 
-    @Throws(java.lang.Exception::class)
+    @Throws(Exception::class)
     private fun saveBitmap(
         bitmap: Bitmap,
         file: DocumentFile,

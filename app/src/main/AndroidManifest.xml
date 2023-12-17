@@ -44,11 +44,6 @@
                 android:resource="@xml/widget_add_record_info" />
         </receiver>
 
-        <!-- android:hardwareAccelerated="true" -->
-        <!-- для dirchooser -->
-        <!-- tools:replace="android:appComponentFactory" -->
-        <!-- android:appComponentFactory="action_settings" -->
-        <!-- tools:replace="android:theme" -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"

@@ -9,10 +9,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.model.TetroidFile
-import java.util.ArrayList
 
 class FilesListAdapter(
-    private val context: Context,
+    context: Context,
     private val getAttachedFileSize: (TetroidFile) -> String?,
 ) : BaseAdapter() {
 

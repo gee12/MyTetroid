@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.ui.dialogs.pass
 
-import android.text.TextUtils
 import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
@@ -31,7 +30,7 @@ class PassEnterDialog(
 
         // проверка на пустоту пароля
         tvPass.addTextChangedListener(TextChangedListener { newText: String? ->
-            getPositiveButton()?.isEnabled = !TextUtils.isEmpty(newText)
+            getPositiveButton()?.isEnabled = !newText.isNullOrEmpty()
         })
 
         showKeyboard(tvPass)

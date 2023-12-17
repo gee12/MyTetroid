@@ -9,7 +9,6 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.extensions.setSelectionAtEnd
 import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import com.gee12.mytetroid.ui.storage.StorageViewModel
-import com.gee12.htmlwysiwygeditor.utils.Utils
 import java.util.*
 
 class PinCodeLengthDialog(
@@ -45,12 +44,12 @@ class PinCodeLengthDialog(
         }
 
         setPositiveButton(R.string.answer_ok) { _, _ ->
-            val s = etSize.text.toString()
-            val size = Utils.parseInt(s)
+            val stringValue = etSize.text.toString()
+            val size = stringValue.toIntOrNull()
             if (size != null && size >= minSize && size <= maxSize) {
                 callback.onApply(size)
             } else {
-                viewModel.showMessage(getString(R.string.invalid_number_mask) + s)
+                viewModel.showMessage(getString(R.string.invalid_number_mask, stringValue))
             }
         }
         setNegativeButton(R.string.answer_cancel) { _, _ -> callback.onCancel() }
@@ -63,7 +62,7 @@ class PinCodeLengthDialog(
         getPositiveButton()?.isEnabled = etSize.text.isNotEmpty()
 
         etSize.addTextChangedListener(TextChangedListener {
-            val size = Utils.parseInt(etSize.text.toString())
+            val size = etSize.text.toString().toIntOrNull()
             getPositiveButton()?.isEnabled = (size != null && size >= minSize && size <= maxSize)
         })
     }

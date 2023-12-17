@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.ui.dialogs.node
 
-import android.text.TextUtils
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -88,7 +87,7 @@ class NodeChooserDialog(
         searchView.isIconified = false
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             private fun searchNodes(query: String) {
-                if (TextUtils.isEmpty(query)) {
+                if (query.isEmpty()) {
                     adapter.setDataItems(viewModel.getRootNodes())
                     tvEmpty.visibility = View.GONE
                 } else {

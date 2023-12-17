@@ -901,7 +901,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 MainViewType.TAG_RECORDS -> viewModel.getSelectedTagsNames()
                 MainViewType.FAVORITES -> getString(R.string.title_favorites)
                 MainViewType.RECORD_ATTACHES -> title
-                else -> title
             }
             PageType.FOUND -> getString(R.string.title_global_search)
         }

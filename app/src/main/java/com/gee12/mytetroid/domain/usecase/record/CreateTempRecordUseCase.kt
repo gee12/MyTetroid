@@ -24,7 +24,6 @@ class CreateTempRecordUseCase(
     private val context: Context,
     private val logger: ITetroidLogger,
     private val dataNameProvider: IDataNameProvider,
-    private val recordPathProvider: IRecordPathProvider,
     private val getRecordFolderUseCase: GetRecordFolderUseCase,
     private val saveRecordHtmlTextUseCase: SaveRecordHtmlTextUseCase,
 ) : UseCase<TetroidRecord, CreateTempRecordUseCase.Params>() {

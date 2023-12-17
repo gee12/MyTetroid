@@ -216,7 +216,7 @@ class RecordViewModel(
 
         if (storageId > 0) {
             if (storage?.let { it.id == storageId } == true) {
-                storage?.let {
+                storage?.also {
                     sendEvent(StorageEvent.FoundInBase(it))
                     sendEvent(StorageEvent.Inited(it))
                 }
@@ -240,7 +240,7 @@ class RecordViewModel(
         var storageId = withIo { storagesRepo.getDefaultStorageId() }
         if (storageId > 0) {
             if (storage?.let { it.id == storageId } == true) {
-                storage?.let {
+                storage?.also {
                     sendEvent(StorageEvent.FoundInBase(it))
                     sendEvent(StorageEvent.Inited(it))
                 }
@@ -349,19 +349,19 @@ class RecordViewModel(
 
     fun loadPageFile(uri: Uri): DocumentFile? {
         return uri
-            .takeIf { it.scheme in arrayOf(ContentResolver.SCHEME_CONTENT, ContentResolver.SCHEME_FILE)}
+            .takeIf { it.scheme in arrayOf(ContentResolver.SCHEME_CONTENT, ContentResolver.SCHEME_FILE) }
             ?.getFileName(getContext())
             ?.let { fileName ->
-            val recordFolderPath = recordFolder?.getAbsolutePath(getContext())
-                ?: return null
-            val filePath = FilePath.File(recordFolderPath, fileName)
+                val recordFolderPath = recordFolder?.getAbsolutePath(getContext())
+                    ?: return null
+                val filePath = FilePath.File(recordFolderPath, fileName)
 
-            recordFolder?.child(
-                context = getContext(),
-                path = filePath.fileName,
-                requiresWriteAccess = !storage?.isReadOnly.orFalse()
-            )
-        }
+                recordFolder?.child(
+                    context = getContext(),
+                    path = filePath.fileName,
+                    requiresWriteAccess = !storage?.isReadOnly.orFalse()
+                )
+            }
     }
 
     // endregion Load page
@@ -374,11 +374,10 @@ class RecordViewModel(
      */
     fun onLinkLoad(srcUrl: String, baseUrl: String?) {
         // раскодируем url, т.к. он может содержать кириллицу и прочее
-        var url = srcUrl
-        try {
-            url = URLDecoder.decode(url, "UTF-8")
-        } catch (e: UnsupportedEncodingException) {
-
+        var url = try {
+            URLDecoder.decode(srcUrl, "UTF-8")
+        } catch (ex: UnsupportedEncodingException) {
+            srcUrl
         }
         // удаляем baseUrl из строки адреса
         if (baseUrl != null && url.startsWith(baseUrl)) {
@@ -450,9 +449,9 @@ class RecordViewModel(
             URLDecoder.decode(url, "UTF-8")
         } catch (ex: UnsupportedEncodingException) {
             logError(getString(R.string.log_url_decode_error) + url, ex)
-            return
+            null
         }
-        if (decodedUrl.startsWith(TetroidTag.LINKS_PREFIX)) {
+        if (decodedUrl?.startsWith(TetroidTag.LINKS_PREFIX) == true) {
             // избавляемся от приставки "tag:"
             val tagName = decodedUrl.substring(TetroidTag.LINKS_PREFIX.length)
             openTag(tagName, true)
@@ -772,7 +771,7 @@ class RecordViewModel(
                     }
                 }
 
-                override fun onError(ex: java.lang.Exception) {
+                override fun onError(ex: Exception) {
                     logError(getString(R.string.log_error_download_image_mask, ex.message!!), true)
                     launchOnMain {
                         logError(getString(R.string.log_error_download_web_page_mask, ex.message!!), true)
@@ -792,7 +791,7 @@ class RecordViewModel(
                     saveImage(bitmap)
                 }
 
-                override fun onError(ex: java.lang.Exception) {
+                override fun onError(ex: Exception) {
                     logError(getString(R.string.log_error_download_image_mask, ex.message!!), true)
                     launchOnMain {
                         hideProgress()
@@ -832,7 +831,7 @@ class RecordViewModel(
                 logFailure(it)
                 sendEvent(BaseEvent.ShowMoreInLogs)
             }.onSuccess { attach ->
-                log(getString(R.string.log_file_was_attached), true)
+                log(getString(R.string.log_file_was_attached), show = true)
                 sendEvent(RecordEvent.FileAttached(attach))
             }
         }

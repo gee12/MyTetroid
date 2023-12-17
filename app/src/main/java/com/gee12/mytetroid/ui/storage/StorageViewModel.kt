@@ -998,8 +998,8 @@ open class StorageViewModel(
     fun getAttachEditedDate(context: Context, attach: TetroidFile): Date? {
         return try {
             FileUtils.getFileModifiedDate(context, getAttachFullName(attach))
-        } catch (ex: java.lang.Exception) {
-            logger.logError(resourcesProvider.getString(R.string.error_get_attach_file_size_mask, ex.localizedMessage.orEmpty()), false)
+        } catch (ex: Exception) {
+            logger.logError(resourcesProvider.getString(R.string.error_get_mytetra_xml_modified_date_mask, ex.localizedMessage.orEmpty()), false)
             null
         }
     }
@@ -1007,7 +1007,7 @@ open class StorageViewModel(
     fun getAttachFileSize(context: Context, attach: TetroidFile): String? {
         return try {
             FileUtils.getFileSize(context, getAttachFullName(attach))
-        } catch (ex: java.lang.Exception) {
+        } catch (ex: Exception) {
             logger.logError(resourcesProvider.getString(R.string.error_get_attach_file_size_mask, ex.localizedMessage.orEmpty()), false)
             null
         }
