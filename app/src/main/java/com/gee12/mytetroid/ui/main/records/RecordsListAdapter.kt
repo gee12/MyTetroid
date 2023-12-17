@@ -37,7 +37,7 @@ class RecordsListAdapter(
     }
 
     fun setDataItems(dataSet: List<TetroidRecord>, viewType: MainViewType) {
-        this.dataSet = dataSet
+        this.dataSet = dataSet.toList()
         isShowNodeName = viewType in arrayOf(MainViewType.TAG_RECORDS, MainViewType.FAVORITES)
         notifyDataSetChanged()
     }

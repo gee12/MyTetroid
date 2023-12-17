@@ -6,7 +6,6 @@ import android.content.ContentResolver
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
-import android.os.Bundle
 import android.print.PrintAttributes
 import android.print.PrintDocumentAdapter
 import android.print.PrintDocumentToFileUseCase
@@ -18,14 +17,12 @@ import androidx.lifecycle.MutableLiveData
 import com.anggrayudi.storage.file.*
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.common.extensions.buildIntent
 import com.gee12.mytetroid.common.extensions.getFileName
 import com.gee12.mytetroid.common.extensions.orFalse
 import com.gee12.mytetroid.domain.NetworkHelper.IWebImageResult
 import com.gee12.mytetroid.domain.NetworkHelper.IWebPageContentResult
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.common.utils.Utils
-import com.gee12.mytetroid.ui.main.MainActivity
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.util.*
@@ -152,18 +149,19 @@ class RecordViewModel(
 ) {
 
     var curRecord = MutableLiveData<TetroidRecord>()
-    var curMode = 0
-    var isFirstLoad = true
-    var isFieldsEdited = false
-    var isReceivedImages = false
-    var modeToSwitch = -1
-    var isSaveTempAfterStorageLoaded = false
-    var resultObj: ResultObj? = null
-    var isEdited = false
-    var isFromAnotherActivity = false
-
     private var recordFolder: DocumentFile? = null
-
+    val recordState = RecordState(
+        recordId = "",
+        isSavedFromTemporary = false,
+        isFieldsEdited = false,
+        isTextEdited = false,
+    )
+    var editorMode = 0
+    private var editorModeToSwitch = -1
+    private var isFirstLoad = true
+    private var isReceivedImages = false
+    private var isSaveTempAfterStorageLoaded = false
+    private var resultObj: ResultObject = ResultObject.None
 
     init {
         storageProvider.init(storageDataProcessor)
@@ -205,7 +203,7 @@ class RecordViewModel(
                     initDefaultStorage()
                 }
                 else -> {
-                    sendEvent(BaseEvent.FinishActivity)
+                    sendEvent(RecordEvent.FinishActivityWithResult())
                 }
             }
         }
@@ -232,7 +230,7 @@ class RecordViewModel(
                 checkPermissionsAndInitStorageById(storageId)
             } else {
                 logError(getString(R.string.log_not_transferred_storage_id), show = true)
-                sendEvent(BaseEvent.FinishActivity)
+                sendEvent(RecordEvent.FinishActivityWithResult())
             }
         }
     }
@@ -272,7 +270,7 @@ class RecordViewModel(
             }
             else -> {
                 launchOnMain {
-                    sendEvent(BaseEvent.FinishActivity)
+                    sendEvent(RecordEvent.FinishActivityWithResult())
                 }
             }
         }
@@ -322,15 +320,10 @@ class RecordViewModel(
             // сбрасываем флаг, т.к. уже воспользовались
             curRecord.value!!.setIsNew(false)
             switchMode(mode)
-
-            /*if (defMode == MODE_EDIT) {
-            ViewUtils.showKeyboard(this, mEditor.getWebView(), false);
-//                Keyboard.showKeyboard(mEditor);
-        }*/
         } else {
             // переключаем только views
             launchOnMain {
-                sendEvent(RecordEvent.SwitchViews(viewMode = curMode))
+                sendEvent(RecordEvent.SwitchViews(viewMode = editorMode))
             }
         }
     }
@@ -349,8 +342,8 @@ class RecordViewModel(
         // теперь сохраняем текст заметки без вызова предварительных методов
         saveRecord(false, resultObj)
         // переключаем режим, если асинхронное сохранение было вызвано в процессе переключения режима
-        if (modeToSwitch > 0) {
-            switchMode(modeToSwitch, isNeedSave = false)
+        if (editorModeToSwitch > 0) {
+            switchMode(editorModeToSwitch, isNeedSave = false)
         }
     }
 
@@ -396,12 +389,12 @@ class RecordViewModel(
             when (obj.type) {
                 FoundType.TYPE_RECORD -> {
                     if (isLoadedFavoritesOnly()) {
-                        openAnotherRecord(ResultObj(ResultObj.OPEN_RECORD, obj.id), true)
+                        openAnotherRecord(recordId = obj.id, isAskForSave = true)
                     } else {
                         launchOnMain {
                             val record = getRecord(obj.id)
                             if (record != null) {
-                                openAnotherRecord(ResultObj(record), true)
+                                openAnotherRecord(recordId = record.id, isAskForSave = true)
                             } else {
                                 logWarning(getString(R.string.log_not_found_record) + obj.id)
                             }
@@ -410,12 +403,12 @@ class RecordViewModel(
                 }
                 FoundType.TYPE_NODE ->
                     if (isLoadedFavoritesOnly()) {
-                        openAnotherNode(ResultObj(ResultObj.OPEN_NODE, obj.id), true)
+                        openAnotherNode(nodeId = obj.id, isAskForSave = true)
                     } else {
                         launchOnMain {
                             val node = getNode(obj.id)
                             if (node != null) {
-                                openAnotherNode(ResultObj(node), true)
+                                openAnotherNode(nodeId = node.id, isAskForSave = true)
                             } else {
                                 logWarning(getString(R.string.error_node_not_found_with_id_mask, obj.id))
                             }
@@ -424,14 +417,17 @@ class RecordViewModel(
                 FoundType.TYPE_TAG -> {
                     val tag = obj.id
                     if (tag.isNotEmpty()) {
-                        openTag(tag, true)
+                        openTag(tagName = tag, isAskForSave = true)
                     } else {
                         logWarning(getString(R.string.title_tag_name_is_empty))
                     }
                 }
-                FoundType.TYPE_AUTHOR, FoundType.TYPE_FILE -> {
+                FoundType.TYPE_AUTHOR,
+                FoundType.TYPE_FILE -> {
                 }
-                else -> logWarning(getString(R.string.log_link_to_obj_parsing_error))
+                else -> {
+                    logWarning(getString(R.string.log_link_to_obj_parsing_error))
+                }
             }
         } ?: run {
             // обрабатываем внешнюю ссылку
@@ -472,20 +468,16 @@ class RecordViewModel(
     /**
      * Получение записи из хранилища.
      * @param intent
-     * @return
      */
     private fun initRecordFromStorage(intent: Intent) {
         launchOnMain {
             // получаем переданную запись
-            val recordId = intent.getStringExtra(Constants.EXTRA_OBJECT_ID)
+            val recordId = intent.getStringExtra(Constants.EXTRA_RECORD_ID)
             if (recordId != null) {
                 // получаем запись
                 val record = getRecord(recordId)
                 if (record != null) {
-                    initRecordFolder(record)
-
-                    curRecord.postValue(record!!)
-                    setTitle(record.name)
+                    initRecord(record)
 
 //                setVisibilityActionHome(!mRecord.isTemp());
                     if (intent.hasExtra(Constants.EXTRA_ATTACHED_FILES)) {
@@ -500,18 +492,17 @@ class RecordViewModel(
                     }
                 } else {
                     logError(getString(R.string.log_not_found_record) + recordId, true)
-                    sendEvent(BaseEvent.FinishActivity)
+                    sendEvent(RecordEvent.FinishActivityWithResult())
                 }
             } else {
                 logError(getString(R.string.log_not_transferred_record_id), true)
-                sendEvent(BaseEvent.FinishActivity)
+                sendEvent(RecordEvent.FinishActivityWithResult())
             }
         }
     }
 
     /**
      * Создание новой временной записи, т.к. активность была запущена из виджета AddRecordWidget.
-     * @return
      */
     private fun initRecordFromWidget() {
         launchOnMain {
@@ -529,11 +520,9 @@ class RecordViewModel(
                 )
             }.onFailure {
                 logFailure(it)
-                sendEvent(BaseEvent.FinishActivity)
+                sendEvent(RecordEvent.FinishActivityWithResult())
             }.onSuccess { record ->
-                initRecordFolder(record)
-                curRecord.postValue(record)
-                setTitle(record.name)
+                initRecord(record)
             }
         }
     }
@@ -628,108 +617,57 @@ class RecordViewModel(
 
     /**
      * Открытие другой записи по внутренней ссылке.
-     * @param resObj
-     * @param isAskForSave
      */
-    private fun openAnotherRecord(resObj: ResultObj?, isAskForSave: Boolean) {
-        if (resObj == null) return
-        if (onSaveRecord(isAskForSave, resObj)) return
-        if (isLoadedFavoritesOnly()) {
-//            AskDialogs.showLoadAllNodesDialog(this,
-//                IApplyResult { showAnotherRecord(resObj.id) })
-            launchOnMain {
-                sendEvent(RecordEvent.AskForLoadAllNodes(resObj))
+    private fun openAnotherRecord(recordId: String, isAskForSave: Boolean) {
+        val resObj = ResultObject.OpenRecord(recordId)
+        if (!onSaveRecord(resObj, isAskForSave)) {
+            if (isLoadedFavoritesOnly()) {
+                launchOnMain {
+                    sendEvent(RecordEvent.AskForLoadAllNodes(resObj))
+                }
+            } else {
+                launchOnMain {
+                    sendEvent(RecordEvent.OpenAnotherRecord(recordId = recordId))
+                }
             }
-        } else {
-            showAnotherRecord(resObj.id)
-        }
-    }
-
-    fun showAnotherRecord(id: String?) {
-        val bundle = Bundle()
-        bundle.putString(Constants.EXTRA_OBJECT_ID, id)
-        if (isFieldsEdited) {
-            bundle.putBoolean(Constants.EXTRA_IS_FIELDS_EDITED, true)
-        }
-//        finishWithResult(RESULT_OPEN_RECORD, bundle)
-        launchOnMain {
-            sendEvent(
-                BaseEvent.FinishWithResult(
-                    code = Constants.RESULT_OPEN_RECORD,
-                    bundle = bundle
-                )
-            )
         }
     }
 
     /**
      * Открытие другой ветки по внутренней ссылке.
-     * @param resObj
-     * @param isAskForSave
      */
-    private fun openAnotherNode(resObj: ResultObj?, isAskForSave: Boolean) {
-        if (resObj == null) return
-        if (onSaveRecord(isAskForSave, ResultObj(resObj))) return
-        if (isLoadedFavoritesOnly()) {
-//            AskDialogs.showLoadAllNodesDialog(this,
-//                IApplyResult { showAnotherNodeDirectly(resObj.id) })
-            launchOnMain {
-                sendEvent(RecordEvent.AskForLoadAllNodes(resObj))
+    private fun openAnotherNode(nodeId: String, isAskForSave: Boolean) {
+        val resultObj = ResultObject.OpenNode(nodeId)
+        if (!onSaveRecord(resultObj, isAskForSave)) {
+            if (isLoadedFavoritesOnly()) {
+                launchOnMain {
+                    sendEvent(RecordEvent.AskForLoadAllNodes(resultObj))
+                }
+            } else {
+                launchOnMain {
+                    sendEvent(RecordEvent.OpenAnotherNode(nodeId = nodeId))
+                }
             }
-        } else {
-            showAnotherNodeDirectly(resObj.id)
-        }
-    }
-
-    fun showAnotherNodeDirectly(id: String?) {
-        val bundle = Bundle()
-        bundle.putString(Constants.EXTRA_OBJECT_ID, id)
-//        finishWithResult(RESULT_OPEN_NODE, bundle)
-        launchOnMain {
-            sendEvent(
-                BaseEvent.FinishWithResult(
-                    code = Constants.RESULT_OPEN_NODE, bundle = bundle
-                )
-            )
         }
     }
 
     /**
      * Открытие записей метки в главной активности.
-     * @param tagName
-     * @param isAskForSave
      */
     private fun openTag(tagName: String, isAskForSave: Boolean) {
-        if (onSaveRecord(isAskForSave, ResultObj(tagName))) return
-//        if (StorageManager.isFavoritesMode()) {
-        if (isLoadedFavoritesOnly()) {
-//            AskDialogs.showLoadAllNodesDialog(this,
-//                IApplyResult { openTagDirectly(tagName) })
-            launchOnMain {
-                sendEvent(
-                    RecordEvent.AskForLoadAllNodes(
-                        ResultObj(ResultObj.OPEN_TAG, tagName)
+        val resultObj = ResultObject.OpenTag(tagName)
+        if (!onSaveRecord(resultObj, isAskForSave)) {
+            if (isLoadedFavoritesOnly()) {
+                launchOnMain {
+                    sendEvent(
+                        RecordEvent.AskForLoadAllNodes(resultObj)
                     )
-                )
+                }
+            } else {
+                launchOnMain {
+                    sendEvent(RecordEvent.OpenTag(tagName = tagName))
+                }
             }
-        } else {
-            openTagDirectly(tagName)
-        }
-    }
-
-    fun openTagDirectly(tagName: String?) {
-        val bundle = Bundle()
-        bundle.putString(Constants.EXTRA_TAG_NAME, tagName)
-        if (isFieldsEdited) {
-            bundle.putBoolean(Constants.EXTRA_IS_FIELDS_EDITED, true)
-        }
-//        finishWithResult(RESULT_SHOW_TAG, bundle)
-        launchOnMain {
-            sendEvent(
-                BaseEvent.FinishWithResult(
-                    code = Constants.RESULT_SHOW_TAG, bundle = bundle
-                )
-            )
         }
     }
 
@@ -737,7 +675,7 @@ class RecordViewModel(
      * Открытие ветки записи.
      */
     fun showRecordNode() {
-        openAnotherNode(ResultObj(curRecord.value!!.node), true)
+        openAnotherNode(nodeId = curRecord.value!!.node.id, isAskForSave = true)
     }
 
     //endregion Open another objects
@@ -791,7 +729,6 @@ class RecordViewModel(
                 )
             }.onFailure {
                 logFailure(it)
-//                logOperError(LogObj.IMAGE, LogOper.SAVE, show = true)
                 sendEvent(BaseEvent.ShowMoreInLogs)
             }.onSuccess { image ->
                 sendEvent(RecordEvent.InsertImages(images = listOf(image)))
@@ -813,7 +750,6 @@ class RecordViewModel(
                 hideProgress()
             }.onFailure {
                 logFailure(it)
-//                logOperError(LogObj.IMAGE, LogOper.SAVE, show = true)
                 sendEvent(BaseEvent.ShowMoreInLogs)
             }.onSuccess { image ->
                 sendEvent(RecordEvent.InsertImages(images = listOf(image)))
@@ -828,7 +764,6 @@ class RecordViewModel(
             NetworkHelper.downloadWebPageContentAsync(url, isTextOnly, object : IWebPageContentResult {
                 override fun onSuccess(content: String, isTextOnly: Boolean) {
                     launchOnMain {
-//                    mEditor.insertWebPageContent(content, isTextOnly)
                         sendEvent(
                             if (isTextOnly) RecordEvent.InsertWebPageText(text = content)
                             else RecordEvent.InsertWebPageContent(content = content)
@@ -922,20 +857,13 @@ class RecordViewModel(
 
     /**
      * Открытие списка прикрепленных файлов записи.
-     * @param isAskForSave
      */
-    private fun openRecordAttaches(record: TetroidRecord?, isAskForSave: Boolean) {
-        if (record == null) return
-        if (onSaveRecord(isAskForSave, ResultObj(ResultObj.OPEN_FILE))) return
-        val bundle = Bundle()
-        bundle.putString(Constants.EXTRA_OBJECT_ID, record.id)
-//        finishWithResult(RESULT_SHOW_ATTACHES, bundle)
-        launchOnMain {
-            sendEvent(
-                BaseEvent.FinishWithResult(
-                    code = Constants.RESULT_SHOW_ATTACHES, bundle = bundle
-                )
-            )
+    private fun openRecordAttaches(recordId: String, isAskForSave: Boolean) {
+        val resultObj = ResultObject.OpenAttaches(recordId)
+        if (!onSaveRecord(resultObj, isAskForSave)) {
+            launchOnMain {
+                sendEvent(RecordEvent.OpenRecordAttaches(recordId))
+            }
         }
     }
 
@@ -943,7 +871,7 @@ class RecordViewModel(
      * Открытие списка прикрепленных файлов записи.
      */
     fun openRecordAttaches() {
-        openRecordAttaches(curRecord.value, true)
+        openRecordAttaches(recordId = curRecord.value!!.id, isAskForSave = true)
     }
 
     //endregion Attach
@@ -961,10 +889,9 @@ class RecordViewModel(
 
     @UiThread
     private fun switchMode(newMode: Int, isNeedSave: Boolean) {
-        modeToSwitch = -1
-        val oldMode = curMode
+        editorModeToSwitch = -1
+        val oldMode = editorMode
         // сохраняем
-//        onSaveRecord();
         var runBeforeSaving = false
         if (isNeedSave
             && CommonSettings.isRecordAutoSave(getContext())
@@ -974,24 +901,24 @@ class RecordViewModel(
             //  * есть изменения
             //  * не находимся в режиме HTML (сначала нужно перейти в режим EDIT (WebView), а уже потом можно сохранять)
             //  * запись не временная
-            if (isEdited && curMode != Constants.MODE_HTML) {
-                runBeforeSaving = saveRecord(null)
+            if (recordState.isTextEdited && editorMode != Constants.MODE_HTML) {
+                runBeforeSaving = saveRecord(ResultObject.None)
             }
         }
-        // если асинхронно запущена предобработка сохранения, то выходим
         if (runBeforeSaving) {
-            modeToSwitch = newMode
-            return
-        }
-        launchOnMain {
-            // перезагружаем html-текст записи в webView, если был режим редактирования HTML
-            if (oldMode == Constants.MODE_HTML) {
-                sendEvent(RecordEvent.LoadRecordTextFromHtml)
-            } else {
-                sendEvent(RecordEvent.SwitchViews(viewMode = newMode))
+            // если асинхронно запущена предобработка сохранения, то выходим
+            editorModeToSwitch = newMode
+        } else {
+            launchOnMain {
+                // перезагружаем html-текст записи в webView, если был режим редактирования HTML
+                if (oldMode == Constants.MODE_HTML) {
+                    sendEvent(RecordEvent.LoadRecordTextFromHtml)
+                } else {
+                    sendEvent(RecordEvent.SwitchViews(viewMode = newMode))
+                }
+                editorMode = newMode
+                sendEvent(RecordEvent.UpdateOptionsMenu)
             }
-            curMode = newMode
-            sendEvent(RecordEvent.UpdateOptionsMenu)
         }
     }
 
@@ -1001,19 +928,19 @@ class RecordViewModel(
 
     /**
      * Сохранение изменений при скрытии или выходе из активности.
-     * @param showAskDialog
-     * @param obj если null - закрываем активность, иначе - выполняем действия с объектом
+     * @param isAskForSave
+     * @param resultObj если null - закрываем активность, иначе - выполняем действия с объектом
      * @return false - можно продолжать действие (н-р, закрывать активность), true - начатое
      * действие нужно прервать, чтобы дождаться результата из диалога
      */
-    private fun onSaveRecord(showAskDialog: Boolean, obj: ResultObj?): Boolean {
-        if (isEdited || isRecordTemporary()) {
+    private fun onSaveRecord(resultObj: ResultObject, isAskForSave: Boolean): Boolean {
+        if (recordState.isTextEdited || isRecordTemporary()) {
             if (CommonSettings.isRecordAutoSave(getContext()) && !isRecordTemporary()) {
                 // сохраняем без запроса
-                return saveRecord(obj)
-            } else if (showAskDialog) {
+                return saveRecord(resultObj)
+            } else if (isAskForSave) {
                 launchOnMain {
-                    sendEvent(RecordEvent.AskForSaving(obj))
+                    sendEvent(RecordEvent.AskForSaving(resultObj))
                 }
                 return true
             }
@@ -1025,12 +952,12 @@ class RecordViewModel(
      * Сохранение html-текста записи в файл.
      * @return true - запущена ли перед сохранением предобработка в асинхронном режиме.
      */
-    fun saveRecord(obj: ResultObj?): Boolean {
+    fun saveRecord(resultObj: ResultObject): Boolean {
         val runBeforeSaving = CommonSettings.isFixEmptyParagraphs(getContext())
         if (runBeforeSaving) {
-            resultObj = obj
+            this.resultObj = resultObj
         }
-        return saveRecord(runBeforeSaving, obj) || runBeforeSaving
+        return saveRecord(runBeforeSaving, resultObj) || runBeforeSaving
     }
 
     /**
@@ -1038,37 +965,37 @@ class RecordViewModel(
      * @param callBefore Нужно ли перед сохранением совершить какие-либы манипуляции с html ?
      * @return true - запущен ли код в асинхронном режиме.
      */
-    private fun saveRecord(callBefore: Boolean, obj: ResultObj?): Boolean {
-        if (callBefore) {
+    private fun saveRecord(callBefore: Boolean, resultObj: ResultObject): Boolean {
+        return if (callBefore) {
             launchOnMain {
                 sendEvent(RecordEvent.BeforeSaving)
             }
-            return true
+            true
         } else {
-            if (curRecord.value!!.isTemp) {
+            if (isRecordTemporary()) {
                 if (isStorageLoaded()) {
                     launchOnMain {
-                        sendEvent(RecordEvent.ShowEditFieldsDialog(obj))
+                        sendEvent(RecordEvent.ShowEditFieldsDialog(resultObj))
                     }
                 } else {
                     isSaveTempAfterStorageLoaded = true
                     loadStorage()
                 }
-                return true
+                true
             } else {
                 launchOnMain {
                     // запрашиваем у View html-текст записи и сохраняем
-                    sendEvent(RecordEvent.GetHtmlTextAndSaveToFile(obj))
+                    sendEvent(RecordEvent.GetHtmlTextAndSaveToFile(resultObj))
                 }
+                false
             }
         }
-        return false
     }
 
     /**
      * Получение актуального html-текста записи из WebView и непосредственное сохранение в файл.
      */
-    fun saveRecordText(htmlText: String, obj: ResultObj?) {
+    fun saveRecordText(htmlText: String, obj: ResultObject) {
         launchOnMain {
             curRecord.value?.let { record ->
                 log(resourcesProvider.getString(R.string.log_start_record_file_saving) + record.id)
@@ -1100,7 +1027,7 @@ class RecordViewModel(
      */
     private fun updateEditedDate() {
         val record = curRecord.value!!
-        if (buildInfoProvider.isFullVersion() && !record.isNew && !record.isTemp) {
+        if (buildInfoProvider.isFullVersion() && !isRecordNew() && !isRecordTemporary()) {
             launchOnMain {
                 withIo {
                     getFileModifiedDateUseCase.run(
@@ -1122,46 +1049,40 @@ class RecordViewModel(
     /**
      * Обработчик отмены сохранения записи.
      */
-    fun onRecordSavingCanceled(srcResObj: ResultObj?) {
+    fun onRecordSavingCanceled(resultObj: ResultObject) {
         if (isRecordTemporary()) {
-            // удаляем запись из ветки
+            // удаляем временную запись из ветки
             curRecord.value?.also { record ->
                 record.node.deleteRecord(record)
             }
         }
-        onAfterSaving(srcResObj)
+        onAfterSaving(resultObj)
     }
 
     /**
      * Обработчик события после сохранения записи, вызванное при ответе на запрос сохранения в диалоге.
      */
-    fun onAfterSaving(srcResObj: ResultObj?) {
-        val resObj = srcResObj ?: ResultObj(null)
-        when (resObj.type) {
-            ResultObj.EXIT,
-            ResultObj.START_MAIN_ACTIVITY -> {
-                if (!onRecordFieldsIsEdited(resObj.type == ResultObj.START_MAIN_ACTIVITY)) {
-                    launchOnMain {
-                        sendEvent(BaseEvent.FinishActivity)
-                    }
-                }
+    private fun onAfterSaving(resultObj: ResultObject) {
+        when (resultObj) {
+            is ResultObject.Finish -> {
+                finishRequest(isOpenMainActivity = resultObj.isOpenMainActivity)
             }
-            ResultObj.OPEN_RECORD -> {
-                openAnotherRecord(resObj, false)
+            is ResultObject.OpenRecord -> {
+                openAnotherRecord(recordId = resultObj.recordId, isAskForSave = false)
             }
-            ResultObj.OPEN_NODE -> {
-                openAnotherNode(resObj, false)
+            is ResultObject.OpenNode -> {
+                openAnotherNode(nodeId = resultObj.nodeId, isAskForSave = false)
             }
-            ResultObj.OPEN_FILE -> {
-                openRecordAttaches(curRecord.value, false)
+            is ResultObject.OpenAttaches -> {
+                openRecordAttaches(recordId = resultObj.recordId, isAskForSave = false)
             }
-            ResultObj.OPEN_TAG -> {
-                openTag((resObj.obj as String?)!!, false)
+            is ResultObject.OpenTag -> {
+                openTag(tagName = resultObj.tagName, isAskForSave = false)
             }
-            ResultObj.NONE -> {
-                if (resObj.needReloadText) {
+            ResultObject.None -> {
+                if (resultObj.needReloadText) {
                     // перезагружаем baseUrl в WebView
-                    loadRecordTextFromFile(curRecord.value!!)
+                    loadRecordTextFromFile(record = curRecord.value!!)
                 }
             }
         }
@@ -1171,64 +1092,27 @@ class RecordViewModel(
 
     /**
      * Действия перед закрытием активности, если свойства записи были изменены.
-     * @param startMainActivity
      * @return false - можно продолжать действие (н-р, закрывать активность), true - начатое
      * действие нужно прервать, чтобы дождаться результата из диалога
      */
-    private fun onRecordFieldsIsEdited(startMainActivity: Boolean): Boolean {
-        if (isFieldsEdited) {
-            when {
-//                ActivityCompat.getReferrer()
-                isFromAnotherActivity -> {
-                    launchOnMain {
-                        // закрываем активность, возвращая результат:
-                        // указываем родительской активности, что нужно обновить список записей
-                        val intent = buildIntent {
-                            putExtra(Constants.EXTRA_IS_FIELDS_EDITED, true)
-                        }
-                        sendEvent(
-                            BaseEvent.SetActivityResult(
-                                code = Activity.RESULT_OK,
-                                intent = intent
-                            )
-                        )
-                    }
-                }
-                startMainActivity -> {
-                    launchOnMain {
-                        // запускаем главную активность, помещая результат
-//                bundle.putString(EXTRA_OBJECT_ID, mRecord.getId());
-                        if (curRecord.value!!.node != null) {
-                            openRecordNodeInMainView()
-                            sendEvent(BaseEvent.FinishActivity)
-                        } else {
-                            showMessage(getString(R.string.log_record_node_is_empty), LogType.WARNING)
-                        }
-                    }
-                    return true
-                }
-                else -> {
-                    launchOnMain {
-                        sendEvent(BaseEvent.FinishActivity)
-                    }
-                    return true
-                }
-            }
-        }
-        return false
-    }
-
-    private fun openRecordNodeInMainView() {
-        val bundle = Bundle().apply {
-            putInt(Constants.EXTRA_RESULT_CODE, Constants.RESULT_OPEN_NODE)
-            putString(Constants.EXTRA_OBJECT_ID, curRecord.value!!.node.id)
-        }
-        val intent = Intent(getContext(), MainActivity::class.java).apply {
-            putExtras(bundle)
-            action = Constants.ACTION_RECORD
-        }
+    private fun finishRequest(isOpenMainActivity: Boolean) {
         launchOnMain {
-            sendEvent(BaseEvent.StartActivity(intent))
+            if (recordState.isFieldsEdited) {
+                if (isOpenMainActivity) {
+                    // запускаем главную активность, помещая результат
+                    val node = curRecord.value!!.node
+                    if (node != null) {
+                        sendEvent(RecordEvent.OpenRecordNodeInMainView(nodeId = node.id))
+                    } else {
+                        showMessage(getString(R.string.log_record_node_is_empty), LogType.WARNING)
+                    }
+                }
+                else {
+                    sendEvent(RecordEvent.FinishActivityWithResult(isOpenMainActivity = false))
+                }
+            } else {
+                sendEvent(RecordEvent.FinishActivityWithResult(isOpenMainActivity = isOpenMainActivity))
+            }
         }
     }
 
@@ -1343,60 +1227,79 @@ class RecordViewModel(
      * Сохранение записи при любом скрытии активности.
      */
     fun onPause() {
-        if (curRecord.value?.isTemp == false) {
-            onSaveRecord(false, null)
+        if (recordState.isTextEdited && !isRecordTemporary() && CommonSettings.isRecordAutoSave(getContext())) {
+            saveRecord(resultObj = ResultObject.None)
         }
     }
 
     /**
-     *
+     * Проверка, следует ли выполнять стандартный обработчик кнопки Home в Toolbar.
+     * @return true - отработает стандартный обработчик кнопки Home в Toolbar.
      */
-    fun onHomePressed(): Boolean {
-        return if (!onSaveRecord(true, ResultObj(ResultObj.START_MAIN_ACTIVITY))) {
+    fun isCanGoHome(): Boolean {
+        return if (!onSaveRecord(isAskForSave = true, resultObj = ResultObject.Finish(isOpenMainActivity = true))) {
             // не был запущен асинхронный код при сохранении, поэтому
             //  можем выполнить стандартный обработчик кнопки home (должен быть возврат false),
             //  но после проверки изменения свойств (если изменены, то включится другой механизм
             //  выхода из активности)
-            onRecordFieldsIsEdited(true)
-        } else true
-        // был запущен асинхронный код при сохранении,
-        //  поэтому не выполняем стандартный обработчик кнопки home
+            if (recordState.isFieldsEdited) {
+                // запускаем главную активность, помещая результат
+                val node = curRecord.value!!.node
+                if (node != null) {
+                    launchOnMain {
+                        sendEvent(RecordEvent.OpenRecordNodeInMainView(nodeId = node.id))
+                    }
+                } else {
+                    showMessage(getString(R.string.log_record_node_is_empty), LogType.WARNING)
+                }
+                false
+            } else {
+                true
+            }
+        } else {
+            false
+        }
     }
 
-    fun isCanBack(isFromAnotherActivity: Boolean): Boolean {
+    /**
+     * Проверка, слудуте ли выполнять стандартный обработчик кнопки Back.
+     *  При этом, если возвращаться некуда (isFromAnotherActivity=false), то можем просто закрывать приложение.
+     * @return true - отработает стандартный обработчик кнопки Back.
+     */
+    fun isCanBack(): Boolean {
         // выполняем родительский метод только если не был запущен асинхронный код
-        if (!onSaveRecord(true, ResultObj(ResultObj.EXIT))) {
-            if (!onRecordFieldsIsEdited(false)) {
-                return true
+        return if (!onSaveRecord(isAskForSave = true, resultObj = ResultObject.Finish(isOpenMainActivity = false))) {
+            if (recordState.isFieldsEdited) {
+                launchOnMain {
+                    sendEvent(RecordEvent.FinishActivityWithResult(isOpenMainActivity = false))
+                }
+                false
+            } else {
+                true
             }
+        } else {
+            false
         }
-        return false
     }
 
     /**
      * Удаление записи.
      */
     fun deleteRecord() {
-        val bundle = Bundle()
-        bundle.putString(Constants.EXTRA_OBJECT_ID, curRecord.value!!.id)
         launchOnMain {
-            sendEvent(
-                BaseEvent.FinishWithResult(
-                    code = Constants.RESULT_DELETE_RECORD, bundle = bundle
-                )
-            )
+            sendEvent(RecordEvent.DeleteRecord(recordId = curRecord.value!!.id))
         }
     }
 
     private fun dropIsEdited() {
-        isEdited = false
+        recordState.isTextEdited = false
         launchOnMain {
             sendEvent(RecordEvent.IsEditedChanged(isEdited = false))
         }
     }
 
     fun editFields(
-        obj: ResultObj?,
+        obj: ResultObject?,
         name: String,
         tags: String,
         author: String,
@@ -1408,7 +1311,7 @@ class RecordViewModel(
             sendEvent(RecordEvent.SaveFields.InProcess)
 
             val record = curRecord.value!!
-            val wasTemp = record.isTemp
+            val wasTemporary = record.isTemp
             withIo {
                 editRecordFieldsUseCase.run(
                     EditRecordFieldsUseCase.Params(
@@ -1424,25 +1327,25 @@ class RecordViewModel(
             }.onFailure {
                 logFailure(it)
             }.onSuccess {
-                isFieldsEdited = true
+                recordState.isFieldsEdited = true
+                recordState.isSavedFromTemporary = wasTemporary
                 sendEvent(RecordEvent.SaveFields.Success)
-                if (wasTemp) {
+
+                if (wasTemporary) {
                     // обновляем путь к записи, если изначально она была временная (в корзине)
                     initRecordFolder(record)
                 }
                 setTitle(name)
                 sendEvent(RecordEvent.LoadFields(record = record))
-                if (wasTemp) {
+                if (wasTemporary) {
                     // сохраняем текст записи
-                    val resObj = if (obj == null) {
-                        ResultObj(null).apply {
+                    val resultObj = ResultObject.None.apply {
+                        if (obj == null) {
                             // baseUrl изменился, нужно перезагрузить в WebView
                             needReloadText = true
                         }
-                    } else {
-                        null
                     }
-                    saveRecord(resObj)
+                    saveRecord(resultObj)
                     // показываем кнопку Home для возврата в ветку записи
                     sendEvent(RecordEvent.ShowHomeButton(isVisible = true))
                 } else {
@@ -1461,8 +1364,7 @@ class RecordViewModel(
      * Отображение или скрытие панели свойств в зависимости от настроек.
      */
     fun isNeedExpandFields(): Boolean {
-        return if (
-            curRecord.value!!.isNew
+        return if (isRecordNew()
             || isReceivedImages
             || CommonSettings.isRecordEditMode(getContext())
         ) {
@@ -1487,15 +1389,30 @@ class RecordViewModel(
         }
     }
 
+    private suspend fun initRecord(record: TetroidRecord) {
+        initRecordFolder(record)
+
+        curRecord.postValue(record)
+        recordState.recordId = record.id
+
+        setTitle(record.name)
+    }
+
+    fun setTextIsEdited(isEdited: Boolean) {
+        recordState.isTextEdited = isEdited
+    }
+
     fun getRecordName() = curRecord.value?.name
+
+    fun isRecordNew() = curRecord.value?.isTemp ?: true
 
     fun isRecordTemporary() = curRecord.value?.isTemp ?: true
 
-    fun isViewMode() = curMode == Constants.MODE_VIEW
+    fun isViewMode() = editorMode == Constants.MODE_VIEW
 
-    fun isEditMode() = curMode == Constants.MODE_EDIT
+    fun isEditMode() = editorMode == Constants.MODE_EDIT
 
-    fun isHtmlMode() = curMode == Constants.MODE_HTML
+    fun isHtmlMode() = editorMode == Constants.MODE_HTML
 
 }
 

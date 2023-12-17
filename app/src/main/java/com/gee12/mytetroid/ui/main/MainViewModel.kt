@@ -4,7 +4,6 @@ import android.app.Activity
 import android.app.Application
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import androidx.documentfile.provider.DocumentFile
 import com.anggrayudi.storage.file.child
@@ -630,7 +629,7 @@ class MainViewModel(
             }.onFailure {
                 logFailure(it)
             }.onSuccess {
-                onRecordFieldsUpdated(record, oldNode !== record.node)
+                onRecordFieldsUpdated(record, nodeChanged = oldNode !== record.node)
                 log(R.string.log_record_fields_changed, true)
             }
         }
@@ -639,15 +638,45 @@ class MainViewModel(
     /**
      * Обновление списка записей и меток после изменения свойств записи.
      */
-    fun onRecordFieldsUpdated(record: TetroidRecord?, nodeChanged: Boolean) {
-        launchOnMain {
-            if (nodeChanged && record != null) {
-                showNode(record.node)
-            } else {
-                updateRecordsList()
+    private fun onRecordFieldsUpdated(record: TetroidRecord?, nodeChanged: Boolean) {
+        if (nodeChanged && record != null) {
+            showNode(record.node)
+        } else {
+            updateRecordsList()
+        }
+        reloadTags()
+        updateFavoritesNodeTitle()
+    }
+
+    fun onRecordActivityResult(
+        recordId: String,
+        isSavedToTree: Boolean,
+        isFieldsEdited: Boolean,
+        isTextEdited: Boolean,
+    ) {
+        if (isSavedToTree || isFieldsEdited || isTextEdited) {
+            launchOnIo {
+                val record = getRecord(recordId)
+                if (record != null) {
+                    when {
+                        isSavedToTree -> {
+                            // TODO: пролистывать список к новой записи
+                            onRecordFieldsUpdated(record, nodeChanged = true)
+                        }
+                        isFieldsEdited -> {
+                            onRecordFieldsUpdated(record, nodeChanged = curNode !== record.node)
+                        }
+                        isTextEdited -> {
+                            // обновляем список записей, чтобы обновить дату изменения
+                            if (settingsManager.getRecordFieldsSelector().checkIsEditedDate()) {
+                                updateRecordsList()
+                            }
+                        }
+                    }
+                } else {
+                    logFailure(Failure.Record.NotFound(recordId), show = true)
+                }
             }
-            reloadTags()
-            updateFavoritesNodeTitle()
         }
     }
 
@@ -832,7 +861,7 @@ class MainViewModel(
     fun openRecord(recordId: String) {
         launchOnMain {
             val bundle = Bundle()
-            bundle.putString(Constants.EXTRA_OBJECT_ID, recordId)
+            bundle.putString(Constants.EXTRA_RECORD_ID, recordId)
             openRecord(recordId, bundle)
         }
     }
@@ -844,7 +873,7 @@ class MainViewModel(
      */
     private fun openRecordWithImages(recordId: String, imagesUri: List<Uri>) {
         val bundle = Bundle()
-        bundle.putString(Constants.EXTRA_OBJECT_ID, recordId)
+        bundle.putString(Constants.EXTRA_RECORD_ID, recordId)
         bundle.putParcelableArrayList(Constants.EXTRA_IMAGES_URI, ArrayList(imagesUri))
         openRecord(recordId, bundle)
     }
@@ -855,7 +884,7 @@ class MainViewModel(
      */
     private fun openRecordWithAttachedFiles(recordId: String) {
         val bundle = Bundle()
-        bundle.putString(Constants.EXTRA_OBJECT_ID, recordId)
+        bundle.putString(Constants.EXTRA_RECORD_ID, recordId)
         bundle.putString(Constants.EXTRA_ATTACHED_FILES, "")
         openRecord(recordId, bundle)
     }

@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.ui.record
 
+import android.os.Bundle
 import androidx.documentfile.provider.DocumentFile
 import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.model.TetroidImage
@@ -26,7 +27,7 @@ sealed class RecordEvent : StorageEvent() {
         val record: TetroidRecord,
     ) : RecordEvent()
     data class ShowEditFieldsDialog(
-        val resultObj: ResultObj?,
+        val resultObj: ResultObject?,
     ) : RecordEvent()
     sealed class SaveFields : RecordEvent() {
         object InProcess : SaveFields()
@@ -37,7 +38,7 @@ sealed class RecordEvent : StorageEvent() {
     ) : RecordEvent()
     object LoadRecordTextFromHtml : RecordEvent()
     data class AskForLoadAllNodes(
-        val resultObj: ResultObj,
+        val resultObj: ResultObject,
     ) : RecordEvent()
     data class FileAttached(
         val attach: TetroidFile,
@@ -46,7 +47,7 @@ sealed class RecordEvent : StorageEvent() {
         val viewMode: Int,
     ) : RecordEvent()
     data class AskForSaving(
-        val resultObj: ResultObj?,
+        val resultObj: ResultObject,
     ) : RecordEvent()
     object BeforeSaving : RecordEvent()
     data class IsEditedChanged(
@@ -73,6 +74,20 @@ sealed class RecordEvent : StorageEvent() {
         val pdfFile: DocumentFile,
     ) : RecordEvent()
     data class GetHtmlTextAndSaveToFile(
-        val obj: ResultObj?
+        val obj: ResultObject
     ) : RecordEvent()
+
+    // another
+    data class FinishActivityWithResult(
+        val resultActionType: Int? = null,
+        val bundle: Bundle? = null,
+        var isOpenMainActivity: Boolean = true,
+    ) : RecordEvent()
+    data class OpenRecordNodeInMainView(val nodeId: String) : RecordEvent()
+    data class OpenAnotherRecord(val recordId: String) : RecordEvent()
+    data class OpenAnotherNode(val nodeId: String) : RecordEvent()
+    data class OpenTag(val tagName: String) : RecordEvent()
+    data class OpenRecordAttaches(val recordId: String) : RecordEvent()
+    data class DeleteRecord(val recordId: String) : RecordEvent()
+
 }

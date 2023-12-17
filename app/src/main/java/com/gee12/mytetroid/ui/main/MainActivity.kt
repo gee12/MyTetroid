@@ -1745,10 +1745,12 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 data?.let { onStorageSettingsActivityResult(data) }
             }
             Constants.REQUEST_CODE_COMMON_SETTINGS_ACTIVITY -> {
-                    data?.let { onCommonSettingsActivityResult(data) }
+                data?.let { onCommonSettingsActivityResult(data) }
             }
             Constants.REQUEST_CODE_RECORD_ACTIVITY -> {
-                onRecordActivityResult(resultCode, data)
+                data?.getIntExtra(Constants.EXTRA_RESULT_ACTION_TYPE, 0)?.also {
+                    onRecordActivityResult(resultActionType = it, data = data)
+                }
             }
             Constants.REQUEST_CODE_SEARCH_ACTIVITY -> {
                 if (resultCode == RESULT_OK) {
@@ -1842,7 +1844,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     /**
      * Обработка возвращаемого результата активности просмотра содержимого записи.
      */
-    private fun onRecordActivityResult(resCode: Int, data: Intent?) {
+    private fun onRecordActivityResult(resultActionType: Int, data: Intent?) {
         if (data == null) {
             // обычное закрытие активности
 
@@ -1852,16 +1854,15 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         }
         // проверяем нужно ли отслеживать структуру хранилища
         viewModel.startStorageTreeObserverIfNeeded()
-        if (data.getBooleanExtra(Constants.EXTRA_IS_FIELDS_EDITED, false)) {
-            // обновляем списки, если редактировали свойства записи
-            viewModel.onRecordFieldsUpdated(null, false)
-        } else {
-            // обновляем список записей, чтобы обновить дату изменения
-            if (viewModel.settingsManager.getRecordFieldsSelector().checkIsEditedDate()) {
-                viewModel.updateRecordsList()
-            }
-        }
-        when (resCode) {
+
+        viewModel.onRecordActivityResult(
+            recordId = data.getStringExtra(Constants.EXTRA_RECORD_ID).orEmpty(),
+            isSavedToTree = data.getBooleanExtra(Constants.EXTRA_IS_SAVED_IN_TREE, false),
+            isFieldsEdited = data.getBooleanExtra(Constants.EXTRA_IS_FIELDS_EDITED, false),
+            isTextEdited = data.getBooleanExtra(Constants.EXTRA_IS_TEXT_EDITED, false),
+        )
+
+        when (resultActionType) {
             Constants.RESULT_REINIT_STORAGE -> 
                 /*if (data.getBooleanExtra(Constants.EXTRA_IS_CREATE_STORAGE, false)) {
                     createStorage(SettingsManager.getStoragePath(this)*/
@@ -1879,30 +1880,33 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 }
             }
             Constants.RESULT_OPEN_RECORD -> {
-                if (checkIsNeedLoadAllNodes(data)) return
-                data.getStringExtra(Constants.EXTRA_OBJECT_ID)?.let { recordId ->
-                    viewModel.openRecord(recordId)
+                if (!checkIsNeedLoadAllNodes(data)) {
+                    data.getStringExtra(Constants.EXTRA_RECORD_ID)?.let { recordId ->
+                        viewModel.openRecord(recordId)
+                    }
                 }
             }
             Constants.RESULT_OPEN_NODE -> {
-                if (checkIsNeedLoadAllNodes(data)) return
-                data.getStringExtra(Constants.EXTRA_OBJECT_ID)?.let { nodeId ->
-                    viewModel.showNode(nodeId)
+                if (!checkIsNeedLoadAllNodes(data)) {
+                    data.getStringExtra(Constants.EXTRA_NODE_ID)?.let { nodeId ->
+                        viewModel.showNode(nodeId)
+                    }
                 }
             }
             Constants.RESULT_SHOW_ATTACHES -> {
-                data.getStringExtra(Constants.EXTRA_OBJECT_ID)?.let { recordId ->
+                data.getStringExtra(Constants.EXTRA_RECORD_ID)?.let { recordId ->
                     viewModel.showRecordAttaches(recordId, fromRecordActivity = true)
                 }
             }
             Constants.RESULT_SHOW_TAG -> {
-                if (checkIsNeedLoadAllNodes(data)) return
-                data.getStringExtra(Constants.EXTRA_TAG_NAME)?.let { tagName ->
-                    viewModel.showTagRecords(tagName)
+                if (!checkIsNeedLoadAllNodes(data)) {
+                    data.getStringExtra(Constants.EXTRA_TAG_NAME)?.let { tagName ->
+                        viewModel.showTagRecords(tagName)
+                    }
                 }
             }
             Constants.RESULT_DELETE_RECORD -> {
-                data.getStringExtra(Constants.EXTRA_OBJECT_ID)?.let { recordId ->
+                data.getStringExtra(Constants.EXTRA_RECORD_ID)?.let { recordId ->
                     viewModel.deleteRecord(recordId)
                 }
             }
@@ -1976,8 +1980,8 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 searchViewRecords?.setQuery(query, true)
             }
             Constants.ACTION_RECORD -> {
-                val resCode = intent.getIntExtra(Constants.EXTRA_RESULT_CODE, 0)
-                onRecordActivityResult(resCode, intent)
+                val resultActionType = intent.getIntExtra(Constants.EXTRA_RESULT_ACTION_TYPE, 0)
+                onRecordActivityResult(resultActionType, intent)
             }
             Constants.ACTION_MAIN_ACTIVITY -> {
                 if (intent.hasExtra(Constants.EXTRA_SHOW_STORAGE_INFO)) {

@@ -2,26 +2,10 @@ package com.gee12.mytetroid.ui.base
 
 import android.content.Intent
 import android.os.Bundle
-import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.model.permission.TetroidPermission
 
 abstract class BaseEvent : VMEvent() {
-    // activity
-    data class StartActivity(
-        val intent: Intent,
-    ) : BaseEvent()
-    data class SetActivityResult(
-        val code: Int,
-        val bundle: Bundle? = null,
-        var intent: Intent? = null,
-    ) : BaseEvent()
-    object FinishActivity : BaseEvent()
-    data class FinishWithResult(
-        val code: Int,
-        val bundle: Bundle? = null,
-        var intent: Intent? = null,
-    ) : BaseEvent()
 
     // ui
     object ShowMoreInLogs : BaseEvent()

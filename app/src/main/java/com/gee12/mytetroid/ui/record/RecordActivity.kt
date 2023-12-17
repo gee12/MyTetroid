@@ -26,7 +26,6 @@ import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.documentfile.provider.DocumentFile
@@ -41,7 +40,6 @@ import com.gee12.htmlwysiwygeditor.IVoiceInputListener
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.common.Failure
 import com.gee12.mytetroid.common.extensions.focusAndShowKeyboard
 import com.gee12.mytetroid.common.extensions.fromHtml
 import com.gee12.mytetroid.common.extensions.hideKeyboard
@@ -67,7 +65,6 @@ import com.gee12.mytetroid.ui.dialogs.VoiceSpeechDialog
 import com.gee12.mytetroid.ui.dialogs.record.RecordFieldsDialog
 import com.gee12.mytetroid.ui.dialogs.record.RecordInfoDialog
 import com.gee12.mytetroid.ui.dialogs.storage.StorageDialogs
-import com.gee12.mytetroid.ui.main.MainActivity
 import com.gee12.mytetroid.ui.record.TetroidEditor.IEditorListener
 import com.gee12.mytetroid.ui.settings.SettingsActivity
 import com.gee12.mytetroid.ui.splash.SplashActivity
@@ -98,6 +95,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     ColorPickerDialogListener, 
     IEditorListener {
 
+    private lateinit var activityComponent: RecordActivityComponent
     private lateinit var mFieldsExpanderLayout: ExpandableLayout
     private lateinit var mButtonToggleFields: FloatingActionButton
     private lateinit var mButtonFullscreen: FloatingActionButton
@@ -152,6 +150,12 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         } else {
             viewModel.init(intent)
         }
+
+        activityComponent = RecordActivityComponent(
+            activity = this,
+            viewModel = viewModel,
+        )
+
         editor = findViewById(R.id.html_editor)
         editor.init(settingsManager)
         editor.setColorPickerListener(this)
@@ -244,7 +248,6 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
     override fun onStart() {
         super.onStart()
-        viewModel.isFromAnotherActivity = isFromAnotherActivity()
     }
 
     public override fun onPause() {
@@ -272,7 +275,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             return
         }
         // выполняем родительский метод только если не был запущен асинхронный код
-        if (viewModel.isCanBack(isFromAnotherActivity())) {
+        if (viewModel.isCanBack()) {
             super.onBackPressed()
         }
     }
@@ -291,18 +294,6 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             }
             is BaseEvent.Permission -> {
                 onPermissionEvent(event)
-            }
-            is BaseEvent.StartActivity -> {
-                startActivity(event.intent)
-            }
-            is BaseEvent.SetActivityResult -> {
-                setResult(event.code, event.intent)
-            }
-            BaseEvent.FinishActivity -> {
-                finish()
-            }
-            is BaseEvent.FinishWithResult -> {
-                finishWithResult(event.code, event.bundle)
             }
             is BaseEvent.TaskStarted -> {
                 taskPreExecute(event.titleResId ?: R.string.task_wait)
@@ -348,7 +339,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 setVisibilityActionHome(event.isVisible)
             }
             is RecordEvent.GetHtmlTextAndSaveToFile -> {
-                saveRecord(obj = event.obj)
+                saveRecord(resultObj = event.obj)
             }
             is RecordEvent.LoadFields -> {
                 loadFields(event.record)
@@ -368,12 +359,17 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                     context = this,
                     messageResId = R.string.ask_load_all_nodes_dialog_title,
                     onApply = {
-                        val obj = event.resultObj
-                        when (obj.type) {
-                            ResultObj.OPEN_RECORD -> viewModel.showAnotherRecord(obj.id)
-                            ResultObj.OPEN_NODE -> viewModel.showAnotherNodeDirectly(obj.id)
-                            ResultObj.OPEN_TAG ->
-                                viewModel.openTagDirectly(obj.id) // id - это tagName
+                        when (val obj = event.resultObj) {
+                            is ResultObject.OpenRecord -> {
+                                activityComponent.openAnotherRecord(recordId = obj.recordId)
+                            }
+                            is ResultObject.OpenNode -> {
+                                activityComponent.openNode(nodeId = obj.nodeId)
+                            }
+                            is ResultObject.OpenTag -> {
+                                activityComponent.openTag(tagName = obj.tagName)
+                            }
+                            else -> Unit
                         }
                     },
                 )
@@ -423,6 +419,31 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             }
             RecordEvent.SaveFields.Success -> {
                 hideProgress()
+            }
+            is RecordEvent.FinishActivityWithResult -> {
+                activityComponent.finishWithResult(
+                    resultActionType = event.resultActionType,
+                    bundle = event.bundle,
+                    isOpenMainActivity = event.isOpenMainActivity,
+                )
+            }
+            is RecordEvent.DeleteRecord -> {
+                activityComponent.deleteRecord(recordId = event.recordId)
+            }
+            is RecordEvent.OpenAnotherNode -> {
+                activityComponent.openNode(nodeId = event.nodeId)
+            }
+            is RecordEvent.OpenRecordNodeInMainView -> {
+                activityComponent.openNode(nodeId = event.nodeId)
+            }
+            is RecordEvent.OpenTag -> {
+                activityComponent.openTag(tagName = event.tagName)
+            }
+            is RecordEvent.OpenAnotherRecord -> {
+                activityComponent.openAnotherRecord(recordId = event.recordId)
+            }
+            is RecordEvent.OpenRecordAttaches -> {
+                activityComponent.openRecordAttaches(recordId = event.recordId)
             }
         }
     }
@@ -533,7 +554,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
     override fun afterStorageLoaded(
         isLoaded: Boolean,
-        isLoadFavoritesOnly: Boolean,
+        isLoadedFavoritesOnly: Boolean,
         isOpenLastNode: Boolean,
         isAllNodesLoading: Boolean,
     ) {
@@ -683,7 +704,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     }
 
     override fun onIsEditedChanged(isEdited: Boolean) {
-        viewModel.isEdited = isEdited
+        viewModel.setTextIsEdited(isEdited)
     }
 
     /**
@@ -879,15 +900,15 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
     // region Save record
 
-    private fun askForSaving(obj: ResultObj?) {
+    private fun askForSaving(resultObj: ResultObject) {
         AskDialogs.showYesNoDialog(
             context = this,
             messageResId = R.string.ask_save_record,
             onApply = {
-                viewModel.saveRecord(obj)
+                viewModel.saveRecord(resultObj)
             },
             onCancel = {
-                viewModel.onRecordSavingCanceled(obj)
+                viewModel.onRecordSavingCanceled(resultObj)
             },
         )
     }
@@ -900,7 +921,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         editor.beforeSaveAsync(true)
     }
 
-    private fun saveRecord(obj: ResultObj?) {
+    private fun saveRecord(resultObj: ResultObject) {
         // если сохраняем запись перед выходом, то учитываем, что можем находиться в режиме HTML
         val bodyHtml = if (viewModel.isHtmlMode()) {
             mEditTextHtml.text.toString()
@@ -908,7 +929,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             editor.webView.editableHtml
         }
         val htmlText = TetroidEditor.getDocumentHtml(bodyHtml)
-        viewModel.saveRecordText(htmlText, obj)
+        viewModel.saveRecordText(htmlText, resultObj)
     }
 
     // endregion Save record
@@ -1098,13 +1119,13 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                             pathChanged = true,
                             onApply = {
                                 // перезагружаем хранилище в главной активности, если изменили путь,
-                                finishWithResult(Constants.RESULT_REINIT_STORAGE, data.extras)
+                                activityComponent.finishWithResult(Constants.RESULT_REINIT_STORAGE, data.extras)
                             },
                         )
                     }
                 } else if (data.getBooleanExtra(Constants.EXTRA_IS_PASS_CHANGED, false)) {
                     // пароль изменен
-                    finishWithResult(Constants.RESULT_PASS_CHANGED, data.extras)
+                    activityComponent.finishWithResult(Constants.RESULT_PASS_CHANGED, data.extras)
                 }
             }
         } else if (requestCode == Constants.REQUEST_CODE_COMMON_SETTINGS_ACTIVITY) {
@@ -1148,7 +1169,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         if (!isOnCreateProcessed) return true
         // режимы
-        val mode = viewModel.curMode
+        val mode = viewModel.editorMode
         activateMenuItem(menu.findItem(R.id.action_record_view), mode == Constants.MODE_EDIT)
         activateMenuItem(
             menu.findItem(R.id.action_record_edit), mode == Constants.MODE_VIEW
@@ -1230,11 +1251,11 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 return true
             }
             R.id.action_record_save -> {
-                viewModel.saveRecord(null)
+                viewModel.saveRecord(resultObj = ResultObject.None)
                 return true
             }
             R.id.action_record_edit_fields -> {
-                showEditFieldsDialog(null)
+                showEditFieldsDialog(resultObj = null)
                 return true
             }
             R.id.action_record_node -> {
@@ -1281,7 +1302,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 return true
             }
             android.R.id.home -> {
-                return viewModel.onHomePressed()
+                return !viewModel.isCanGoHome()
             }
         }
         return super.onOptionsItemSelected(item)
@@ -1294,7 +1315,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     /**
      * Редактирование свойств записи.
      */
-    private fun showEditFieldsDialog(obj: ResultObj?) {
+    private fun showEditFieldsDialog(resultObj: ResultObject?) {
         recordFieldsDialog = RecordFieldsDialog(
             record = viewModel.curRecord.value,
             chooseNode = true,
@@ -1306,7 +1327,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             },
             onApply = { name: String, tags: String, author: String, url: String, node: TetroidNode, isFavorite: Boolean ->
                 viewModel.editFields(
-                    obj = obj,
+                    obj = resultObj,
                     name = name,
                     tags = tags,
                     author = author,
@@ -1530,7 +1551,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     fun setFindButtonsVisibility(vis: Boolean) {
         ViewUtils.setFabVisibility(mButtonFindNext, vis)
         ViewUtils.setFabVisibility(mButtonFindPrev, vis)
-        setRecordFieldsVisibility(!vis && viewModel.curMode != Constants.MODE_HTML)
+        setRecordFieldsVisibility(!vis && viewModel.editorMode != Constants.MODE_HTML)
         // установим позиционирование кнопки FindNext от правого края
         var params = mButtonFindNext.layoutParams as RelativeLayout.LayoutParams
         if (vis) {
@@ -1593,33 +1614,6 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
     // endregion File
 
-    override fun showActivityForResult(cls: Class<*>?, requestCode: Int) {
-        val intent = Intent(this, cls)
-        startActivityForResult(intent, requestCode)
-    }
-
-    /**
-     * Формирование результата активности и ее закрытие.
-     * При необходимости запуск главной активности, если текущая была запущена самостоятельно.
-     */
-    private fun finishWithResult(resCode: Int, bundle: Bundle?) {
-        if (callingActivity != null) {
-            if (bundle != null) {
-                bundle.putInt(Constants.EXTRA_RESULT_CODE, resCode)
-                val intent = Intent(Constants.ACTION_RECORD)
-                intent.putExtras(bundle)
-                setResult(resCode, intent)
-            } else {
-                setResult(resCode)
-            }
-        } else {
-            val bundle = bundle ?: Bundle()
-            bundle.putInt(Constants.EXTRA_RESULT_CODE, resCode)
-            MainActivity.start(this, Constants.ACTION_RECORD, bundle)
-        }
-        finish()
-    }
-
     /**
      * Обработчк изменения текста в окне HTML-кода записи.
      */
@@ -1633,7 +1627,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         override fun onAfterTextChanged() {
             if (viewModel.isHtmlMode()) {
                 editor.setIsEdited()
-                viewModel.isEdited = true
+                viewModel.setTextIsEdited(true)
             }
         }
     }
