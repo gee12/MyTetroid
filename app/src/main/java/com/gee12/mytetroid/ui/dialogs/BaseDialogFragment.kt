@@ -104,6 +104,16 @@ abstract class BaseDialogFragment : DialogFragment() {
         }
     }
 
+    override fun show(manager: FragmentManager, tag: String?) {
+        try {
+            val fragmentTransaction = manager.beginTransaction()
+            fragmentTransaction.add(this, tag)
+            fragmentTransaction.commitAllowingStateLoss()
+        } catch (ex: IllegalStateException) {
+            ex.printStackTrace()
+        }
+    }
+
     protected fun setTitle(title: String?) {
         dialog.setTitle(title.orEmpty())
     }
