@@ -14,6 +14,7 @@ import com.gee12.mytetroid.model.TetroidImage
 import com.gee12.mytetroid.ui.dialogs.AskDialogs.showYesNoDialog
 import com.gee12.htmlwysiwygeditor.WysiwygEditor
 import com.gee12.mytetroid.domain.AppThemeHelper.setNightMode
+import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 
 class TetroidEditor @JvmOverloads constructor(
     context: Context,
@@ -21,7 +22,8 @@ class TetroidEditor @JvmOverloads constructor(
     defStyle: Int = 0
 ) : WysiwygEditor(context, attrs, defStyle) {
 
-    private var settingsManager: CommonSettingsManager? = null
+    private lateinit var settingsManager: CommonSettingsManager
+    private lateinit var buildInfoProvider: BuildInfoProvider
 
     interface IEditorListener {
         fun onIsEditedChanged(isEdited: Boolean)
@@ -39,18 +41,19 @@ class TetroidEditor @JvmOverloads constructor(
         }
 
     override val toolbarButtonsSize: ActionButtonSize
-        get() = settingsManager?.getEditorButtonsSize() ?: ActionButtonSize.MEDIUM
+        get() = settingsManager.getEditorButtonsSize()
 
-    fun init(settingsManager: CommonSettingsManager) {
+    fun init(settingsManager: CommonSettingsManager, buildInfoProvider: BuildInfoProvider) {
         this.settingsManager = settingsManager
+        this.buildInfoProvider = buildInfoProvider
         onSettingsChanged()
     }
 
     fun onSettingsChanged() {
         initToolbar()
 
-        settingsManager?.getAppTheme()?.also { appTheme ->
-            settingsManager?.getEditorTheme()?.also { editorTheme ->
+        settingsManager.getAppTheme().also { appTheme ->
+            settingsManager.getEditorTheme().also { editorTheme ->
                 webView.setNightMode(appTheme, editorTheme)
             }
         }
@@ -109,13 +112,24 @@ class TetroidEditor @JvmOverloads constructor(
         onClick: (() -> Unit)?,
     ) {
         super.setupActionButton(button, actionType, isEditable, isCheckable, isPopup, isAction, onClick)
+        val proActions = arrayOf(
+            ActionType.INSERT_VIDEO,
+            ActionType.VOICE_INPUT
+        )
         val notAvailableYetActions = arrayOf(
             ActionType.INSERT_FORMULA,
             ActionType.EDIT_IMAGE,
+            // table
+            ActionType.INSERT_TABLE,
+            ActionType.EDIT_TABLE,
+            ActionType.INSERT_TABLE_ROWS,
+            ActionType.DELETE_TABLE_ROW,
+            ActionType.INSERT_TABLE_COLS,
+            ActionType.DELETE_TABLE_COL,
+            ActionType.MERGE_TABLE_CELLS,
+            ActionType.SPLIT_TABLE_CELLS,
         )
-        if ((App.isFreeVersion()
-            && !actionType.isFree
-            && actionType !in arrayOf(ActionType.INSERT_VIDEO))
+        if ((buildInfoProvider.isFreeVersion() && actionType in proActions)
             || actionType in notAvailableYetActions
         ) {
             button.setIsAllowed(false)
@@ -127,7 +141,18 @@ class TetroidEditor @JvmOverloads constructor(
             when (button.type) {
                 ActionType.INSERT_FORMULA -> showToastNotAvailableYet()
                 ActionType.VOICE_INPUT -> showToastNotAvailableInFree()
-                ActionType.EDIT_IMAGE -> showToastNotAvailableYet()
+                ActionType.EDIT_IMAGE,
+                // table
+                ActionType.INSERT_TABLE,
+                ActionType.EDIT_TABLE,
+                ActionType.INSERT_TABLE_ROWS,
+                ActionType.DELETE_TABLE_ROW,
+                ActionType.INSERT_TABLE_COLS,
+                ActionType.DELETE_TABLE_COL,
+                ActionType.MERGE_TABLE_CELLS,
+                ActionType.SPLIT_TABLE_CELLS -> {
+                    showToastNotAvailableYet()
+                }
                 else -> Unit
             }
         } else {

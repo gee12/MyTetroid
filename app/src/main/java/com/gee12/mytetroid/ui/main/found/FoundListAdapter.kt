@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.domain.RecordFieldsSelector
+import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.model.FoundType
 import com.gee12.mytetroid.model.ITetroidObject
@@ -17,6 +18,7 @@ import java.util.*
 class FoundListAdapter(
     context: Context,
     resourcesProvider: IResourcesProvider,
+    buildInfoProvider: BuildInfoProvider,
     dateTimeFormat: String,
     isHighlightAttach: Boolean,
     highlightAttachColor: Int,
@@ -26,6 +28,7 @@ class FoundListAdapter(
 ) : RecordsBaseListAdapter(
     context = context,
     resourcesProvider = resourcesProvider,
+    buildInfoProvider = buildInfoProvider,
     dateTimeFormat = dateTimeFormat,
     isHighlightAttach = isHighlightAttach,
     highlightAttachColor = highlightAttachColor,

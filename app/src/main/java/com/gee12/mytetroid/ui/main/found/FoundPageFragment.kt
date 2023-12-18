@@ -108,6 +108,7 @@ class FoundPageFragment : TetroidFragment<MainViewModel>, MainPage {
         listAdapterFound = FoundListAdapter(
             context = requireContext(),
             resourcesProvider = viewModel.resourcesProvider,
+            buildInfoProvider = buildInfoProvider,
             dateTimeFormat = settingsProvider.checkDateFormatString(),
             isHighlightAttach = settingsProvider.isHighlightRecordWithAttach(),
             highlightAttachColor = settingsProvider.highlightAttachColor(),

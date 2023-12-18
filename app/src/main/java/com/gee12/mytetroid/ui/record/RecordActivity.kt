@@ -157,7 +157,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         )
 
         editor = findViewById(R.id.html_editor)
-        editor.init(settingsManager)
+        editor.init(settingsManager, buildInfoProvider)
         editor.setColorPickerListener(this)
         editor.setImagePickerListener(this)
         editor.setNetworkWorkerListener(this)

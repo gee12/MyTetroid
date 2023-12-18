@@ -43,8 +43,4 @@ object App {
     // и нужные переменные были проинициализированы
     var isInitialized = false
 
-    fun isFullVersion() = BuildConfig.FLAVOR == "pro"
-
-    fun isFreeVersion() = BuildConfig.FLAVOR == "free"
-
 }
