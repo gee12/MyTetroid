@@ -55,7 +55,7 @@ class GetRecordFolderUseCase(
 
             if (recordFolderInTrash == null || !recordFolderInTrash.exists()) {
                 if (params.createIfNeed) {
-                    logger.logWarning(
+                    logger.logWarning( //
                         resourcesProvider.getString(R.string.log_create_record_folder_in_trash_mask, recordFolderPath.fullPath),
                         show = showMessage
                     )

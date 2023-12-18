@@ -7,6 +7,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.annotation.StringRes
@@ -1851,6 +1852,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             checkForInAppReviewShowing()
             return
         }
+        Log.d("gee12", "MainViewModel.onRecordActivityResult() resultActionType=$resultActionType")
         // проверяем нужно ли отслеживать структуру хранилища
         viewModel.startStorageTreeObserverIfNeeded()
 
