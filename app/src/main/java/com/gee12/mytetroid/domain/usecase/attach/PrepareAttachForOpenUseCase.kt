@@ -46,7 +46,7 @@ class PrepareAttachForOpenUseCase(
         val storageFolder = storageProvider.rootFolder
         val storageFolderPath = storageFolder?.getAbsolutePath(context).orEmpty()
 
-        logger.logDebug(resourcesProvider.getString(R.string.log_start_attach_file_opening) + attach.id)
+        logger.logDebug(resourcesProvider.getString(R.string.log_start_attach_file_opening_mask, attach.id))
         val record = attach.record
         val fileDisplayName = attach.name
 

@@ -93,7 +93,7 @@ class GetRecordFolderUseCase(
 
             if (folder == null || !folder.exists()) {
                 if (params.createIfNeed) {
-                    logger.logWarning(
+                    logger.logDebug(
                         resourcesProvider.getString(R.string.log_create_record_folder_mask, recordFolderPath.fullPath),
                         show = showMessage
                     )

@@ -788,9 +788,9 @@
     <!--    <string name="log_rename_file_mask">File renaming to [%s]</string>-->
     <string name="log_record_file_is_missing">No recording file will be created when saving</string>
     <string name="start_record_file_reading_mask">Start reading a file of record id=%s</string>
-    <string name="log_start_record_file_saving">Start saving a file of record id=</string>
-    <string name="log_start_attach_file_opening">Start opening an attach file id=</string>
-    <string name="log_start_record_folder_opening">Start opening a record folder id=</string>
+    <string name="log_start_record_file_saving_mask">Start saving a file of record id=%s</string>
+    <string name="log_start_attach_file_opening_mask">Start opening an attach file id=%s</string>
+    <string name="log_start_record_folder_opening_mask">Start opening a record folder id=%s</string>
     <string name="log_dir_creating_error">Unable to create directory to save log:&#160;</string>
     <string name="log_created_log_dir">The log directory was created:&#160;</string>
     <string name="log_file_read_error">Log file read error:&#160;</string>

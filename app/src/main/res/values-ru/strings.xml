@@ -691,9 +691,9 @@
     <string name="error_attach_not_found_in_record">Прикрепленный файл не найден в списке файлов записи</string>
     <string name="log_record_file_is_missing">Файл записи отсутствует, будет создан при сохранении</string>
     <string name="start_record_file_reading_mask">Начало чтения файла записи id=%s</string>
-    <string name="log_start_record_file_saving">Начало сохранения файла записи id=</string>
-    <string name="log_start_attach_file_opening">Начало открытия прикрепленного файла id=</string>
-    <string name="log_start_record_folder_opening">Начало открытия каталога записи id=</string>
+    <string name="log_start_record_file_saving_mask">Начало сохранения файла записи id=%s</string>
+    <string name="log_start_attach_file_opening_mask">Начало открытия прикрепленного файла id=%s</string>
+    <string name="log_start_record_folder_opening_mask">Начало открытия каталога записи id=%s</string>
     <string name="log_dir_creating_error">Не удается создать каталог для сохранения лога:&#160;</string>
     <string name="log_created_log_dir">Создан каталог для лог-файла:&#160;</string>
     <string name="log_file_read_error">Ошибка чтения лог-файла:&#160;</string>

@@ -49,7 +49,6 @@ import com.gee12.mytetroid.model.enums.TagsSearchMode
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.ui.storage.StorageViewModel
 import kotlinx.coroutines.*
-import java.lang.Exception
 import java.util.ArrayList
 
 class MainViewModel(
@@ -914,7 +913,7 @@ class MainViewModel(
     }
 
     fun openRecordFolder(activity: Activity, record: TetroidRecord) {
-        logger.logDebug(resourcesProvider.getString(R.string.log_start_record_folder_opening) + record.id)
+        logger.logDebug(resourcesProvider.getString(R.string.log_start_record_folder_opening_mask, record.id))
         launchOnMain {
             withIo {
                 getRecordFolderUseCase.run(

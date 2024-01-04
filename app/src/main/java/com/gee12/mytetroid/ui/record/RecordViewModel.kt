@@ -1004,7 +1004,7 @@ class RecordViewModel(
     fun saveRecordText(htmlText: String, obj: ResultObject) {
         launchOnMain {
             curRecord.value?.let { record ->
-                log(resourcesProvider.getString(R.string.log_start_record_file_saving) + record.id)
+                log(resourcesProvider.getString(R.string.log_start_record_file_saving_mask, record.id))
                 showProgressWithText(R.string.state_record_saving)
                 withIo {
                     saveRecordHtmlTextUseCase.run(
@@ -1129,7 +1129,7 @@ class RecordViewModel(
      */
     fun openRecordFolder(activity: Activity) {
         val record = curRecord.value!!
-        logger.logDebug(resourcesProvider.getString(R.string.log_start_record_folder_opening) + record.id)
+        logger.logDebug(resourcesProvider.getString(R.string.log_start_record_folder_opening_mask, record.id))
 
         recordFolder?.also {
             val uri = it.uri
