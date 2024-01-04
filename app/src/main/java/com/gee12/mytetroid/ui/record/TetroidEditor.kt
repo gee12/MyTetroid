@@ -239,10 +239,10 @@ class TetroidEditor @JvmOverloads constructor(
         val image = images[pos]
         // выводим диалог установки размера
         val isSeveral = pos < images.size - 1
-        ImageDimensDialog.show(
+        ImageDimensDialog(
             context = context,
-            curWidth = image.width,
-            curHeight = image.height,
+            srcWidth = image.width,
+            srcHeight = image.height,
             isSeveral = isSeveral,
             onApply = { width, height, similar ->
                 webView.insertImage(image.name, width, height)
@@ -256,7 +256,7 @@ class TetroidEditor @JvmOverloads constructor(
                     }
                 }
             }
-        )
+        ).show()
     }
 
     private fun showToastNotAvailableInFree() {
