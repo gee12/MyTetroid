@@ -2,7 +2,6 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:android_ex="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/custom_dialog_layout_design_user_input"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     style="@style/RootLayout">
