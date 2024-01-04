@@ -63,12 +63,12 @@
     </style>
 
     <style name="AppEditText" parent="Widget.AppCompat.EditText">
-        <item name="android:textColor">@color/text_1</item>
+        <item name="android:textColor">@color/text_color_primary</item>
         <item name="android:textColorHint">@color/text_4</item>
     </style>
 
     <style name="AppSearchAutoCompleteTextView" parent="Widget.AppCompat.AutoCompleteTextView">
-        <item name="android:textColor">@color/text_1</item>
+        <item name="android:textColor">@color/text_color_primary</item>
         <item name="android:textColorHint">@color/text_4</item>
     </style>
 
