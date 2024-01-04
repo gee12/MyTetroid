@@ -905,14 +905,17 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     // region Save record
 
     private fun askForSaving(resultObj: ResultObject) {
-        AskDialogs.showYesNoDialog(
+        AskDialogs.showYesNoCancelDialog(
             context = this,
-            messageResId = R.string.ask_save_record,
-            onApply = {
+            message = resourcesProvider.getString(R.string.ask_save_record),
+            onYes = {
                 viewModel.saveRecord(resultObj)
             },
-            onCancel = {
+            onNo = {
                 viewModel.onRecordSavingCanceled(resultObj)
+            },
+            onCancel = {
+                // ignore
             },
         )
     }

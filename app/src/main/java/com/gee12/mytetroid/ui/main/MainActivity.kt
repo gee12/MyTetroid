@@ -1162,8 +1162,8 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             context = this,
             message = getString(R.string.ask_start_sync_or_exit_dialog_title),
             isCancelable = false,
-            applyResId = R.string.action_sync,
-            cancelResId = R.string.action_exit,
+            positiveResId = R.string.action_sync,
+            negativeResId = R.string.action_exit,
             onApply = {
                 viewModel.syncStorageAndExit(this)
             },
