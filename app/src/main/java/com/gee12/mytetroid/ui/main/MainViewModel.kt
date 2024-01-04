@@ -411,10 +411,15 @@ class MainViewModel(
         curRecords.addAll(records)
     }
 
-    fun showRecords(records: List<TetroidRecord>, viewType: MainViewType, dropSearch: Boolean = true) {
+    fun showRecords(
+        records: List<TetroidRecord>,
+        viewType: MainViewType,
+        dropSearch: Boolean = true,
+        scrollToRecord: TetroidRecord? = null,
+    ) {
         launchOnMain {
             setCurrentRecords(records)
-            sendEvent(MainEvent.ShowRecords(records, viewType, dropSearch))
+            sendEvent(MainEvent.ShowRecords(records, viewType, dropSearch, scrollToRecord))
         }
     }
 
@@ -638,9 +643,16 @@ class MainViewModel(
     /**
      * Обновление списка записей и меток после изменения свойств записи.
      */
-    private fun onRecordFieldsUpdated(record: TetroidRecord?, nodeChanged: Boolean) {
+    private fun onRecordFieldsUpdated(
+        record: TetroidRecord?,
+        nodeChanged: Boolean,
+        isScrollToRecord: Boolean = false,
+    ) {
         if (nodeChanged && record != null) {
-            showNode(record.node)
+            showNode(
+                node = record.node,
+                scrollToRecord = record.takeIf { isScrollToRecord },
+            )
         } else {
             updateRecordsList()
         }
@@ -660,8 +672,7 @@ class MainViewModel(
                 if (record != null) {
                     when {
                         isSavedToTree -> {
-                            // TODO: пролистывать список к новой записи
-                            onRecordFieldsUpdated(record, nodeChanged = true)
+                            onRecordFieldsUpdated(record, nodeChanged = true, isScrollToRecord = true)
                         }
                         isFieldsEdited -> {
                             onRecordFieldsUpdated(record, nodeChanged = curNode !== record.node)
@@ -978,14 +989,18 @@ class MainViewModel(
      * Открытие записей ветки.
      * @param node
      */
-    fun showNode(node: TetroidNode) {
+    fun showNode(node: TetroidNode, scrollToRecord: TetroidRecord? = null) {
         // проверка нужно ли расшифровать ветку перед отображением
         if (checkAndDecryptNode(node)) return
 
         launchOnMain {
             log(getString(R.string.log_open_node) + node.getIdString(resourcesProvider))
             setCurrentNode(node)
-            showRecords(node.records, MainViewType.NODE_RECORDS)
+            showRecords(
+                records = node.records,
+                viewType = MainViewType.NODE_RECORDS,
+                scrollToRecord = scrollToRecord,
+            )
 
             // сохраняем выбранную ветку
             saveLastSelectedNode(nodeId = node.id)

@@ -424,6 +424,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                     records = event.records,
                     viewType = event.viewType,
                     dropSearch = event.dropSearch,
+                    scrollToRecord = event.scrollToRecord,
                 )
             }
             is MainEvent.RecordsFiltered -> {
@@ -1543,7 +1544,12 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      * Отображение списка записей.
      * @param dropSearch Нужно ли закрыть фильтрацию SearchView
      */
-    private fun showRecords(records: List<TetroidRecord>, viewType: MainViewType, dropSearch: Boolean) {
+    private fun showRecords(
+        records: List<TetroidRecord>,
+        viewType: MainViewType,
+        dropSearch: Boolean,
+        scrollToRecord: TetroidRecord? = null,
+    ) {
         // сбрасываем фильтрацию при открытии списка записей
         if (dropSearch && searchViewRecords?.isIconified != true) {
             // сбрасываем SearchView;
@@ -1558,6 +1564,9 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         drawerLayout.closeDrawers()
         setCurrentPage(PageType.MAIN)
         mainPage?.showRecords(records, viewType)
+        scrollToRecord?.also {
+            mainPage?.scrollToRecord(it)
+        }
     }
 
     // endregion Records

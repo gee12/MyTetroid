@@ -57,6 +57,10 @@ class RecordsListAdapter(
         return dataSet[position].id.hashCode().toLong()
     }
 
+    fun getItemPositionById(recordId: String): Int {
+        return dataSet.indexOfFirst { recordId == it.id }
+    }
+
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val view: View
         val viewHolder: RecordViewHolder

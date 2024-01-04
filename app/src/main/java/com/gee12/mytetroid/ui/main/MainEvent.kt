@@ -146,6 +146,7 @@ sealed class MainEvent(
         val records: List<TetroidRecord>,
         val viewType: MainViewType,
         val dropSearch: Boolean = true,
+        val scrollToRecord: TetroidRecord? = null,
     ) : MainEvent()
 
     data class RecordsFiltered(

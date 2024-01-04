@@ -25,7 +25,6 @@ import com.gee12.mytetroid.ui.base.TetroidFragment
 import com.gee12.mytetroid.ui.main.records.RecordsListAdapter
 import com.github.clans.fab.FloatingActionMenu
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.coroutines.runBlocking
 
 class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
     
@@ -235,6 +234,15 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
         showGlobalSearchButton(false)
         listAdapterRecords.setDataItems(records, viewType)
         lvRecords.adapter = listAdapterRecords
+    }
+
+    fun scrollToRecord(record: TetroidRecord) {
+        val position = listAdapterRecords.getItemPositionById(recordId = record.id)
+        if (position > -1) {
+            lvRecords.postDelayed(
+                { lvRecords.smoothScrollToPosition(position) }, 300
+            )
+        }
     }
 
     /**
