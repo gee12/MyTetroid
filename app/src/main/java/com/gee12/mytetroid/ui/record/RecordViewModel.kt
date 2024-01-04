@@ -159,8 +159,8 @@ class RecordViewModel(
         isFieldsEdited = false,
         isTextEdited = false,
     )
-    var editorMode = 0
-    private var editorModeToSwitch = -1
+    var editorMode = EditorMode.VIEW
+    private var editorModeToSwitch: EditorMode? = null
     private var isFirstLoad = true
     private var isReceivedImages = false
     private var isSaveTempAfterStorageLoaded = false
@@ -315,9 +315,9 @@ class RecordViewModel(
                 || isReceivedImages
                 || CommonSettings.isRecordEditMode(getContext())
             ) {
-                Constants.MODE_EDIT
+                EditorMode.EDIT
             } else {
-                Constants.MODE_VIEW
+                EditorMode.VIEW
             }
 
             // сбрасываем флаг, т.к. уже воспользовались
@@ -326,7 +326,7 @@ class RecordViewModel(
         } else {
             // переключаем только views
             launchOnMain {
-                sendEvent(RecordEvent.SwitchViews(viewMode = editorMode))
+                sendEvent(RecordEvent.SwitchEditorMode(mode = editorMode))
             }
         }
     }
@@ -345,8 +345,8 @@ class RecordViewModel(
         // теперь сохраняем текст заметки без вызова предварительных методов
         saveRecord(false, resultObj)
         // переключаем режим, если асинхронное сохранение было вызвано в процессе переключения режима
-        if (editorModeToSwitch > 0) {
-            switchMode(editorModeToSwitch, isNeedSave = false)
+        editorModeToSwitch?.also {
+            switchMode(newMode = it, isNeedSave = false)
         }
     }
 
@@ -889,13 +889,13 @@ class RecordViewModel(
      * @param newMode
      */
     @UiThread
-    fun switchMode(newMode: Int) {
+    fun switchMode(newMode: EditorMode) {
         switchMode(newMode, true)
     }
 
     @UiThread
-    private fun switchMode(newMode: Int, isNeedSave: Boolean) {
-        editorModeToSwitch = -1
+    private fun switchMode(newMode: EditorMode, isNeedSave: Boolean) {
+        editorModeToSwitch = null
         val oldMode = editorMode
         // сохраняем
         var runBeforeSaving = false
@@ -907,7 +907,7 @@ class RecordViewModel(
             //  * есть изменения
             //  * не находимся в режиме HTML (сначала нужно перейти в режим EDIT (WebView), а уже потом можно сохранять)
             //  * запись не временная
-            if (recordState.isTextEdited && editorMode != Constants.MODE_HTML) {
+            if (recordState.isTextEdited && editorMode != EditorMode.HTML) {
                 runBeforeSaving = saveRecord(ResultObject.None)
             }
         }
@@ -917,10 +917,10 @@ class RecordViewModel(
         } else {
             launchOnMain {
                 // перезагружаем html-текст записи в webView, если был режим редактирования HTML
-                if (oldMode == Constants.MODE_HTML) {
+                if (oldMode == EditorMode.HTML) {
                     sendEvent(RecordEvent.LoadRecordTextFromHtml)
                 } else {
-                    sendEvent(RecordEvent.SwitchViews(viewMode = newMode))
+                    sendEvent(RecordEvent.SwitchEditorMode(mode = newMode))
                 }
                 editorMode = newMode
                 sendEvent(RecordEvent.UpdateOptionsMenu)
@@ -1410,15 +1410,15 @@ class RecordViewModel(
 
     fun getRecordName() = curRecord.value?.name
 
-    fun isRecordNew() = curRecord.value?.isTemp ?: true
+    fun isRecordNew() = curRecord.value?.isNew ?: true
 
     fun isRecordTemporary() = curRecord.value?.isTemp ?: true
 
-    fun isViewMode() = editorMode == Constants.MODE_VIEW
+    fun isViewMode() = editorMode == EditorMode.VIEW
 
-    fun isEditMode() = editorMode == Constants.MODE_EDIT
+    fun isEditMode() = editorMode == EditorMode.EDIT
 
-    fun isHtmlMode() = editorMode == Constants.MODE_HTML
+    fun isHtmlMode() = editorMode == EditorMode.HTML
 
 }
 

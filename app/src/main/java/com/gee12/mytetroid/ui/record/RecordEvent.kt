@@ -43,8 +43,8 @@ sealed class RecordEvent : StorageEvent() {
     data class FileAttached(
         val attach: TetroidFile,
     ) : RecordEvent()
-    data class SwitchViews(
-        val viewMode: Int,
+    data class SwitchEditorMode(
+        val mode: EditorMode,
     ) : RecordEvent()
     data class AskForSaving(
         val resultObj: ResultObject,

@@ -48,11 +48,6 @@ object Constants {
     const val REQUEST_CODE_NODE_ICON = 106                  // иконка ветки
     const val REQUEST_CODE_SYNC_STORAGE = 107               // синхронизация хранилища
 
-    // TODO: преобразовать в enum
-    const val MODE_VIEW = 1
-    const val MODE_EDIT = 2
-    const val MODE_HTML = 3
-
     const val RESULT_REINIT_STORAGE = 1
     const val RESULT_PASS_CHANGED = 2
     const val RESULT_OPEN_RECORD = 3

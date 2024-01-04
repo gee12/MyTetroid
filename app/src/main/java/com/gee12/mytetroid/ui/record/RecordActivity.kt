@@ -47,7 +47,6 @@ import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.di.ScopeSource
-import com.gee12.mytetroid.domain.HtmlHelper
 import com.gee12.mytetroid.domain.TetroidClipboardListener
 import com.gee12.mytetroid.domain.provider.TetroidSuggestionProvider
 import com.gee12.mytetroid.model.TetroidFile
@@ -375,8 +374,8 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             is RecordEvent.FileAttached -> {
                 onFileAttached(event.attach)
             }
-            is RecordEvent.SwitchViews -> {
-                switchViews(event.viewMode)
+            is RecordEvent.SwitchEditorMode -> {
+                switchEditorMode(event.mode)
             }
             is RecordEvent.AskForSaving -> {
                 askForSaving(event.resultObj)
@@ -853,10 +852,10 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
     //region Mode
 
-    private fun switchViews(newMode: Int) {
+    private fun switchEditorMode(newMode: EditorMode) {
         //viewModel.logDebug("switchViews: mode=$newMode")
         when (newMode) {
-            Constants.MODE_VIEW -> {
+            EditorMode.VIEW -> {
                 editor.visibility = View.VISIBLE
                 editor.setToolBarVisibility(false)
                 mScrollViewHtml.visibility = View.GONE
@@ -866,7 +865,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 setSubtitle(getString(R.string.subtitle_record_view))
                 editor.webView.hideKeyboard()
             }
-            Constants.MODE_EDIT -> {
+            EditorMode.EDIT -> {
                 editor.visibility = View.VISIBLE
                 // загружаем Javascript (если нужно)
 //                if (!mEditor.getWebView().isEditorJSLoaded()) {
@@ -882,7 +881,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 editor.webView.focusEditor()
                 editor.webView.focusAndShowKeyboard()
             }
-            Constants.MODE_HTML -> {
+            EditorMode.HTML -> {
                 editor.visibility = View.GONE
                 if (editor.webView.isHtmlRequestMade) {
                     val htmlText = editor.webView.editableHtml
@@ -1162,16 +1161,16 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         if (!isOnCreateProcessed) return true
         // режимы
         val mode = viewModel.editorMode
-        activateMenuItem(menu.findItem(R.id.action_record_view), mode == Constants.MODE_EDIT)
+        activateMenuItem(menu.findItem(R.id.action_record_view), mode == EditorMode.EDIT)
         activateMenuItem(
-            menu.findItem(R.id.action_record_edit), mode == Constants.MODE_VIEW
-                    || mode == Constants.MODE_HTML
+            menu.findItem(R.id.action_record_edit), mode == EditorMode.VIEW
+                    || mode == EditorMode.HTML
         )
         activateMenuItem(
-            menu.findItem(R.id.action_record_html), mode == Constants.MODE_VIEW
-                    || mode == Constants.MODE_EDIT
+            menu.findItem(R.id.action_record_html), mode == EditorMode.VIEW
+                    || mode == EditorMode.EDIT
         )
-        activateMenuItem(menu.findItem(R.id.action_record_save), mode == Constants.MODE_EDIT)
+        activateMenuItem(menu.findItem(R.id.action_record_save), mode == EditorMode.EDIT)
         val isLoaded = viewModel.isStorageLoaded()
         val isLoadedFavoritesOnly = viewModel.isLoadedFavoritesOnly()
         val isTemp = viewModel.isRecordTemporary()
@@ -1231,15 +1230,15 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         val id = item.itemId
         when (id) {
             R.id.action_record_view -> {
-                viewModel.switchMode(Constants.MODE_VIEW)
+                viewModel.switchMode(EditorMode.VIEW)
                 return true
             }
             R.id.action_record_edit -> {
-                viewModel.switchMode(Constants.MODE_EDIT)
+                viewModel.switchMode(EditorMode.EDIT)
                 return true
             }
             R.id.action_record_html -> {
-                viewModel.switchMode(Constants.MODE_HTML)
+                viewModel.switchMode(EditorMode.HTML)
                 return true
             }
             R.id.action_record_save -> {
@@ -1541,7 +1540,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     fun setFindButtonsVisibility(vis: Boolean) {
         ViewUtils.setFabVisibility(mButtonFindNext, vis)
         ViewUtils.setFabVisibility(mButtonFindPrev, vis)
-        setRecordFieldsVisibility(!vis && viewModel.editorMode != Constants.MODE_HTML)
+        setRecordFieldsVisibility(!vis && viewModel.editorMode != EditorMode.HTML)
         // установим позиционирование кнопки FindNext от правого края
         var params = mButtonFindNext.layoutParams as RelativeLayout.LayoutParams
         if (vis) {
