@@ -151,6 +151,7 @@ object ViewModelsModule {
                     parseRecordTagsUseCase = get(),
                     getTagByNameUseCase = get(),
                     renameTagInRecordsUseCase = get(),
+                    downloadFileFromWebUseCase = get(),
                 )
             }
 
@@ -207,6 +208,9 @@ object ViewModelsModule {
 
                     cryptRecordFilesIfNeedUseCase = get(),
                     parseRecordTagsUseCase = get(),
+                    downloadWebPageContentUseCase = get(),
+                    downloadImageFromWebUseCase = get(),
+                    downloadFileFromWebUseCase = get(),
                 )
             }
 

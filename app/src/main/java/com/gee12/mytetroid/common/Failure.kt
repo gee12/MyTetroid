@@ -113,4 +113,10 @@ sealed class Failure(val ex: Throwable? = null) {
         class Unknown(val path: FilePath, ex: Throwable) : Folder(ex)
     }
 
+    sealed class Network(ex: Throwable? = null) : Failure(ex) {
+        class DownloadWebPageError(ex: Throwable) : Network(ex)
+        class DownloadImageError(ex: Throwable) : Network(ex)
+        class DownloadFileError(ex: Throwable) : Network(ex)
+    }
+
 }

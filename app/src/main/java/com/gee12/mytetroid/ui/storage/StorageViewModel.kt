@@ -4,27 +4,22 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.net.Uri
-import android.text.TextUtils
 import com.anggrayudi.storage.file.DocumentFileCompat
 import com.anggrayudi.storage.file.toRawFile
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.getExtensionWithoutComma
-import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.common.extensions.parseUri
 import com.gee12.mytetroid.common.extensions.withExtension
 import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.data.settings.CommonSettings
-import com.gee12.mytetroid.domain.NetworkHelper.IWebFileResult
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.*
-import com.gee12.mytetroid.common.utils.UriUtils
 import com.gee12.mytetroid.domain.interactor.*
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
-import com.gee12.mytetroid.domain.NetworkHelper
 import com.gee12.mytetroid.domain.manager.*
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -32,7 +27,6 @@ import com.gee12.mytetroid.logs.TaskStage
 import com.gee12.mytetroid.domain.repo.StoragesRepo
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.BaseStorageViewModel
-import com.gee12.mytetroid.ui.base.TetroidActivity
 import com.gee12.mytetroid.domain.usecase.crypt.*
 import com.gee12.mytetroid.domain.usecase.file.GetFileModifiedDateInStorageUseCase
 import com.gee12.mytetroid.domain.usecase.file.GetFolderSizeInStorageUseCase
@@ -43,7 +37,6 @@ import com.gee12.mytetroid.model.QuicklyNode
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.model.permission.TetroidPermission
 import kotlinx.coroutines.runBlocking
-import java.io.File
 import java.util.*
 
 open class StorageViewModel(
@@ -943,42 +936,6 @@ open class StorageViewModel(
     // region Attaches
 
     /**
-     * Загрузка файла по URL в каталог кэша на устройстве.
-     * @param url
-     * @param callback
-     */
-    // TODO: заюзать uri
-    open suspend fun downloadFileToCache(url: String?, callback: TetroidActivity.IDownloadFileResult?) {
-        if (TextUtils.isEmpty(url)) {
-            logError(R.string.log_link_is_empty)
-            return
-        }
-        showProgressWithText(R.string.state_file_downloading)
-        val fileName = UriUtils.getFileName(url).ifEmpty { dataNameProvider.createDateTimePrefix() }
-
-        // TODO: взять путь из AppPathProvider
-
-        val outputFileName = makePath(getExternalCacheDir(), fileName)
-
-        NetworkHelper.downloadFileAsync(url, outputFileName, object : IWebFileResult {
-            override fun onSuccess() {
-                callback?.onSuccess(Uri.fromFile(File(outputFileName)))
-                launchOnMain {
-                    hideProgress()
-                }
-            }
-
-            override fun onError(ex: Exception) {
-                callback?.onError(ex)
-                logError(getString(R.string.log_error_download_file_mask, ex.message.orEmpty()))
-                launchOnMain {
-                    hideProgress()
-                }
-            }
-        })
-    }
-
-    /**
      * Получение полного имени файла.
      */
     // TODO: вынести в место использования
@@ -1016,8 +973,6 @@ open class StorageViewModel(
     // endregion Attaches
 
     // region Other
-
-    fun getExternalCacheDir() = getContext().externalCacheDir.toString()
 
     fun checkStorageFilesExistingError(): String? {
         return checkStorageFilesExistingUseCase.execute(

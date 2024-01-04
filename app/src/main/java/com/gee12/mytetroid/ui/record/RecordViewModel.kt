@@ -19,8 +19,6 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.getFileName
 import com.gee12.mytetroid.common.extensions.orFalse
-import com.gee12.mytetroid.domain.NetworkHelper.IWebImageResult
-import com.gee12.mytetroid.domain.NetworkHelper.IWebPageContentResult
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.common.utils.Utils
 import java.io.UnsupportedEncodingException
@@ -36,7 +34,6 @@ import com.gee12.mytetroid.domain.repo.StoragesRepo
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.ui.base.BaseEvent
-import com.gee12.mytetroid.ui.base.TetroidActivity
 import com.gee12.mytetroid.ui.storage.StorageViewModel
 import com.gee12.mytetroid.domain.usecase.attach.AttachFileToRecordUseCase
 import com.gee12.mytetroid.domain.usecase.crypt.*
@@ -46,6 +43,9 @@ import com.gee12.mytetroid.domain.usecase.node.GetNodeByIdUseCase
 import com.gee12.mytetroid.domain.usecase.record.*
 import com.gee12.mytetroid.domain.usecase.image.SaveImageFromBitmapUseCase
 import com.gee12.mytetroid.domain.usecase.image.SaveImageFromUriUseCase
+import com.gee12.mytetroid.domain.usecase.network.DownloadFileFromWebUseCase
+import com.gee12.mytetroid.domain.usecase.network.DownloadImageFromWebUseCase
+import com.gee12.mytetroid.domain.usecase.network.DownloadWebPageContentUseCase
 import com.gee12.mytetroid.domain.usecase.storage.*
 import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
@@ -104,6 +104,9 @@ class RecordViewModel(
     private val editRecordFieldsUseCase : EditRecordFieldsUseCase,
     private val getRecordFolderUseCase : GetRecordFolderUseCase,
     private val printDocumentToFileUseCase : PrintDocumentToFileUseCase,
+    private val downloadWebPageContentUseCase : DownloadWebPageContentUseCase,
+    private val downloadImageFromWebUseCase : DownloadImageFromWebUseCase,
+    private val downloadFileFromWebUseCase: DownloadFileFromWebUseCase,
 
     cryptRecordFilesIfNeedUseCase: CryptRecordFilesIfNeedUseCase,
     parseRecordTagsUseCase: ParseRecordTagsUseCase,
@@ -748,7 +751,7 @@ class RecordViewModel(
             }.onComplete {
                 hideProgress()
             }.onFailure {
-                logFailure(it)
+                logFailure(it, show = true)
                 sendEvent(BaseEvent.ShowMoreInLogs)
             }.onSuccess { image ->
                 sendEvent(RecordEvent.InsertImages(images = listOf(image)))
@@ -756,48 +759,49 @@ class RecordViewModel(
         }
     }
 
-    fun downloadWebPageContent(url: String?, isTextOnly: Boolean) {
+    fun downloadWebPageContent(url: String, isTextOnly: Boolean) {
         launchOnMain {
             showProgressWithText(R.string.title_page_downloading)
-
-            NetworkHelper.downloadWebPageContentAsync(url, isTextOnly, object : IWebPageContentResult {
-                override fun onSuccess(content: String, isTextOnly: Boolean) {
-                    launchOnMain {
-                        sendEvent(
-                            if (isTextOnly) RecordEvent.InsertWebPageText(text = content)
-                            else RecordEvent.InsertWebPageContent(content = content)
-                        )
-                        hideProgress()
+            withIo {
+                downloadWebPageContentUseCase.run(
+                    DownloadWebPageContentUseCase.Params(
+                        url = url,
+                        isTextOnly = isTextOnly,
+                    )
+                )
+            }.onComplete {
+                hideProgress()
+            }.onSuccess { content ->
+                sendEvent(
+                    if (isTextOnly) {
+                        RecordEvent.InsertWebPageText(text = content)
                     }
-                }
-
-                override fun onError(ex: Exception) {
-                    logError(getString(R.string.log_error_download_image_mask, ex.message!!), true)
-                    launchOnMain {
-                        logError(getString(R.string.log_error_download_web_page_mask, ex.message!!), true)
-                        hideProgress()
+                    else {
+                        RecordEvent.InsertWebPageContent(content = content)
                     }
-                }
-            })
+                )
+            }.onFailure {
+                logFailure(it, show = true)
+            }
         }
     }
 
-    fun downloadImage(url: String?) {
+    fun downloadImage(url: String) {
         launchOnMain {
             showProgressWithText(R.string.state_image_downloading)
-
-            NetworkHelper.downloadImageAsync(url, object : IWebImageResult {
-                override fun onSuccess(bitmap: Bitmap) {
-                    saveImage(bitmap)
-                }
-
-                override fun onError(ex: Exception) {
-                    logError(getString(R.string.log_error_download_image_mask, ex.message!!), true)
-                    launchOnMain {
-                        hideProgress()
-                    }
-                }
-            })
+            withIo {
+                downloadImageFromWebUseCase.run(
+                    DownloadImageFromWebUseCase.Params(
+                        url = url,
+                    )
+                )
+            }.onComplete {
+                hideProgress()
+            }.onSuccess { bitmap ->
+                saveImage(bitmap)
+            }.onFailure {
+                logFailure(it, show = true)
+            }
         }
     }
 
@@ -839,18 +843,21 @@ class RecordViewModel(
 
     fun downloadAndAttachFile(uri: Uri) {
         launchOnMain {
-            super.downloadFileToCache(
-                url = uri.toString(),
-                callback = object : TetroidActivity.IDownloadFileResult {
-                    override fun onSuccess(uri: Uri) {
-                        // прикрепляем и удаляем файл из кэша
-                        attachFile(uri, deleteSrcFile = true)
-                    }
-                    override fun onError(ex: Exception) {
-                        logError(ex, show = true)
-                    }
-                }
-            )
+            showProgressWithText(R.string.state_file_downloading)
+            withIo {
+                downloadFileFromWebUseCase.run(
+                    DownloadFileFromWebUseCase.Params(
+                        url = uri.toString(),
+                    )
+                )
+            }.onComplete {
+                hideProgress()
+            }.onFailure {
+                logFailure(it, show = true)
+            }.onSuccess { uri ->
+                // прикрепляем и удаляем файл из кэша
+                attachFile(fileUri = uri, deleteSrcFile = true)
+            }
         }
     }
 

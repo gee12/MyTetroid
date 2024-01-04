@@ -10,6 +10,8 @@ import com.gee12.mytetroid.domain.usecase.attach.*
 import com.gee12.mytetroid.domain.usecase.crypt.*
 import com.gee12.mytetroid.domain.usecase.crypt.DecryptStorageUseCase
 import com.gee12.mytetroid.domain.usecase.file.*
+import com.gee12.mytetroid.domain.usecase.html.CreateTagsHtmlStringUseCase
+import com.gee12.mytetroid.domain.usecase.html.HtmlElementToTextUseCase
 import com.gee12.mytetroid.domain.usecase.image.LoadDrawableFromFileUseCase
 import com.gee12.mytetroid.domain.usecase.node.*
 import com.gee12.mytetroid.domain.usecase.node.icon.*
@@ -17,6 +19,9 @@ import com.gee12.mytetroid.domain.usecase.record.*
 import com.gee12.mytetroid.domain.usecase.image.SaveImageFromBitmapUseCase
 import com.gee12.mytetroid.domain.usecase.image.SaveImageFromUriUseCase
 import com.gee12.mytetroid.domain.usecase.image.SetImageDimensionsUseCase
+import com.gee12.mytetroid.domain.usecase.network.DownloadFileFromWebUseCase
+import com.gee12.mytetroid.domain.usecase.network.DownloadImageFromWebUseCase
+import com.gee12.mytetroid.domain.usecase.network.DownloadWebPageContentUseCase
 import com.gee12.mytetroid.domain.usecase.storage.*
 import com.gee12.mytetroid.domain.usecase.tag.DeleteRecordTagsUseCase
 import com.gee12.mytetroid.domain.usecase.tag.GetTagByNameUseCase
@@ -781,7 +786,40 @@ object UseCasesModule {
             }
 
             //endregion Image
-            
+
+            // region Html
+
+            scoped {
+                CreateTagsHtmlStringUseCase()
+            }
+
+            scoped {
+                HtmlElementToTextUseCase()
+            }
+
+            // endregion Html
+
+            // region Network
+
+            scoped {
+                DownloadWebPageContentUseCase(
+                    htmlElementToTextUseCase = get(),
+                )
+            }
+
+            scoped {
+                DownloadImageFromWebUseCase()
+            }
+
+            scoped {
+                DownloadFileFromWebUseCase(
+                    appPathProvider = get(),
+                    dataNameProvider = get(),
+                )
+            }
+
+            // endregion Network
+
         }
     }
 }

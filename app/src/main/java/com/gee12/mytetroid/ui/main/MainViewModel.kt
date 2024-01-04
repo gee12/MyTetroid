@@ -24,7 +24,6 @@ import com.gee12.mytetroid.domain.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.domain.repo.StoragesRepo
 import com.gee12.mytetroid.ui.base.BaseEvent
-import com.gee12.mytetroid.ui.base.TetroidActivity
 import com.gee12.mytetroid.ui.storage.StorageEvent
 import com.gee12.mytetroid.domain.interactor.*
 import com.gee12.mytetroid.domain.manager.*
@@ -37,6 +36,7 @@ import com.gee12.mytetroid.domain.usecase.file.GetFolderSizeInStorageUseCase
 import com.gee12.mytetroid.domain.usecase.node.CreateNodeUseCase
 import com.gee12.mytetroid.domain.usecase.node.GetNodeByIdUseCase
 import com.gee12.mytetroid.domain.usecase.attach.*
+import com.gee12.mytetroid.domain.usecase.network.DownloadFileFromWebUseCase
 import com.gee12.mytetroid.domain.usecase.node.*
 import com.gee12.mytetroid.domain.usecase.node.icon.LoadNodeIconUseCase
 import com.gee12.mytetroid.domain.usecase.node.icon.SetNodeIconUseCase
@@ -121,6 +121,7 @@ class MainViewModel(
 
     private val getTagByNameUseCase: GetTagByNameUseCase,
     private val renameTagInRecordsUseCase: RenameTagInRecordsUseCase,
+    private val downloadFileFromWebUseCase: DownloadFileFromWebUseCase,
 
     cryptRecordFilesIfNeedUseCase: CryptRecordFilesIfNeedUseCase,
     parseRecordTagsUseCase: ParseRecordTagsUseCase,
@@ -1725,18 +1726,25 @@ class MainViewModel(
      */
     fun downloadAndAttachFile(url: String) {
         launchOnMain {
-            downloadFileToCache(
-                url = url,
-                callback = object : TetroidActivity.IDownloadFileResult {
-                    override fun onSuccess(uri: Uri) {
-                        // прикрепляем и удаляем файл из кэша
-                        attachFileToCurrentRecord(uri, deleteSrcFile = true)
-                    }
-                    override fun onError(ex: Exception) {
-                        logError(ex, show = true)
-                    }
+            if (url.isEmpty()) {
+                logError(R.string.log_link_is_empty)
+            } else {
+                showProgressWithText(R.string.state_file_downloading)
+                withIo {
+                    downloadFileFromWebUseCase.run(
+                        DownloadFileFromWebUseCase.Params(
+                            url = url,
+                        )
+                    )
+                }.onComplete {
+                    hideProgress()
+                }.onFailure {
+                    logFailure(it, show = true)
+                }.onSuccess { uri ->
+                    // прикрепляем и удаляем файл из кэша
+                    attachFileToCurrentRecord(fileUri = uri, deleteSrcFile = true)
                 }
-            )
+            }
         }
     }
 

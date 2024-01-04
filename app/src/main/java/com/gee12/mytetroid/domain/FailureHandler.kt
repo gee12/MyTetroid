@@ -71,6 +71,24 @@ class FailureHandler(
             is Failure.Folder -> {
                 getFolderFailureMessage(failure)
             }
+            is Failure.Network.DownloadWebPageError -> {
+                NotificationData.Error(
+                    title = getString(R.string.log_error_download_web_page_mask, failure.ex?.message.orEmpty()),
+                    message = failure.ex?.getInfo()
+                )
+            }
+            is Failure.Network.DownloadImageError -> {
+                NotificationData.Error(
+                    title = getString(R.string.log_error_download_image_mask, failure.ex?.message.orEmpty()),
+                    message = failure.ex?.getInfo()
+                )
+            }
+            is Failure.Network.DownloadFileError -> {
+                NotificationData.Error(
+                    title = getString(R.string.log_error_download_file_mask, failure.ex?.message.orEmpty()),
+                    message = failure.ex?.getInfo()
+                )
+            }
         }
     }
 

@@ -76,6 +76,8 @@ import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import com.gee12.htmlwysiwygeditor.IColorPicker
 import com.gee12.htmlwysiwygeditor.EditableWebView.*
 import com.gee12.htmlwysiwygeditor.WysiwygEditor
+import com.gee12.mytetroid.common.onSuccess
+import com.gee12.mytetroid.domain.usecase.html.CreateTagsHtmlStringUseCase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.cachapa.expandablelayout.ExpandableLayout
@@ -402,10 +404,10 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 openWebLink(event.link)
             }
             is RecordEvent.InsertWebPageContent -> {
-                editor.insertWebPageContent(event.content, false)
+                editor.insertWebPageContent(event.content, isTextOnly = false)
             }
             is RecordEvent.InsertWebPageText -> {
-                editor.insertWebPageContent(event.text, true)
+                editor.insertWebPageContent(event.text, isTextOnly = true)
             }
             is RecordEvent.AskToOpenExportedPdf -> {
                 showDialogForOpenExportedPdf(event.pdfFile)
@@ -584,25 +586,32 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     private fun loadFields(record: TetroidRecord) {
         var id = R.id.label_record_tags
         // метки
-        val tagsHtml = HtmlHelper.createTagsHtmlString(record)
-        if (tagsHtml != null) {
-            val charSequence = tagsHtml.fromHtml()
-            val spannable = SpannableString(charSequence)
-            val urls = spannable.getSpans(0, charSequence.length, URLSpan::class.java)
-            for (span in urls) {
-                val start = spannable.getSpanStart(span)
-                val end = spannable.getSpanEnd(span)
-                val clickableSpan = object : ClickableSpan() {
-                    override fun onClick(view: View) {
-                        viewModel.onTagUrlLoad(span.url)
+
+        // TODO: перенести в VM
+
+        CreateTagsHtmlStringUseCase().execute(
+            CreateTagsHtmlStringUseCase.Params(record)
+        ).onSuccess { tagsHtml ->
+            if (tagsHtml.isNotEmpty()) {
+                val charSequence = tagsHtml.fromHtml()
+                val spannable = SpannableString(charSequence)
+                val urls = spannable.getSpans(0, charSequence.length, URLSpan::class.java)
+                for (span in urls) {
+                    val start = spannable.getSpanStart(span)
+                    val end = spannable.getSpanEnd(span)
+                    val clickableSpan = object : ClickableSpan() {
+                        override fun onClick(view: View) {
+                            viewModel.onTagUrlLoad(span.url)
+                        }
                     }
+                    spannable.removeSpan(span)
+                    spannable.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
-                spannable.removeSpan(span)
-                spannable.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                mTextViewTags.text = spannable
+                id = R.id.text_view_record_tags
             }
-            mTextViewTags.text = spannable
-            id = R.id.text_view_record_tags
         }
+
         // указываем относительно чего теперь выравнивать следующее за метками поле
         // (т.к. метки - многострочный элемент)
         val tvLabelAuthor = findViewById<TextView>(R.id.label_record_author)
