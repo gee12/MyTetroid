@@ -18,7 +18,7 @@ import com.gee12.mytetroid.domain.usecase.node.icon.*
 import com.gee12.mytetroid.domain.usecase.record.*
 import com.gee12.mytetroid.domain.usecase.image.SaveImageFromBitmapUseCase
 import com.gee12.mytetroid.domain.usecase.image.SaveImageFromUriUseCase
-import com.gee12.mytetroid.domain.usecase.image.SetImageDimensionsUseCase
+import com.gee12.mytetroid.domain.usecase.image.GetImageDimensionsUseCase
 import com.gee12.mytetroid.domain.usecase.network.DownloadFileFromWebUseCase
 import com.gee12.mytetroid.domain.usecase.network.DownloadImageFromWebUseCase
 import com.gee12.mytetroid.domain.usecase.network.DownloadWebPageContentUseCase
@@ -782,7 +782,9 @@ object UseCasesModule {
             }
 
             scoped {
-                SetImageDimensionsUseCase()
+                GetImageDimensionsUseCase(
+                    context = androidContext(),
+                )
             }
 
             //endregion Image

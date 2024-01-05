@@ -6,13 +6,13 @@ import com.gee12.htmlwysiwygeditor.ActionButton
 import com.gee12.htmlwysiwygeditor.enums.ActionButtonSize
 import com.gee12.htmlwysiwygeditor.enums.ActionType
 import com.gee12.htmlwysiwygeditor.dialog.ImageDimensDialog
-import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.domain.HtmlHelper
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.model.TetroidImage
 import com.gee12.mytetroid.ui.dialogs.AskDialogs.showYesNoDialog
 import com.gee12.htmlwysiwygeditor.WysiwygEditor
+import com.gee12.htmlwysiwygeditor.model.ImageParams
 import com.gee12.mytetroid.domain.AppThemeHelper.setNightMode
 import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 
@@ -27,6 +27,7 @@ class TetroidEditor @JvmOverloads constructor(
 
     interface IEditorListener {
         fun onIsEditedChanged(isEdited: Boolean)
+        fun onEditImage(params: ImageParams)
     }
 
     var isCalledHtmlRequest = false
@@ -118,7 +119,6 @@ class TetroidEditor @JvmOverloads constructor(
         )
         val notAvailableYetActions = arrayOf(
             ActionType.INSERT_FORMULA,
-            ActionType.EDIT_IMAGE,
             // table
             ActionType.INSERT_TABLE,
             ActionType.EDIT_TABLE,
@@ -141,7 +141,6 @@ class TetroidEditor @JvmOverloads constructor(
             when (button.type) {
                 ActionType.INSERT_FORMULA -> showToastNotAvailableYet()
                 ActionType.VOICE_INPUT -> showToastNotAvailableInFree()
-                ActionType.EDIT_IMAGE,
                 // table
                 ActionType.INSERT_TABLE,
                 ActionType.EDIT_TABLE,
@@ -196,7 +195,7 @@ class TetroidEditor @JvmOverloads constructor(
     }
 
     fun insertImage(image: TetroidImage) {
-        showEditImageDialog(image.name, image.width, image.height, false)
+        showInsertImageDialog(image.name, image.width, image.height, false)
     }
 
     /**
@@ -206,11 +205,11 @@ class TetroidEditor @JvmOverloads constructor(
     fun insertImages(images: List<TetroidImage>) {
         when (images.size) {
             0 -> {
-                return
+                // ignore
             }
             1 -> {
                 // выводим диалог установки размера
-                insertImage(images[0])
+                insertImage(image = images[0])
             }
             else -> {
                 // спрашиваем о необходимости изменения размера
@@ -219,7 +218,7 @@ class TetroidEditor @JvmOverloads constructor(
                     isCancelable = true,
                     messageResId = R.string.ask_change_image_dimens,
                     onApply = {
-                        createImageDimensDialog(images, 0)
+                        showInsertImageDialog(images, 0)
                     },
                     onCancel = {
                         for (fileName in images) {
@@ -232,7 +231,7 @@ class TetroidEditor @JvmOverloads constructor(
         }
     }
 
-    private fun createImageDimensDialog(images: List<TetroidImage>, pos: Int) {
+    private fun showInsertImageDialog(images: List<TetroidImage>, pos: Int) {
         if (pos < 0 || pos >= images.size) {
             return
         }
@@ -241,22 +240,28 @@ class TetroidEditor @JvmOverloads constructor(
         val isSeveral = pos < images.size - 1
         ImageDimensDialog(
             context = context,
+            isEdit = false,
             srcWidth = image.width,
             srcHeight = image.height,
+            isUseSourceSize = true,
             isSeveral = isSeveral,
             onApply = { width, height, similar ->
-                webView.insertImage(image.name, width, height)
+                webView.insertImage(url = image.name, width, height)
                 if (!similar) {
                     // вновь выводим диалог установки размера
-                    createImageDimensDialog(images, pos + 1)
+                    showInsertImageDialog(images, pos = pos + 1)
                 } else {
                     // устанавливаем "сохраненный" размер
                     for (i in pos + 1 until images.size) {
-                        webView.insertImage(images[i].name, width, height)
+                        webView.insertImage(url = images[i].name, width, height)
                     }
                 }
             }
         ).show()
+    }
+
+    override fun onEditImage(params: ImageParams) {
+        editorListener?.onEditImage(params)
     }
 
     private fun showToastNotAvailableInFree() {

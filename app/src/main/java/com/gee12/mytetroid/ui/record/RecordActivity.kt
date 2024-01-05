@@ -1,9 +1,11 @@
 package com.gee12.mytetroid.ui.record
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.SearchManager
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -16,16 +18,12 @@ import android.text.Spanned
 import android.text.method.LinkMovementMethod
 import android.text.style.ClickableSpan
 import android.text.style.URLSpan
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
-import android.widget.ProgressBar
-import android.widget.RelativeLayout
-import android.widget.ScrollView
-import android.widget.TextView
+import android.widget.*
+import androidx.appcompat.view.menu.MenuBuilder
+import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.isVisible
 import androidx.documentfile.provider.DocumentFile
@@ -75,6 +73,7 @@ import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import com.gee12.htmlwysiwygeditor.IColorPicker
 import com.gee12.htmlwysiwygeditor.EditableWebView.*
 import com.gee12.htmlwysiwygeditor.WysiwygEditor
+import com.gee12.htmlwysiwygeditor.model.ImageParams
 import com.gee12.mytetroid.common.onSuccess
 import com.gee12.mytetroid.domain.usecase.html.CreateTagsHtmlStringUseCase
 import kotlinx.coroutines.delay
@@ -176,6 +175,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         webView.loadContentListener = { uri ->
             loadPageContent(uri)
         }
+        registerForContextMenu(webView)
         //webView.setBackgroundColor(ContextCompat.getColor(this, R.color.background_web_view))
 
         mTextViewTags = findViewById(R.id.text_view_record_tags)
@@ -398,6 +398,9 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             is RecordEvent.InsertImages -> {
                 editor.insertImages(images = event.images)
                 hideProgress()
+            }
+            is RecordEvent.EditImage -> {
+                editor.showEditImageDialog(params = event.params)
             }
             is RecordEvent.OpenWebLink -> {
                 openWebLink(event.link)
@@ -709,6 +712,10 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
     override fun onIsEditedChanged(isEdited: Boolean) {
         viewModel.setTextIsEdited(isEdited)
+    }
+
+    override fun onEditImage(params: ImageParams) {
+        viewModel.getImageDimensions(params)
     }
 
     /**
@@ -1303,7 +1310,78 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     }
     
     // endregion Options menu
-    
+
+    // region Context menu
+
+override fun onCreateContextMenu(menu: ContextMenu, view: View, menuInfo: ContextMenu.ContextMenuInfo?) {
+    super.onCreateContextMenu(menu, view, menuInfo)
+
+    val result = editor.webView.hitTestResult
+    when (result.type) {
+        WebView.HitTestResult.IMAGE_TYPE,
+        WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE -> {
+            showStoragePopupMenu(view)
+        }
+    }
+}
+
+    @SuppressLint("RestrictedApi")
+    private fun showStoragePopupMenu(anchorView: View) {
+        val popupMenu = PopupMenu(this, anchorView, Gravity.CENTER_VERTICAL)
+        popupMenu.inflate(R.menu.web_view_context)
+        popupMenu.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.action_edit_image -> {
+                    editor.webView.getImage()
+                    true
+                }
+                else -> false
+            }
+        }
+        setForceShowMenuIcons(anchorView, popupMenu.menu as MenuBuilder)
+    }
+    /**
+     *
+     */
+    private fun createPopupWindow(anchorView: View, contentViewId: Int): PopupWindow {
+        val popupView = layoutInflater.inflate(contentViewId, null).apply {
+            measure(
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            )
+        }
+        val popupWindow = PopupWindow(
+            popupView,
+            RelativeLayout.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT
+        )
+        popupWindow.isFocusable = false // если true - не будет кликабельно все вокруг popup
+        popupWindow.isOutsideTouchable = true // true - клик за пределами popup закрывает его
+        // (в Android 4.4 не работает)
+        popupWindow.setBackgroundDrawable(ColorDrawable()) // чтобы заработал setOutsideTouchable()
+        popupWindow.animationStyle = -1 // -1 - генерация анимации, 0 - отключить анимацию
+        val xOffset = 0
+        val yOffset = 36
+        if (Build.VERSION.SDK_INT < 24) {
+            popupWindow.showAsDropDown(
+                anchorView,
+                xOffset,
+                -anchorView.measuredHeight - popupView.measuredHeight + yOffset
+            )
+        } else {
+            val location = IntArray(2)
+            anchorView.getLocationInWindow(location)
+            popupWindow.showAtLocation(
+                window.decorView,
+                Gravity.NO_GRAVITY,
+                location[0] + xOffset,
+                location[1] - anchorView.measuredHeight + yOffset
+            )
+        }
+        return popupWindow
+    }
+
+    // endregion Context menu
+
     // region Record fields
     
     /**

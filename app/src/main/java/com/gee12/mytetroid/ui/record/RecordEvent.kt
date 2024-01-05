@@ -2,6 +2,7 @@ package com.gee12.mytetroid.ui.record
 
 import android.os.Bundle
 import androidx.documentfile.provider.DocumentFile
+import com.gee12.htmlwysiwygeditor.model.ImageParams
 import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.model.TetroidImage
 import com.gee12.mytetroid.model.TetroidRecord
@@ -60,6 +61,9 @@ sealed class RecordEvent : StorageEvent() {
     object StartCaptureCamera : RecordEvent()
     data class InsertImages(
         val images: List<TetroidImage>,
+    ) : RecordEvent()
+    data class EditImage(
+        val params: ImageParams,
     ) : RecordEvent()
     data class InsertWebPageContent(
         val content: String,

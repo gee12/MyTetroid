@@ -167,7 +167,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         val nodesFooter = (getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater)
             .inflate(R.layout.list_view_empty_footer, null, false)
         lvNodes.listView.addFooterView(nodesFooter, null, false)
-//        registerForContextMenu(mListViewNodes.getListView());
         tvNodesEmpty = findViewById(R.id.nodes_text_view_empty)
         fabCreateNode = findViewById(R.id.button_add_node)
         fabCreateNode.setOnClickListener {

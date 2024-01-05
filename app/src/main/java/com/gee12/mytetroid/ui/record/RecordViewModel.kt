@@ -15,6 +15,7 @@ import androidx.annotation.UiThread
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.MutableLiveData
 import com.anggrayudi.storage.file.*
+import com.gee12.htmlwysiwygeditor.model.ImageParams
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.getFileName
@@ -43,6 +44,7 @@ import com.gee12.mytetroid.domain.usecase.node.GetNodeByIdUseCase
 import com.gee12.mytetroid.domain.usecase.record.*
 import com.gee12.mytetroid.domain.usecase.image.SaveImageFromBitmapUseCase
 import com.gee12.mytetroid.domain.usecase.image.SaveImageFromUriUseCase
+import com.gee12.mytetroid.domain.usecase.image.GetImageDimensionsUseCase
 import com.gee12.mytetroid.domain.usecase.network.DownloadFileFromWebUseCase
 import com.gee12.mytetroid.domain.usecase.network.DownloadImageFromWebUseCase
 import com.gee12.mytetroid.domain.usecase.network.DownloadWebPageContentUseCase
@@ -107,6 +109,7 @@ class RecordViewModel(
     private val downloadWebPageContentUseCase : DownloadWebPageContentUseCase,
     private val downloadImageFromWebUseCase : DownloadImageFromWebUseCase,
     private val downloadFileFromWebUseCase: DownloadFileFromWebUseCase,
+    private val getImageDimensionsUseCase: GetImageDimensionsUseCase,
 
     cryptRecordFilesIfNeedUseCase: CryptRecordFilesIfNeedUseCase,
     parseRecordTagsUseCase: ParseRecordTagsUseCase,
@@ -755,6 +758,32 @@ class RecordViewModel(
                 sendEvent(BaseEvent.ShowMoreInLogs)
             }.onSuccess { image ->
                 sendEvent(RecordEvent.InsertImages(images = listOf(image)))
+            }
+        }
+    }
+
+    fun getImageDimensions(params: ImageParams) {
+        launchOnMain {
+            withIo {
+                DocumentFileCompat.fromUri(
+                    context = getContext(),
+                    uri = Uri.parse(params.src),
+                )?.let { imageFile ->
+                    getImageDimensionsUseCase.run(
+                        GetImageDimensionsUseCase.Params(imageFile)
+                    )
+                } ?: Failure.File.Get(FilePath.FileFull(params.src)).toLeft()
+            }.onComplete {
+                hideProgress()
+            }.onFailure {
+                logFailure(it, show = true)
+                sendEvent(BaseEvent.ShowMoreInLogs)
+            }.onSuccess { dimens ->
+                with(params) {
+                    srcWidth = dimens.width
+                    srcHeight = dimens.height
+                }
+                sendEvent(RecordEvent.EditImage(params))
             }
         }
     }
