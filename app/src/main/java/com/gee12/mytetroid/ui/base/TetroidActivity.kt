@@ -44,11 +44,6 @@ import org.koin.core.scope.get
 abstract class TetroidActivity<VM : BaseViewModel>
     : AppCompatActivity(), ITetroidComponent, View.OnTouchListener {
 
-    interface IDownloadFileResult {
-        fun onSuccess(uri: Uri)
-        fun onError(ex: Exception)
-    }
-
     protected lateinit var scopeSource: ScopeSource
     protected val koinScope: Scope
         get() = scopeSource.scope
@@ -247,10 +242,10 @@ abstract class TetroidActivity<VM : BaseViewModel>
         )
     }
 
-    override fun onNewIntent(intent: Intent) {
+    /*override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         fileStorageHelper?.storage?.checkIfFileReceived(intent)
-    }
+    }*/
 
     override fun onSaveInstanceState(outState: Bundle) {
         fileStorageHelper?.onSaveInstanceState(outState)
