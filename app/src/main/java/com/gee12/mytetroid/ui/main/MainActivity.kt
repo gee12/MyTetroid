@@ -1974,6 +1974,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     /**
      * Обработка входящего Intent.
      */
+    @SuppressLint("MissingSuperCall")
     override fun onNewIntent(intent: Intent) {
         checkReceivedIntent(intent)
         super.onNewIntent(intent)

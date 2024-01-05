@@ -1137,6 +1137,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         }
     }
 
+    @SuppressLint("MissingSuperCall")
     override fun onNewIntent(intent: Intent) {
         checkReceivedIntent(intent)
         super.onNewIntent(intent)
@@ -1173,14 +1174,8 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         // режимы
         val mode = viewModel.editorMode
         activateMenuItem(menu.findItem(R.id.action_record_view), mode == EditorMode.EDIT)
-        activateMenuItem(
-            menu.findItem(R.id.action_record_edit), mode == EditorMode.VIEW
-                    || mode == EditorMode.HTML
-        )
-        activateMenuItem(
-            menu.findItem(R.id.action_record_html), mode == EditorMode.VIEW
-                    || mode == EditorMode.EDIT
-        )
+        activateMenuItem(menu.findItem(R.id.action_record_edit), mode in arrayOf(EditorMode.VIEW, EditorMode.HTML))
+        activateMenuItem(menu.findItem(R.id.action_record_html), mode in arrayOf(EditorMode.VIEW, EditorMode.EDIT))
         activateMenuItem(menu.findItem(R.id.action_record_save), mode == EditorMode.EDIT)
         val isLoaded = viewModel.isStorageLoaded()
         val isLoadedFavoritesOnly = viewModel.isLoadedFavoritesOnly()
@@ -1321,13 +1316,15 @@ override fun onCreateContextMenu(menu: ContextMenu, view: View, menuInfo: Contex
     when (result.type) {
         WebView.HitTestResult.IMAGE_TYPE,
         WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE -> {
-            showStoragePopupMenu(view)
+            if (viewModel.editorMode == EditorMode.EDIT) {
+                showEditImagePopupMenu(view)
+            }
         }
     }
 }
 
     @SuppressLint("RestrictedApi")
-    private fun showStoragePopupMenu(anchorView: View) {
+    private fun showEditImagePopupMenu(anchorView: View) {
         val popupMenu = PopupMenu(this, anchorView, Gravity.CENTER_VERTICAL)
         popupMenu.inflate(R.menu.web_view_context)
         popupMenu.setOnMenuItemClickListener { item ->
