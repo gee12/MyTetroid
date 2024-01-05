@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.extensions.buildIntent
+import com.gee12.mytetroid.common.extensions.showForcedWithIcons
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
@@ -424,7 +425,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
                 else -> false
             }
         }
-        setForceShowMenuIcons(anchorView, popupMenu.menu as MenuBuilder)
+        (popupMenu.menu as MenuBuilder).showForcedWithIcons(anchorView)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.common.extensions
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.os.Build
@@ -8,6 +9,8 @@ import android.text.TextWatcher
 import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
+import androidx.appcompat.view.menu.MenuBuilder
+import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
@@ -28,6 +31,16 @@ fun EditText.addAfterTextChangedListener(listener: (String) -> Unit) {
 
 fun EditText.setSelectionAtEnd() {
     setSelection(text.length)
+}
+
+/**
+ * Принудительное отображение иконок у пунктов меню.
+ */
+@SuppressLint("RestrictedApi")
+fun MenuBuilder.showForcedWithIcons(view: View) {
+    val menuHelper = MenuPopupHelper(view.context, this, view)
+    menuHelper.setForceShowIcon(true)
+    menuHelper.show()
 }
 
 /**

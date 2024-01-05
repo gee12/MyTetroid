@@ -11,7 +11,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.MenuBuilder
-import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.isVisible
@@ -590,29 +589,6 @@ abstract class TetroidActivity<VM : BaseViewModel>
      */
     override fun showSnackMoreInLogs() {
         TetroidMessage.showSnackMoreInLogs(this, R.id.layout_coordinator)
-    }
-    /**
-     * Установка видимости пункта меню.
-     */
-    protected fun visibleMenuItem(menuItem: MenuItem?, isVisible: Boolean) {
-        ViewUtils.setVisibleIfNotNull(menuItem, isVisible)
-    }
-
-    /**
-     * Установка активности пункта меню.
-     */
-    protected fun enableMenuItem(menuItem: MenuItem?, isEnabled: Boolean) {
-        ViewUtils.setEnabledIfNotNull(menuItem, isEnabled)
-    }
-
-    /**
-     * Принудительное отображение иконок у пунктов меню.
-     */
-    @SuppressLint("RestrictedApi")
-    protected fun setForceShowMenuIcons(v: View, menu: MenuBuilder) {
-        val menuHelper = MenuPopupHelper(this, menu, v)
-        menuHelper.setForceShowIcon(true)
-        menuHelper.show()
     }
 
     /**

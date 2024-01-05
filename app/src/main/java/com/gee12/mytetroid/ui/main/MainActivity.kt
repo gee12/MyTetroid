@@ -28,6 +28,7 @@ import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.ICallback
 import com.gee12.mytetroid.common.extensions.fromHtml
 import com.gee12.mytetroid.common.extensions.orZero
+import com.gee12.mytetroid.common.extensions.showForcedWithIcons
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
@@ -1640,26 +1641,26 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         val menu = popupMenu.menu
         val parentNode = node.parentNode
         val isNonCrypted = node.isNonCryptedOrDecrypted
-        visibleMenuItem(menu.findItem(R.id.action_expand_node), node.isExpandable && isNonCrypted)
-//        visibleMenuItem(menu.findItem(R.id.action_create_node), isNonCrypted);
-        visibleMenuItem(menu.findItem(R.id.action_create_subnode), isNonCrypted)
-        visibleMenuItem(menu.findItem(R.id.action_rename), isNonCrypted)
-//        visibleMenuItem(menu.findItem(R.id.action_collapse_node), node.isExpandable());
+        menu.findItem(R.id.action_expand_node)?.setVisible(node.isExpandable && isNonCrypted)
+//        menu.findItem(R.id.action_create_node), isNonCrypted);
+        menu.findItem(R.id.action_create_subnode)?.setVisible(isNonCrypted)
+        menu.findItem(R.id.action_rename)?.setVisible(isNonCrypted)
+//        menu.findItem(R.id.action_collapse_node), node.isExpandable());
         val nodesCount = (if (parentNode != null) parentNode.subNodes else viewModel.getRootNodes()).size
-        visibleMenuItem(menu.findItem(R.id.action_move_up), nodesCount > 0)
-        visibleMenuItem(menu.findItem(R.id.action_move_down), nodesCount > 0)
+        menu.findItem(R.id.action_move_up)?.setVisible(nodesCount > 0)
+        menu.findItem(R.id.action_move_down)?.setVisible(nodesCount > 0)
         val canInsert = ClipboardManager.hasObject(FoundType.TYPE_NODE)
-        visibleMenuItem(menu.findItem(R.id.action_insert), canInsert)
-        visibleMenuItem(menu.findItem(R.id.action_insert_subnode), canInsert && isNonCrypted)
-        visibleMenuItem(menu.findItem(R.id.action_copy), isNonCrypted)
+        menu.findItem(R.id.action_insert)?.setVisible(canInsert)
+        menu.findItem(R.id.action_insert_subnode)?.setVisible(canInsert && isNonCrypted)
+        menu.findItem(R.id.action_copy)?.setVisible(isNonCrypted)
         // отображаем cut/delete для зашифрованных веток, т.к. дальше есть проверка
         val canCutDel = (node.level > 0 || viewModel.getRootNodes().size > 1)
-        visibleMenuItem(menu.findItem(R.id.action_cut), canCutDel)
-        visibleMenuItem(menu.findItem(R.id.action_delete), canCutDel)
-        visibleMenuItem(menu.findItem(R.id.action_encrypt_node), !node.isCrypted)
+        menu.findItem(R.id.action_cut)?.setVisible(canCutDel)
+        menu.findItem(R.id.action_delete)?.setVisible(canCutDel)
+        menu.findItem(R.id.action_encrypt_node)?.setVisible(!node.isCrypted)
         val canNoCrypt = node.isCrypted && (parentNode == null || !parentNode.isCrypted)
-        visibleMenuItem(menu.findItem(R.id.action_drop_encrypt_node), canNoCrypt)
-        visibleMenuItem(menu.findItem(R.id.action_info), isNonCrypted)
+        menu.findItem(R.id.action_drop_encrypt_node)?.setVisible(canNoCrypt)
+        menu.findItem(R.id.action_info)?.setVisible(isNonCrypted)
         popupMenu.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
                 R.id.action_open_node -> {
@@ -1733,7 +1734,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 else -> false
             }
         }
-        setForceShowMenuIcons(view, menu as MenuBuilder)
+        (menu as MenuBuilder).showForcedWithIcons(view)
     }
 
     // endregion ContextMenus
@@ -2302,13 +2303,13 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         menu.findItem(R.id.action_search_records)?.isVisible = canSearchRecords
         menu.findItem(R.id.action_storage_sync)?.isVisible = viewModel.isStorageSyncEnabled()
         val isStorageLoaded = viewModel.isStorageLoaded()
-        enableMenuItem(menu.findItem(R.id.action_search_records), isStorageLoaded)
-        enableMenuItem(menu.findItem(R.id.action_global_search), isStorageLoaded)
-        enableMenuItem(menu.findItem(R.id.action_storage_sync), isStorageLoaded)
+        menu.findItem(R.id.action_search_records)?.setEnabled(isStorageLoaded)
+        menu.findItem(R.id.action_global_search)?.setEnabled(isStorageLoaded)
+        menu.findItem(R.id.action_storage_sync)?.setEnabled(isStorageLoaded)
         val isStorageNotNull = viewModel.storage != null
-        enableMenuItem(menu.findItem(R.id.action_storage_info), isStorageNotNull)
-        enableMenuItem(menu.findItem(R.id.action_storage_settings), isStorageNotNull)
-        enableMenuItem(menu.findItem(R.id.action_storage_reload), isStorageNotNull)
+        menu.findItem(R.id.action_storage_info)?.setEnabled(isStorageNotNull)
+        menu.findItem(R.id.action_storage_settings)?.setEnabled(isStorageNotNull)
+        menu.findItem(R.id.action_storage_reload)?.setEnabled(isStorageNotNull)
 
         onPrepareMainOptionsMenu(menu)
         return super.onPrepareOptionsMenu(menu)
@@ -2318,11 +2319,10 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         val isMainPage = currentPage == PageType.MAIN
         val isRecordFilesView = viewModel.currentMainViewType == MainViewType.RECORD_ATTACHES
         val isFavoritesView = viewModel.currentMainViewType == MainViewType.FAVORITES
-        visibleMenuItem(menu.findItem(R.id.action_move_back), isMainPage && isRecordFilesView)
-        visibleMenuItem(menu.findItem(R.id.action_cur_record), isMainPage && isRecordFilesView)
-        visibleMenuItem(menu.findItem(R.id.action_cur_record_folder), isMainPage && isRecordFilesView)
-        visibleMenuItem(
-            menu.findItem(R.id.action_insert),
+        menu.findItem(R.id.action_move_back)?.setVisible(isMainPage && isRecordFilesView)
+        menu.findItem(R.id.action_cur_record)?.setVisible(isMainPage && isRecordFilesView)
+        menu.findItem(R.id.action_cur_record_folder)?.setVisible(isMainPage && isRecordFilesView)
+        menu.findItem(R.id.action_insert)?.setVisible(
             isMainPage && !isFavoritesView && ClipboardManager.hasObject(FoundType.TYPE_RECORD)
         )
     }

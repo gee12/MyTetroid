@@ -74,6 +74,7 @@ import com.gee12.htmlwysiwygeditor.IColorPicker
 import com.gee12.htmlwysiwygeditor.EditableWebView.*
 import com.gee12.htmlwysiwygeditor.WysiwygEditor
 import com.gee12.htmlwysiwygeditor.model.ImageParams
+import com.gee12.mytetroid.common.extensions.showForcedWithIcons
 import com.gee12.mytetroid.common.onSuccess
 import com.gee12.mytetroid.domain.usecase.html.CreateTagsHtmlStringUseCase
 import kotlinx.coroutines.delay
@@ -1190,7 +1191,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         activateMenuItem(menu.findItem(R.id.action_attached_files), isLoaded, !isTemp)
         activateMenuItem(menu.findItem(R.id.action_cur_record_folder), true, !isTemp)
         activateMenuItem(menu.findItem(R.id.action_info), isLoaded, !isTemp)
-        enableMenuItem(menu.findItem(R.id.action_storage_settings), isLoaded)
+        menu.findItem(R.id.action_storage_settings)?.setEnabled(isLoaded)
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -1338,7 +1339,7 @@ override fun onCreateContextMenu(menu: ContextMenu, view: View, menuInfo: Contex
                 else -> false
             }
         }
-        setForceShowMenuIcons(anchorView, popupMenu.menu as MenuBuilder)
+        (popupMenu.menu as MenuBuilder).showForcedWithIcons(anchorView)
     }
     /**
      *

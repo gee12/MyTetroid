@@ -28,38 +28,6 @@ public class ViewUtils {
         else fab.hide();
     }
 
-    public static void setFabVisibility(ExtendedFloatingActionButton fab, boolean isVisible) {
-        if (fab == null)
-            return;
-        if (isVisible) fab.show();
-        else fab.hide();
-    }
-
-    public static void toggleFabVisibility(FloatingActionButton fab) {
-        if (fab == null)
-            return;
-        if (!fab.isShown()) fab.show();
-        else fab.hide();
-    }
-
-    public static void toggleFabVisibility(ExtendedFloatingActionButton fab) {
-        if (fab == null)
-            return;
-        if (!fab.isShown()) fab.show();
-        else fab.hide();
-    }
-
-    public static void setEnabledIfNotNull(MenuItem view, boolean isEnabled) {
-        if (view != null)
-            view.setEnabled(isEnabled);
-    }
-
-    public static void setVisibleIfNotNull(MenuItem view, boolean isVisible) {
-        if (view != null) {
-            view.setVisible(isVisible);
-        }
-    }
-
     public static int getStatusBarHeight(Context context) {
         if (context == null)
             return 0;

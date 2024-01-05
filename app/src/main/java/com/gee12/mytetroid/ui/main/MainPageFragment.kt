@@ -7,7 +7,6 @@ import android.widget.*
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.isVisible
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.manager.ClipboardManager
 import com.gee12.mytetroid.model.FoundType
@@ -542,7 +541,7 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
     }
 
     private fun activateMenuItem(menuItem: MenuItem, isActivate: Boolean) {
-        ViewUtils.setVisibleIfNotNull(menuItem, isActivate)
+        menuItem.setVisible(isActivate)
     }
 
     /**
