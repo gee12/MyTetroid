@@ -63,17 +63,23 @@ class PermissionManager(
         requestCode: PermissionRequestCode,
         onManualPermissionRequest: (() -> Unit) -> Unit
     ) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if (hasAllFilesAccessVersion) {
-                logger.log(activity.getString(R.string.log_permission_request_mask, Manifest.permission.MANAGE_EXTERNAL_STORAGE), false)
-                onManualPermissionRequest {
-                    requestManageExternalStoragePermission(activity, requestCode)
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
+                if (hasAllFilesAccessVersion) {
+                    logger.log(activity.getString(R.string.log_permission_request_mask, Manifest.permission.MANAGE_EXTERNAL_STORAGE), false)
+                    onManualPermissionRequest {
+                        requestManageExternalStoragePermission(activity, requestCode)
+                    }
+                } else {
+                    // используем SAF, специально разрешения спрашивать не нужно
                 }
-            } else {
-                // используем SAF, специально разрешения спрашивать не нужно
             }
-        } else {
-            requestPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE, requestCode)
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.M -> {
+                requestPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE, requestCode)
+            }
+            else -> {
+                // ignore
+            }
         }
     }
 
@@ -147,15 +153,21 @@ class PermissionManager(
     }
 
     fun checkWriteExtStoragePermission(data: PermissionRequestData): Boolean {
-        return if (hasWriteExtStoragePermission(data.activity)) {
-            true
-        } else {
-            requestWriteExtStoragePermissions(
-                activity = data.activity,
-                requestCode = data.requestCode,
-                onManualPermissionRequest = data.onManualPermissionRequest,
-            )
-            false
+        return when {
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.M -> {
+                true
+            }
+            hasWriteExtStoragePermission(data.activity) -> {
+                true
+            }
+            else -> {
+                requestWriteExtStoragePermissions(
+                    activity = data.activity,
+                    requestCode = data.requestCode,
+                    onManualPermissionRequest = data.onManualPermissionRequest,
+                )
+                false
+            }
         }
     }
 

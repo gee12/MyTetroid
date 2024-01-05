@@ -242,7 +242,8 @@ abstract class TetroidActivity<VM : BaseViewModel>
         )
     }
 
-    /*override fun onNewIntent(intent: Intent) {
+    /* падало с NPE при отправке данных из сторонних app
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         fileStorageHelper?.storage?.checkIfFileReceived(intent)
     }*/
@@ -306,7 +307,12 @@ abstract class TetroidActivity<VM : BaseViewModel>
         initialPath: String? = null,
         filterMimeTypes: Array<String> = emptyArray(),
     ) {
-        val path = initialPath ?: settingsManager.getLastSelectedFolderPathOrDefault(true)
+        // в Android 4.4 при использовании сущуствующего пути file:///storage/sdcard/... диалог SAF отображает "This folder's empty!"
+        val path = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
+            initialPath ?: settingsManager.getLastSelectedFolderPathOrDefault(true)
+        } else {
+            null
+        }
         try {
             fileStorageHelper?.openFilePicker(
                 requestCode = requestCode.code,
@@ -334,7 +340,12 @@ abstract class TetroidActivity<VM : BaseViewModel>
         requestCode: PermissionRequestCode,
         initialPath: String? = null,
     ) {
-        val path = initialPath ?: settingsManager.getLastSelectedFolderPathOrDefault(true)
+        // в Android 4.4 при использовании сущуствующего пути file:///storage/sdcard/... диалог SAF отображает "This folder's empty!"
+        val path = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
+            initialPath ?: settingsManager.getLastSelectedFolderPathOrDefault(true)
+        } else {
+            null
+        }
         try {
             fileStorageHelper?.openFolderPicker(
                 requestCode = requestCode.code,

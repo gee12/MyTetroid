@@ -29,8 +29,8 @@ class FileStorageManager(
     }
 
     fun checkWriteFileStoragePermission(root: DocumentFile): Boolean {
-        // на Android 10 и ниже canWrite() возвращает false, поэтому на этих устройствах не проверяем
-        return isFileApiUsed() && root.isRawFile
+        // на некоторых Android ниже 10 canWrite() может возвращать false
+        return isFileApiUsed() && (root.isRawFile || root.canWrite())
                 || !hasAllFilesAccessVersion && root.isWritable(context)
                 || hasAllFilesAccessVersion && isExternalStorageManager()
                 /*|| SimpleStorage.hasStorageAccess(
