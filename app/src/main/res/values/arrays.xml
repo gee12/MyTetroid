@@ -3,15 +3,43 @@
     <string-array name="sync_apps">
         <item>@string/title_app_mgit</item>
         <item>@string/title_app_termux</item>
+        <item>@string/title_app_autosync</item>
+    </string-array>
+    <string-array name="sync_apps_commands_common">
+        <item>@string/pref_sync_command_mgit_summ</item>
+        <item>@string/pref_sync_command_termux_summ</item>
+        <item>@string/pref_sync_command_autosync_summ</item>
+    </string-array>
+    <string-array name="sync_apps_commands_for_storage">
+        <item>@string/pref_sync_command_mgit_summ_storage</item>
+        <item>@string/pref_sync_command_termux_summ_storage</item>
+        <item>@string/pref_sync_command_autosync_summ_storage</item>
     </string-array>
     <string-array name="when_ask_password_entries">
         <item>@string/pref_when_ask_password_on_select</item>
         <item>@string/pref_when_ask_password_on_start</item>
     </string-array>
+    <string-array name="settings_app_theme_entries">
+        <item>@string/title_settings_app_theme_system</item>
+        <item>@string/title_settings_app_theme_light</item>
+        <item>@string/title_settings_app_theme_dark</item>
+    </string-array>
+
+    <string-array name="settings_editor_theme_entries">
+        <item>@string/title_settings_editor_theme_as_app_theme</item>
+        <item>@string/title_settings_editor_theme_light</item>
+        <item>@string/title_settings_editor_theme_dark</item>
+    </string-array>
+
     <string-array name="show_record_fields_entries">
         <item>@string/pref_show_record_fields_yes</item>
         <item>@string/pref_show_record_fields_no</item>
         <item>@string/pref_show_record_fields_filled</item>
+    </string-array>
+    <string-array name="editor_toolbar_buttons_size_entries">
+        <item>@string/pref_editor_toolbar_buttons_small_size</item>
+        <item>@string/pref_editor_toolbar_buttons_medium_size</item>
+        <item>@string/pref_editor_toolbar_buttons_large_size</item>
     </string-array>
     <string-array name="record_fields_in_list_entries">
         <item>@string/title_author</item>
@@ -28,15 +56,7 @@
         <item>@string/title_tags</item>
         <item>@string/title_created</item>
     </string-array>
-    <string-array name="view_type_titles">
-        <!--<item name="none"> </item>-->
-        <item name="records_list">NODE</item>
-<!--        <item name="record_text">RECORD</item>-->
-        <item name="record_files">FILES</item>
-        <item name="tag_records">TAG</item>
-        <item name="founded_records"></item>
-        <!--<item name="finded_records">SEARCH RECORDS</item>-->
-    </string-array>
+
     <string-array name="search_split_to_words">
         <item name="search_any_word">Any word</item>
         <item name="search_all_words">All words</item>
@@ -153,6 +173,11 @@
         <item>File was&#160;</item>
         <item>file</item>
     </string-array>
+    <string-array name="obj_folder">
+        <item>folder</item>
+        <item>Folder was&#160;</item>
+        <item>folder</item>
+    </string-array>
     <string-array name="obj_image">
         <item>image</item>
         <item>Image was&#160;</item>
@@ -218,6 +243,11 @@
         <item>move</item>
         <item>moved</item>
         <item>moving</item>
+    </string-array>
+    <string-array name="oper_reorder">
+        <item>reorder</item>
+        <item>reordered</item>
+        <item>reordering</item>
     </string-array>
     <string-array name="oper_save">
         <item>save</item>

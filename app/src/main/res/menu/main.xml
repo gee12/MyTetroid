@@ -66,6 +66,13 @@
         android:icon="@drawable/ic_reload"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_storages"
+        android:orderInCategory="245"
+        android:title="@string/title_storages"
+        android:enabled="true"
+        android:icon="@drawable/ic_storage"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_fullscreen"
         android:orderInCategory="250"
         android:title="@string/title_fullscreen"
@@ -73,9 +80,15 @@
         android:visible="false"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_storage_settings"
+        android:orderInCategory="270"
+        android:title="@string/title_storage_settings"
+        android:icon="@drawable/ic_storage_settings"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_settings"
         android:orderInCategory="300"
-        android:title="@string/title_settings"
+        android:title="@string/action_common_settings"
         android:icon="@drawable/ic_settings"
         app:showAsAction="never" />
     <item

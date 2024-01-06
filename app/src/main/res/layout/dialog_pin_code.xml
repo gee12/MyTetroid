@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    style="@style/RootLayout">
 
     <com.andrognito.pinlockview.IndicatorDots
         android:id="@+id/indicator_dots"
@@ -22,7 +23,7 @@
         app:pinLength="4"
         app:keypadButtonSize="64dp"
         app:keypadShowDeleteButton="true"
-        app:keypadTextColor="#222"
+        app:keypadTextColor="@color/text_1"
         app:keypadTextSize="18dp"/>
 
 </LinearLayout>

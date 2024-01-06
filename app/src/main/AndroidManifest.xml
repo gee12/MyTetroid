@@ -4,16 +4,24 @@
     package="com.gee12.mytetroid"
     android:installLocation="auto">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-sdk tools:overrideLibrary="com.esafirm.imagepicker"/>
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29"/>
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="com.termux.permission.RUN_COMMAND" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
 
-    <!--
-    requestLegacyExternalStorage=true - Temporarily opt-out of scoped storage from Android 10
-    From: https://developer.android.com/training/data-storage/use-cases#opt-out-scoped-storage
-    -->
     <application
+        android:name=".AppKoin"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -21,10 +29,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:requestLegacyExternalStorage="true"
+        android:hasFragileUserData="true"
         tools:ignore="GoogleAppIndexingWarning">
 
         <receiver android:name=".widgets.AddRecordWidget"
-            android:label="@string/title_new_record">
+            android:label="@string/title_new_record"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -34,15 +44,6 @@
                 android:resource="@xml/widget_add_record_info" />
         </receiver>
 
-        <!-- android:hardwareAccelerated="true" -->
-        <service
-            android:name=".services.FileObserverService"
-            android:enabled="true"
-            android:exported="true"/>
-        <!-- для dirchooser -->
-        <!-- tools:replace="android:appComponentFactory" -->
-        <!-- android:appComponentFactory="action_settings" -->
-        <!-- tools:replace="android:theme" -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -54,21 +55,29 @@
                 android:resource="@xml/provider_paths" />
         </provider>
         <provider
-            android:name=".TetroidSuggestionProvider"
+            android:name=".domain.provider.TetroidSuggestionProvider"
             android:authorities="${applicationId}.TetroidSuggestionProvider"
             tools:replace="android:authorities" />
 
         <activity
-            android:name=".activities.MainActivity"
+            android:name=".ui.splash.SplashActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name"
-            android:launchMode="singleTask"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:launchMode="standard"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <action android:name="android.intent.action.SEARCH" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ui.main.MainActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/app_name"
+            android:launchMode="singleTop"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
             <intent-filter android:label="@string/title_intent_send">
                 <action android:name="android.intent.action.SEND" />
@@ -82,50 +91,76 @@
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable_records" />
         </activity>
-
         <activity
-            android:name=".activities.RecordActivity"
+            android:name=".ui.storages.StoragesActivity"
             android:configChanges="orientation|screenSize"
+            android:label="@string/title_storages"
             android:launchMode="singleTop"
-            android:parentActivityName=".activities.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:parentActivityName=".ui.main.MainActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
             </intent-filter>
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.MainActivity" />
+                android:value=".ui.main.MainActivity" />
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable_text" />
         </activity>
         <activity
-            android:name=".activities.SettingsActivity"
+            android:name=".ui.settings.storage.StorageSettingsActivity"
             android:configChanges="orientation|screenSize"
-            android:label="@string/title_settings"
-            android:parentActivityName=".activities.MainActivity"
-            android:launchMode="singleTop"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:label="@string/title_storage_settings"
+            android:parentActivityName=".ui.main.MainActivity"
+            android:theme="@style/AppPreferenceTheme"
+            android:launchMode="singleTop">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.MainActivity" /></activity>
+                android:value=".ui.storages.StoragesActivity" />
+        </activity>
         <activity
-            android:name=".activities.SearchActivity"
+            android:name=".ui.record.RecordActivity"
+            android:configChanges="orientation|screenSize"
+            android:launchMode="singleTop"
+            android:parentActivityName=".ui.main.MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.main.MainActivity" />
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable_text" />
+        </activity>
+        <activity
+            android:name=".ui.settings.SettingsActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/action_common_settings"
+            android:parentActivityName=".ui.main.MainActivity"
+            android:theme="@style/AppPreferenceTheme"
+            android:launchMode="singleTop">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.main.MainActivity" />
+        </activity>
+        <activity
+            android:name=".ui.search.SearchActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_global_search"
-            android:parentActivityName=".activities.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:parentActivityName=".ui.main.MainActivity" />
         <activity
-            android:name=".activities.InfoActivity"
+            android:name=".ui.storage.info.StorageInfoActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_storage_info"
-            android:parentActivityName=".activities.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:parentActivityName=".ui.main.MainActivity" />
         <activity
-            android:name=".activities.LogsActivity"
+            android:name=".ui.logs.LogsActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_log_file_content"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:exported="true">
             <intent-filter>
                 <action android:name="com.gee12.mytetroid.activities.LogsActivity" />
 
@@ -133,16 +168,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.IconsActivity"
+            android:name=".ui.node.icon.IconsActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_node_icon_choice"
-            android:parentActivityName=".activities.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:parentActivityName=".ui.main.MainActivity" />
         <activity
-            android:name=".activities.AboutActivity"
+            android:name=".ui.about.AboutAppActivity"
             android:configChanges="orientation|screenSize"
-            android:label="@string/title_about_app"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:label="@string/title_about_app" />
     </application>
 
 </manifest>

@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    android:theme="@style/AppPopupMenu">
     <item
         android:id="@+id/action_open_node"
         android:orderInCategory="10"
         android:title="@string/title_show_node"
-        android:icon="@drawable/ic_open_node" />
+        android:icon="@drawable/ic_open_node"
+        android:theme="@style/AppPopupMenu" />
     <item
         android:id="@+id/action_create_subnode"
         android:orderInCategory="20"
@@ -75,12 +77,12 @@
         android:id="@+id/action_encrypt_node"
         android:orderInCategory="130"
         android:title="@string/title_encrypt_node"
-        android:icon="@drawable/ic_encrypt" />
+        android:icon="@drawable/ic_encrypt_add" />
     <item
-        android:id="@+id/action_no_encrypt_node"
+        android:id="@+id/action_drop_encrypt_node"
         android:orderInCategory="140"
         android:title="@string/title_decrypt_node"
-        android:icon="@drawable/ic_no_encrypt" />
+        android:icon="@drawable/ic_encrypt_drop" />
     <item
         android:id="@+id/action_info"
         android:orderInCategory="150"

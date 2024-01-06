@@ -1,6 +1,6 @@
 package com.gee12.mytetroid.model;
 
-import com.gee12.mytetroid.utils.Utils;
+import com.gee12.mytetroid.common.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -120,25 +120,6 @@ public class TetroidRecord extends TetroidObject {
 
     public List<TetroidTag> getTags() {
         return mTags;
-    }
-
-    /**
-     * Сформировать заново строку со метками записи.
-     */
-    public void updateTagsString() {
-        if (mTags == null) {
-            return;
-        }
-        StringBuilder sb = new StringBuilder();
-        boolean isFirst = true;
-        for (TetroidTag tag : mTags) {
-            if (!isFirst) {
-                sb.append(", ");
-            }
-            sb.append(tag.getName());
-            isFirst = false;
-        }
-        this.mTagsString = sb.toString();
     }
 
     /**

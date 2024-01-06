@@ -6,21 +6,13 @@
     android:id="@+id/layout_coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.gee12.mytetroid.activities.IconsActivity">
+    tools:context=".ui.node.icon.IconsActivity"
+    style="@style/RootLayout">
 
-    <com.google.android.material.appbar.AppBarLayout
+    <include
+        layout="@layout/layout_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
-
-    </com.google.android.material.appbar.AppBarLayout>
+        android:layout_height="wrap_content" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -48,15 +40,16 @@
 
         <ListView
             android:id="@+id/list_view_icons"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/spinner_folders"
             app:layout_constraintBottom_toTopOf="@id/button_clear_icon"
             android:choiceMode="singleChoice"
-            android:listSelector="@color/colorCurNode"
-            android:layout_margin="10dp"/>
+            android:listSelector="@color/background_current_node"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"/>
 
         <Button
             android:id="@+id/button_clear_icon"
@@ -65,7 +58,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             android:text="@string/title_drop_icon" />
-<!--        app:layout_constraintTop_toBottomOf="@id/list_view_icons"-->
 
         <Button
             android:id="@+id/button_submit"
@@ -75,8 +67,14 @@
             app:layout_constraintBottom_toBottomOf="parent"
             android:enabled="false"
             android:text="@string/title_done" />
-<!--        app:layout_constraintTop_toBottomOf="@id/list_view_icons"-->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <include
+        android:id="@+id/layout_progress_bar"
+        layout="@layout/layout_progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

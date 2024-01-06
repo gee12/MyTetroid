@@ -7,7 +7,7 @@
         android:title="@string/pref_show_logs">
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetClass="com.gee12.mytetroid.activities.LogsActivity"
+            android:targetClass="com.gee12.mytetroid.ui.logs.LogsActivity"
             android:targetPackage="@string/app_id" />
     </PreferenceScreen>
 

@@ -1,14 +1,18 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".ui.main.MainActivity"
+    tools:showIn="@layout/layout_main"
+    android:background="@color/background_default">
 
     <ListView
         android:id="@+id/list_view_found"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"/>
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"/>
 
     <TextView
         android:id="@+id/text_view_empty_found"
@@ -16,8 +20,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:padding="@dimen/tv_empty_padding"
-        android:textColor="@color/emptySearch"
+        style="@style/LabelEmptyList"
         android:textAlignment="center"
         android:gravity="center_horizontal" />
 
@@ -26,14 +29,14 @@
         android:layout_alignParentBottom="false"
         android:layout_above="@id/button_close"
         android:src="@android:drawable/ic_menu_search"
-        app:backgroundTint="@color/colorAccent_50"
-        style="@style/fab"/>
+        app:backgroundTint="@color/accent_50"
+        style="@style/Fab"/>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/button_close"
         android:layout_alignParentBottom="true"
         android:src="@android:drawable/ic_menu_close_clear_cancel"
-        app:backgroundTint="@color/colorGray_50"
-        style="@style/fab"/>
+        app:backgroundTint="@color/color_gray_50"
+        style="@style/Fab"/>
 
 </RelativeLayout>

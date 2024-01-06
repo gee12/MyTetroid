@@ -1,5 +1,20 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:key="pref_key_screen">
+
+    <ListPreference
+        android:entries="@array/settings_app_theme_entries"
+        android:dialogTitle="@string/title_settings_app_theme"
+        android:key="@string/pref_key_app_theme"
+        tools:summary="@string/title_settings_app_theme_light"
+        android:title="@string/title_settings_app_theme" />
+
+    <ListPreference
+        android:entries="@array/settings_editor_theme_entries"
+        android:dialogTitle="@string/title_settings_editor_theme"
+        android:key="@string/pref_key_editor_theme"
+        tools:summary="@string/title_settings_editor_theme_as_app_theme"
+        android:title="@string/title_settings_editor_theme" />
 
     <CheckBoxPreference
         android:defaultValue="false"
@@ -16,6 +31,13 @@
         android:title="@string/pref_show_record_fields" />
 <!--    android:defaultValue="@string/pref_show_record_fields_no"-->
 
+    <ListPreference
+        android:entries="@array/editor_toolbar_buttons_size_entries"
+        android:dialogTitle="@string/pref_editor_toolbar_buttons_size_title"
+        android:key="@string/pref_key_editor_toolbar_buttons_size"
+        android:title="@string/pref_editor_toolbar_buttons_size_title"
+        android:summary="@string/pref_editor_toolbar_buttons_size_summ" />
+
     <CheckBoxPreference
         android:defaultValue="false"
         android:key="@string/pref_key_is_highlight_attach"
@@ -29,30 +51,18 @@
         android:title="@string/pref_is_highlight_crypted_nodes" />
 
     <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
-        android:defaultValue="@color/colorHighlight"
+        android:defaultValue="@color/background_highlight"
         android:enabled="false"
         android:key="@string/pref_key_highlight_attach_color"
-        android:title="@string/pref_highlight_attach_color" />
+        android:title="@string/pref_highlight_attach_color"/>
 
-    <com.gee12.mytetroid.views.DateTimeFormatPreference
+    <com.gee12.mytetroid.ui.base.views.prefs.DateTimeFormatPreference
         android:defaultValue="@string/def_date_format_string"
         android:dialogTitle="@string/pref_date_format_string"
         android:inputType="text"
         android:key="@string/pref_key_date_format_string"
         android:summary="@string/pref_date_format_string_summ"
         android:title="@string/pref_date_format_string" />
-
-<!--    <CheckBoxPreference-->
-<!--        android:defaultValue="true"-->
-<!--        android:key="@string/pref_key_is_show_author_in_records"-->
-<!--        android:summary="@string/pref_is_show_author_in_records_summ"-->
-<!--        android:title="@string/pref_is_show_author_in_records" />-->
-
-<!--    <CheckBoxPreference-->
-<!--        android:defaultValue="true"-->
-<!--        android:key="@string/pref_key_is_show_tags_in_records"-->
-<!--        android:summary="@string/pref_is_show_tags_in_records_summ"-->
-<!--        android:title="@string/pref_is_show_tags_in_records" />-->
 
     <MultiSelectListPreference
         android:defaultValue="@array/record_fields_in_list_def_entries"

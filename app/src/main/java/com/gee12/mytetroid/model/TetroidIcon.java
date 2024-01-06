@@ -1,11 +1,8 @@
 package com.gee12.mytetroid.model;
 
-import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.text.TextUtils;
+import static com.gee12.mytetroid.common.extensions.FileExtensionsKt.makePath;
 
-import com.gee12.mytetroid.logs.LogManager;
-import com.gee12.mytetroid.utils.FileUtils;
+import android.graphics.drawable.Drawable;
 
 import java.io.File;
 
@@ -23,7 +20,7 @@ public class TetroidIcon {
     }
 
     public String getPath() {
-        return File.separator + folder + File.separator + name;
+        return File.separator + makePath(folder, name);
     }
 
     public String getFolder() {
@@ -38,14 +35,8 @@ public class TetroidIcon {
         return icon;
     }
 
-    public void loadIcon(Context context, String iconsFolderPath) {
-        if (iconsFolderPath == null || icon != null) {
-            return;
-        }
-        try {
-            this.icon = FileUtils.loadSVGFromFile(iconsFolderPath + File.separator + getPath());
-        } catch (Exception e) {
-            LogManager.log(context, e);
-        }
+    public void setIcon(Drawable icon) {
+        this.icon = icon;
     }
+
 }

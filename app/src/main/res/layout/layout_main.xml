@@ -2,6 +2,7 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -11,22 +12,29 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <com.gee12.mytetroid.views.MainViewPager
-        android:id="@+id/view_pager"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:fitsSystemWindows="false">
+        android:orientation="vertical">
 
-        <androidx.viewpager.widget.PagerTabStrip
-            android:id="@+id/pager_title_strip"
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tab_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="34dp"
             android:background="@drawable/side_nav_bar"
-            android:textColor="@color/colorMoreLightText"
-            android:layout_gravity="top"/>
+            app:tabTextAppearance="@style/MainTabLayout"
+            app:tabIndicatorColor="@color/tab_layout_indicator"
+            app:tabTextColor="@color/tab_layout_title"
+            app:tabSelectedTextColor="@color/tab_layout_title_selected" />
 
-    </com.gee12.mytetroid.views.MainViewPager>
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/fragment_container_main"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:layout="@layout/fragment_main"/>
+
+    </LinearLayout>
 
     <include
         android:id="@+id/layout_progress_bar"

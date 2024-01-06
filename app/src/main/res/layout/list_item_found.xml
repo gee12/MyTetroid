@@ -9,8 +9,6 @@
         layout="@layout/list_item_record"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
-<!--    android:layout_marginLeft="8dp"-->
-<!--    android:layout_marginStart="8dp"-->
 
 <!--    <TextView-->
 <!--        android:id="@+id/found_view_line_num"-->
@@ -38,7 +36,7 @@
         android:layout_alignParentLeft="true"
         android:paddingLeft="5dp"
         android:paddingStart="5dp"
-        android:textColor="@color/colorBase2Text"
+        android:textColor="@color/text_2"
         android:textSize="@dimen/font_small_small"
         android:text="@string/title_founded_in_mask"/>
 <!--    android:layout_toRightOf="@id/record_view_line_num"-->
@@ -56,7 +54,7 @@
         android:paddingEnd="5dp"
         android:textAlignment="textEnd"
         android:layout_gravity="end"
-        android:textColor="@color/colorBase2Text"
+        android:textColor="@color/text_2"
         android:textStyle="italic"
         android:textSize="@dimen/font_small_small"/>
 

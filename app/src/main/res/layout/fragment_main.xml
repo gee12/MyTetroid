@@ -5,8 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".activities.MainActivity"
-    tools:showIn="@layout/layout_main">
+    tools:context=".ui.main.MainActivity"
+    tools:showIn="@layout/layout_main"
+    android:background="@color/background_default">
 
     <ViewFlipper
         android:id="@+id/view_flipper_main"
@@ -35,11 +36,10 @@
                     android:id="@+id/text_view_empty_records"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="@dimen/tv_empty_padding"
                     android:layout_gravity="center_horizontal"
                     android:textAlignment="center"
-                    android:textColor="@color/emptySearch"
-                    android:text="@string/title_select_the_node" />
+                    style="@style/LabelEmptyList"
+                    android:text="@string/title_need_load_storage" />
 
                 <Button
                     android:id="@+id/button_global_search"
@@ -55,9 +55,9 @@
             <com.google.android.material.floatingactionbutton.FloatingActionButton
                 android:id="@+id/button_add_record"
                 android:src="@android:drawable/ic_input_add"
-                app:backgroundTint="@color/colorGreen_50"
+                app:backgroundTint="@color/color_green_50"
                 android:visibility="gone"
-                style="@style/fab"/>
+                style="@style/Fab"/>
 
         </RelativeLayout>
 
@@ -77,7 +77,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
-                android:padding="@dimen/tv_empty_padding"
+                style="@style/LabelEmptyList"
                 android:textAlignment="center"
                 android:gravity="center_horizontal"
                 android:text="@string/title_files_is_missing" />
@@ -85,20 +85,20 @@
             <com.github.clans.fab.FloatingActionMenu
                 android:id="@+id/fab_add_attach"
                 app:menu_icon="@android:drawable/ic_input_add"
-                style="@style/fab_clans_menu"
-                app:menu_labels_style="@style/fab_clans_label">
+                style="@style/FabClansMenu"
+                app:menu_labels_style="@style/FabClansLabel">
 
                 <com.github.clans.fab.FloatingActionButton
                     android:id="@+id/fab_attach_file_by_link"
                     android:src="@drawable/ic_link_white"
                     app:fab_label="@string/title_download_by_link"
-                    style="@style/fab_clans_button" />
+                    style="@style/FabClansButton" />
 
                 <com.github.clans.fab.FloatingActionButton
                     android:id="@+id/fab_attach_local_file"
                     android:src="@drawable/ic_file_white"
                     app:fab_label="@string/title_select_on_device"
-                    style="@style/fab_clans_button" />
+                    style="@style/FabClansButton" />
 
             </com.github.clans.fab.FloatingActionMenu>
 

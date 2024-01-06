@@ -1,0 +1,21 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <com.gee12.mytetroid.ui.base.views.prefs.DisabledPreference
+        android:key="@string/pref_key_change_pass"
+        android:summary="@string/pref_change_pass_summ"
+        android:title="@string/pref_change_pass" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:disableDependentsState="true"
+        android:key="@string/pref_key_is_save_pass_hash_local"
+        android:summary="@string/pref_is_save_pass_hash_local_summ_storage"
+        android:title="@string/pref_is_save_pass_hash_local" />
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="@string/pref_key_is_decrypt_in_temp"
+        android:summary="@string/pref_decrypt_files_to_trash_dir_summ_storage"
+        android:title="@string/pref_decrypt_files_to_trash_dir" />
+
+</PreferenceScreen>

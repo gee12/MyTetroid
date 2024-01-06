@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_coordinator"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.storage.info.StorageInfoActivity"
+    style="@style/RootLayout">
+
+    <include
+        layout="@layout/layout_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+            <!-- Имя -->
+            <TextView
+                android:id="@+id/label_name"
+                android:layout_width="0dp"
+                style="@style/GridCellLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/text_view_name"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                android:text="@string/label_storage_name" />
+
+            <TextView
+                android:id="@+id/text_view_name"
+                style="@style/GridCellValue"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/label_name"
+                app:layout_constraintTop_toTopOf="parent"
+                android:paddingBottom="4dp"
+                tools:text="@tools:sample/full_names" />
+
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/barrier_name"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="label_name, text_view_name" />
+            
+            <!-- Путь -->
+            <LinearLayout
+                android:id="@+id/layout_path"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/barrier_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/label_path"
+                    style="@style/GridCellLabel"
+                    android:text="@string/label_storage_path"/>
+
+                <TextView
+                    android:id="@+id/text_view_path"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    style="@style/GridCellValue"
+                    tools:text="@tools:sample/full_names"/>
+
+            </LinearLayout>
+
+            <!-- Uri -->
+            <LinearLayout
+                android:id="@+id/layout_uri"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/layout_path"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/label_uri"
+                    style="@style/GridCellLabel"
+                    android:text="@string/label_storage_uri"/>
+
+                <TextView
+                    android:id="@+id/text_view_uri"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    style="@style/GridCellValue"
+                    tools:text="@tools:sample/full_names"/>
+
+            </LinearLayout>
+
+            <!-- Размер -->
+            <TextView
+                android:id="@+id/label_size"
+                android:layout_width="0dp"
+                style="@style/GridCellLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/text_view_size"
+                app:layout_constraintTop_toBottomOf="@id/layout_uri"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                android:text="@string/label_storage_size" />
+
+            <TextView
+                android:id="@+id/text_view_size"
+                style="@style/GridCellValue"
+                app:layout_constraintStart_toEndOf="@id/label_size"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/layout_uri"
+                android:paddingBottom="4dp"
+                tools:text="@tools:sample/us_zipcodes" />
+
+            <ProgressBar
+                android:id="@+id/progress_size"
+                app:layout_constraintStart_toEndOf="@id/label_size"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/layout_uri"
+                app:layout_constraintHorizontal_bias="1"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:indeterminate="true" />
+
+            <androidx.constraintlayout.widget.Barrier
+                android:id="@+id/barrier_size"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:barrierDirection="bottom"
+                app:constraint_referenced_ids="label_size, text_view_size, progress_size" />
+
+            <!-- Дата изменения -->
+            <TextView
+                android:id="@+id/label_last_edit"
+                android:layout_width="0dp"
+                style="@style/GridCellLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/text_view_last_edit"
+                app:layout_constraintTop_toBottomOf="@id/barrier_size"
+                app:layout_constraintHorizontal_chainStyle="spread_inside"
+                android:text="@string/label_storage_last_edit" />
+
+            <TextView
+                android:id="@+id/text_view_last_edit"
+                style="@style/GridCellValue"
+                app:layout_constraintStart_toEndOf="@id/label_last_edit"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/barrier_size"
+                tools:text="@tools:sample/date/ddmmyy" />
+
+            <ProgressBar
+                android:id="@+id/progress_last_edit"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/label_last_edit"
+                app:layout_constraintTop_toBottomOf="@id/barrier_size"
+                app:layout_constraintHorizontal_bias="1"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:indeterminate="true" />
+
+            <!-- Ошибка -->
+            <RelativeLayout
+                android:id="@+id/layout_error"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/label_last_edit"
+                android:gravity="center_horizontal"
+                android:layout_marginTop="12dp"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <ImageView
+                    android:id="@+id/image_view_error"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/title_storage_error"
+                    android:scaleType="center"
+                    android:src="@drawable/ic_warning_red_2" />
+
+                <TextView
+                    android:id="@+id/text_view_error"
+                    style="@style/GridCellValue"
+                    android:layout_toEndOf="@id/image_view_error"
+                    android:layout_toRightOf="@id/image_view_error"
+                    android:paddingStart="6dp"
+                    android:paddingLeft="6dp"
+                    android:paddingTop="2dp"
+                    android:textColor="@color/error_1"
+                    android:textSize="@dimen/font_small"
+                    tools:text="@tools:sample/lorem" />
+
+            </RelativeLayout>
+
+            <!-- Загрузить хранилище -->
+            <LinearLayout
+                android:id="@+id/layout_load_storage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/layout_error"
+                android:layout_marginTop="24dp"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <TextView
+                    android:id="@+id/text_view_load_storage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="6dp"
+                    android:textAlignment="center"
+                    android:textColor="@color/error_2"
+                    android:text="@string/title_need_load_storage_to_view_info" />
+
+                <Button
+                    android:id="@+id/button_load_storage"
+                    android:layout_width="240dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:text="@string/action_load_storage"
+                    android:drawableStart="@drawable/ic_reload"/>
+
+            </LinearLayout>
+
+            <!-- Данные -->
+            <RelativeLayout
+                android:id="@+id/layout_data"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/layout_error"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <View
+                    android:id="@+id/separ"
+                    style="@style/StatsLine"/>
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/separ"
+                    android:columnCount="2"
+                    android:rowCount="16"
+                    android:shrinkColumns="*"
+                    android:stretchColumns="*">
+
+                    <TableRow>
+                        <TextView
+                            style="@style/GridCellLabel"
+                            android:text="@string/stats_nodes_count" />
+                        <TextView
+                            android:id="@+id/text_view_stats_nodes_count"
+                            style="@style/GridCellValue"
+                            tools:text="@tools:sample/us_zipcodes"/>
+                    </TableRow>
+
+                    <TableRow>
+                        <TextView
+                            android:text="@string/stats_crypt_nodes_count"
+                            android:paddingLeft="15dp"
+                            android:paddingStart="15dp"
+                            style="@style/GridCellLabel"/>
+                        <TextView
+                            android:id="@+id/text_view_stats_crypt_nodes_count"
+                            style="@style/GridCellValue"
+                            tools:text="@tools:sample/us_zipcodes"/>
+                    </TableRow>
+
+                    <!--<TableRow>
+                        <TextView
+                            android:text="@string/stats_icons_count"
+                            android:paddingLeft="15dp"
+                            android:paddingStart="15dp"
+                            style="@style/grid_cell_label"/>
+                        <TextView
+                            android:id="@+id/text_view_stats_icons_count"
+                            style="@style/grid_cell_value"/>
+                    </TableRow>-->
+
+                    <TableRow>
+                        <View style="@style/StatsLine" android:layout_span="2"/>
+                    </TableRow>
+
+                    <TableRow>
+                        <TextView
+                            android:text="@string/stats_max_subnodes"
+                            style="@style/GridCellLabel"/>
+                        <TextView
+                            android:id="@+id/text_view_stats_max_subnodes"
+                            style="@style/GridCellValue"
+                            tools:text="@tools:sample/us_zipcodes"/>
+                    </TableRow>
+
+                    <TableRow>
+                        <TextView
+                            android:text="@string/stats_max_depth"
+                            style="@style/GridCellLabel"/>
+                        <TextView
+                            android:id="@+id/text_view_stats_max_depth"
+                            style="@style/GridCellValue"
+                            tools:text="@tools:sample/us_zipcodes"/>
+                    </TableRow>
+
+                    <TableRow>
+                        <View style="@style/StatsLine" android:layout_span="2"/>
+                    </TableRow>
+
+                    <TableRow>
+                        <TextView
+                            android:text="@string/stats_records_count"
+                            style="@style/GridCellLabel"/>
+                        <TextView
+                            android:id="@+id/text_view_stats_records_count"
+                            style="@style/GridCellValue"
+                            tools:text="@tools:sample/us_zipcodes"/>
+                    </TableRow>
+
+                    <TableRow>
+                        <TextView
+                            android:text="@string/stats_crypt_records_count"
+                            android:paddingLeft="15dp"
+                            android:paddingStart="15dp"
+                            style="@style/GridCellLabel"/>
+                        <TextView
+                            android:id="@+id/text_view_stats_crypt_records_count"
+                            style="@style/GridCellValue"
+                            tools:text="@tools:sample/us_zipcodes"/>
+                    </TableRow>
+
+                    <TableRow>
+                        <View style="@style/StatsLine" android:layout_span="2"/>
+                    </TableRow>
+
+                    <TableRow>
+                        <TextView
+                            android:text="@string/stats_files_count"
+                            style="@style/GridCellLabel"/>
+                        <TextView
+                            android:id="@+id/text_view_stats_files_count"
+                            style="@style/GridCellValue"
+                            tools:text="@tools:sample/us_zipcodes"/>
+                    </TableRow>
+
+                    <TableRow>
+                        <View style="@style/StatsLine" android:layout_span="2"/>
+                    </TableRow>
+
+                    <TableRow>
+                        <TextView
+                            android:text="@string/stats_tags_count"
+                            style="@style/GridCellLabel"/>
+                        <TextView
+                            android:id="@+id/text_view_stats_tags_count"
+                            style="@style/GridCellValue"
+                            tools:text="@tools:sample/us_zipcodes"/>
+                    </TableRow>
+
+                    <TableRow android:id="@+id/tags_table_row">
+                        <TextView
+                            android:id="@+id/label_stats_unique_tags_count"
+                            android:text="@string/stats_unique_tags_count"
+                            android:paddingLeft="15dp"
+                            android:paddingStart="15dp"
+                            style="@style/GridCellLabel"/>
+                        <TextView
+                            android:id="@+id/text_view_stats_unique_tags_count"
+                            style="@style/GridCellValue"
+                            tools:text="@tools:sample/us_zipcodes"/>
+                    </TableRow>
+
+                    <TableRow>
+                        <View style="@style/StatsLine" android:layout_span="2"/>
+                    </TableRow>
+
+                    <TableRow>
+                        <TextView
+                            android:text="@string/stats_authors_count"
+                            style="@style/GridCellLabel"/>
+                        <TextView
+                            android:id="@+id/text_view_stats_authors_count"
+                            style="@style/GridCellValue"
+                            tools:text="@tools:sample/us_zipcodes"/>
+                    </TableRow>
+
+                </TableLayout>
+
+            </RelativeLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </ScrollView>
+
+    <include
+        android:id="@+id/layout_progress_bar"
+        layout="@layout/layout_progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        tools:visibility="gone" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_coordinator"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".ui.splash.SplashActivity"
+    style="@style/RootLayout">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginVertical="16dp">
+
+        <ImageView
+            android:id="@+id/image_view_icon"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:padding="5dp"
+            android:src="@drawable/ic_mytetroid" />
+
+        <TextView
+            android:id="@+id/text_view_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/image_view_icon"
+            app:layout_constraintTop_toTopOf="@id/image_view_icon"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="6dp"
+            android:textColor="@color/text_1"
+            android:text="@string/main_header_title"
+            android:textSize="@dimen/font_big" />
+
+        <TextView
+            android:id="@+id/text_view_ver_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/image_view_icon"
+            app:layout_constraintTop_toBottomOf="@id/text_view_name"
+            android:layout_marginStart="10dp"
+            android:textColor="@color/text_3"
+            android:text="@string/title_version_label" />
+
+        <TextView
+            android:id="@+id/text_view_version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/text_view_ver_label"
+            app:layout_constraintTop_toBottomOf="@id/text_view_name"
+            android:layout_marginStart="5dp"
+            android:textColor="@color/text_3"
+            tools:text="1.0" />
+
+        <include
+            android:id="@+id/layout_progress_bar"
+            layout="@layout/layout_progress_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/image_view_icon"
+            app:layout_constraintBottom_toBottomOf="@id/text_view_description"
+            android:visibility="invisible"/>
+
+        <TextView
+            android:id="@+id/text_view_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/image_view_icon"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintVertical_bias="1"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="16dp"
+            android:textSize="16sp"
+            android:gravity="center_horizontal"
+            android:textStyle="italic"
+            android:textColor="@color/text_4"
+            android:text="@string/title_mytetroid_slogan" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

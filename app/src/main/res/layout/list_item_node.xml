@@ -17,16 +17,15 @@
         android:layout_alignParentEnd="false"
         android:layout_toLeftOf="@id/node_view_arrow"
         android:layout_toStartOf="@id/node_view_arrow"
-        android:layout_marginRight="2dp"
         android:layout_marginEnd="2dp"
-        android:padding="@dimen/data_item_row_padding">
+        android:padding="5dp">
 
         <ImageView
             android:id="@+id/node_view_icon"
             android:layout_width="24dp"
             android:layout_height="24dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/node_view_name"
+            app:layout_constraintEnd_toStartOf="@+id/node_view_name_count"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_gravity="center_vertical"
@@ -35,42 +34,18 @@
             android:visibility="gone"/>
 
         <TextView
-            android:id="@+id/node_view_name"
+            android:id="@+id/node_view_name_count"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:minHeight="24dp"
             app:layout_constraintStart_toEndOf="@+id/node_view_icon"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_gravity="center_vertical"
-            android:layout_marginLeft="@dimen/offset_default"
-            android:layout_marginRight="@dimen/offset_default"
-            android:textColor="@color/colorBaseText"
+            android:layout_marginHorizontal="@dimen/margin_horizontal_default"
+            android:textColor="@color/text_1"
             tools:text="@tools:sample/cities"
-            android:textSize="@dimen/font_default" />
-<!--        app:layout_constraintEnd_toStartOf="@+id/node_view_records_count"-->
-
-        <TextView
-            android:id="@+id/node_view_records_count"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintStart_toEndOf="@+id/node_view_name"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_gravity="center_vertical"
-            android:layout_marginLeft="@dimen/offset_default"
-            android:layout_marginRight="@dimen/offset_default"
-            android:textColor="@color/colorBase2Text"
-            tools:text="[1]"
-            android:textSize="@dimen/font_small" />
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toEndOf="@+id/node_view_name"-->
-<!--        app:layout_constraintHorizontal_weight="1"-->
-<!--        app:layout_constraintHorizontal_bias="1.0"-->
-        <!--android:minWidth="20dp"-->
-        <!--android:minEms="3"-->
-        <!--android:maxLines="1"-->
-<!--        android:singleLine="true"-->
-<!--        android:ellipsize="end"-->
+            android:textSize="16sp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -83,7 +58,7 @@
         android:layout_alignParentEnd="true"
         android:src="@drawable/ic_move_down"
         android:scaleType="center"
-        android:background="@color/colorMoreLightText"
+        android:background="@color/background_drop_down_button"
         tools:ignore="DuplicateIds" />
 
 </RelativeLayout>

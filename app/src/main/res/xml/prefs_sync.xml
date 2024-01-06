@@ -8,7 +8,7 @@
         android:summary="@string/pref_is_sync_summ"
         android:title="@string/pref_is_sync_storage" />
 
-    <com.gee12.mytetroid.views.DisabledListPreference
+    <com.gee12.mytetroid.ui.base.views.prefs.DisabledListPreference
         android:defaultValue="@string/title_app_mgit"
         android:dependency="@string/pref_key_is_sync_storage"
         android:entries="@array/sync_apps"
@@ -22,7 +22,7 @@
         android:dialogTitle="@string/pref_sync_command"
         android:inputType="text"
         android:key="@string/pref_key_sync_command"
-        android:summary="@string/pref_sync_command_summ"
+        android:summary="@string/pref_sync_command_mgit_summ"
         android:title="@string/pref_sync_command" />
 
     <CheckBoxPreference
@@ -60,10 +60,12 @@
 <!--        android:summary="@string/pref_is_not_remember_sync_app_summ"-->
 <!--        android:title="@string/pref_is_not_remember_sync_app" />-->
 
+    <!--
     <CheckBoxPreference
         android:defaultValue="true"
         android:key="@string/pref_key_check_outside_changing"
         android:summary="@string/pref_check_outside_changing_summ"
         android:title="@string/pref_check_outside_changing" />
+        -->
 
 </PreferenceScreen>

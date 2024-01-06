@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.gee12.mytetroid"
+    android:installLocation="auto">
+
+    <uses-sdk tools:overrideLibrary="com.esafirm.imagepicker"/>
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="com.termux.permission.RUN_COMMAND" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+
+    <application
+        android:name=".AppKoin"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        android:requestLegacyExternalStorage="true"
+        android:hasFragileUserData="true"
+        tools:ignore="GoogleAppIndexingWarning">
+
+        <receiver android:name=".widgets.AddRecordWidget"
+            android:label="@string/title_new_record"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_add_record_info" />
+        </receiver>
+
+        <!-- android:hardwareAccelerated="true" -->
+        <!-- для dirchooser -->
+        <!-- tools:replace="android:appComponentFactory" -->
+        <!-- android:appComponentFactory="action_settings" -->
+        <!-- tools:replace="android:theme" -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true"
+            tools:replace="android:authorities">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
+        <provider
+            android:name=".domain.provider.TetroidSuggestionProvider"
+            android:authorities="${applicationId}.TetroidSuggestionProvider"
+            tools:replace="android:authorities" />
+
+        <activity
+            android:name=".ui.splash.SplashActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/app_name"
+            android:launchMode="standard"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ui.main.MainActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/app_name"
+            android:launchMode="singleTop"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <intent-filter android:label="@string/title_intent_send">
+                <action android:name="android.intent.action.SEND" />
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+                <data android:mimeType="text/*" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable_records" />
+        </activity>
+        <activity
+            android:name=".ui.storages.StoragesActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/title_storages"
+            android:launchMode="singleTop"
+            android:parentActivityName=".ui.main.MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.main.MainActivity" />
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable_text" />
+        </activity>
+        <activity
+            android:name=".ui.settings.storage.StorageSettingsActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/title_storage_settings"
+            android:parentActivityName=".ui.main.MainActivity"
+            android:theme="@style/AppPreferenceTheme"
+            android:launchMode="singleTop">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.storages.StoragesActivity" />
+        </activity>
+        <activity
+            android:name=".ui.record.RecordActivity"
+            android:configChanges="orientation|screenSize"
+            android:launchMode="singleTop"
+            android:parentActivityName=".ui.main.MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.main.MainActivity" />
+            <meta-data
+                android:name="android.app.searchable"
+                android:resource="@xml/searchable_text" />
+        </activity>
+        <activity
+            android:name=".ui.settings.SettingsActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/action_common_settings"
+            android:parentActivityName=".ui.main.MainActivity"
+            android:theme="@style/AppPreferenceTheme"
+            android:launchMode="singleTop">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.main.MainActivity" />
+        </activity>
+        <activity
+            android:name=".ui.search.SearchActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/title_global_search"
+            android:parentActivityName=".ui.main.MainActivity" />
+        <activity
+            android:name=".ui.storage.info.StorageInfoActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/title_storage_info"
+            android:parentActivityName=".ui.main.MainActivity"/>
+        <activity
+            android:name=".ui.logs.LogsActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/title_log_file_content"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.gee12.mytetroid.activities.LogsActivity" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".ui.node.icon.IconsActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/title_node_icon_choice"
+            android:parentActivityName=".ui.main.MainActivity"/>
+        <activity
+            android:name=".ui.about.AboutAppActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/title_about_app"/>
+    </application>
+
+</manifest>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    style="@style/RootLayout">
+
+    <TextView
+        android:id="@+id/text_view_description"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:textAlignment="center"
+        android:textColor="@color/text_2"
+        android:textSize="@dimen/font_default"
+        android:text="@string/ask_permission_on_all_files_on_device_description" />
+
+    <ImageView
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_view_description"
+        app:layout_constraintBottom_toTopOf="@id/text_view_description_2"
+        android:layout_margin="16dp"
+        android:adjustViewBounds="true"
+        android:clickable="false"
+        android:focusable="false"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_sd_storage_black"
+        app:tint="@color/icon_tint"/>
+
+    <TextView
+        android:id="@+id/text_view_description_2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:textAlignment="center"
+        android:textColor="@color/text_2"
+        android:textStyle="italic"
+        android:text="@string/ask_permission_on_all_files_on_device_description_2" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

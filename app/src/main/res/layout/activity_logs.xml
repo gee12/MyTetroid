@@ -6,21 +6,13 @@
     android:id="@+id/layout_coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.gee12.mytetroid.activities.InfoActivity">
+    tools:context=".ui.logs.LogsActivity"
+    style="@style/RootLayout">
 
-    <com.google.android.material.appbar.AppBarLayout
+    <include
+        layout="@layout/layout_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
-
-    </com.google.android.material.appbar.AppBarLayout>
+        android:layout_height="wrap_content" />
 
 <!--    <ScrollView
         android:id="@+id/scroll_view_logs"
@@ -53,7 +45,18 @@
         android:textIsSelectable="true"
         android:focusable="true"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         />
+
+    <TextView
+        android:id="@+id/text_view_empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="@string/title_logs_is_missing"
+        android:visibility="gone"
+        tools:visibility="visible"/>
 
     <LinearLayout
         android:id="@+id/layout_read_error"
@@ -63,6 +66,7 @@
         android:padding="5dp"
         android:layout_gravity="center"
         android:visibility="gone"
+        tools:visibility="visible"
         android:orientation="vertical">
 
         <TextView
@@ -70,7 +74,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
-            android:textColor="@color/colorDarkRed"
+            android:textColor="@color/error_1"
             android:text="@string/log_file_read_error"
             android:background="@null"/>
 
@@ -92,13 +96,11 @@
 
     </LinearLayout>
 
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Large"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="gone"
-        android:indeterminate="true" />
+    <include
+        android:id="@+id/layout_progress_bar"
+        layout="@layout/layout_progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

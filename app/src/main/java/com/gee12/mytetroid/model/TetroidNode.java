@@ -1,11 +1,6 @@
 package com.gee12.mytetroid.model;
 
-import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.text.TextUtils;
-
-import com.gee12.mytetroid.logs.LogManager;
-import com.gee12.mytetroid.utils.FileUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,10 +20,7 @@ public class TetroidNode extends TetroidObject {
 
     public TetroidNode(boolean isCrypted, String id, String name, String iconName, int level) {
         super(FoundType.TYPE_NODE, isCrypted, id, name);
-//        setIcon(iconFullName);
         this.iconName = iconName;
-//        this.subNodes = subNodes;
-//        this.records = records;
         this.level = level;
     }
 
@@ -46,29 +38,16 @@ public class TetroidNode extends TetroidObject {
         return icon;
     }
 
-    public void loadIcon(Context context, String iconsFolderPath) {
-        if (TextUtils.isEmpty(getIconName())) {
-            this.icon = null;
-            return;
-        }
-        if (iconsFolderPath == null) {
-            return;
-        }
-        try {
-            this.icon = FileUtils.loadSVGFromFile(iconsFolderPath + getIconName());
-        } catch (Exception e) {
-            LogManager.log(context, e);
-        }
-    }
-
-
-
     public String getIconName() {
         return (isCrypted && isDecrypted) ? decryptedIconName : iconName;
     }
 
     public String getIconName(boolean cryptedValue) {
         return (cryptedValue) ? iconName : decryptedIconName;
+    }
+
+    public void setIcon(Drawable icon) {
+        this.icon = icon;
     }
 
     public int getLevel() {

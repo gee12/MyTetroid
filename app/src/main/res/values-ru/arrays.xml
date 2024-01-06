@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="view_type_titles">
-        <!--<item name="none"> </item>-->
-        <item name="records_list">ВЕТКА</item>
-<!--        <item name="record_text">ЗАПИСЬ</item>-->
-        <item name="recor_files">ФАЙЛЫ</item>
-        <item name="tag_records">МЕТКА</item>
-        <item name="finded_records"></item>
-        <!--<item name="finded_records">ПОИСК ПО ЗАПИСЯМ</item>-->
-    </string-array>
+
     <string-array name="search_split_to_words">
         <item name="search_any_word">Поиск по каждому слову в запросе</item>
         <item name="search_all_words">По запросу целиком</item>
@@ -80,6 +72,11 @@
         <item>Файл&#160;</item>
         <item>файла</item>
     </string-array>
+    <string-array name="obj_folder">
+        <item>каталог</item>
+        <item>Каталог&#160;</item>
+        <item>каталога</item>
+    </string-array>
     <string-array name="obj_image">
         <item>изображение</item>
         <item>Изображение&#160;</item>
@@ -142,6 +139,11 @@
         <item>вставки</item>
     </string-array>
     <string-array name="oper_move">
+        <item>переместить</item>
+        <item>перемещен(-а)</item>
+        <item>перемещения</item>
+    </string-array>
+    <string-array name="oper_reorder">
         <item>переместить</item>
         <item>перемещен(-а)</item>
         <item>перемещения</item>

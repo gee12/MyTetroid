@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/custom_dialog_layout_design_user_input"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    style="@style/RootLayout">
 
     <TextView
         android:text="@string/label_name"
-        style="@style/dialog_labels"/>
+        style="@style/AppLabelInLayout"/>
 
     <EditText
         android:id="@+id/edit_text_name"
         android:inputType="text|textCapSentences"
-        style="@style/dialog_text_edit">
+        style="@style/AppEditTextInLayout"
+        tools:text="test tag name">
 
         <requestFocus/>
 

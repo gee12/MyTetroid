@@ -1,65 +1,128 @@
 <resources>
 
-    <!-- Base application theme. -->
-<!--    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">-->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/main_center_color</item>
-        <item name="colorPrimaryDark">@color/main_dark_color</item>
-        <item name="colorAccent">@color/colorAccent</item>
+    <!-- Основная тема -->
+    <style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">@color/title_middle_color</item>
+        <item name="colorPrimaryDark">@color/title_start_color</item>
+        <item name="colorAccent">@color/accent</item>
         <item name="windowActionModeOverlay">true</item>
-    </style>
-
-    <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <!--<item name="android:windowFullscreen">true</item>-->
-        <!--<item name="android:windowContentOverlay">@null</item>-->
+        <item name="android:itemBackground">@color/background_default</item>
+        <item name="android:textColor">@color/text_color_primary</item>
+        <item name="android:textColorSecondary">@color/text_color_secondary</item>
+
+        <item name="dialogTheme">@style/AppDialog</item>
+        <item name="alertDialogTheme">@style/AppDialog</item>
+
+        <item name="buttonStyle">@style/AppButton</item>
+        <item name="imageButtonStyle">@style/AppImageButton</item>
+        <item name="android:textViewStyle">@style/AppTextView</item>
+        <item name="editTextStyle">@style/AppEditText</item>
+        <item name="checkboxStyle">@style/AppCheckbox</item>
+        <item name="spinnerStyle">@style/AppSpinner</item>
+        <item name="autoCompleteTextViewStyle">@style/AppSearchAutoCompleteTextView</item>
+        <item name="android:listViewStyle">@style/AppListView</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark" />
-
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
-
-    <style name="stats_labels">
-        <item name="android:layout_width">200dp</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_column">0</item>
-        <item name="android:textSize">14sp</item>
-        <item name="android:textColor">@color/colorBaseText</item>
-        <item name="android:paddingLeft">2dp</item>
-        <item name="android:paddingRight">2dp</item>
-        <item name="android:paddingTop">2dp</item>
-        <item name="android:paddingBottom">2dp</item>
-        <item name="android:layout_marginLeft">4dp</item>
+    <!-- Тема для экрана настроек -->
+    <style name="AppPreferenceTheme" parent="AppTheme">
+        <item name="android:textViewStyle">@style/AppPreferenceTextView</item>
     </style>
 
-    <style name="stats_values">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_column">1</item>
+    <style name="AppDialog" parent="Theme.AppCompat.DayNight.Dialog.Alert">
+        <item name="android:windowBackground">@color/background_dialog_default</item>
+        <item name="android:windowTitleStyle">@style/AppDialogTitle</item>
+    </style>
+
+    <style name="AppDialogTitle" parent="TextAppearance.AppCompat.Title">
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:textColor">@color/text_1</item>
+    </style>
+
+    <style name="AppToolbar" parent="Theme.AppCompat">
+    </style>
+
+    <style name="AppPopupMenu" parent="Widget.AppCompat.PopupMenu">
+    </style>
+
+    <style name="AppButton" parent="Widget.AppCompat.Button">
+        <item name="android:background">@color/background_button</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
+    </style>
+
+    <style name="AppImageButton" parent="Widget.AppCompat.ImageButton">
+        <item name="android:background">@color/background_button</item>
+        <item name="android:paddingTop">4dp</item>
+        <item name="android:paddingBottom">4dp</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
+    </style>
+
+    <style name="AppEditText" parent="Widget.AppCompat.EditText">
+        <item name="android:textColor">@color/text_color_primary</item>
+        <item name="android:textColorHint">@color/text_4</item>
+    </style>
+
+    <style name="AppSearchAutoCompleteTextView" parent="Widget.AppCompat.AutoCompleteTextView">
+        <item name="android:textColor">@color/text_color_primary</item>
+        <item name="android:textColorHint">@color/text_4</item>
+    </style>
+
+    <style name="AppListView" parent="Widget.AppCompat.ListView">
+        <item name="android:divider">@color/list_separator</item>
+        <item name="android:dividerHeight">1dp</item>
+    </style>
+
+    <style name="AppTextView">
         <item name="android:textSize">16sp</item>
-        <item name="android:layout_gravity">bottom</item>
-        <item name="android:paddingLeft">10dp</item>
-        <item name="android:text">0</item>
+        <item name="android:textColor">@color/text_2</item>
     </style>
 
-    <style name="stats_line">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">1dp</item>
-        <item name="android:layout_columnSpan">2</item>
-        <item name="android:background">#DDD</item>
-        <item name="android:layout_marginTop">10dp</item>
-        <item name="android:layout_marginBottom">10dp</item>
+    <style name="AppPreferenceTextView">
+        <item name="android:textColor">@color/text_color_primary</item>
+        <item name="android:textColorSecondary">@color/text_color_secondary</item>
     </style>
 
-    <style name="dialog_labels">
+    <style name="AppCheckbox" parent="Widget.AppCompat.CompoundButton.CheckBox">
+        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+        <item name="android:textColor">@color/text_1</item>
+    </style>
+
+    <style name="AppSpinner" parent="Widget.AppCompat.Spinner.DropDown">
+    </style>
+
+    <style name="RootLayout">
+        <item name="android:background">@color/background_default</item>
+    </style>
+
+    <style name="Title">
+        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+        <item name="android:textColor">@color/text_1</item>
+    </style>
+
+    <style name="Text">
+        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
+        <item name="android:textColor">@color/text_2</item>
+    </style>
+
+    <style name="AppLabel" parent="@style/AppTextView">
+    </style>
+
+    <style name="AppLabelInLayout" parent="@style/AppLabel">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
     </style>
 
-    <style name="grid_cell">
+    <style name="AppEditTextInLayout" parent="@style/AppEditText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="GridCell">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_margin">2dp</item>
@@ -69,20 +132,15 @@
         <item name="android:textIsSelectable">true</item>
     </style>
 
-    <style name="grid_cell_label" parent="grid_cell">
-<!--        <item name="android:textColor">@color/colorBaseText</item>-->
+    <style name="GridCellLabel" parent="GridCell">
+        <item name="android:textColor">@color/text_3</item>
     </style>
 
-    <style name="grid_cell_value" parent="grid_cell">
-        <item name="android:textColor">@color/colorBaseText</item>
+    <style name="GridCellValue" parent="GridCell">
+        <item name="android:textColor">@color/text_1</item>
     </style>
 
-    <style name="dialog_text_edit">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-    </style>
-
-    <style name="fab">
+    <style name="Fab">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_alignParentRight">true</item>
@@ -94,7 +152,81 @@
         <item name="useCompatPadding">true</item>
     </style>
 
-    <style name="fab_clans_menu">
+    <style name="LabelEmptyList">
+        <item name="android:textSize">@dimen/font_small</item>
+        <item name="android:textColor">@color/text_empty_list</item>
+        <item name="android:padding">16dp</item>
+    </style>
+
+    <style name="RecordLabel">
+        <item name="android:textColor">@color/record_field_label</item>
+    </style>
+
+    <style name="RecordValue">
+        <item name="android:textColor">@color/record_field_value</item>
+    </style>
+
+    <style name="MainTabLayout" parent="TextAppearance.Design.Tab">
+        <item name="android:textSize">14sp</item>
+        <item name="textAllCaps">false</item>
+    </style>
+
+    <style name="SeparatorHorizontal">
+        <item name="android:layout_width">1dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">@color/list_separator</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:layout_marginBottom">2dp</item>
+    </style>
+
+    <style name="SeparatorVertical">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">@color/list_separator</item>
+        <item name="android:layout_marginStart">2dp</item>
+        <item name="android:layout_marginLeft">2dp</item>
+        <item name="android:layout_marginEnd">2dp</item>
+    </style>
+
+
+    <!-- Storage statistic -->
+
+    <style name="StatsLabel">
+        <item name="android:layout_width">200dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_column">0</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/text_1</item>
+        <item name="android:paddingLeft">2dp</item>
+        <item name="android:paddingRight">2dp</item>
+        <item name="android:paddingTop">2dp</item>
+        <item name="android:paddingBottom">2dp</item>
+        <item name="android:layout_marginLeft">4dp</item>
+    </style>
+
+    <style name="StatsValue">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_column">1</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:layout_gravity">bottom</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:text">0</item>
+    </style>
+
+    <style name="StatsLine">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:layout_columnSpan">2</item>
+        <item name="android:background">@color/list_separator</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_marginBottom">10dp</item>
+    </style>
+
+
+    <!-- com.github.clans.fab.FloatingActionMenu -->
+
+    <style name="FabClansMenu">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_alignParentRight">true</item>
@@ -150,11 +282,11 @@
         <item name="menu_labels_position">left</item>
     </style>
 
-    <style name="fab_clans_label">
+    <style name="FabClansLabel">
         <item name="android:padding">12dp</item>
 
         <item name="android:background">@drawable/fab_label_background</item>
-        <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@color/fab_color_text</item>
         <item name="android:textSize">12sp</item>
         <item name="android:maxLines">2</item>
         <item name="android:ellipsize">none</item>
@@ -166,14 +298,14 @@
 <!--        <item name="android:shadowDy">3</item>-->
     </style>
 
-    <style name="fab_clans_button">
+    <style name="FabClansButton">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_alignParentRight">true</item>
         <item name="android:layout_alignParentBottom">true</item>
         <item name="android:layout_marginTop">6dp</item>
         <item name="android:layout_marginBottom">6dp</item>
-        <item name="android:layout_marginRight">@dimen/fab_margin</item>
+        <item name="android:layout_marginEnd">@dimen/fab_margin</item>
 
 <!--        <item name="fab_showAnimation">@anim/fab_slide_in_from_left</item>-->
 <!--        <item name="fab_hideAnimation">@anim/fab_slide_in_from_right</item>-->

@@ -19,4 +19,10 @@
         android:title="@string/title_copy_link"
         android:icon="@drawable/ic_link"
         app:showAsAction="ifRoom|withText" />
+    <item
+        android:id="@+id/action_select"
+        android:orderInCategory="40"
+        android:title="@string/action_select"
+        android:icon="@drawable/ic_checklist"
+        app:showAsAction="ifRoom|withText" />
 </menu>

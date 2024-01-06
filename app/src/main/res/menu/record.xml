@@ -66,6 +66,12 @@
         android:icon="@drawable/ic_share"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_export_pdf"
+        android:orderInCategory="85"
+        android:title="@string/title_export_to_pdf"
+        android:icon="@drawable/ic_export_pdf"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_delete"
         android:orderInCategory="90"
         android:title="@string/title_delete_record"
@@ -91,9 +97,15 @@
 <!--        android:icon="@drawable/ic_statistics"-->
 <!--        app:showAsAction="never" />-->
     <item
+        android:id="@+id/action_storage_settings"
+        android:orderInCategory="270"
+        android:title="@string/title_storage_settings"
+        android:icon="@drawable/ic_storage_settings"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_settings"
         android:orderInCategory="300"
-        android:title="@string/title_settings"
+        android:title="@string/action_common_settings"
         android:icon="@drawable/ic_settings"
         app:showAsAction="never" />
     <item

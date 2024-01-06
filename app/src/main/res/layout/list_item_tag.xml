@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="40dp"
@@ -11,26 +13,16 @@
     android:paddingRight="5dp">
 
     <TextView
-        android:id="@+id/tag_view_name"
+        android:id="@+id/tag_view_name_count"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="center_vertical"
-        android:textColor="@color/colorBaseText"
-        android:textSize="@dimen/font_default" />
-
-    <TextView
-        android:id="@+id/tag_view_records_count"
-        android:layout_toRightOf="@id/tag_view_name"
-        android:layout_toEndOf="@id/tag_view_name"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="center_vertical"
-        android:textColor="@color/colorBase2Text"
-        android:textSize="@dimen/font_small"
-        android:layout_marginTop="2dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginStart="5dp" />
+        android:textColor="@color/text_1"
+        android:textSize="@dimen/font_default"
+        tools:text="@tools:sample/cities" />
 
 </RelativeLayout>

@@ -1,25 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <View
-        android:id="@+id/view_separ_top"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_alignParentTop="true"
-        android:background="@color/gray"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="0dp"/>
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/RootLayout"
+    android:paddingHorizontal="12dp">
 
     <TextView
         android:id="@+id/text_view_notice_top"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/view_separ_top"
+        android:layout_alignParentTop="true"
         android:textSize="14sp"
         android:textAlignment="center"
         android:layout_gravity="center_horizontal"
@@ -31,7 +23,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/text_view_notice_top"
         android:iconifiedByDefault="false"
-        android:queryHint="@string/title_nodes_filter_hint" />
+        android:editTextColor="@color/text_1"
+        android:queryHint="@string/title_nodes_filter_hint"/>
 
     <pl.openrnd.multilevellistview.MultiLevelListView
         android:id="@+id/list_view_nodes"
@@ -39,9 +32,7 @@
         android:layout_height="match_parent"
         android:layout_below="@id/search_view_nodes"
         android:layout_above="@id/text_view_notice_bottom"
-        android:layout_marginTop="5dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_marginTop="6dp"
         app:alwaysExtended="false"
         app:nestType="multiple" />
 
@@ -52,20 +43,25 @@
         android:layout_centerInParent="true"
         android:layout_gravity="center"
         android:textAlignment="center"
-        android:padding="@dimen/tv_empty_padding"
+        style="@style/LabelEmptyList"
+        android:textSize="@dimen/font_default"
+        android:textColor="@color/text_3"
         android:text="@string/title_nodes_is_missing"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        tools:visibility="visible"/>
 
     <TextView
         android:id="@+id/text_view_notice_bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:textColor="@color/colorDarkRed"
+        android:paddingVertical="8dp"
+        android:textColor="@color/error_1"
         android:textSize="14sp"
         android:textAlignment="center"
         android:layout_gravity="center_horizontal"
         android:text="@string/mes_select_decrypted_node"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        tools:visibility="visible"/>
 
 </RelativeLayout>

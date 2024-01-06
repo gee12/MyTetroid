@@ -1,9 +1,8 @@
 package com.gee12.mytetroid.model;
 
-import android.content.Context;
-
 import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.StringsIntMask;
+import com.gee12.mytetroid.data.StringsIntMask;
+import com.gee12.mytetroid.domain.provider.IResourcesProvider;
 
 public class FoundType extends StringsIntMask {
 
@@ -34,11 +33,9 @@ public class FoundType extends StringsIntMask {
     /**
      * Формирование строки в виде перечисления типов объекта, хранящихся в битах переменной type.
      * Формат: "тип1, тип2, .., типN"
-     * @param context
-     * @return
      */
-    public String getFoundTypeString(Context context) {
+    public String getFoundTypeString(IResourcesProvider resourcesProvider) {
         // уменьшаем на 1, т.к. пропускаем тип NONE
-        return joinToString(context.getResources().getStringArray(R.array.found_types), 1);
+        return joinToString(resourcesProvider.getStringArray(R.array.found_types), 1);
     }
 }

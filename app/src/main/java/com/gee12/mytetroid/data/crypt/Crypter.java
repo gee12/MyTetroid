@@ -1,14 +1,13 @@
 package com.gee12.mytetroid.data.crypt;
 
-import com.gee12.mytetroid.logs.ILogger;
-import com.gee12.mytetroid.utils.Utils;
+import com.gee12.mytetroid.logs.ITetroidLogger;
+import com.gee12.mytetroid.common.utils.Utils;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -25,7 +24,7 @@ public class Crypter {
     /**
      *
      */
-    private final ILogger mLogger;
+    private final ITetroidLogger mLogger;
 
     /**
      * Реализация алгритма шифрования RC5.
@@ -46,7 +45,7 @@ public class Crypter {
      *
      * @param logger
      */
-    public Crypter(ILogger logger) {
+    public Crypter(ITetroidLogger logger) {
         this.mLogger = logger;
         this.rc5 = new RC5Simple(logger);
     }
@@ -174,30 +173,29 @@ public class Crypter {
      *
      * TODO: Возможно, нужно изменить, чтобы процесс расшифровки происходил поблочно, а не сразу целиком.
      *
-     * @param srcFile Исходный зашифрованный файл
-     * @param destFile Результирующий файл, который должен быть расшифрован
+     * @param srcFileStream Исходный зашифрованный файл
+     * @param destFileStream Результирующий файл, который должен быть расшифрован
      * @param isEncrypt Если true - зашифровываем файл, иначе - расшифровываем
      * @return
      */
-    public boolean encryptDecryptFile(File srcFile, File destFile, boolean isEncrypt) throws IOException {
-        int size = (int) srcFile.length();
-        byte[] bytes = new byte[size];
+    public boolean encryptDecryptFile(InputStream srcFileStream, OutputStream destFileStream, boolean isEncrypt) throws IOException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        int readed;
+        byte[] data = new byte[16384];
+        while ((readed = srcFileStream.read(data, 0, data.length)) != -1) {
+            buffer.write(data, 0, readed);
+        }
+        byte[] bytes = buffer.toByteArray();
 
-        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(srcFile));
-        int readed = bis.read(bytes, 0, size);
-        bis.close();
-
-        try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(destFile))) {
-            if (readed > 0) {
-                byte[] data = (isEncrypt) ? encryptBytes(bytes) : decryptBytes(bytes);
+        try (BufferedOutputStream bos = new BufferedOutputStream(destFileStream)) {
+            if (bytes.length > 0) {
+                data = (isEncrypt) ? encryptBytes(bytes) : decryptBytes(bytes);
                 if (data == null) {
                     bos.close();
                     return false;
                 }
                 bos.write(data);
                 bos.flush();
-            } else {
-                addLog("File " + srcFile.getAbsolutePath() + " is empty");
             }
         }
         return true;
@@ -222,7 +220,7 @@ public class Crypter {
     /**
      * Установка пароля в виде ключа шифрования.
      */
-    protected int[] passToKey(String pass) {
+    public int[] passToKey(String pass) {
         int[] res = null;
         try {
             // добавляем соль
@@ -236,7 +234,7 @@ public class Crypter {
         return res;
     }
 
-    protected int[] middlePassHashToKey(String passHash) {
+    public int[] middlePassHashToKey(String passHash) {
         int[] res = null;
         try {
             byte[] passHashSigned = decodeBase64(passHash);
@@ -326,13 +324,13 @@ public class Crypter {
 
     private void addLog(String s) {
         if (mLogger != null) {
-            mLogger.log(s);
+            mLogger.log(s, false);
         }
     }
 
     private void addLog(Exception ex) {
         if (mLogger != null) {
-            mLogger.log(ex);
+            mLogger.logError(ex, false);
         }
     }
 

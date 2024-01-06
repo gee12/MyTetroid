@@ -1,6 +1,6 @@
 package com.gee12.mytetroid.model;
 
-import com.gee12.mytetroid.utils.FileUtils;
+import com.gee12.mytetroid.common.utils.FileUtils;
 
 public class TetroidFile extends TetroidObject {
 

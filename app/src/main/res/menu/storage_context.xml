@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_open"
+        android:title="@string/title_open"
+        android:orderInCategory="10"
+        android:icon="@drawable/ic_storage"
+        />
+    <item
+        android:id="@+id/action_info"
+        android:title="@string/title_storage_info"
+        android:orderInCategory="15"
+        android:icon="@drawable/ic_storage_info"
+        />
+    <item
+        android:id="@+id/action_storage_settings"
+        android:title="@string/title_storage_settings_in_list"
+        android:orderInCategory="20"
+        android:icon="@drawable/ic_storage_settings"
+        />
+    <item
+        android:id="@+id/action_set_default"
+        android:title="@string/title_set_default"
+        android:orderInCategory="30"
+        android:icon="@drawable/ic_storage_default"
+        />
+    <item
+        android:id="@+id/action_delete"
+        android:title="@string/title_delete"
+        android:orderInCategory="40"
+        android:icon="@drawable/ic_delete"
+        />
+</menu>

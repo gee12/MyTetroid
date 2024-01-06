@@ -1,47 +1,70 @@
 <com.google.android.material.appbar.AppBarLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/app_bar_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:theme="@style/AppTheme.AppBarOverlay">
+    android:theme="@style/AppToolbar">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@drawable/side_nav_bar"
-        app:theme="@style/AppTheme.AppBarOverlay"
-        app:popupTheme="@style/AppTheme.PopupOverlay">
+        android:theme="@style/AppToolbar"
+        app:popupTheme="@style/AppPopupMenu">
 <!--    android:background="?attr/colorPrimary"-->
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <LinearLayout
+                android:id="@+id/double_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/text_view_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:textColor="@color/screen_title_1"
+                    android:textSize="20sp"
+                    tools:text="Заголовок"/>
+
+                <TextView
+                    android:id="@+id/text_view_subtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:singleLine="true"
+                    android:textColor="@color/screen_title_2"
+                    android:textSize="@dimen/font_small_small"
+                    android:textStyle="italic"
+                    tools:text="Подзаголовок" />
+
+            </LinearLayout>
+
             <TextView
-                android:id="@+id/text_view_title"
+                android:id="@+id/text_view_single_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:singleLine="true"
-                android:textColor="@color/colorMoreLightText"
-                android:textSize="@dimen/font_app_title" />
+                android:textColor="@color/screen_title_1"
+                android:textSize="20sp"
+                tools:text="Одинарный заголовок" />
 
-            <TextView
-                android:id="@+id/text_view_subtitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:textColor="@color/colorLightText"
-                android:textSize="@dimen/font_small_small"
-                android:textStyle="italic" />
-
-        </LinearLayout>
+        </RelativeLayout>
 
     </androidx.appcompat.widget.Toolbar>
 

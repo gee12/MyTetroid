@@ -1,7 +1,7 @@
 package com.gee12.mytetroid.data.crypt;
 
-import com.gee12.mytetroid.logs.ILogger;
-import com.gee12.mytetroid.utils.Utils;
+import com.gee12.mytetroid.logs.ITetroidLogger;
+import com.gee12.mytetroid.common.utils.Utils;
 
 import java.util.Random;
 
@@ -67,12 +67,12 @@ public class RC5Simple {
     private byte mFormatVersion;
     private boolean mIsSetFormatVersionForce;
     private int mErrorCode;
-    private ILogger mLogger;
+    private ITetroidLogger mLogger;
 
     /**
      * Default constructor.
      */
-    public RC5Simple(ILogger logger) {
+    public RC5Simple(ITetroidLogger logger) {
         this.mLogger = logger;
 
         // Set magic constants
@@ -545,21 +545,21 @@ public class RC5Simple {
         return (int)(Math.abs(rand.nextInt()) % len + from);
     }
 
-    private void addErrorLog(Exception e) {
+    private void addErrorLog(Exception ex) {
         if (mLogger != null) {
-            mLogger.log(e);
+            mLogger.logError(ex, false);
         }
     }
 
     private void addErrorLog(String s) {
         if (mLogger != null) {
-            mLogger.log(s, ILogger.Types.ERROR);
+            mLogger.logError(s, false);
         }
     }
 
     private void addDebugLog(String s) {
         if (mLogger != null) {
-            mLogger.log(s, ILogger.Types.DEBUG);
+            mLogger.logDebug(s, false);
         }
     }
 
