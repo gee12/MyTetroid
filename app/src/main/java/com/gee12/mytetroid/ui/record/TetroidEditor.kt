@@ -15,6 +15,7 @@ import com.gee12.htmlwysiwygeditor.WysiwygEditor
 import com.gee12.htmlwysiwygeditor.model.ImageParams
 import com.gee12.mytetroid.domain.AppThemeHelper.setNightMode
 import com.gee12.mytetroid.domain.provider.BuildInfoProvider
+import com.gee12.mytetroid.model.ImageDimension
 
 class TetroidEditor @JvmOverloads constructor(
     context: Context,
@@ -245,15 +246,26 @@ class TetroidEditor @JvmOverloads constructor(
             srcHeight = image.height,
             isUseSourceSize = true,
             isSeveral = isSeveral,
-            onApply = { width, height, similar ->
+            onApply = { width, height, useSourceSize, setSimilar ->
                 webView.insertImage(url = image.name, width, height)
-                if (!similar) {
+                if (!setSimilar) {
                     // вновь выводим диалог установки размера
                     showInsertImageDialog(images, pos = pos + 1)
                 } else {
-                    // устанавливаем "сохраненный" размер
                     for (i in pos + 1 until images.size) {
-                        webView.insertImage(url = images[i].name, width, height)
+                        val image = images[i]
+                        val dimen = if (useSourceSize) {
+                            // вставляем изображения с оригинальным размером
+                            ImageDimension(width = image.width, height = image.height)
+                        } else {
+                            // вставляем изображения с указанным размером
+                            ImageDimension(width = width, height = height)
+                        }
+                        webView.insertImage(
+                            url = image.name,
+                            width = dimen.width,
+                            height = dimen.height,
+                        )
                     }
                 }
             }
