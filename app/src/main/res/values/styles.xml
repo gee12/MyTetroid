@@ -133,7 +133,7 @@
     </style>
 
     <style name="GridCellLabel" parent="GridCell">
-        <item name="android:textColor">@color/text_3</item>
+        <item name="android:textColor">@color/text_2</item>
     </style>
 
     <style name="GridCellValue" parent="GridCell">
