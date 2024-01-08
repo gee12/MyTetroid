@@ -77,6 +77,8 @@ import com.gee12.htmlwysiwygeditor.model.ImageParams
 import com.gee12.mytetroid.common.extensions.showForcedWithIcons
 import com.gee12.mytetroid.common.onSuccess
 import com.gee12.mytetroid.domain.usecase.html.CreateTagsHtmlStringUseCase
+import com.gee12.mytetroid.logs.LogType
+import com.gee12.mytetroid.logs.Message
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.cachapa.expandablelayout.ExpandableLayout
@@ -717,6 +719,10 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
     override fun onEditImage(params: ImageParams) {
         viewModel.getImageDimensions(params)
+    }
+
+    override fun onShowMessage(message: String) {
+        showMessage(Message(message, LogType.INFO))
     }
 
     /**

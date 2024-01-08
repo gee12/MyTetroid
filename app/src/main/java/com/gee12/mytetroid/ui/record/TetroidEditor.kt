@@ -29,6 +29,7 @@ class TetroidEditor @JvmOverloads constructor(
     interface IEditorListener {
         fun onIsEditedChanged(isEdited: Boolean)
         fun onEditImage(params: ImageParams)
+        fun onShowMessage(message: String)
     }
 
     var isCalledHtmlRequest = false
@@ -120,15 +121,6 @@ class TetroidEditor @JvmOverloads constructor(
         )
         val notAvailableYetActions = arrayOf(
             ActionType.INSERT_FORMULA,
-            // table
-            ActionType.INSERT_TABLE,
-            ActionType.EDIT_TABLE,
-            ActionType.INSERT_TABLE_ROWS,
-            ActionType.DELETE_TABLE_ROW,
-            ActionType.INSERT_TABLE_COLS,
-            ActionType.DELETE_TABLE_COL,
-            ActionType.MERGE_TABLE_CELLS,
-            ActionType.SPLIT_TABLE_CELLS,
         )
         if ((buildInfoProvider.isFreeVersion() && actionType in proActions)
             || actionType in notAvailableYetActions
@@ -142,17 +134,6 @@ class TetroidEditor @JvmOverloads constructor(
             when (button.type) {
                 ActionType.INSERT_FORMULA -> showToastNotAvailableYet()
                 ActionType.VOICE_INPUT -> showToastNotAvailableInFree()
-                // table
-                ActionType.INSERT_TABLE,
-                ActionType.EDIT_TABLE,
-                ActionType.INSERT_TABLE_ROWS,
-                ActionType.DELETE_TABLE_ROW,
-                ActionType.INSERT_TABLE_COLS,
-                ActionType.DELETE_TABLE_COL,
-                ActionType.MERGE_TABLE_CELLS,
-                ActionType.SPLIT_TABLE_CELLS -> {
-                    showToastNotAvailableYet()
-                }
                 else -> Unit
             }
         } else {
@@ -293,6 +274,10 @@ class TetroidEditor @JvmOverloads constructor(
 
     fun setEditorListener(listener: IEditorListener) {
         editorListener = listener
+    }
+
+    override fun showMessage(message: String) {
+        editorListener?.onShowMessage(message)
     }
 
     companion object {
