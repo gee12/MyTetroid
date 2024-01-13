@@ -173,7 +173,7 @@ class TetroidEditor @JvmOverloads constructor(
             |    }
             |}
             """.trimMargin()
-        webView.execJavascript(script, true)
+        webView.execJavascript(script, callStateChange = true)
     }
 
     fun insertImage(image: TetroidImage) {
