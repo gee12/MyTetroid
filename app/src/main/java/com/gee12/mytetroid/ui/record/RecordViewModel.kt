@@ -919,7 +919,7 @@ class RecordViewModel(
      */
     @UiThread
     fun switchMode(newMode: EditorMode) {
-        switchMode(newMode, true)
+        switchMode(newMode, isNeedSave = true)
     }
 
     @UiThread

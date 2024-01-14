@@ -664,8 +664,23 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
      * Загрузка html-кода записи из редактора html-кода (fromHtmlEditor) в WebView.
      */
     private fun loadRecordTextFromHtmlEditor() {
-        val textHtml = mEditTextHtml.text.toString()
-        loadRecordText(textHtml)
+        val html = mEditTextHtml.text.toString()
+
+        // FIXME: перед применением изменений сырого html нужно сохранить состояние,
+        //  чтобы работало undo/redo
+        //  Способы:
+        //  1) вызвать saveCurrentStateToHistory() и перезагрузить страницу loadDataWithBaseURL().
+        //   Проблема: после перезагрузки всей страницы ерезагружается и JS вместе с историей изменений
+        editor.webView.saveCurrentStateToHistory()
+        loadRecordText(html)
+
+        //  2) заменить только innerHTML безе перезагрузки всей страницы и JS.
+        //   Проблема 1: не работает отправка голового html в JS, нужно экранирование или кодирование спецсимволов
+        //   Проблема 2: нужно все равно добавить сохранение html в файл записи, если включено автосохранение
+        //editor.webView.setHtmlContent(html)
+        //switchEditorMode(EditorMode.EDIT, isLoadJSEngine = false)
+        // или для автосохранения
+        //viewModel.switchMode(EditorMode.EDIT)
     }
 
     private fun loadRecordText(textHtml: String) {
@@ -866,7 +881,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
     //region Mode
 
-    private fun switchEditorMode(newMode: EditorMode) {
+    private fun switchEditorMode(newMode: EditorMode, isLoadJSEngine: Boolean = true) {
         //viewModel.logDebug("switchViews: mode=$newMode")
         when (newMode) {
             EditorMode.VIEW -> {
@@ -885,7 +900,9 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 //                if (!mEditor.getWebView().isEditorJSLoaded()) {
 //                    setProgressVisibility(true);
 //                }
-                editor.webView.loadEditorJSScript(false)
+                if (isLoadJSEngine) {
+                    editor.webView.loadEditorJSEngine(isMakeHtmlRequest = false)
+                }
                 editor.setToolBarVisibility(true)
                 mScrollViewHtml.visibility = View.GONE
                 setRecordFieldsVisibility(false)
@@ -903,7 +920,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 } else {
                     setEditorProgressVisibility(true)
                     // загружаем Javascript (если нужно), и затем делаем запрос на html-текст
-                    editor.webView.loadEditorJSScript(true)
+                    editor.webView.loadEditorJSEngine(isMakeHtmlRequest = true)
                 }
                 //                mEditor.getWebView().makeEditableHtmlRequest();
                 mScrollViewHtml.visibility = View.VISIBLE
