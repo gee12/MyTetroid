@@ -15,8 +15,8 @@ android {
         applicationId "com.gee12.mytetroid"
         minSdkVersion sdk.minSdk
         targetSdkVersion sdk.targetSdk
-        versionCode 68
-        versionName "5.5"
+        versionCode 70
+        versionName "5.6"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
