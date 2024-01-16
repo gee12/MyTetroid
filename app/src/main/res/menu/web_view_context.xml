@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_open_image"
+        android:orderInCategory="10"
+        android:title="@string/open_image"
+        android:icon="@drawable/ic_image"
+        app:iconTint="@color/icon_tint" />
     <item
         android:id="@+id/action_edit_image"
         android:orderInCategory="10"
         android:title="@string/edit_image"
-        android:icon="@drawable/ic_edit" />
+        android:icon="@drawable/ic_edit"
+        app:iconTint="@color/icon_tint" />
 </menu>

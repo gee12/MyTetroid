@@ -98,6 +98,8 @@ sealed class Failure(val ex: Throwable? = null) {
         class Copy(val from: FilePath, val to: FilePath, ex: Throwable? = null) : File(ex)
         class Delete(val path: FilePath, ex: Throwable? = null) : File(ex)
         class GetContentUri(val path: FilePath, ex: Throwable? = null) : File(ex)
+        data class UnknownExtension(val path: FilePath) : File()
+        data class UnknownMimeType(val path: FilePath) : File()
         class Unknown(val path: FilePath, ex: Exception) : File(ex)
     }
 

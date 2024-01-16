@@ -212,6 +212,7 @@ object ViewModelsModule {
                     downloadImageFromWebUseCase = get(),
                     downloadFileFromWebUseCase = get(),
                     getImageDimensionsUseCase = get(),
+                    prepareImageForOpenUseCase = get(),
                 )
             }
 

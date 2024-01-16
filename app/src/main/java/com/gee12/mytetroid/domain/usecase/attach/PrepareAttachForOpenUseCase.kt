@@ -2,7 +2,6 @@ package com.gee12.mytetroid.domain.usecase.attach
 
 import android.content.Context
 import android.net.Uri
-import androidx.core.content.FileProvider
 import androidx.documentfile.provider.DocumentFile
 import com.anggrayudi.storage.file.*
 import com.gee12.mytetroid.R
@@ -13,6 +12,7 @@ import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.domain.usecase.crypt.EncryptOrDecryptFileIfNeedUseCase
+import com.gee12.mytetroid.domain.usecase.file.GetContentUriFromFileUseCase
 import com.gee12.mytetroid.domain.usecase.record.GetRecordFolderUseCase
 import com.gee12.mytetroid.model.FilePath
 
@@ -29,6 +29,7 @@ class PrepareAttachForOpenUseCase(
     private val storageSettingsProvider: IStorageSettingsProvider,
     private val getRecordFolderUseCase: GetRecordFolderUseCase,
     private val encryptOrDecryptFileIfNeedUseCase: EncryptOrDecryptFileIfNeedUseCase,
+    private val getContentUriFromFileUseCase: GetContentUriFromFileUseCase,
 ) : UseCase<Uri, PrepareAttachForOpenUseCase.Params>() {
 
     data class Params(
@@ -117,22 +118,13 @@ class PrepareAttachForOpenUseCase(
         }
     }
 
-    private fun getContentFileUri(file: DocumentFile): Either<Failure, Uri> {
+    private suspend fun getContentFileUri(file: DocumentFile): Either<Failure, Uri> {
         return if (file.isRawFile && appBuildInfoProvider.appVersionCode >= 24) {
-            val filePath = FilePath.FileFull(file.getAbsolutePath(context))
-            try {
-                // Начиная с API 24, для предоставления доступа к файлам, который ассоциируется с приложением
-                // (по сути, для открытия файла другими приложениями с помощью Intent),
-                // нужно использовать механизм FileProvider.
-                // Uri должен быть иметь scheme "content://"
-                FileProvider.getUriForFile(
-                    context,
-                    "${appBuildInfoProvider.applicationId}.provider",
-                    file.toRawFile(context)!!
-                ).toRight()
-            } catch (ex: Exception) {
-                Failure.File.GetContentUri(filePath, ex).toLeft()
-            }
+            getContentUriFromFileUseCase.run(
+                GetContentUriFromFileUseCase.Params(
+                    file = file.toRawFile(context)!!,
+                )
+            )
         } else {
             file.uri.toRight()
         }

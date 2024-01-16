@@ -395,6 +395,12 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             RecordEvent.StartCaptureCamera -> {
                 showProgress(getString(R.string.state_camera_capturing))
             }
+            is RecordEvent.OpenImageFile -> {
+                openImageFile(
+                    uri = event.uri,
+                    mimeType = event.mimeType,
+                )
+            }
             RecordEvent.StartLoadImages -> {
                 showProgress(getString(R.string.state_images_loading))
             }
@@ -819,6 +825,14 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
     // region Image
 
+    private fun openImageFile(uri: Uri, mimeType: String) {
+        interactionManager.openFile(
+            activity = this,
+            uri = uri,
+            mimeType = mimeType,
+        )
+    }
+
     override fun startPicker() {
         imagePicker.startPicker()
     }
@@ -1020,8 +1034,8 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             context = this,
             message = getString(R.string.ask_open_exported_pdf, pdfFile.getAbsolutePath(this)),
             onApply = {
-                viewModel.interactionManager.openFile(
-                    context = this,
+                interactionManager.openFile(
+                    activity = this,
                     uri = pdfFile.uri,
                     mimeType = "application/pdf"
                 )
@@ -1332,73 +1346,40 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
     // region Context menu
 
-override fun onCreateContextMenu(menu: ContextMenu, view: View, menuInfo: ContextMenu.ContextMenuInfo?) {
-    super.onCreateContextMenu(menu, view, menuInfo)
+    override fun onCreateContextMenu(menu: ContextMenu, view: View, menuInfo: ContextMenu.ContextMenuInfo?) {
+        super.onCreateContextMenu(menu, view, menuInfo)
 
-    val result = editor.webView.hitTestResult
-    when (result.type) {
-        WebView.HitTestResult.IMAGE_TYPE,
-        WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE -> {
-            if (viewModel.editorMode == EditorMode.EDIT) {
-                showEditImagePopupMenu(view)
+        val result = editor.webView.hitTestResult
+        val imageFileName = result.extra.orEmpty()
+        when (result.type) {
+            WebView.HitTestResult.IMAGE_TYPE,
+            WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE -> {
+                showImagePopupMenu(view, imageFileName)
             }
         }
     }
-}
 
     @SuppressLint("RestrictedApi")
-    private fun showEditImagePopupMenu(anchorView: View) {
+    private fun showImagePopupMenu(anchorView: View, imageFileName: String) {
         val popupMenu = PopupMenu(this, anchorView, Gravity.CENTER_VERTICAL)
         popupMenu.inflate(R.menu.web_view_context)
+        val menu = popupMenu.menu
+        menu.findItem(R.id.action_edit_image)?.setVisible(viewModel.isEditMode())
+
         popupMenu.setOnMenuItemClickListener { item ->
             when (item.itemId) {
+                R.id.action_open_image -> {
+                    viewModel.openImage(imageFileName)
+                    true
+                }
                 R.id.action_edit_image -> {
-                    editor.webView.getImage()
+                    editor.webView.getImageParams()
                     true
                 }
                 else -> false
             }
         }
         (popupMenu.menu as MenuBuilder).showForcedWithIcons(anchorView)
-    }
-    /**
-     *
-     */
-    private fun createPopupWindow(anchorView: View, contentViewId: Int): PopupWindow {
-        val popupView = layoutInflater.inflate(contentViewId, null).apply {
-            measure(
-                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-            )
-        }
-        val popupWindow = PopupWindow(
-            popupView,
-            RelativeLayout.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT
-        )
-        popupWindow.isFocusable = false // если true - не будет кликабельно все вокруг popup
-        popupWindow.isOutsideTouchable = true // true - клик за пределами popup закрывает его
-        // (в Android 4.4 не работает)
-        popupWindow.setBackgroundDrawable(ColorDrawable()) // чтобы заработал setOutsideTouchable()
-        popupWindow.animationStyle = -1 // -1 - генерация анимации, 0 - отключить анимацию
-        val xOffset = 0
-        val yOffset = 36
-        if (Build.VERSION.SDK_INT < 24) {
-            popupWindow.showAsDropDown(
-                anchorView,
-                xOffset,
-                -anchorView.measuredHeight - popupView.measuredHeight + yOffset
-            )
-        } else {
-            val location = IntArray(2)
-            anchorView.getLocationInWindow(location)
-            popupWindow.showAtLocation(
-                window.decorView,
-                Gravity.NO_GRAVITY,
-                location[0] + xOffset,
-                location[1] - anchorView.measuredHeight + yOffset
-            )
-        }
-        return popupWindow
     }
 
     // endregion Context menu

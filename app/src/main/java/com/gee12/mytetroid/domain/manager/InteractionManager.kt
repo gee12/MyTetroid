@@ -50,7 +50,7 @@ class InteractionManager(
      * Открытие файла сторонним приложением.
      */
     fun openFile(
-        context: Context,
+        activity: Activity,
         uri: Uri,
         mimeType: String
     ): Boolean {
@@ -60,7 +60,7 @@ class InteractionManager(
         intent.setDataAndType(uri, mimeType)
         val chooserIntent = Intent.createChooser(intent, resourcesProvider.getString(R.string.title_open_with))
         if (chooserIntent != null) {
-            context.startActivity(chooserIntent)
+            activity.startActivity(chooserIntent)
         } else {
             logger.log(resourcesProvider.getString(R.string.log_no_app_found_for_open_file_mask, uri.path.orEmpty()), show = true)
         }

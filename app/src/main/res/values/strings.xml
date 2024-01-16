@@ -743,6 +743,8 @@
     <string name="error_get_folder_size_mask">Error getting folder size: %s</string>
     <string name="error_denied_read_file_access_mask">Denied read access to the file: %s</string>
     <string name="log_file_sharing_error_mask">File sharing error: %s</string>
+    <string name="error_get_file_extension_mask">Error getting file extension: %s</string>
+    <string name="error_file_unknown_mime_type_mask">Image file has unknown MIME type: %s</string>
     <string name="log_record_file_reading">Record file reading: id=</string>
     <string name="log_error_record_reading">Record reading error</string>
     <string name="log_not_found_child_in_viewflipper">Not found child in ViewFliper</string>

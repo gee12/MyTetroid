@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.ui.record
 
+import android.net.Uri
 import android.os.Bundle
 import androidx.documentfile.provider.DocumentFile
 import com.gee12.htmlwysiwygeditor.model.ImageParams
@@ -57,6 +58,12 @@ sealed class RecordEvent : StorageEvent() {
     data class EditedDateChanged(
         val dateString: String,
     ) : RecordEvent()
+
+    data class OpenImageFile(
+        val uri: Uri,
+        val mimeType: String,
+    ) : RecordEvent()
+
     object StartLoadImages : RecordEvent()
     object StartCaptureCamera : RecordEvent()
     data class InsertImages(

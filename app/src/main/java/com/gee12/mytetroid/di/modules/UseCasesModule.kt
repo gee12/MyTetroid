@@ -12,13 +12,10 @@ import com.gee12.mytetroid.domain.usecase.crypt.DecryptStorageUseCase
 import com.gee12.mytetroid.domain.usecase.file.*
 import com.gee12.mytetroid.domain.usecase.html.CreateTagsHtmlStringUseCase
 import com.gee12.mytetroid.domain.usecase.html.HtmlElementToTextUseCase
-import com.gee12.mytetroid.domain.usecase.image.LoadDrawableFromFileUseCase
+import com.gee12.mytetroid.domain.usecase.image.*
 import com.gee12.mytetroid.domain.usecase.node.*
 import com.gee12.mytetroid.domain.usecase.node.icon.*
 import com.gee12.mytetroid.domain.usecase.record.*
-import com.gee12.mytetroid.domain.usecase.image.SaveImageFromBitmapUseCase
-import com.gee12.mytetroid.domain.usecase.image.SaveImageFromUriUseCase
-import com.gee12.mytetroid.domain.usecase.image.GetImageDimensionsUseCase
 import com.gee12.mytetroid.domain.usecase.network.DownloadFileFromWebUseCase
 import com.gee12.mytetroid.domain.usecase.network.DownloadImageFromWebUseCase
 import com.gee12.mytetroid.domain.usecase.network.DownloadWebPageContentUseCase
@@ -137,6 +134,13 @@ object UseCasesModule {
             //endregion App
 
             //region File
+
+            scoped {
+                GetContentUriFromFileUseCase(
+                    context = get(),
+                    appBuildInfoProvider = get(),
+                )
+            }
 
             scoped {
                 GetFolderSizeInStorageUseCase(
@@ -716,6 +720,7 @@ object UseCasesModule {
                     storageSettingsProvider = get(),
                     getRecordFolderUseCase = get(),
                     encryptOrDecryptFileIfNeedUseCase = get(),
+                    getContentUriFromFileUseCase = get(),
                 )
             }
 
@@ -752,6 +757,12 @@ object UseCasesModule {
             //endregion Tag
 
             //region Image
+
+            scoped {
+                PrepareImageForOpenUseCase(
+                    getContentUriFromFileUseCase = get(),
+                )
+            }
 
             scoped {
                 LoadDrawableFromFileUseCase(

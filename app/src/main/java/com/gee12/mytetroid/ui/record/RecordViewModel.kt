@@ -45,6 +45,7 @@ import com.gee12.mytetroid.domain.usecase.record.*
 import com.gee12.mytetroid.domain.usecase.image.SaveImageFromBitmapUseCase
 import com.gee12.mytetroid.domain.usecase.image.SaveImageFromUriUseCase
 import com.gee12.mytetroid.domain.usecase.image.GetImageDimensionsUseCase
+import com.gee12.mytetroid.domain.usecase.image.PrepareImageForOpenUseCase
 import com.gee12.mytetroid.domain.usecase.network.DownloadFileFromWebUseCase
 import com.gee12.mytetroid.domain.usecase.network.DownloadImageFromWebUseCase
 import com.gee12.mytetroid.domain.usecase.network.DownloadWebPageContentUseCase
@@ -110,6 +111,7 @@ class RecordViewModel(
     private val downloadImageFromWebUseCase : DownloadImageFromWebUseCase,
     private val downloadFileFromWebUseCase: DownloadFileFromWebUseCase,
     private val getImageDimensionsUseCase: GetImageDimensionsUseCase,
+    private val prepareImageForOpenUseCase: PrepareImageForOpenUseCase,
 
     cryptRecordFilesIfNeedUseCase: CryptRecordFilesIfNeedUseCase,
     parseRecordTagsUseCase: ParseRecordTagsUseCase,
@@ -686,6 +688,25 @@ class RecordViewModel(
     //endregion Open another objects
 
     //region Image
+
+    fun openImage(imageFileName: String) {
+        launchOnMain {
+            withIo {
+                prepareImageForOpenUseCase.run(
+                    PrepareImageForOpenUseCase.Params(imageFileName)
+                )
+            }.onFailure {
+                logFailure(it, show = true)
+            }.onSuccess { result ->
+                sendEvent(
+                    RecordEvent.OpenImageFile(
+                        uri = result.uri,
+                        mimeType = result.mimeType,
+                    )
+                )
+            }
+        }
+    }
 
     fun saveImages(imageUris: List<Uri>, isCamera: Boolean) {
         if (imageUris.isEmpty()) return

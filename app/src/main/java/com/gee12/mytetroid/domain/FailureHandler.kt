@@ -380,6 +380,18 @@ class FailureHandler(
                     message = failure.ex?.getInfo()
                 )
             }
+            is Failure.File.UnknownExtension -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_get_file_extension_mask, failure.path.fullPath),
+                    message = failure.ex?.getInfo()
+                )
+            }
+            is Failure.File.UnknownMimeType -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_file_unknown_mime_type_mask, failure.path.fullPath),
+                    message = failure.ex?.getInfo()
+                )
+            }
             is Failure.File.Unknown -> {
                 NotificationData.Error(
                     title = getString(R.string.error_file_unknown_mask, failure.path.fullPath),
