@@ -92,6 +92,7 @@ dependencies {
     implementation (project(path: ':wysiwyg-editor')) {
         exclude group: 'org.jetbrains', module: 'annotations'
     }
+    implementation project(path: ':folder-picker')
     implementation project(path: ':multi-listview')
     implementation project(path: ':pinlock-view')
     implementation project(path: ':image-picker')

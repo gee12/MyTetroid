@@ -1,6 +1,8 @@
 include ':app'
 include ':wysiwyg-editor'
 project(':wysiwyg-editor').projectDir = new File(settingsDir, '../HtmlEditor/richwysiwygeditor')
+include ':folder-picker'
+project(':folder-picker').projectDir = new File(settingsDir, '../FolderPicker/folderpicker')
 include ':multi-listview'
 project(':multi-listview').projectDir = new File(settingsDir, '../MultiLevelListview/multi-level-listview/')
 include ':pinlock-view'
