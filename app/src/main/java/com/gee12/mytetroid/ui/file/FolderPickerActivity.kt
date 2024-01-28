@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.ui.file
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -12,6 +13,7 @@ import com.gee12.htmlwysiwygeditor.dialog.AskDialogBuilder
 import com.gee12.htmlwysiwygeditor.ext.showKeyboard
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Failure
+import com.gee12.mytetroid.common.extensions.buildIntent
 import com.gee12.mytetroid.domain.FailureHandler
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.TetroidActivity
@@ -27,6 +29,31 @@ class FolderPickerActivity : TetroidActivity<FolderPickerViewModel>() {
         const val EXTRA_INITIAL_PATH = "initial_path"
         const val EXTRA_IS_PICK_FILES = "is_pick_files"
         const val EXTRA_IS_EMPTY_FOLDER_ONLY = "is_empty_folder_only"
+
+        fun start(
+            activity: Activity,
+            requestCode: Int,
+            initialPath: String?,
+            description: String?,
+            isNeedEmptyFolder: Boolean,
+            isPickFile: Boolean,
+        ) {
+            val intent = buildIntent {
+                setClass(activity, FolderPickerActivity::class.java)
+
+                initialPath?.also {
+                    putExtra(EXTRA_INITIAL_PATH, initialPath)
+                }
+                if (isNeedEmptyFolder) {
+                    putExtra(EXTRA_IS_EMPTY_FOLDER_ONLY, true)
+                }
+                putExtra(EXTRA_IS_PICK_FILES, isPickFile)
+                if (!description.isNullOrEmpty()) {
+                    putExtra(EXTRA_DESCRIPTION, description)
+                }
+            }
+            activity.startActivityForResult(intent, requestCode)
+        }
     }
 
     private val failureHandler: FailureHandler by inject()

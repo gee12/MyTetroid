@@ -21,7 +21,6 @@ import com.anggrayudi.storage.file.DocumentFileCompat
 import com.anggrayudi.storage.file.DocumentFileType
 import com.anggrayudi.storage.file.FileFullPath
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.extensions.buildIntent
 import com.gee12.mytetroid.common.extensions.hideKeyboard
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
@@ -389,21 +388,16 @@ abstract class TetroidActivity<VM : BaseViewModel>
         forStorageFolder: Boolean,
         isNeedEmptyFolder: Boolean,
     ) {
-        val intent = buildIntent {
-            setClass(this@TetroidActivity, FolderPickerActivity::class.java)
+        val desc = resourcesProvider.getString(R.string.title_storage_path_desc).takeIf { forStorageFolder }
 
-            initialPath?.also {
-                putExtra(FolderPickerActivity.EXTRA_INITIAL_PATH, initialPath)
-            }
-            if (isNeedEmptyFolder) {
-                putExtra(FolderPickerActivity.EXTRA_IS_EMPTY_FOLDER_ONLY, true)
-            }
-            putExtra(FolderPickerActivity.EXTRA_IS_PICK_FILES, isPickFile)
-            if (forStorageFolder) {
-                putExtra(FolderPickerActivity.EXTRA_DESCRIPTION, resourcesProvider.getString(R.string.title_storage_path_desc))
-            }
-        }
-        startActivityForResult(intent, requestCode.code)
+        FolderPickerActivity.start(
+            activity = this,
+            initialPath = initialPath,
+            description = desc,
+            isNeedEmptyFolder = isNeedEmptyFolder,
+            isPickFile = isPickFile,
+            requestCode = requestCode.code,
+        )
     }
 
     // endregion File
