@@ -332,7 +332,9 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
                     } else {
                         PermissionRequestCode.CHANGE_STORAGE_FOLDER
                     },
-                    initialPath = currentFolderUri?.toString()
+                    initialPath = currentFolderUri?.toString(),
+                    forStorageFolder = true,
+                    isNeedEmptyFolder = isNew,
                 )
             }
         ).apply {

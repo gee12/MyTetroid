@@ -206,6 +206,18 @@
     <string name="title_settings_app_theme">Тема приложения</string>
     <string name="title_settings_editor_theme">Тема редактора текста</string>
 
+    <string name="title_pick_folder">Выберите каталог</string>
+    <string name="title_pick_file">Выберите файл</string>
+    <string name="title_enter_folder_name">Введите имя каталога</string>
+    <string name="title_enter_path">Введите путь</string>
+    <string name="location_mask">Путь: %s</string>
+    <string name="dir_is_not_exist">Каталог не существует</string>
+    <string name="error_select_file">Выберите файл</string>
+    <string name="error_select_empty_folder">Выберите пустой каталог</string>
+    <string name="error_folder_is_not_empty">Каталог не пустой</string>
+    <string name="error_folder_is_not_writable">Каталог недоступен для записи</string>
+    <string name="error_no_access_to_storage">Нет доступа к хранилищу</string>
+
     <string name="subtitle_main_page_node_records">ВЕТКА</string>
     <string name="subtitle_main_page_record_files">ФАЙЛЫ</string>
     <string name="subtitle_main_page_tag_records">МЕТКА</string>
@@ -508,6 +520,8 @@
     <string name="action_enter_password">Ввести пароль</string>
     <string name="action_settings">Настройки</string>
     <string name="action_load">Загрузить</string>
+    <string name="action_create_folder">Создать</string>
+    <string name="action_home">Домой</string>
 
     <string name="ask_exit_from_app">Выйти из приложения?</string>
     <string name="ask_node_delete_mask">Удалить ветку «%s» ?</string>
@@ -631,6 +645,9 @@
     <string name="error_clear_folder_mask">Ошибка очистки каталога:\n%s</string>
     <string name="error_file_is_missing_mask">Файл не существует: %s</string>
     <string name="error_folder_is_missing_mask">Каталог не существует: %s</string>
+    <string name="error_file_is_not_a_folder_mask">Файл не является каталогом: %s</string>
+    <string name="error_folder_is_not_writable_mask">Каталог недоступен для записи: %s</string>
+    <string name="error_folder_is_not_empty_mask">Каталог не пуст</string>
     <string name="log_error_add_record">Ошибка добавления записи в mytetra.xml</string>
     <string name="log_open_node">Открытие ветки:&#160;</string>
     <string name="log_sync_successful">Синхронизация успешно выполнена</string>

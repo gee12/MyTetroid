@@ -173,6 +173,10 @@
             android:label="@string/title_node_icon_choice"
             android:parentActivityName=".ui.main.MainActivity" />
         <activity
+            android:name=".ui.file.FolderPickerActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="@string/title_pick_folder" />
+        <activity
             android:name=".ui.about.AboutAppActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_about_app" />

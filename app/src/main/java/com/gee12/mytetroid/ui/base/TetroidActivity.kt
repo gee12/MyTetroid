@@ -39,9 +39,9 @@ import com.gee12.mytetroid.model.permission.TetroidPermission
 import com.gee12.mytetroid.ui.TetroidMessage
 import com.gee12.mytetroid.ui.about.AboutAppActivity
 import com.gee12.mytetroid.ui.base.views.ActivityDoubleTapListener
+import com.gee12.mytetroid.ui.file.FolderPickerActivity
 import com.gee12.mytetroid.ui.record.RecordActivity
 import kotlinx.coroutines.launch
-import lib.folderpicker.FolderPickerActivity
 import org.koin.android.ext.android.inject
 import org.koin.core.scope.Scope
 import org.koin.core.scope.get
@@ -314,7 +314,13 @@ abstract class TetroidActivity<VM : BaseViewModel>
         filterMimeTypes: Array<String> = emptyArray(),
     ) {
         if (Build.VERSION.SDK_INT < 21) {
-            openCustomFileOrFolderPicker(requestCode, initialPath)
+            openCustomFileOrFolderPicker(
+                requestCode = requestCode,
+                initialPath = initialPath,
+                isPickFile = true,
+                forStorageFolder = false,
+                isNeedEmptyFolder = false,
+            )
         } else {
             val path = initialPath ?: settingsManager.getLastSelectedFolderPathOrDefault(forWrite = true)
             try {
@@ -344,9 +350,17 @@ abstract class TetroidActivity<VM : BaseViewModel>
     fun openFolderPicker(
         requestCode: PermissionRequestCode,
         initialPath: String? = null,
+        forStorageFolder: Boolean = false,
+        isNeedEmptyFolder: Boolean = false,
     ) {
         if (Build.VERSION.SDK_INT < 21) {
-            openCustomFileOrFolderPicker(requestCode, initialPath)
+            openCustomFileOrFolderPicker(
+                requestCode = requestCode,
+                initialPath = initialPath,
+                isPickFile = false,
+                forStorageFolder = forStorageFolder,
+                isNeedEmptyFolder = isNeedEmptyFolder,
+            )
         } else {
             val path = initialPath ?: settingsManager.getLastSelectedFolderPathOrDefault(forWrite = true)
             try {
@@ -371,6 +385,9 @@ abstract class TetroidActivity<VM : BaseViewModel>
     private fun openCustomFileOrFolderPicker(
         requestCode: PermissionRequestCode,
         initialPath: String?,
+        isPickFile: Boolean,
+        forStorageFolder: Boolean,
+        isNeedEmptyFolder: Boolean,
     ) {
         val intent = buildIntent {
             setClass(this@TetroidActivity, FolderPickerActivity::class.java)
@@ -378,11 +395,12 @@ abstract class TetroidActivity<VM : BaseViewModel>
             initialPath?.also {
                 putExtra(FolderPickerActivity.EXTRA_INITIAL_PATH, initialPath)
             }
-            if (requestCode == PermissionRequestCode.SELECT_FOLDER_FOR_NEW_STORAGE) {
+            if (isNeedEmptyFolder) {
                 putExtra(FolderPickerActivity.EXTRA_IS_EMPTY_FOLDER_ONLY, true)
             }
-            if (requestCode in arrayOf(PermissionRequestCode.PICK_ATTACH_FILE)) {
-                putExtra(FolderPickerActivity.EXTRA_IS_PICK_FILES, true)
+            putExtra(FolderPickerActivity.EXTRA_IS_PICK_FILES, isPickFile)
+            if (forStorageFolder) {
+                putExtra(FolderPickerActivity.EXTRA_DESCRIPTION, resourcesProvider.getString(R.string.title_storage_path_desc))
             }
         }
         startActivityForResult(intent, requestCode.code)

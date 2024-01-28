@@ -139,6 +139,7 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment(), ITetroidFi
         settingsActivity?.openFolderPicker(
             requestCode = PermissionRequestCode.CHANGE_STORAGE_FOLDER,
             initialPath = viewModel.storageFolder?.uri?.toString(),
+            forStorageFolder = true,
         )
     }
 

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_coordinator"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.file.FolderPickerActivity"
+    android:background="@color/background_default">
+
+    <include
+        layout="@layout/layout_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginHorizontal="8dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <TextView
+            android:id="@+id/text_view_desc"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:layout_margin="6dp"
+            android:textColor="@color/text_secondary"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:textStyle="italic"
+            android:textSize="14sp"
+            tools:text="Description"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/text_view_select_empty_dir_only"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/text_view_desc"
+            android:layout_marginBottom="10dp"
+            android:gravity="center_horizontal"
+            android:layout_margin="6dp"
+            android:textStyle="italic"
+            android:textSize="14sp"
+            android:text="@string/error_select_empty_folder"
+            android:textColor="@color/text_secondary"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/text_view_path_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/button_edit_path"
+            app:layout_constraintTop_toBottomOf="@id/text_view_select_empty_dir_only"
+            app:layout_constraintBottom_toTopOf="@id/barrier_path_bottom"
+            android:gravity="start"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="6dp"
+            android:layout_marginBottom="12dp"
+            android:textSize="16sp"
+            android:textColor="@color/text_primary"
+            tools:text="Path" />
+
+        <ImageButton
+            android:id="@+id/button_edit_path"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            app:layout_constraintStart_toEndOf="@id/text_view_path_label"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/text_view_select_empty_dir_only"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="6dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_edit" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier_path_bottom"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="text_view_path_label, button_edit_path" />
+
+        <TextView
+            android:id="@+id/text_view_error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/barrier_path_bottom"
+            app:layout_constraintBottom_toTopOf="@id/list_view"
+            android:gravity="center_horizontal"
+            android:alpha="0.75"
+            android:textColor="@color/error_1"
+            android:textStyle="italic"
+            android:drawablePadding="6dp"
+            app:drawableStartCompat="@drawable/ic_warning_red_2"
+            android:textSize="18sp"
+            android:scaleX="0.7"
+            android:scaleY="0.7"
+            tools:text="Error"
+            android:visibility="gone"
+            tools:visibility="visible"/>
+
+        <ListView
+            android:id="@+id/list_view"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/text_view_error"
+            app:layout_constraintBottom_toTopOf="@id/layout_buttons_bottom"
+            tools:itemCount="3"
+            android:layout_marginVertical="8dp"
+            tools:listitem="@layout/list_item_folder_picker" />
+
+        <LinearLayout
+            android:id="@+id/layout_buttons_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="38dp"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/button_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="16dp"
+                android:layout_weight="1"
+                android:text="@string/action_cancel" />
+
+            <Button
+                android:id="@+id/button_apply"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:enabled="false"
+                android:text="@string/action_select" />
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

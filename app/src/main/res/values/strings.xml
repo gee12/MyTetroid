@@ -210,6 +210,18 @@
     <string name="title_settings_app_theme">App theme</string>
     <string name="title_settings_editor_theme">Text editor theme</string>
 
+    <string name="title_pick_folder">Select folder</string>
+    <string name="title_pick_file">Select file</string>
+    <string name="title_enter_folder_name">Enter folder name</string>
+    <string name="title_enter_path">Edit path</string>
+    <string name="error_select_file">You have to select a file</string>
+    <string name="error_select_empty_folder">Select an empty folder</string>
+    <string name="error_folder_is_not_empty">Folder is not empty</string>
+    <string name="error_folder_is_not_writable">Directory is not writable</string>
+    <string name="error_no_access_to_storage">Storage access permission not given</string>
+    <string name="location_mask">Location: %s</string>
+    <string name="dir_is_not_exist">Directory does not exist</string>
+
     <string name="subtitle_main_page_node_records">NODE</string>
     <string name="subtitle_main_page_record_files">FILES</string>
     <string name="subtitle_main_page_tag_records">TAG</string>
@@ -607,6 +619,8 @@
     <string name="action_enter_password">Enter password</string>
     <string name="action_settings">Settings</string>
     <string name="action_load">Load</string>
+    <string name="action_create_folder">New</string>
+    <string name="action_home">Home</string>
 
     <string name="ask_oper_without_record_dir_mask">Record directory is missing. %s anyway ?</string>
     <string name="ask_attach_delete_without_file">File is missing on the disk. Delete anyway ?</string>
@@ -728,6 +742,9 @@
     <string name="error_clear_folder_mask">Error to clear folder:\n%s</string>
     <string name="error_file_is_missing_mask">File is missing: %s</string>
     <string name="error_folder_is_missing_mask">Folder is missing: %s</string>
+    <string name="error_file_is_not_a_folder_mask">File is not a folder: %s</string>
+    <string name="error_folder_is_not_writable_mask">Folder is not writable: %s</string>
+    <string name="error_folder_is_not_empty_mask">Folder is not empty: %s</string>
     <string name="log_open_node">Open node:&#160;</string>
     <string name="log_sync_successful">Sync successful</string>
     <string name="log_sync_failed">Failed to sync</string>

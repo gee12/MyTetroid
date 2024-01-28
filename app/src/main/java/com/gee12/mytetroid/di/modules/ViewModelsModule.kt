@@ -2,6 +2,7 @@ package com.gee12.mytetroid.di.modules
 
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.ui.about.AboutAppViewModel
+import com.gee12.mytetroid.ui.file.FolderPickerViewModel
 import com.gee12.mytetroid.ui.logs.LogsViewModel
 import com.gee12.mytetroid.ui.main.MainViewModel
 import com.gee12.mytetroid.ui.node.icon.IconsViewModel
@@ -379,6 +380,19 @@ object ViewModelsModule {
 
         viewModel {
             AboutAppViewModel(
+                app = androidApplication(),
+                buildInfoProvider = get(),
+                resourcesProvider = get(),
+                logger = get(),
+                notificator = get(),
+                failureHandler = get(),
+                settingsManager = get(),
+                appPathProvider = get(),
+            )
+        }
+
+        viewModel {
+            FolderPickerViewModel(
                 app = androidApplication(),
                 buildInfoProvider = get(),
                 resourcesProvider = get(),

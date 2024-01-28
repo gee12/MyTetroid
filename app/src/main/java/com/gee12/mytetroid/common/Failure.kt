@@ -105,6 +105,9 @@ sealed class Failure(val ex: Throwable? = null) {
 
     sealed class Folder(ex: Throwable? = null) : Failure(ex) {
         class NotExist(val path: FilePath) : Folder()
+        class NotFolder(val path: FilePath) : Folder()
+        class Write(val path: FilePath) : Folder()
+        class NotEmpty(val path: FilePath) : Folder()
         class Create(val path: FilePath, ex: Throwable? = null) : Folder(ex)
         class Get(val path: FilePath, ex: Throwable? = null) : Folder(ex)
         class GetFolderSize(val path: FilePath, ex: Throwable? = null) : Folder(ex)

@@ -408,6 +408,21 @@ class FailureHandler(
                     title = getString(R.string.error_folder_is_missing_mask, failure.path.fullPath)
                 )
             }
+            is Failure.Folder.NotFolder -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_file_is_not_a_folder_mask, failure.path.fullPath)
+                )
+            }
+            is Failure.Folder.Write -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_folder_is_not_writable_mask, failure.path.fullPath)
+                )
+            }
+            is Failure.Folder.NotEmpty -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_folder_is_not_empty_mask, failure.path.fullPath)
+                )
+            }
             is Failure.Folder.Get -> {
                 NotificationData.Error(
                     title = getString(R.string.error_get_folder_mask, failure.path.fullPath),
