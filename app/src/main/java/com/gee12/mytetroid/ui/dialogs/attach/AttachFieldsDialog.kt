@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.ui.dialogs.attach
 
-import android.annotation.SuppressLint
 import android.view.View
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
@@ -32,7 +31,6 @@ class AttachFieldsDialog(
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
         etName = view.findViewById(R.id.edit_text_name)
 
-        @SuppressLint("SetTextI18n")
         if (BuildConfig.DEBUG && file == null) {
             val rand = Random()
             val num = abs(rand.nextInt())

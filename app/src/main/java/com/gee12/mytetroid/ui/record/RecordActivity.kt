@@ -5,7 +5,6 @@ import android.app.Activity
 import android.app.SearchManager
 import android.content.Intent
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -38,9 +37,6 @@ import com.gee12.htmlwysiwygeditor.IVoiceInputListener
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.common.extensions.focusAndShowKeyboard
-import com.gee12.mytetroid.common.extensions.fromHtml
-import com.gee12.mytetroid.common.extensions.hideKeyboard
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
@@ -74,7 +70,7 @@ import com.gee12.htmlwysiwygeditor.IColorPicker
 import com.gee12.htmlwysiwygeditor.EditableWebView.*
 import com.gee12.htmlwysiwygeditor.WysiwygEditor
 import com.gee12.htmlwysiwygeditor.model.ImageParams
-import com.gee12.mytetroid.common.extensions.showForcedWithIcons
+import com.gee12.mytetroid.common.extensions.*
 import com.gee12.mytetroid.common.onSuccess
 import com.gee12.mytetroid.domain.usecase.html.CreateTagsHtmlStringUseCase
 import com.gee12.mytetroid.logs.LogType
@@ -89,7 +85,7 @@ import java.util.*
  */
 class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     IPageLoadListener, 
-    ILinkLoadListener, 
+    ILinkListener,
     IHtmlReceiveListener, 
     IImagePicker,
     IColorPicker,
@@ -172,7 +168,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
         val webView = editor.webView
         webView.setOnTouchListener(this)
-        webView.urlLoadListener = this
+        webView.linkListener = this
         webView.htmlReceiveListener = this
         webView.clipboardListener = TetroidClipboardListener(this)
         webView.loadContentListener = { uri ->
@@ -770,15 +766,40 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     /**
      * Открытие ссылки в тексте.
      */
-    override fun onLinkLoad(url: String): Boolean {
+    override fun onLinkLoaded(url: String): Boolean {
         val baseUrl = editor.webView.baseUrl
         viewModel.onLinkLoad(url, baseUrl)
         return true
     }
 
-    override fun onYoutubeLinkLoad(videoId: String) {
+    override fun onYoutubeLinkLoaded(videoId: String) {
         val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=$videoId"))
         startActivity(webIntent)
+    }
+
+    override fun onSelectedTextForNewLinkLoaded(text: String) {
+        lifecycleScope.launch {
+            editor.showLinkDialog(
+                isEdit = false,
+                link = null,
+                title = text,
+                withTitle = true,
+            )
+        }
+    }
+
+    override fun onSelectedLinkParamsLoaded(url: String, title: String) {
+        val baseUrl = editor.webView.baseUrl.orEmpty()
+        val linkWithoutBaseUrl = url.trimStartSubstring(baseUrl)
+
+        lifecycleScope.launch {
+            editor.showLinkDialog(
+                isEdit = true,
+                link = linkWithoutBaseUrl,
+                title = title,
+                withTitle = true,
+            )
+        }
     }
 
     private fun openWebLink(url: String) {
@@ -1004,6 +1025,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         openFolderPicker(
             requestCode = PermissionRequestCode.EXPORT_PDF,
             initialPath = appPathProvider.getPathToDownloadsFolder(),
+            isNeedCheckFolderWritePermission = true,
         )
     }
 

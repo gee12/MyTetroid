@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.ui.dialogs.record
 
-import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.text.InputType
 import android.view.View
@@ -71,7 +70,6 @@ class RecordFieldsDialog(
         val bNode = dialogView.findViewById<ImageButton>(R.id.button_node)
         val ctvFavor = dialogView.findViewById<CheckedTextView>(R.id.check_box_favor)
 
-        @SuppressLint("SetTextI18n")
         if (BuildConfig.DEBUG && record == null) {
             val rand = Random()
             val num = abs(rand.nextInt())

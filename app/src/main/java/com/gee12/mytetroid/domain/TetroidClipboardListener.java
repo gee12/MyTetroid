@@ -223,7 +223,7 @@ public class TetroidClipboardListener implements EditableWebView.IClipboardListe
 
     private void hyperlink(Uri uri) {
         String title = UriUtils.getFileName(uri);
-        mActivity.getEditor().showInsertLinkDialog(uri.toString(), title, true);
+        mActivity.getEditor().showLinkDialog(false, uri.toString(), title, true);
     }
 
     private void asText(Uri uri) {
