@@ -15,7 +15,6 @@ import com.gee12.mytetroid.domain.repo.StoragesRepo
 import com.gee12.mytetroid.ui.storage.StorageEvent
 import com.gee12.mytetroid.domain.usecase.file.GetFileModifiedDateInStorageUseCase
 import com.gee12.mytetroid.domain.usecase.file.GetFolderSizeInStorageUseCase
-import com.gee12.mytetroid.domain.usecase.InitAppUseCase
 import com.gee12.mytetroid.domain.usecase.crypt.*
 import com.gee12.mytetroid.domain.usecase.node.GetNodeByIdUseCase
 import com.gee12.mytetroid.domain.usecase.record.GetRecordByIdUseCase
@@ -173,7 +172,7 @@ class StorageInfoViewModel(
                     )
                 ).onFailure {
                     sendEvent(StorageInfoEvent.GetStorageFolderSize.Failed(it))
-                    val message = failureHandler.getFailureMessage(it).getFullMassage()
+                    val message = failureHandler.getFailureMessage(it).getFullMessage()
                     logError(getString(R.string.error_get_storage_folder_size_mask, message))
                 }.onSuccess { size ->
                     sendEvent(StorageInfoEvent.GetStorageFolderSize.Success(size))
@@ -193,7 +192,7 @@ class StorageInfoViewModel(
                 Utils.dateToString(date, getString(R.string.full_date_format_string))
             }.onFailure {
                 sendEvent(StorageInfoEvent.GetMyTetraXmlLastModifiedDate.Failed(it))
-                val message = failureHandler.getFailureMessage(it).getFullMassage()
+                val message = failureHandler.getFailureMessage(it).getFullMessage()
                 logError(getString(R.string.error_get_mytetra_xml_modified_date_mask, message))
             }.onSuccess { dateString ->
                 sendEvent(StorageInfoEvent.GetMyTetraXmlLastModifiedDate.Success(dateString))

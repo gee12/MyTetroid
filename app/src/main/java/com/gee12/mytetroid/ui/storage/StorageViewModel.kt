@@ -979,7 +979,7 @@ open class StorageViewModel(
             CheckStorageFilesExistingUseCase.Params(storage!!)
         ).foldResult(
             onLeft = {
-                failureHandler.getFailureMessage(it).getFullMassage()
+                failureHandler.getFailureMessage(it).getFullMessage()
             },
             onRight = { result ->
                 when (result) {

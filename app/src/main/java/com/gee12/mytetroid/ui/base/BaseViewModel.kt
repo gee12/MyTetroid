@@ -282,7 +282,7 @@ abstract class BaseViewModel(
         if (show) {
             showError(message.title)
         }
-        logger.logError(message.getFullMassage(), show = false)
+        logger.logError(message.getFullMessage(), show = false)
     }
 
     // common
@@ -361,7 +361,7 @@ abstract class BaseViewModel(
     }
 
     fun showFailure(failure: Failure) {
-        val message = failureHandler.getFailureMessage(failure).getFullMassage()
+        val message = failureHandler.getFailureMessage(failure).getFullMessage()
         showMessage(message, LogType.ERROR)
     }
 
