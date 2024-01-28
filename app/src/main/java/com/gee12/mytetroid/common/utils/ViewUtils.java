@@ -121,54 +121,6 @@ public class ViewUtils {
 
     /**
      *
-     * @param activity
-     * @param cls
-     * @param bundle
-     */
-    public static void startActivity(Activity activity, Class<?> cls, Bundle bundle, String action, int flags, Integer requestCode) {
-        Intent intent = new Intent(activity, cls);
-        if (bundle != null) {
-            intent.putExtras(bundle);
-        }
-        if (action != null) {
-            intent.setAction(action);
-        }
-        if (flags != 0) {
-            intent.setFlags(flags);
-        }
-        if (requestCode == null)
-            activity.startActivity(intent);
-        else
-            activity.startActivityForResult(intent, requestCode);
-    }
-
-    public static void startActivity(Activity activity, Class<?> cls, Bundle bundle, int requestCode) {
-        startActivity(activity, cls, bundle, null, 0, requestCode);
-    }
-
-    public static void startActivity(Activity activity, Class<?> cls, Bundle bundle) {
-        startActivity(activity, cls, bundle, null, 0, null);
-    }
-
-    /**
-     *
-     * @param context
-     * @param cls
-     * @param bundle
-     */
-    public static Intent createIntent(Context context, Class<?> cls, Bundle bundle, String action) {
-        Intent intent = new Intent(context, cls);
-        if (bundle != null) {
-            intent.putExtras(bundle);
-        }
-        if (action != null) {
-            intent.setAction(action);
-        }
-        return intent;
-    }
-
-    /**
-     *
      * @param view
      * @param runnable
      */
