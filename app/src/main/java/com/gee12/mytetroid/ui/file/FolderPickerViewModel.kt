@@ -50,6 +50,7 @@ class FolderPickerViewModel(
     private lateinit var currentFolder: File
     private var isPickFiles = false
     private var isEmptyFolderOnly = false
+    private var isCheckFolderWritePermission = false
 
     val currentPath: String
         get() = currentFolder.absolutePath
@@ -57,10 +58,12 @@ class FolderPickerViewModel(
     fun init(
         isPickFiles: Boolean,
         isEmptyFolderOnly: Boolean,
+        isCheckFolderWritePermission: Boolean,
         initialPath: String,
     ) {
         this.isPickFiles = isPickFiles
         this.isEmptyFolderOnly = isEmptyFolderOnly
+        this.isCheckFolderWritePermission = isCheckFolderWritePermission
 
         moveToFolder(folder = File(initialPath))
     }
@@ -132,7 +135,7 @@ class FolderPickerViewModel(
             if (!isPickFiles && !file.isDirectory) {
                 add(Failure.Folder.NotFolder(path))
             }
-            if (!isPickFiles && !isFolderWritable(file)) {
+            if (isCheckFolderWritePermission && !isPickFiles && !isFolderWritable(file)) {
                 add(Failure.Folder.Write(path))
             }
             if (!isPickFiles && isEmptyFolderOnly && !isFolderEmpty(file)) {
@@ -217,7 +220,7 @@ class FolderPickerViewModel(
                         )
                     )
                 }
-                !isPickFiles && !isFolderWritable(currentFolder) -> {
+                isCheckFolderWritePermission && !isPickFiles && !isFolderWritable(currentFolder) -> {
                     sendEvent(
                         FolderPickerEvent.ShowErrorMessage(
                             resourcesProvider.getString(R.string.error_folder_is_not_writable)

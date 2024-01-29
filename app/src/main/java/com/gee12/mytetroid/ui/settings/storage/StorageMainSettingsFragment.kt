@@ -140,6 +140,7 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment(), ITetroidFi
             requestCode = PermissionRequestCode.CHANGE_STORAGE_FOLDER,
             initialPath = viewModel.storageFolder?.uri?.toString(),
             forStorageFolder = true,
+            isNeedCheckFolderWritePermission = true,
         )
     }
 

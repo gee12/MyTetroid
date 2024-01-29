@@ -335,6 +335,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
                     initialPath = currentFolderUri?.toString(),
                     forStorageFolder = true,
                     isNeedEmptyFolder = isNew,
+                    isNeedCheckFolderWritePermission = true,
                 )
             }
         ).apply {

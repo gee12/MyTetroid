@@ -319,6 +319,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
                 isPickFile = true,
                 forStorageFolder = false,
                 isNeedEmptyFolder = false,
+                isNeedCheckFolderWritePermission = false,
             )
         } else {
             val path = initialPath ?: settingsManager.getLastSelectedFolderPathOrDefault(forWrite = true)
@@ -351,6 +352,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
         initialPath: String? = null,
         forStorageFolder: Boolean = false,
         isNeedEmptyFolder: Boolean = false,
+        isNeedCheckFolderWritePermission: Boolean = false,
     ) {
         if (Build.VERSION.SDK_INT < 21) {
             openCustomFileOrFolderPicker(
@@ -359,6 +361,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
                 isPickFile = false,
                 forStorageFolder = forStorageFolder,
                 isNeedEmptyFolder = isNeedEmptyFolder,
+                isNeedCheckFolderWritePermission = isNeedCheckFolderWritePermission,
             )
         } else {
             val path = initialPath ?: settingsManager.getLastSelectedFolderPathOrDefault(forWrite = true)
@@ -387,6 +390,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
         isPickFile: Boolean,
         forStorageFolder: Boolean,
         isNeedEmptyFolder: Boolean,
+        isNeedCheckFolderWritePermission: Boolean,
     ) {
         val desc = resourcesProvider.getString(R.string.title_storage_path_desc).takeIf { forStorageFolder }
 
@@ -397,6 +401,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
             isNeedEmptyFolder = isNeedEmptyFolder,
             isPickFile = isPickFile,
             requestCode = requestCode.code,
+            isNeedCheckFolderWritePermission = isNeedCheckFolderWritePermission,
         )
     }
 

@@ -1600,6 +1600,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     private fun openFolderPickerForAttach() {
         openFolderPicker(
             requestCode = PermissionRequestCode.PICK_FOLDER_FOR_ATTACH_FILE,
+            isNeedCheckFolderWritePermission = true,
         )
     }
 

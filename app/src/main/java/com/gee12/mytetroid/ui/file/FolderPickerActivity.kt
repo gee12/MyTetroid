@@ -29,6 +29,7 @@ class FolderPickerActivity : TetroidActivity<FolderPickerViewModel>() {
         const val EXTRA_INITIAL_PATH = "initial_path"
         const val EXTRA_IS_PICK_FILES = "is_pick_files"
         const val EXTRA_IS_EMPTY_FOLDER_ONLY = "is_empty_folder_only"
+        const val EXTRA_IS_CHECK_WRITE_PERMISSION = "ischeck_write_permission"
 
         fun start(
             activity: Activity,
@@ -37,20 +38,20 @@ class FolderPickerActivity : TetroidActivity<FolderPickerViewModel>() {
             description: String?,
             isNeedEmptyFolder: Boolean,
             isPickFile: Boolean,
+            isNeedCheckFolderWritePermission: Boolean,
         ) {
             val intent = buildIntent {
                 setClass(activity, FolderPickerActivity::class.java)
 
-                initialPath?.also {
+                if (!initialPath.isNullOrEmpty()) {
                     putExtra(EXTRA_INITIAL_PATH, initialPath)
                 }
-                if (isNeedEmptyFolder) {
-                    putExtra(EXTRA_IS_EMPTY_FOLDER_ONLY, true)
-                }
-                putExtra(EXTRA_IS_PICK_FILES, isPickFile)
                 if (!description.isNullOrEmpty()) {
                     putExtra(EXTRA_DESCRIPTION, description)
                 }
+                putExtra(EXTRA_IS_EMPTY_FOLDER_ONLY, isNeedEmptyFolder)
+                putExtra(EXTRA_IS_PICK_FILES, isPickFile)
+                putExtra(EXTRA_IS_CHECK_WRITE_PERMISSION, isNeedCheckFolderWritePermission)
             }
             activity.startActivityForResult(intent, requestCode)
         }
@@ -114,9 +115,6 @@ class FolderPickerActivity : TetroidActivity<FolderPickerViewModel>() {
     }
 
     private fun handleIntent(intent: Intent) {
-        var isPickFiles = false
-        var isEmptyFolderOnly = false
-
         val customTitle = intent.getStringExtra(EXTRA_TITLE)
 
         if (intent.hasExtra(EXTRA_DESCRIPTION)) {
@@ -129,13 +127,12 @@ class FolderPickerActivity : TetroidActivity<FolderPickerViewModel>() {
             }
         }
 
-        if (intent.hasExtra(EXTRA_IS_PICK_FILES)) {
-            isPickFiles = intent.getBooleanExtra(EXTRA_IS_PICK_FILES, false)
-        }
+        val isPickFiles = intent.getBooleanExtra(EXTRA_IS_PICK_FILES, false)
 
-        if (intent.hasExtra(EXTRA_IS_EMPTY_FOLDER_ONLY)) {
-            isEmptyFolderOnly = intent.getBooleanExtra(EXTRA_IS_EMPTY_FOLDER_ONLY, false)
-            findViewById<View>(R.id.text_view_select_empty_dir_only).isVisible = isEmptyFolderOnly
+        val isCheckFolderWritePermission = intent.getBooleanExtra(EXTRA_IS_CHECK_WRITE_PERMISSION, false)
+
+        val isEmptyFolderOnly = intent.getBooleanExtra(EXTRA_IS_EMPTY_FOLDER_ONLY, false).also {
+            findViewById<View>(R.id.text_view_select_empty_dir_only).isVisible = it
         }
 
         title = when {
@@ -152,7 +149,12 @@ class FolderPickerActivity : TetroidActivity<FolderPickerViewModel>() {
 
         val initialPath = intent.getStringExtra(EXTRA_INITIAL_PATH).orEmpty()
 
-        viewModel.init(isPickFiles, isEmptyFolderOnly, initialPath)
+        viewModel.init(
+            isPickFiles = isPickFiles,
+            isEmptyFolderOnly = isEmptyFolderOnly,
+            isCheckFolderWritePermission = isCheckFolderWritePermission,
+            initialPath = initialPath,
+        )
     }
 
     override fun onBaseEvent(event: BaseEvent) {
