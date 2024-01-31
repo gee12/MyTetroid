@@ -86,8 +86,6 @@ class SearchActivity : TetroidStorageActivity<StorageViewModel>() {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
-        findViewById<View>(R.id.button_clear).setOnClickListener { etQuery.setText("") }
-
         etQuery.setSelection(etQuery.text?.length ?: 0)
 
         var storageId: Int? = null

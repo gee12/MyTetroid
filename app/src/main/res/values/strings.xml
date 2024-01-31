@@ -552,35 +552,40 @@
     <string name="global_search_by_node_result">Search results by node \"%s\"</string>
     <string name="global_searching">Global searching…</string>
 
-    <string name="label_name">Name:</string>
-    <string name="label_tags">Tags:</string>
-    <string name="label_author">Author:</string>
-    <string name="label_url">Url:</string>
-    <string name="label_created">Created:</string>
-    <string name="label_edited">Edited:</string>
-    <string name="label_text_edited">Text edited:</string>
-    <string name="label_pass">Password:</string>
-    <string name="label_cur_pass">Current password:</string>
-    <string name="label_new_pass">New password:</string>
-    <string name="label_confirm_pass">Confirm:</string>
-    <string name="label_crypted">Crypted:</string>
-    <string name="label_attach_crypted">Crypted:</string>
+    <string name="label_name">Name</string>
+    <string name="label_tags">Tags</string>
+    <string name="label_tags_colon">Tags:</string>
+    <string name="label_author">Author</string>
+    <string name="label_author_colon">Author:</string>
+    <string name="label_url">Url</string>
+    <string name="label_url_colon">Url:</string>
+    <string name="label_created_colon">Created:</string>
+    <string name="label_edited_colon">Edited:</string>
+    <string name="label_text_edited_colon">Text edited:</string>
+    <string name="label_password_colon">Password:</string>
+    <string name="label_current_password_colon">Current password:</string>
+    <string name="label_new_password_colon">New password:</string>
+    <string name="label_confirm_pass_colon">Confirm:</string>
+    <string name="label_crypted_colon">Crypted:</string>
+    <string name="label_attach_crypted_colon">Crypted:</string>
     <string name="label_id" translatable="false">Id:</string>
-    <string name="label_path">Path:</string>
+    <string name="label_path">Path</string>
+    <string name="label_path_colon">Path:</string>
     <string name="label_read_only">Read only (not implemented yet)</string>
-    <string name="label_file_size">File size:</string>
-    <string name="label_folder_size">Folder size:</string>
-    <string name="label_icons_section">Section:</string>
-    <string name="label_storage_name">Name:</string>
-    <string name="label_storage_path">Path:</string>
-    <string name="label_storage_uri">Uri:</string>
-    <string name="label_storage_size">Size on disk:</string>
-    <string name="label_storage_last_edit">Last modified tree:</string>
-    <string name="label_node">Node:</string>
-    <string name="label_record">Record:</string>
-    <string name="label_parent_node">Parent node:</string>
+    <string name="label_file_size_colon">File size:</string>
+    <string name="label_folder_size_colon">Folder size:</string>
+    <string name="label_icons_section_colon">Section:</string>
+    <string name="label_storage_name_colon">Name:</string>
+    <string name="label_storage_path_colon">Path:</string>
+    <string name="label_storage_uri_colon">Uri:</string>
+    <string name="label_storage_size_colon">Size on disk:</string>
+    <string name="label_storage_last_edit_colon">Last modified tree:</string>
+    <string name="label_node">Node</string>
+    <string name="label_node_colon">Node:</string>
+    <string name="label_record_colon">Record:</string>
+    <string name="label_parent_node_colon">Parent node:</string>
     <string name="label_favorite">Favorite</string>
-    <string name="label_pin_code_size_mask">Value %d–%d:</string>
+    <string name="hint_pin_code_size_mask">Value %d–%d</string>
     <string name="label_default_storage">Default storage</string>
     <string name="label_delete_storage_with_files">Delete with files</string>
 
@@ -672,7 +677,7 @@
     <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
     <string name="full_date_format_string" translatable="false">dd.MM.yyyy HH:mm:ss</string>
     <string name="def_date_format_string" translatable="false">dd MMM yyyy HH:mm</string>
-    <string name="hint_date_format_string">e.g. \"dd MMM yyyy HH:mm\"</string>
+    <string name="hint_date_format_string">dd MMM yyyy HH:mm</string>
 
     <string name="error_log_file_path_is_null">Path to the log file is not specified</string>
     <string name="error_get_storage_folder_size_mask">Error getting storage size: %s</string>

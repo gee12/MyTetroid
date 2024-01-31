@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -7,55 +8,67 @@
     android:padding="16dp"
     style="@style/RootLayout">
 
-    <TextView
-        android:text="@string/label_name"
-        style="@style/AppLabelInLayout"/>
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/text_input_layout_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/label_name"
+        app:endIconMode="clear_text">
 
-    <EditText
-        android:id="@+id/edit_text_name"
-        android:inputType="text|textCapSentences"
-        style="@style/AppEditTextInLayout"
-        tools:text="test name">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edit_text_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text|textCapSentences"
+            tools:text="test node name" >
 
-        <requestFocus/>
+            <requestFocus/>
 
-    </EditText>
+        </com.google.android.material.textfield.TextInputEditText>
 
-    <RelativeLayout
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_node"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:visibility="gone"
+        tools:visibility="visible">
 
-        <TextView
-            android:id="@+id/label_node"
-            android:text="@string/label_parent_node"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
-            style="@style/AppLabelInLayout"/>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/text_input_layout_node"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/button_node"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:hint="@string/label_parent_node_colon">
 
-        <EditText
-            android:id="@+id/edit_text_node"
-            android:layout_below="@id/label_node"
-            android:layout_toLeftOf="@id/button_node"
-            android:layout_toStartOf="@id/button_node"
-            android:inputType="none"
-            android:clickable="false"
-            android:focusable="false"
-            style="@style/AppEditTextInLayout"
-            tools:text="test node"/>
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_text_node"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="false"
+                android:focusable="false"
+                android:inputType="none"
+                tools:text="test node"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <ImageButton
             android:id="@+id/button_node"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/label_node"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
+            app:layout_constraintStart_toEndOf="@id/text_input_layout_node"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:background="@drawable/ic_tree"
             android:clickable="false"
-            android:background="@drawable/ic_tree" />
+            android:contentDescription="@string/label_node" />
 
-    </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

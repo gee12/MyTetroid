@@ -18,6 +18,7 @@
         <item name="buttonStyle">@style/AppButton</item>
         <item name="imageButtonStyle">@style/AppImageButton</item>
         <item name="android:textViewStyle">@style/AppTextView</item>
+        <item name="textInputStyle">@style/AppTextInputLayout</item>
         <item name="editTextStyle">@style/AppEditText</item>
         <item name="checkboxStyle">@style/AppCheckbox</item>
         <item name="spinnerStyle">@style/AppSpinner</item>
@@ -65,6 +66,13 @@
     <style name="AppEditText" parent="Widget.AppCompat.EditText">
         <item name="android:textColor">@color/text_color_primary</item>
         <item name="android:textColorHint">@color/text_4</item>
+        <item name="endIconTint">@color/icon_tint_input_end</item>
+    </style>
+
+    <style name="AppTextInputLayout" parent="Widget.Design.TextInputLayout">
+        <item name="android:textColor">@color/text_color_primary</item>
+        <item name="android:textColorHint">@color/text_4</item>
+        <item name="endIconTint">@color/icon_tint_input_end</item>
     </style>
 
     <style name="AppSearchAutoCompleteTextView" parent="Widget.AppCompat.AutoCompleteTextView">

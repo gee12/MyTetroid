@@ -28,7 +28,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="@id/spinner_folders"
-            android:text="@string/label_icons_section"/>
+            android:text="@string/label_icons_section_colon"/>
 
         <Spinner
             android:id="@+id/spinner_folders"

@@ -33,7 +33,7 @@
                 app:layout_constraintEnd_toStartOf="@id/text_view_name"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintHorizontal_chainStyle="spread_inside"
-                android:text="@string/label_storage_name" />
+                android:text="@string/label_storage_name_colon" />
 
             <TextView
                 android:id="@+id/text_view_name"
@@ -62,7 +62,7 @@
                 <TextView
                     android:id="@+id/label_path"
                     style="@style/GridCellLabel"
-                    android:text="@string/label_storage_path"/>
+                    android:text="@string/label_storage_path_colon"/>
 
                 <TextView
                     android:id="@+id/text_view_path"
@@ -84,7 +84,7 @@
                 <TextView
                     android:id="@+id/label_uri"
                     style="@style/GridCellLabel"
-                    android:text="@string/label_storage_uri"/>
+                    android:text="@string/label_storage_uri_colon"/>
 
                 <TextView
                     android:id="@+id/text_view_uri"
@@ -104,7 +104,7 @@
                 app:layout_constraintEnd_toStartOf="@id/text_view_size"
                 app:layout_constraintTop_toBottomOf="@id/layout_uri"
                 app:layout_constraintHorizontal_chainStyle="spread_inside"
-                android:text="@string/label_storage_size" />
+                android:text="@string/label_storage_size_colon" />
 
             <TextView
                 android:id="@+id/text_view_size"
@@ -141,7 +141,7 @@
                 app:layout_constraintEnd_toStartOf="@id/text_view_last_edit"
                 app:layout_constraintTop_toBottomOf="@id/barrier_size"
                 app:layout_constraintHorizontal_chainStyle="spread_inside"
-                android:text="@string/label_storage_last_edit" />
+                android:text="@string/label_storage_last_edit_colon" />
 
             <TextView
                 android:id="@+id/text_view_last_edit"

@@ -13,7 +13,7 @@
         style="@style/AppLabelInLayout"
         android:labelFor="@+id/edit_text_value"/>
 
-    <EditText
+    <com.gee12.htmlwysiwygeditor.EditTextWithClear
         android:id="@+id/edit_text_value"
         android:inputType="text"
         style="@style/AppEditTextInLayout"
@@ -21,6 +21,6 @@
 
         <requestFocus/>
 
-    </EditText>
+    </com.gee12.htmlwysiwygeditor.EditTextWithClear>
 
 </LinearLayout>

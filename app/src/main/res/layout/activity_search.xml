@@ -24,37 +24,20 @@
             android:layout_height="wrap_content"
             android:padding="12dp">
 
-            <RelativeLayout
-                android:id="@+id/layout_query"
+            <com.gee12.htmlwysiwygeditor.EditTextWithClear
+                android:id="@+id/edit_text_query"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp">
-
-                <EditText
-                    android:id="@+id/edit_text_query"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_toLeftOf="@id/button_clear"
-                    android:layout_toStartOf="@id/button_clear"
-                    android:maxLines="1"
-                    android:inputType="text"
-                    android:hint="@string/search_hint_input_query"
-                    tools:text="test query"/>
-
-                <ImageButton
-                    android:id="@+id/button_clear"
-                    android:layout_width="42dp"
-                    android:layout_height="42dp"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentEnd="true"
-                    android:background="@null"
-                    android:src="@drawable/ic_clear" />
-
-            </RelativeLayout>
+                android:layout_marginTop="8dp"
+                android:maxLines="1"
+                android:inputType="text"
+                android:hint="@string/search_hint_input_query"
+                app:clearButtonMode="always"
+                tools:text="test query"/>
 
             <TextView
                 android:id="@+id/text_view_search_in"
-                android:layout_below="@id/layout_query"
+                android:layout_below="@id/edit_text_query"
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="8dp"
                 style="@style/AppLabelInLayout"

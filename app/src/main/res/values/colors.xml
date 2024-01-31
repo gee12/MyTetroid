@@ -47,7 +47,9 @@
     <color name="list_separator">#EAEAEA</color>
 
     <color name="icon_tint">#777</color>
+    <color name="icon_tint_2">#BBB</color>
     <color name="icon_tint_toolbar">#EEE</color>
+    <color name="icon_tint_input_end">#CCC</color>
 
     <color name="title_start_color">#5A79AE</color>
     <color name="title_middle_color">#8391DA</color>

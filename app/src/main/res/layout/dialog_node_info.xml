@@ -22,7 +22,7 @@
 
     <TableRow>
         <TextView
-            android:text="@string/label_crypted"
+            android:text="@string/label_crypted_colon"
             style="@style/GridCellLabel"/>
 
         <TextView

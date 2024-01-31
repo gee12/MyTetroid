@@ -2,13 +2,13 @@ package com.gee12.mytetroid.ui.dialogs.pin
 
 import android.view.View
 import android.widget.EditText
-import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import com.gee12.htmlwysiwygeditor.TextChangedListener
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.extensions.setSelectionAtEnd
 import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import com.gee12.mytetroid.ui.storage.StorageViewModel
+import com.google.android.material.textfield.TextInputLayout
 import java.util.*
 
 class PinCodeLengthDialog(
@@ -23,7 +23,7 @@ class PinCodeLengthDialog(
         fun onCancel()
     }
 
-    lateinit var etSize: EditText
+    private lateinit var etSize: EditText
 
     override fun getRequiredTag() = TAG
 
@@ -37,7 +37,9 @@ class PinCodeLengthDialog(
         dialog.setCanceledOnTouchOutside(false)
         setTitle(R.string.title_enter_pin_code_length)
 
-        view.findViewById<TextView>(R.id.text_view_label).text = getString(R.string.label_pin_code_size_mask, minSize, maxSize)
+        view.findViewById<TextInputLayout>(R.id.text_input_layout_size).also {
+            it.hint = getString(R.string.hint_pin_code_size_mask, minSize, maxSize)
+        }
         etSize = view.findViewById(R.id.edit_text_size)
         if (curSize in minSize..maxSize) {
             etSize.setText("%d".format(Locale.getDefault(), curSize))

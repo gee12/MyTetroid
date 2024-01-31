@@ -18,7 +18,7 @@
         app:layout_constraintStart_toStartOf="parent"
         android:scaleType="center"
         android:src="@drawable/ic_tag_outlined"
-        app:tint="@color/icon_tint" />
+        app:tint="@color/icon_tint_2" />
 
     <TextView
         android:id="@+id/tag_view_name_count"
@@ -40,6 +40,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:contentDescription="@string/action_cancel"
         android:background="@null"
-        android:src="@drawable/ic_clear"/>
+        android:src="@drawable/ic_clear_text"
+        app:tint="@color/icon_tint_input_end"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

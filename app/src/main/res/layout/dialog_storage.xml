@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingStart="10dp"
-    android:paddingEnd="0dp"
     style="@style/RootLayout">
 
     <LinearLayout
@@ -13,58 +12,70 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <RelativeLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layout_path"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/label_path"
-                android:text="@string/label_path"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentStart="true"
-                style="@style/AppLabelInLayout"/>
-
-            <EditText
-                android:id="@+id/edit_text_path"
-                android:layout_width="match_parent"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/text_input_layout_path"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/label_path"
-                android:layout_toStartOf="@id/button_path"
-                android:gravity="start|top"
-                android:inputType="textMultiLine"
-                android:lines="2"
-                android:ellipsize="none"
-                android:clickable="false"
-                android:focusable="false"
-                android:scrollHorizontally="false"
-                android:overScrollMode="always"
-                android:scrollbarStyle="insideInset"
-                android:scrollbars="vertical"
-                android:hint="@string/title_select_folder"
-                tools:text="/storage/emulated/0/Download/Repositories/NewTestStorage"/>
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/button_path"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginEnd="6dp"
+                android:hint="@string/label_path">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edit_text_path"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start|top"
+                    android:inputType="textMultiLine"
+                    android:lines="2"
+                    android:ellipsize="none"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:scrollHorizontally="false"
+                    android:overScrollMode="always"
+                    android:scrollbarStyle="insideInset"
+                    android:scrollbars="vertical"
+                    tools:text="/storage/emulated/0/Download/Repositories/NewTestStorage"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
 
             <ImageButton
                 android:id="@+id/button_path"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/label_path"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
+                app:layout_constraintStart_toEndOf="@id/text_input_layout_path"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
                 android:clickable="false"
-                android:background="@drawable/ic_folder" />
+                android:background="@drawable/ic_folder"
+                android:contentDescription="@string/label_path" />
 
-        </RelativeLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <TextView
-            android:text="@string/label_name"
-            style="@style/AppLabelInLayout"/>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/text_input_layout_author"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:hint="@string/label_name"
+            app:endIconMode="clear_text">
 
-        <EditText
-            android:id="@+id/edit_text_name"
-            android:inputType="text|textCapSentences"
-            style="@style/AppEditTextInLayout"
-            tools:text="NewTestStorage"/>
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edit_text_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text|textCapSentences"
+                tools:text="NewTestStorage" />
+
+        </com.google.android.material.textfield.TextInputLayout>
 
         <CheckedTextView
             android:id="@+id/check_box_is_default"

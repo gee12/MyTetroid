@@ -4,7 +4,6 @@
     <string name="app_summ_html"><![CDATA[Android-клиент полнофункционального PIM-менеджера <a style=\'color:#303F9F\' href=\'https://webhamster.ru/site/page/index/articles/projectcode/105\'>MyTetra</a>]]></string>
     <string name="project_url_html"><![CDATA[Страница проекта: <a href=\'https://gee12.space/mytetroid\'>www.gee12.space/mytetroid</a>]]></string>
     <string name="policy_link_html"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Политика конфиденциальности</a>]]></string>
-    <string name="hint_date_format_string">Н-р: \"dd MMM yyyy HH:mm\"</string>
 
     <string name="hint_node_is_not_set"><![CDATA[<ветка не указана>]]></string>
     <string name="hint_need_load_storage"><![CDATA[<загрузите хранилище>]]></string>
@@ -12,6 +11,7 @@
     <string name="hint_node_not_found"><![CDATA[<ветка не найдена>]]></string>
     <string name="hint_node_not_decrypted"><![CDATA[<ветка не расшифрована>]]></string>
     <string name="hint_error"><![CDATA[<ошибка>]]></string>
+    <string name="hint_date_format_string">dd MMM yyyy HH:mm</string>
 
     <string name="title_app_updated">Обновление</string>
     <string name="mes_migration_53_mask">Приложение обновилось на версию %s\n\nВ этой версии добавилась поддержка нескольких хранилищ (пока одновременно загружать можно только одно)\nПараметры вашего хранилища были автоматически перенесены в \"Основное хранилище\"</string>
@@ -427,34 +427,39 @@
     <string name="state_voice_input_recognition">Распознавание текста…</string>
     <string name="state_export_to_pdf">Экспорт в pdf…</string>
 
-    <string name="label_name">Название:</string>
-    <string name="label_tags">Метки:</string>
-    <string name="label_author">Автор:</string>
-    <string name="label_url">Url:</string>
-    <string name="label_created">Создано:</string>
-    <string name="label_edited">Изменен:</string>
-    <string name="label_text_edited">Текст изменен:</string>
-    <string name="label_pass">Пароль:</string>
-    <string name="label_cur_pass">Текущий пароль:</string>
-    <string name="label_new_pass">Новый пароль:</string>
-    <string name="label_confirm_pass">Пароль повторно:</string>
-    <string name="label_crypted">Зашифрована:</string>
-    <string name="label_attach_crypted">Зашифрован:</string>
-    <string name="label_path">Путь к каталогу:</string>
+    <string name="label_name">Название</string>
+    <string name="label_tags">Метки</string>
+    <string name="label_tags_colon">Метки:</string>
+    <string name="label_author">Автор</string>
+    <string name="label_author_colon">Автор:</string>
+    <string name="label_url">Url</string>
+    <string name="label_url_colon">Url:</string>
+    <string name="label_created_colon">Создано:</string>
+    <string name="label_edited_colon">Изменен:</string>
+    <string name="label_text_edited_colon">Текст изменен:</string>
+    <string name="label_password_colon">Пароль:</string>
+    <string name="label_current_password_colon">Текущий пароль:</string>
+    <string name="label_new_password_colon">Новый пароль:</string>
+    <string name="label_confirm_pass_colon">Пароль повторно:</string>
+    <string name="label_crypted_colon">Зашифрована:</string>
+    <string name="label_attach_crypted_colon">Зашифрован:</string>
+    <string name="label_path">Путь к каталогу</string>
+    <string name="label_path_colon">Путь к каталогу:</string>
     <string name="label_read_only">Только просмотр (еще не реализовано)</string>
-    <string name="label_file_size">Размер файла:</string>
-    <string name="label_folder_size">Размер каталога:</string>
-    <string name="label_icons_section">Раздел:</string>
-    <string name="label_pin_code_size_mask">Значение %d–%d:</string>
-    <string name="label_node">Ветка:</string>
-    <string name="label_record">Запись:</string>
-    <string name="label_parent_node">Родительская ветка:</string>
+    <string name="label_file_size_colon">Размер файла:</string>
+    <string name="label_folder_size_colon">Размер каталога:</string>
+    <string name="label_icons_section_colon">Раздел:</string>
+    <string name="hint_pin_code_size_mask">Значение %d–%d</string>
+    <string name="label_node">Ветка</string>
+    <string name="label_node_colon">Ветка:</string>
+    <string name="label_record_colon">Запись:</string>
+    <string name="label_parent_node_colon">Родительская ветка:</string>
     <string name="label_favorite">В избранное</string>
-    <string name="label_storage_name">Название:</string>
-    <string name="label_storage_path">Путь:</string>
-    <string name="label_storage_uri">Uri:</string>
-    <string name="label_storage_size">Размер на диске:</string>
-    <string name="label_storage_last_edit">Последнее изменение дерева:</string>
+    <string name="label_storage_name_colon">Название:</string>
+    <string name="label_storage_path_colon">Путь:</string>
+    <string name="label_storage_uri_colon">Uri:</string>
+    <string name="label_storage_size_colon">Размер на диске:</string>
+    <string name="label_storage_last_edit_colon">Последнее изменение дерева:</string>
     <string name="label_default_storage">Основное хранилище</string>
     <string name="label_delete_storage_with_files">Удалить вместе с каталогом</string>
 

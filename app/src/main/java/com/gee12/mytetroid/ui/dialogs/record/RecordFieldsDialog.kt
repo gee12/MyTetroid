@@ -5,6 +5,7 @@ import android.text.InputType
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import com.gee12.mytetroid.BuildConfig
 import com.gee12.mytetroid.R
@@ -43,7 +44,7 @@ class RecordFieldsDialog(
 
     private lateinit var etName: EditText
     private lateinit var etNode: EditText
-    private lateinit var layoutNode: RelativeLayout
+    private lateinit var layoutNode: ConstraintLayout
 
     private var recordNode: TetroidNode? = null
     private var selectedNode: TetroidNode? = null

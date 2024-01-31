@@ -46,7 +46,10 @@
     <color name="text_empty_list">#888</color>
     <color name="list_separator">#272727</color>
 
-    <color name="icon_tint">#AAA</color>
+    <color name="icon_tint_toolbar">#EEE</color>
+    <color name="icon_tint">#AAC</color>
+    <color name="icon_tint_2">#646473</color>
+    <color name="icon_tint_input_end">#535360</color>
 
     <color name="title_start_color">#122442</color>
     <color name="title_middle_color">#1F2853</color>
