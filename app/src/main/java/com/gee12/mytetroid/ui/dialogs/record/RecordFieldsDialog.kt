@@ -138,7 +138,7 @@ class RecordFieldsDialog(
                             }
                         }
                     },
-                ).showIfPossible(parentFragmentManager)
+                ).showIfPossibleAndNeeded(parentFragmentManager)
             }
 
             etNode.setOnClickListener(clickListener)

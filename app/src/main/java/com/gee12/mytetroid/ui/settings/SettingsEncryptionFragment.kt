@@ -88,7 +88,7 @@ class SettingsEncryptionFragment : TetroidSettingsFragment() {
 
                 override fun onCancel() {}
             }
-        ).showIfPossible(parentFragmentManager)
+        ).showIfPossibleAndNeeded(parentFragmentManager)
     }
 
     private fun showDropPinCodeDialog() {

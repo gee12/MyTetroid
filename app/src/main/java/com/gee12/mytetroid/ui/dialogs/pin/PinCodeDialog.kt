@@ -114,7 +114,7 @@ class PinCodeDialog(
                                 dialog.dismiss()
                             }
                         }
-                    ).showIfPossible(parentFragmentManager)
+                    ).showIfPossibleAndNeeded(parentFragmentManager)
                 }
             }
         }
@@ -142,7 +142,7 @@ class PinCodeDialog(
             callback: IPinInputResult
         ) {
             PinCodeDialog(length, isSetup, false, null, callback)
-                .showIfPossible(fragmentManager)
+                .showIfPossibleAndNeeded(fragmentManager)
         }
 
     }

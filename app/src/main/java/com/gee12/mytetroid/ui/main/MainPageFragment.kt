@@ -109,7 +109,7 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
         registerForContextMenu(lvAttaches)
         fabAddRecord = view.findViewById(R.id.button_add_record)
         fabAddRecord.setOnClickListener {
-            createRecord()
+            showCreateRecordDialog()
         }
         fabAddAttach = view.findViewById(R.id.fab_add_attach)
         fabAddAttach.setClosedOnTouchOutside(true)
@@ -125,7 +125,7 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
                 onApply = { url: String ->
                     viewModel.downloadAndAttachFile(url)
                 }
-            ).showIfPossible(parentFragmentManager)
+            ).showIfPossibleAndNeeded(parentFragmentManager)
         }
 
         initListAdapters()
@@ -290,7 +290,7 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
     /**
      * Создание новой записи.
      */
-    fun createRecord() {
+    private fun showCreateRecordDialog() {
         RecordFieldsDialog(
             record = null,
             chooseNode = true,
@@ -306,14 +306,14 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
                     isFavorite = isFavorite
                 )
             },
-        ).showIfPossible(parentFragmentManager)
+        ).showIfPossibleAndNeeded(parentFragmentManager)
     }
 
     /**
      * Удаление записи.
      * @param record
      */
-    private fun deleteRecord(record: TetroidRecord) {
+    private fun showDeleteRecordDialog(record: TetroidRecord) {
         AskDialogs.showYesDialog(
             context = requireContext(),
             message = getString(R.string.ask_record_delete_mask, record.name),
@@ -347,7 +347,7 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
      * Редактирование свойств записи.
      * @param record
      */
-    private fun editRecordFields(record: TetroidRecord) {
+    private fun showEditRecordFieldsDialog(record: TetroidRecord) {
         RecordFieldsDialog(
             record = record,
             chooseNode = true,
@@ -363,14 +363,14 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
                 node = node,
                 isFavor = isFavor
             )
-        }.showIfPossible(parentFragmentManager)
+        }.showIfPossibleAndNeeded(parentFragmentManager)
     }
 
     private fun showRecordInfoDialog(record: TetroidRecord) {
         RecordInfoDialog(
             record = record,
             storageId = viewModel.getStorageId()
-        ).showIfPossible(parentFragmentManager)
+        ).showIfPossibleAndNeeded(parentFragmentManager)
     }
 
     // endregion Record
@@ -441,14 +441,14 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
         ) { name: String ->
             viewModel.renameAttach(attach, name)
         }
-            .showIfPossible(parentFragmentManager)
+            .showIfPossibleAndNeeded(parentFragmentManager)
     }
 
-    fun showAttachInfoDialog(attach: TetroidFile) {
+    private fun showAttachInfoDialog(attach: TetroidFile) {
         AttachInfoDialog(
             attach = attach,
             storageId = viewModel.getStorageId()
-        ).showIfPossible(parentFragmentManager)
+        ).showIfPossibleAndNeeded(parentFragmentManager)
     }
 
     fun updateAttachesList() {
@@ -573,7 +573,7 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
                 true
             }
             R.id.action_record_edit_fields -> {
-                editRecordFields(record)
+                showEditRecordFieldsDialog(record)
                 true
             }
             R.id.action_record_node -> {
@@ -625,7 +625,7 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
                 true
             }
             R.id.action_delete -> {
-                deleteRecord(record)
+                showDeleteRecordDialog(record)
                 true
             }
             else -> false

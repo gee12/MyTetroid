@@ -140,7 +140,7 @@ class StorageEncryptionSettingsFragment : TetroidStorageSettingsFragment() {
                 curPassword = curPass,
                 newPassword = newPass,
             )
-        }.showIfPossible(parentFragmentManager)
+        }.showIfPossibleAndNeeded(parentFragmentManager)
     }
 
     /**

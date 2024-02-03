@@ -1307,7 +1307,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 val trueParentNode = if (isSubNode) parentNode else parentNode.parentNode
                 viewModel.createNode(name, trueParentNode)
             }
-        ).showIfPossible(supportFragmentManager)
+        ).showIfPossibleAndNeeded(supportFragmentManager)
     }
 
     /**
@@ -1321,7 +1321,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             onApply = { name: String, parentNode: TetroidNode ->
                 viewModel.createNode(name, parentNode)
             }
-        ).showIfPossible(supportFragmentManager)
+        ).showIfPossibleAndNeeded(supportFragmentManager)
     }
 
     private fun onNodeCreated(node: TetroidNode) {
@@ -1336,7 +1336,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     private fun showNodeInfoDialog(node: TetroidNode) {
         NodeInfoDialog(
             node = node,
-        ).showIfPossible(supportFragmentManager)
+        ).showIfPossibleAndNeeded(supportFragmentManager)
     }
 
     /**
@@ -1363,7 +1363,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             onApply = { name: String, _: TetroidNode ->
                 viewModel.renameNode(node, name)
             }
-        ).showIfPossible(supportFragmentManager)
+        ).showIfPossibleAndNeeded(supportFragmentManager)
     }
 
     private fun onNodeRenamed(node: TetroidNode) {
@@ -2089,7 +2089,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                         // TODO: реализовать выбор имеющихся записей
                     }
                 }
-            ).showIfPossible(supportFragmentManager)
+            ).showIfPossibleAndNeeded(supportFragmentManager)
         }
     }
 

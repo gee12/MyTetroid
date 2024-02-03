@@ -21,9 +21,9 @@ object PassDialogs {
         passResult: IPassInputResult
     ) {
         if (isSetup) {
-            PassSetupDialog(passResult).showIfPossible(fragmentManager)
+            PassSetupDialog(passResult).showIfPossibleAndNeeded(fragmentManager)
         } else {
-            PassEnterDialog(passResult).showIfPossible(fragmentManager)
+            PassEnterDialog(passResult).showIfPossibleAndNeeded(fragmentManager)
         }
     }
 

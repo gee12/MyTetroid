@@ -95,7 +95,7 @@ class NodeFieldsDialog(
                             }
                         }
                     },
-                ).showIfPossible(parentFragmentManager)
+                ).showIfPossibleAndNeeded(parentFragmentManager)
             }
             etNode.setOnClickListener(clickListener)
             bNode.setOnClickListener(clickListener)

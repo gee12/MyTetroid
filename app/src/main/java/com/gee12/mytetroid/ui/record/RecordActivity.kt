@@ -1082,7 +1082,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         RecordInfoDialog(
             viewModel.curRecord.value!!,
             viewModel.getStorageId()
-        ).showIfPossible(supportFragmentManager)
+        ).showIfPossibleAndNeeded(supportFragmentManager)
     }
 
     // endregion Options record
@@ -1433,7 +1433,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 )
             }
         ).apply {
-            showIfPossible(supportFragmentManager)
+            showIfPossibleAndNeeded(supportFragmentManager)
         }
     }
 
@@ -1585,7 +1585,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 stopVoiceInput()
             }
         ).also {
-            it.showIfPossible(supportFragmentManager)
+            it.showIfPossibleAndNeeded(supportFragmentManager)
         }
     }
 

@@ -197,7 +197,7 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment(), ITetroidFi
                     },
                 )
             },
-        ).showIfPossible(parentFragmentManager)
+        ).showIfPossibleAndNeeded(parentFragmentManager)
     }
 
     override fun onUpdateStorageFieldEvent(key: String, value: String) {

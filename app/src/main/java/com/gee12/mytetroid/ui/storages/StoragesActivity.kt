@@ -249,7 +249,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
                             callback()
                         },
                         onCancel = {}
-                    ).showIfPossible(supportFragmentManager)
+                    ).showIfPossibleAndNeeded(supportFragmentManager)
                 },
             )
         } else {
@@ -314,10 +314,13 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
                     setCloseStorageResult(storage)
                 }
             }
-        ).showIfPossible(supportFragmentManager)
+        ).showIfPossibleAndNeeded(supportFragmentManager)
     }
 
     private fun showStorageDialog(storageId: Int?, isNew: Boolean) {
+        if (storageDialog?.hasAlreadyShown(supportFragmentManager) == true) {
+            return
+        }
         storageDialog = StorageFieldsDialog(
             storageId = storageId,
             isNew = isNew,
@@ -339,7 +342,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
                 )
             }
         ).apply {
-            showIfPossible(supportFragmentManager)
+            this.showIfPossibleAndNeeded(supportFragmentManager)
         }
     }
 

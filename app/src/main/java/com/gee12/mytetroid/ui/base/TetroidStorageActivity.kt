@@ -139,7 +139,7 @@ abstract class TetroidStorageActivity<VM : BaseStorageViewModel> : TetroidActivi
                             callback()
                         },
                         onCancel = {}
-                    ).showIfPossible(supportFragmentManager)
+                    ).showIfPossibleAndNeeded(supportFragmentManager)
                 },
             )
         } else {

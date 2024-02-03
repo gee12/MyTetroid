@@ -200,7 +200,7 @@ class SearchActivity : TetroidStorageActivity<StorageViewModel>() {
                         }
                     }
                 }
-            ).showIfPossible(supportFragmentManager)
+            ).showIfPossibleAndNeeded(supportFragmentManager)
         }
         etNodeName.setOnClickListener(clickListener)
         bNodeChooser.setOnClickListener(clickListener)

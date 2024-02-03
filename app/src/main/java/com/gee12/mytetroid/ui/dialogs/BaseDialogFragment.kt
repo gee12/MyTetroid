@@ -88,6 +88,20 @@ abstract class BaseDialogFragment : DialogFragment() {
 
     open fun onDialogShowed(dialog: AlertDialog, view: View) {}
 
+    fun showIfPossibleAndNeeded(manager: FragmentManager) {
+        when {
+            !isPossibleToShow() -> {
+                Log.i(getRequiredTag(), "Dialog fragment is not possible to show.")
+            }
+            hasAlreadyShown(manager) -> {
+                Log.i(getRequiredTag(), "Dialog fragment has already been shown.")
+            }
+            else -> {
+                show(manager, getRequiredTag())
+            }
+        }
+    }
+
     fun showIfPossible(manager: FragmentManager) {
         if (isPossibleToShow()) {
             show(manager, getRequiredTag())
@@ -96,12 +110,16 @@ abstract class BaseDialogFragment : DialogFragment() {
         }
     }
 
-    fun showIfNeeded(manager: FragmentManager?) {
-        manager?.apply {
-            if (findFragmentByTag(getRequiredTag()) == null) {
-                show(this, getRequiredTag())
-            }
+    fun showIfNeeded(manager: FragmentManager) {
+        if (!hasAlreadyShown(manager)) {
+            show(manager, getRequiredTag())
+        } else {
+            Log.i(getRequiredTag(), "Dialog fragment has already been shown.")
         }
+    }
+
+    fun hasAlreadyShown(manager: FragmentManager): Boolean {
+        return manager.findFragmentByTag(getRequiredTag()) != null
     }
 
     override fun show(manager: FragmentManager, tag: String?) {

@@ -195,7 +195,7 @@ class StorageSettingsActivity : TetroidSettingsActivity<StorageSettingsViewModel
                             callback()
                         },
                         onCancel = {}
-                    ).showIfPossible(supportFragmentManager)
+                    ).showIfPossibleAndNeeded(supportFragmentManager)
                 },
             )
         } else {
