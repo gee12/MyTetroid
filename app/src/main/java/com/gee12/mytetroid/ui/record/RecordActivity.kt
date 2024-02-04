@@ -69,6 +69,7 @@ import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import com.gee12.htmlwysiwygeditor.IColorPicker
 import com.gee12.htmlwysiwygeditor.EditableWebView.*
 import com.gee12.htmlwysiwygeditor.WysiwygEditor
+import com.gee12.htmlwysiwygeditor.ext.readTextFileFromAssets
 import com.gee12.htmlwysiwygeditor.model.ImageParams
 import com.gee12.mytetroid.common.extensions.*
 import com.gee12.mytetroid.common.onSuccess
@@ -728,6 +729,16 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
      */
     override fun onEditorJSLoaded() {
         viewModel.onEditorJSLoaded(intent)
+    }
+
+    override fun onLoadUserJSScripts() {
+        // TODO: сделать как настройку
+        lifecycleScope.launch {
+            val scriptPath = "scripts/table_sort.js"
+            this@RecordActivity.readTextFileFromAssets(scriptPath)?.also { scriptText ->
+                editor.webView.execJavascript(scriptText)
+            }
+        }
     }
 
     override fun onIsEditedChanged(isEdited: Boolean) {
