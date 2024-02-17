@@ -28,7 +28,7 @@ fun Uri.toPath(): String? {
 
 fun String.uriToAbsolutePath(context: Context): String {
     val uri = Uri.parse(this)
-    return uri.toDocumentFile(context)?.getAbsolutePath(context)?.toNullIfEmpty()
+    return uri.toDocumentFile(context)?.getAbsolutePath(context)?.takeIfNotEmpty()
         ?: uri.toPath()
         ?: this
 }
