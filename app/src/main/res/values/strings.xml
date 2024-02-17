@@ -957,6 +957,13 @@
     <string name="error_save_pass_check_data">Failed to save crypt_check data for password</string>
     <string name="error_clone_record_to_node">Failed clone record to node</string>
     <string name="error_app_is_not_inited_restart">App is not initialized, restart</string>
+    <string name="error_unknown">Unknown error</string>
+    <string name="error_db_sql">Db query error</string>
+    <string name="error_db_unknown">Unknown db error</string>
+    <string name="error_db_insert">Failed to add record to db</string>
+    <string name="error_db_update">Failed to update record in db</string>
+    <string name="error_db_delete">Failed to delete record from db</string>
+    <string name="error_db_item_not_found">Nothing was found in the database</string>
 
     <string name="folder_name_mask">folder %s</string>
     <string name="file_name_mask">file %s</string>

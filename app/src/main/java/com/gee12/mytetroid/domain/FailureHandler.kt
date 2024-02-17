@@ -15,17 +15,13 @@ class FailureHandler(
     private val resourcesProvider: IResourcesProvider,
 ) : IFailureHandler {
 
-    companion object {
-        private const val CALLER_STACK_INDEX = 5
-    }
-
     override fun getFailureMessage(failure: Failure): NotificationData {
         return when (failure) {
             is Failure.RequiredApiVersion -> {
                 NotificationData.Error(title = getString(R.string.error_required_api_version_mask, failure.minApiVersion))
             }
             is Failure.UnknownError -> {
-                NotificationData.Error(title = "Unknown error")
+                NotificationData.Error(title = getString(R.string.error_unknown))
             }
             is Failure.ArgumentIsEmpty -> {
                 NotificationData.Error(
@@ -37,6 +33,9 @@ class FailureHandler(
                         append("is null !")
                     }
                 )
+            }
+            is Failure.Database -> {
+                getDatabaseFailureMessage(failure)
             }
             is Failure.Storage -> {
                 getStorageFailureMessage(failure)
@@ -87,6 +86,41 @@ class FailureHandler(
                 NotificationData.Error(
                     title = getString(R.string.log_error_download_file_mask, failure.ex?.message.orEmpty()),
                     message = failure.ex?.getInfo()
+                )
+            }
+        }
+    }
+
+    private fun getDatabaseFailureMessage(failure: Failure.Database): NotificationData {
+        return when (failure) {
+            Failure.Database.Insert -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_db_insert)
+                )
+            }
+            Failure.Database.Update -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_db_update)
+                )
+            }
+            Failure.Database.Delete -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_db_delete)
+                )
+            }
+            Failure.Database.ItemNotFound -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_db_item_not_found)
+                )
+            }
+            is Failure.Database.SqlError -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_db_sql)
+                )
+            }
+            is Failure.Database.Unknown -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_db_unknown)
                 )
             }
         }

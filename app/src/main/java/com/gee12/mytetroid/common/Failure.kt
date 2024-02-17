@@ -14,6 +14,15 @@ sealed class Failure(val ex: Throwable? = null) {
     class RequiredApiVersion(val minApiVersion: Int, ex: Throwable? = null) : Failure(ex)
     class UnknownError(ex: Throwable? = null) : Failure(ex)
 
+    sealed class Database(ex: Throwable? = null) : Failure (ex) {
+        object Insert : Database()
+        object Update : Database()
+        object Delete : Database()
+        object ItemNotFound : Database()
+        class SqlError(ex: Throwable) : Database(ex)
+        class Unknown(ex: Throwable) : Database(ex)
+    }
+
     sealed class Storage(ex: Throwable? = null) : Failure(ex) {
         object StorageNotInited : Load()
         sealed class Create(ex: Throwable? = null) : Storage(ex) {
