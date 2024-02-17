@@ -106,7 +106,7 @@ class CreateStorageUseCase(
             getStorageTrashFolderUseCase.run(
                 GetStorageTrashFolderUseCase.Params(
                     storage = storage,
-                    createIfNotExist = true,
+                    isCreateIfNotExist = true,
                 )
             )
 

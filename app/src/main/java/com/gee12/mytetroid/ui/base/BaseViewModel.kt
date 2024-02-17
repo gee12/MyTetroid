@@ -300,7 +300,7 @@ abstract class BaseViewModel(
 
     // operation result
     open fun logOperRes(obj: LogObj, oper: LogOper): String {
-        return logger.logOperRes(obj, oper, "", true)
+        return logger.logOperRes(obj, oper, "", show = true)
     }
 
     open fun logOperRes(obj: LogObj, oper: LogOper, tetroidObj: TetroidObject, show: Boolean): String {

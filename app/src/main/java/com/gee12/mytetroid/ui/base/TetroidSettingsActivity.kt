@@ -57,7 +57,6 @@ abstract class TetroidSettingsActivity<VM : BaseViewModel> : TetroidActivity<VM>
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         this.optionsMenu = menu
-        menuInflater.inflate(R.menu.storages, menu)
         return true
     }
 

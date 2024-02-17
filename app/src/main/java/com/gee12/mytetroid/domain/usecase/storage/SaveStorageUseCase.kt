@@ -85,7 +85,7 @@ class SaveStorageUseCase(
                         getStorageTrashFolderUseCase.run(
                             GetStorageTrashFolderUseCase.Params(
                                 storage = storage!!,
-                                createIfNotExist = true,
+                                isCreateIfNotExist = true,
                             )
                         ).flatMap { storageTrashFolder ->
                             val fileNameInTrash = "${dataNameProvider.createDateTimePrefix()}_$xmlFileName"

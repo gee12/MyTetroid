@@ -2217,15 +2217,18 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             // через стиль не получилось, т.к. внутри AppCompatAutoCompleteTextView
             it.setTextColor(Color.WHITE)
         }
+        val ivIcon = tagsHeader.findViewById<ImageView>(R.id.image_view)
         val tvHeader = tagsHeader.findViewById<TextView>(R.id.text_view_tags_header)
         object : SearchViewXListener(searchView) {
             override fun onClose() {
                 searchInTags(null, isSearch = false)
-                tvHeader.visibility = View.VISIBLE
+                ivIcon.isVisible = true
+                tvHeader.isVisible = true
             }
 
             override fun onSearchClick() {
-                tvHeader.visibility = View.GONE
+                ivIcon.isVisible = false
+                tvHeader.isVisible = false
             }
 
             override fun onQuerySubmit(query: String) {
@@ -2503,9 +2506,13 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         if (viewModel.isLoadedFavoritesOnly()) {
             viewModel.showMessage(getString(R.string.mes_all_nodes_must_be_loaded), LogType.WARNING)
         } else {
-            val curNode = viewModel.curNode
-            val curNodeId = if (curNode != null && curNode !== FAVORITES_NODE) curNode.id else null
-            start(this, query, curNodeId, viewModel.getStorageId())
+            val curNodeId = viewModel.curNode?.takeIf { it !== FAVORITES_NODE }?.id
+            SearchActivity.start(
+                activity = this,
+                query = query,
+                currentNodeId = curNodeId,
+                storageId = viewModel.getStorageId(),
+            )
         }
     }
 

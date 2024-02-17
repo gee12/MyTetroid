@@ -230,8 +230,8 @@ object UseCasesModule {
 
             scoped {
                 GetStorageTrashFolderUseCase(
-                    context = androidContext(),
                     appPathProvider = get(),
+                    getFolderUseCase = get(),
                 )
             }
 

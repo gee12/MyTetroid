@@ -72,16 +72,9 @@ class DeleteAttachUseCase(
 
         // удаляем файл из списка файлов записи (и соответственно, из дерева)
         val recordAttaches = record.attachedFiles
-        // TODO: уйдет когда объекты будут на Kotlin
-//        if (recordAttaches != null) {
-            if (!recordAttaches.remove(attach)) {
-//                logger.logError(resourcesProvider.getString(R.string.error_attach_not_found_in_record))
-                return Failure.Attach.NotFoundInRecord(attachId = attach.id).toLeft()
-            }
-//        } else {
-//            logger.logError(resourcesProvider.getString(R.string.log_record_not_have_attached_files))
-//            return 0
-//        }
+        if (!recordAttaches.remove(attach)) {
+            return Failure.Attach.NotFoundInRecord(attachId = attach.id).toLeft()
+        }
 
         // перезаписываем структуру хранилища в файл
         return saveStorageUseCase.run()

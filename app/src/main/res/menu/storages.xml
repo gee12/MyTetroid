@@ -3,14 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_search"
-        android:title="Фильтр"
+        android:title="@string/title_filter"
         android:icon="@drawable/ic_search_white"
         app:showAsAction="ifRoom"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         android:visible="false"/>
     <item
         android:id="@+id/action_choice_mode"
-        android:title="Множественный выбор"
+        android:title="@string/title_multiple_choice"
         android:icon="@drawable/ic_edit_white"
         app:showAsAction="ifRoom"
         android:visible="false"/>
