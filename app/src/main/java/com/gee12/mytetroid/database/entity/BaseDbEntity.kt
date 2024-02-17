@@ -3,7 +3,7 @@ package com.gee12.mytetroid.database.entity
 import androidx.room.ColumnInfo
 import java.util.*
 
-open class BaseEntity {
+open class BaseDbEntity {
     @ColumnInfo(name = "createdDate")
     var createdDate: Date? = null
 

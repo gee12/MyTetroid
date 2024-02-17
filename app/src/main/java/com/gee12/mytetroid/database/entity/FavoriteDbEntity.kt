@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "favorites")
-open class FavoriteEntity(
+open class FavoriteDbEntity(
     @ColumnInfo(name = "storageId")
     var storageId: Int,
 
@@ -18,4 +18,4 @@ open class FavoriteEntity(
 
     @ColumnInfo(name = "orderNum")
     var order: Int = 0
-) : BaseEntity()
+) : BaseDbEntity()

@@ -1,11 +1,8 @@
 package com.gee12.mytetroid.database.entity
 
 import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import java.util.*
 
-open class SyncProfileEntity (
+open class SyncProfileDbEntity (
     @ColumnInfo(name = "isEnabled")
     var isEnabled: Boolean
 ) {

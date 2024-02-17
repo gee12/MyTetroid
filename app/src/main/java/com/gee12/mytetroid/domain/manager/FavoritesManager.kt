@@ -48,7 +48,7 @@ class FavoritesManager(
     }
 
     private suspend fun addFavorite(favorite: TetroidFavorite): Boolean {
-        return favoritesRepo.addFavorite(favorite, true)
+        return favoritesRepo.addFavorite(favorite, updateOrder = true)
             .also {
                 if (it) favorites.add(favorite)
             }

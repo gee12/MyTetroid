@@ -6,13 +6,13 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "storages")
-open class StorageEntity(
+open class StorageDbEntity(
     @ColumnInfo(name = "name")
     var name: String,
 
     @ColumnInfo(name = "path")
     var uri: String
-) : BaseEntity() {
+) : BaseDbEntity() {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
@@ -61,12 +61,12 @@ open class StorageEntity(
     var isDecryptToTemp: Boolean = false
 
     @Embedded(prefix="syncProfile")
-    var syncProfile = SyncProfileEntity(false)
+    var syncProfile = SyncProfileDbEntity(false)
 
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is StorageEntity) return false
+        if (other !is StorageDbEntity) return false
 
         if (name != other.name) return false
         if (uri != other.name) return false

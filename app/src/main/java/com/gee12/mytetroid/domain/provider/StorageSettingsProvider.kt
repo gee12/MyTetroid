@@ -1,11 +1,11 @@
 package com.gee12.mytetroid.domain.provider
 
-import com.gee12.mytetroid.database.entity.SyncProfileEntity
+import com.gee12.mytetroid.database.entity.SyncProfileDbEntity
 import com.gee12.mytetroid.model.TetroidStorage
 
 interface IStorageSettingsProvider {
     fun isDecryptAttachesToTempFolder(): Boolean
-    fun getSyncProfile(): SyncProfileEntity?
+    fun getSyncProfile(): SyncProfileDbEntity?
     fun isSyncEnabled(): Boolean
     fun getSyncAppName(): String
     fun getSyncCommand(): String

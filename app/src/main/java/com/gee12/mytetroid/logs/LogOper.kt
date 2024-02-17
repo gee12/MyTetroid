@@ -1,9 +1,11 @@
 package com.gee12.mytetroid.logs
 
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.domain.provider.IResourcesProvider
+import com.gee12.mytetroid.model.enums.Tense
 
 
-enum class LogOper {
+enum class LogOper(private val tensesResArray: Int? = null) {
     NONE,
     SET(R.array.oper_set),
     LOAD(R.array.oper_load),
@@ -25,17 +27,10 @@ enum class LogOper {
     REENCRYPT(R.array.oper_reencrypt),
     CHECK;
 
-    var maRes: Int
-
-    constructor() {
-        maRes = 0
+    fun getString(tense: Tense, resourcesProvider: IResourcesProvider): String {
+        return tensesResArray?.takeIf { tense.id in 0..2 }?.let {
+            resourcesProvider.getStringArray(tensesResArray)[tense.id]
+        }.orEmpty()
     }
 
-    constructor(arrayRes: Int) {
-        maRes = arrayRes
-    }
-
-    fun getString(tense: Int, getStringArrayCallback: (arrayResId: Int) -> Array<String>): String {
-        return if (maRes > 0 && tense >= 0 && tense < 3) getStringArrayCallback(maRes)[tense] else ""
-    }
 }

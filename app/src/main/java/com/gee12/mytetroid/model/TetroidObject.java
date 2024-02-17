@@ -91,6 +91,7 @@ public class TetroidObject implements ITetroidObject {
         return (!isCrypted || isDecrypted);
     }
 
+    @Override
     public void setName(String name) {
         this.name = name;
     }

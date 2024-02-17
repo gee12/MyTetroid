@@ -2,12 +2,13 @@ package com.gee12.mytetroid.domain.repo
 
 import android.content.Context
 import com.gee12.mytetroid.database.TetroidDatabase
-import com.gee12.mytetroid.database.entity.StorageEntity
+import com.gee12.mytetroid.database.entity.StorageDbEntity
 import com.gee12.mytetroid.model.TetroidStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class StoragesRepo(context: Context) {
+class StoragesRepo(context: Context) : DbRepo() {
+
     val dataBase = TetroidDatabase.create(context)
 
     suspend fun getStorages() = withContext(Dispatchers.IO) {
@@ -61,7 +62,7 @@ class StoragesRepo(context: Context) {
         dataBase.storagesDao.deleteById(storage.id) > 0
     }
 
-    private fun toTetroidStorage(entity: StorageEntity) = TetroidStorage(
+    private fun toTetroidStorage(entity: StorageDbEntity) = TetroidStorage(
         entity.name,
         entity.uri,
         entity.isDefault,

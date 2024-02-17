@@ -1,11 +1,11 @@
 package com.gee12.mytetroid.model
 
-import com.gee12.mytetroid.database.entity.StorageEntity
+import com.gee12.mytetroid.database.entity.StorageDbEntity
 
 class TetroidStorage(
     name: String,
     uri: String
-) : StorageEntity(
+) : StorageDbEntity(
     name,
     uri
 ) {

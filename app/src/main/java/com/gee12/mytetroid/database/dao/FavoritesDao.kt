@@ -1,12 +1,12 @@
 package com.gee12.mytetroid.database.dao
 
 import androidx.room.*
-import com.gee12.mytetroid.database.entity.FavoriteEntity
+import com.gee12.mytetroid.database.entity.FavoriteDbEntity
 
 @Dao
 interface FavoritesDao {
     @Query("SELECT * FROM favorites WHERE storageId = :storageId ORDER BY orderNum")
-    fun getAll(storageId: Int): List<FavoriteEntity>
+    fun getAll(storageId: Int): List<FavoriteDbEntity>
 
     @Query("SELECT COUNT(1) FROM favorites WHERE storageId = :storageId")
     fun getCount(storageId: Int): Int
@@ -18,26 +18,26 @@ interface FavoritesDao {
     fun getMaxOrder(storageId: Int): Int
 
     @Query("SELECT * FROM favorites WHERE id = :id")
-    fun getById(id: Int): FavoriteEntity?
+    fun getById(id: Int): FavoriteDbEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(entity: FavoriteEntity): Long
+    fun insert(entity: FavoriteDbEntity): Long
 
     @Transaction
-    fun insertAndSetOrder(entity: FavoriteEntity): Long {
+    fun insertAndSetOrder(entity: FavoriteDbEntity): Long {
         val newOrder = getMaxOrder(entity.storageId) + 1
         entity.order = newOrder
         return insert(entity)
     }
 
     @Update
-    fun update(entity: FavoriteEntity): Int
+    fun update(entity: FavoriteDbEntity): Int
 
     @Query("UPDATE favorites SET orderNum = :order WHERE storageId = :storageId AND objectId = :objectId")
     fun updateOrder(storageId: Int, objectId: String, order: Int): Int
 
     @Delete
-    fun delete(entity: FavoriteEntity): Int
+    fun delete(entity: FavoriteDbEntity): Int
 
     @Query("DELETE FROM favorites WHERE storageId = :storageId AND objectId = :objectId")
     fun delete(storageId: Int, objectId: String): Int

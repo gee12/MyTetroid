@@ -1,12 +1,12 @@
 package com.gee12.mytetroid.model
 
-import com.gee12.mytetroid.database.entity.FavoriteEntity
+import com.gee12.mytetroid.database.entity.FavoriteDbEntity
 
 class TetroidFavorite(
     storageId: Int,
     objectId: String,
     order: Int = 0
-) : FavoriteEntity(storageId, objectId, 0, order) {
+) : FavoriteDbEntity(storageId, objectId, 0, order) {
     var obj: TetroidObject? = null
 
     constructor(storageId: Int, record: TetroidRecord)
