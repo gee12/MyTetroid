@@ -11,7 +11,7 @@ import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
-import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
+import com.gee12.mytetroid.domain.usecase.storage.SaveStorageTreeUseCase
 import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
 import com.gee12.mytetroid.model.FilePath
 import java.io.IOException
@@ -31,7 +31,7 @@ class CreateRecordUseCase(
     private val favoritesManager: FavoritesManager,
     private val getRecordFolderUseCase: GetRecordFolderUseCase,
     private val parseRecordTagsUseCase: ParseRecordTagsUseCase,
-    private val saveStorageUseCase: SaveStorageUseCase,
+    private val saveStorageTreeUseCase: SaveStorageTreeUseCase,
 ) : UseCase<TetroidRecord, CreateRecordUseCase.Params>() {
 
     data class Params(
@@ -110,7 +110,7 @@ class CreateRecordUseCase(
         // добавляем запись в ветку (и соответственно, в дерево)
         node.addRecord(record)
         // перезаписываем структуру хранилища в файл
-        return saveStorageUseCase.run()
+        return saveStorageTreeUseCase.run()
             .flatMap {
                 // добавляем метки в запись и в коллекцию меток
                 parseRecordTagsUseCase.run(

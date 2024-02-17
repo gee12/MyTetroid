@@ -8,7 +8,7 @@ import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.getExtensionWithoutComma
 import com.gee12.mytetroid.common.extensions.withExtension
 import com.gee12.mytetroid.domain.usecase.record.GetRecordFolderUseCase
-import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
+import com.gee12.mytetroid.domain.usecase.storage.SaveStorageTreeUseCase
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
@@ -23,7 +23,7 @@ class DeleteAttachUseCase(
     private val context: Context,
     private val logger: ITetroidLogger,
     private val getRecordFolderUseCase: GetRecordFolderUseCase,
-    private val saveStorageUseCase: SaveStorageUseCase,
+    private val saveStorageTreeUseCase: SaveStorageTreeUseCase,
 ) : UseCase<UseCase.None, DeleteAttachUseCase.Params>() {
 
     data class Params(
@@ -77,7 +77,7 @@ class DeleteAttachUseCase(
         }
 
         // перезаписываем структуру хранилища в файл
-        return saveStorageUseCase.run()
+        return saveStorageTreeUseCase.run()
             .flatMap {
                 // удаляем сам файл
                 if (!withoutFile && destFile != null && destFilePath != null) {

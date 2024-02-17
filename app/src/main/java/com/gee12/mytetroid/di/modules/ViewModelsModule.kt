@@ -33,7 +33,7 @@ object ViewModelsModule {
                     failureHandler = get(),
                     settingsManager = get(),
                     appPathProvider = get(),
-                    migrationInteractor = get(),
+                    migrationManager = get(),
                     initAppUseCase = get(),
                 )
             }
@@ -60,11 +60,11 @@ object ViewModelsModule {
 
                     favoritesManager = get(),
                     interactionManager = get(),
-                    syncInteractor = get(),
+                    syncManager = get(),
 
                     initOrCreateStorageUseCase = get(),
-                    readStorageUseCase = get(),
-                    saveStorageUseCase = get(),
+                    readStorageTreeUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                     decryptStorageUseCase = get(),
                     checkStorageFilesExistingUseCase = get(),
                     clearStorageTrashFolderUseCase = get(),
@@ -104,12 +104,12 @@ object ViewModelsModule {
 
                     favoritesManager = get(),
                     interactionManager = get(),
-                    syncInteractor = get(),
-                    storageTreeInteractor = get(),
+                    syncManager = get(),
+                    storageTreeObserver = get(),
 
                     initOrCreateStorageUseCase = get(),
-                    readStorageUseCase = get(),
-                    saveStorageUseCase = get(),
+                    readStorageTreeUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                     decryptStorageUseCase = get(),
                     checkStorageFilesExistingUseCase = get(),
                     clearStorageTrashFolderUseCase = get(),
@@ -180,11 +180,11 @@ object ViewModelsModule {
 
                     favoritesManager = get(),
                     interactionManager = get(),
-                    syncInteractor = get(),
+                    syncManager = get(),
 
                     initOrCreateStorageUseCase = get(),
-                    readStorageUseCase = get(),
-                    saveStorageUseCase = get(),
+                    readStorageTreeUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                     decryptStorageUseCase = get(),
                     checkStorageFilesExistingUseCase = get(),
                     clearStorageTrashFolderUseCase = get(),
@@ -241,11 +241,11 @@ object ViewModelsModule {
 
                     favoritesManager = get(),
                     interactionManager = get(),
-                    syncInteractor = get(),
+                    syncManager = get(),
 
                     initOrCreateStorageUseCase = get(),
-                    readStorageUseCase = get(),
-                    saveStorageUseCase = get(),
+                    readStorageTreeUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                     decryptStorageUseCase = get(),
                     checkStorageFilesExistingUseCase = get(),
                     clearStorageTrashFolderUseCase = get(),
@@ -287,11 +287,11 @@ object ViewModelsModule {
 
                     favoritesManager = get(),
                     interactionManager = get(),
-                    syncInteractor = get(),
+                    syncManager = get(),
 
                     initOrCreateStorageUseCase = get(),
-                    readStorageUseCase = get(),
-                    saveStorageUseCase = get(),
+                    readStorageTreeUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                     decryptStorageUseCase = get(),
                     checkStorageFilesExistingUseCase = get(),
                     clearStorageTrashFolderUseCase = get(),

@@ -15,6 +15,15 @@ class FavoritesRepo(context: Context) : DbRepo() {
         dataBase.favoritesDao.getAll(storageId).map(::toTetroidFavorite)
     }
 
+    suspend fun addFavorite(storageId: Int, recordId: String): Boolean {
+        return addFavorite(
+            TetroidFavorite(
+                storageId = storageId,
+                objectId = recordId,
+            )
+        )
+    }
+
     suspend fun addFavorite(favorite: TetroidFavorite, updateOrder: Boolean = true) = withContext(Dispatchers.IO) {
         val id = if (updateOrder) {
             dataBase.favoritesDao.insertAndSetOrder(favorite)

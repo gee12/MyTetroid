@@ -2,7 +2,7 @@ package com.gee12.mytetroid.domain.usecase.tag
 
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.domain.provider.IStorageProvider
-import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
+import com.gee12.mytetroid.domain.usecase.storage.SaveStorageTreeUseCase
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.model.TetroidTag
 import java.util.*
@@ -12,7 +12,7 @@ import java.util.*
  */
 class RenameTagInRecordsUseCase(
     private val storageProvider: IStorageProvider,
-    private val saveStorageUseCase: SaveStorageUseCase,
+    private val saveStorageTreeUseCase: SaveStorageTreeUseCase,
 ) : UseCase<UseCase.None, RenameTagInRecordsUseCase.Params>() {
 
     data class Params(
@@ -83,7 +83,7 @@ class RenameTagInRecordsUseCase(
                 updateTagsString(record)
             }
         }
-        return saveStorageUseCase.run()
+        return saveStorageTreeUseCase.run()
     }
 
     /**

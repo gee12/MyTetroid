@@ -14,8 +14,7 @@ import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.ui.TetroidMessage
 
-
-class SyncInteractor(
+class SyncManager(
     private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
 ) {

@@ -6,7 +6,7 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
+import com.gee12.mytetroid.domain.usecase.storage.SaveStorageTreeUseCase
 
 /**
  * Изменение свойств ветки.
@@ -14,7 +14,7 @@ import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
 class EditNodeFieldsUseCase(
     private val logger: ITetroidLogger,
     private val cryptManager: IStorageCryptManager,
-    private val saveStorageUseCase: SaveStorageUseCase,
+    private val saveStorageTreeUseCase: SaveStorageTreeUseCase,
 ) : UseCase<UseCase.None, EditNodeFieldsUseCase.Params>() {
 
     data class Params(
@@ -38,7 +38,7 @@ class EditNodeFieldsUseCase(
             node.setDecryptedName(name)
         }
         // перезаписываем структуру хранилища в файл
-        return saveStorageUseCase.run()
+        return saveStorageTreeUseCase.run()
             .onFailure {
                 logger.logOperCancel(LogObj.NODE_FIELDS, LogOper.CHANGE)
                 // возвращаем изменения

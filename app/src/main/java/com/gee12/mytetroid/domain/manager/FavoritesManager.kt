@@ -50,40 +50,27 @@ class FavoritesManager(
     private suspend fun addFavorite(favorite: TetroidFavorite): Boolean {
         return favoritesRepo.addFavorite(favorite, updateOrder = true)
             .also {
-                if (it) favorites.add(favorite)
+                if (it) {
+                    favorites.add(favorite)
+                }
             }
     }
 
     private suspend fun addFavorite(record: TetroidRecord): Boolean {
-        return addFavorite(storageId, record)
-    }
-
-    suspend fun addFavorite(storageId: Int, record: TetroidRecord): Boolean {
         return addFavorite(
             TetroidFavorite(
                 storageId = storageId,
-                record = record
+                record = record,
             )
         )
-    }
-
-    suspend fun addFavorite(storageId: Int, recordId: String): Boolean {
-        return addFavorite(
-            TetroidFavorite(
-                storageId = storageId,
-                objectId = recordId
-            )
-        )
-    }
-
-    private suspend fun updateOrder(favorite: TetroidFavorite): Boolean {
-        return favoritesRepo.updateOrder(favorite)
     }
 
     private suspend fun deleteFavorite(record: TetroidRecord): Boolean {
         return favoritesRepo.deleteFavorite(storageId, record.id)
             .also {
-                if (it) favorites.removeAll { it.objectId == record.id }
+                if (it) {
+                    favorites.removeAll { it.objectId == record.id }
+                }
             }
     }
 

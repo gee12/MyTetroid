@@ -8,7 +8,7 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
+import com.gee12.mytetroid.domain.usecase.storage.SaveStorageTreeUseCase
 
 /**
  * Создание ветки.
@@ -18,7 +18,7 @@ class CreateNodeUseCase(
     private val dataNameProvider: IDataNameProvider,
     private val storageProvider: IStorageProvider,
     private val cryptManager: IStorageCryptManager,
-    private val saveStorageUseCase: SaveStorageUseCase,
+    private val saveStorageTreeUseCase: SaveStorageTreeUseCase,
 ) : UseCase<TetroidNode, CreateNodeUseCase.Params>() {
 
     data class Params(
@@ -63,7 +63,7 @@ class CreateNodeUseCase(
         nodesList.add(node)
 
         // перезаписываем структуру хранилища в файл
-        return saveStorageUseCase.run()
+        return saveStorageTreeUseCase.run()
             .foldResult(
                 onLeft = { failure ->
                     logger.logOperCancel(LogObj.NODE, LogOper.CREATE)

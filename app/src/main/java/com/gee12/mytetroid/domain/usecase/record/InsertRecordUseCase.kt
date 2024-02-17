@@ -9,7 +9,7 @@ import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.domain.usecase.attach.CloneAttachesToRecordUseCase
 import com.gee12.mytetroid.domain.usecase.crypt.CryptRecordFilesIfNeedUseCase
 import com.gee12.mytetroid.domain.usecase.file.MoveFileOrFolderUseCase
-import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
+import com.gee12.mytetroid.domain.usecase.storage.SaveStorageTreeUseCase
 import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
@@ -38,7 +38,7 @@ class InsertRecordUseCase(
     private val moveFileOrFolderUseCase: MoveFileOrFolderUseCase,
     private val parseRecordTagsUseCase: ParseRecordTagsUseCase,
     private val cryptRecordFilesIfNeedUseCase: CryptRecordFilesIfNeedUseCase,
-    private val saveStorageUseCase: SaveStorageUseCase,
+    private val saveStorageTreeUseCase: SaveStorageTreeUseCase,
 ) : UseCase<TetroidRecord, InsertRecordUseCase.Params>() {
 
     data class Params(
@@ -109,7 +109,7 @@ class InsertRecordUseCase(
         // добавляем запись в ветку (и соответственно, в дерево)
         node.addRecord(destRecord)
         // перезаписываем структуру хранилища в файл
-        return saveStorageUseCase.run()
+        return saveStorageTreeUseCase.run()
             .flatMap {
                 // добавляем в избранное обратно
                 if (isCutting && srcRecord.isFavorite) {

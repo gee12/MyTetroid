@@ -13,11 +13,11 @@ import com.gee12.mytetroid.model.FilePath
 /**
  * Непосредственное чтение структуры хранилища.
  */
-class ReadStorageUseCase(
+class ReadStorageTreeUseCase(
     private val context: Context,
     private val resourcesProvider: IResourcesProvider,
     private val storageProvider: IStorageProvider,
-) : UseCase<UseCase.None, ReadStorageUseCase.Params>() {
+) : UseCase<UseCase.None, ReadStorageTreeUseCase.Params>() {
 
     data class Params(
         val isDecrypt: Boolean,

@@ -12,7 +12,7 @@ import com.gee12.mytetroid.domain.provider.IDataNameProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.domain.usecase.file.CopyFileWithCryptUseCase
 import com.gee12.mytetroid.domain.usecase.record.GetRecordFolderUseCase
-import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
+import com.gee12.mytetroid.domain.usecase.storage.SaveStorageTreeUseCase
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
@@ -28,7 +28,7 @@ class AttachFileToRecordUseCase(
     private val cryptManager: IStorageCryptManager,
     private val getRecordFolderUseCase: GetRecordFolderUseCase,
     private val copyFileWithCryptUseCase: CopyFileWithCryptUseCase,
-    private val saveStorageUseCase: SaveStorageUseCase,
+    private val saveStorageTreeUseCase: SaveStorageTreeUseCase,
 ) : UseCase<TetroidFile, AttachFileToRecordUseCase.Params>() {
 
     data class Params(
@@ -118,7 +118,7 @@ class AttachFileToRecordUseCase(
         files.add(attach)
 
         // перезаписываем структуру хранилища в файл
-        return saveStorageUseCase.run()
+        return saveStorageTreeUseCase.run()
             .flatMap {
                 if (params.deleteSrcFile) {
                     if (!srcFile.delete()) {

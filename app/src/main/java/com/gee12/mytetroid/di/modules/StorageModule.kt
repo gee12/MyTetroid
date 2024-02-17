@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.di.modules
 
-import com.gee12.mytetroid.data.crypt.Crypter
 import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.domain.manager.StorageCryptManager
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor

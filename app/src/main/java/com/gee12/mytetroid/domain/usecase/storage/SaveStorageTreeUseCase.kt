@@ -21,17 +21,17 @@ import kotlinx.coroutines.coroutineScope
 /**
  * Сохранение структуры хранилища в файл mytetra.xml.
  */
-class SaveStorageUseCase(
+class SaveStorageTreeUseCase(
     private val context: Context,
     private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
     private val storagePathProvider: IStoragePathProvider,
     private val storageProvider: IStorageProvider,
     private val dataNameProvider: IDataNameProvider,
-    private val storageTreeInteractor: StorageTreeObserver,
+    private val storageTreeObserver: StorageTreeObserver,
     private val moveFileUseCase: MoveFileOrFolderUseCase,
     private val getStorageTrashFolderUseCase: GetStorageTrashFolderUseCase,
-) : UseCase<UseCase.None, SaveStorageUseCase.Params>() {
+) : UseCase<UseCase.None, SaveStorageTreeUseCase.Params>() {
 
     data class Params(
         val isMoveOldToTemporary: Boolean = true,
@@ -199,11 +199,11 @@ class SaveStorageUseCase(
     }
 
     private fun onBeforeStorageTreeSave() {
-        storageTreeInteractor.stopObserver()
+        storageTreeObserver.stopObserver()
     }
 
     private suspend fun onStorageTreeSaved() {
-        storageTreeInteractor.startObserver(
+        storageTreeObserver.startObserver(
             storagePath = storagePathProvider.getPathToMyTetraXml()
         )
     }

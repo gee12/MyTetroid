@@ -11,7 +11,7 @@ import com.gee12.mytetroid.domain.provider.IRecordPathProvider
 import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.domain.usecase.record.GetRecordFolderUseCase
 import com.gee12.mytetroid.domain.usecase.record.MoveOrDeleteRecordFolderUseCase
-import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
+import com.gee12.mytetroid.domain.usecase.storage.SaveStorageTreeUseCase
 import com.gee12.mytetroid.domain.usecase.tag.DeleteRecordTagsUseCase
 
 /**
@@ -26,7 +26,7 @@ class CutOrDeleteNodeUseCase(
     private val deleteRecordTagsUseCase: DeleteRecordTagsUseCase,
     private val getRecordFolderUseCase: GetRecordFolderUseCase,
     private val moveOrDeleteRecordFolderUseCase: MoveOrDeleteRecordFolderUseCase,
-    private val saveStorageUseCase: SaveStorageUseCase,
+    private val saveStorageTreeUseCase: SaveStorageTreeUseCase,
 ) : UseCase<UseCase.None, CutOrDeleteNodeUseCase.Params>() {
 
     data class Params(
@@ -51,7 +51,7 @@ class CutOrDeleteNodeUseCase(
         }
 
         // перезаписываем структуру хранилища в файл
-        return saveStorageUseCase.run()
+        return saveStorageTreeUseCase.run()
             .flatMap {
                 // удаление всех объектов ветки рекурсивно
                 deleteNodeRecursively(

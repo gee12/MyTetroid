@@ -79,14 +79,14 @@ class RecordViewModel(
 
     favoritesManager: FavoritesManager,
     interactionManager: InteractionManager,
-    syncInteractor: SyncInteractor,
+    syncManager: SyncManager,
 
     getFileModifiedDateUseCase : GetFileModifiedDateInStorageUseCase,
     getFolderSizeUseCase: GetFolderSizeInStorageUseCase,
 
     initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
-    readStorageUseCase: ReadStorageUseCase,
-    saveStorageUseCase: SaveStorageUseCase,
+    readStorageTreeUseCase: ReadStorageTreeUseCase,
+    saveStorageTreeUseCase: SaveStorageTreeUseCase,
     decryptStorageUseCase: DecryptStorageUseCase,
     checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
     clearStorageTrashFolderUseCase: ClearStorageTrashFolderUseCase,
@@ -136,14 +136,14 @@ class RecordViewModel(
 
     favoritesManager = favoritesManager,
     interactionManager = interactionManager,
-    syncInteractor = syncInteractor,
+    syncManager = syncManager,
 
     getFileModifiedDateUseCase = getFileModifiedDateUseCase,
     getFolderSizeUseCase = getFolderSizeUseCase,
 
     initOrCreateStorageUseCase = initOrCreateStorageUseCase,
-    readStorageUseCase = readStorageUseCase,
-    saveStorageUseCase = saveStorageUseCase,
+    readStorageTreeUseCase = readStorageTreeUseCase,
+    saveStorageTreeUseCase = saveStorageTreeUseCase,
     decryptStorageUseCase = decryptStorageUseCase,
     checkPasswordOrPinAndDecryptUseCase = checkStoragePasswordAndDecryptUseCase,
     checkPasswordOrPinUseCase = checkStoragePasswordUseCase,

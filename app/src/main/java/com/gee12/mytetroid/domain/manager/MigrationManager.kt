@@ -1,24 +1,21 @@
-package com.gee12.mytetroid.domain.interactor
+package com.gee12.mytetroid.domain.manager
 
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.extensions.getNameFromPath
 import com.gee12.mytetroid.common.flatMap
 import com.gee12.mytetroid.common.map
 import com.gee12.mytetroid.common.toRight
-import com.gee12.mytetroid.domain.manager.FavoritesManager
 import com.gee12.mytetroid.domain.usecase.storage.FillStorageFieldsFromDefaultSettingsUseCase
 import com.gee12.mytetroid.domain.provider.BuildInfoProvider
-import com.gee12.mytetroid.domain.manager.CommonSettingsManager
+import com.gee12.mytetroid.domain.repo.FavoritesRepo
 import com.gee12.mytetroid.domain.repo.StoragesRepo
-import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.TetroidStorage
 
-class MigrationInteractor(
-    private val logger: ITetroidLogger,
+class MigrationManager(
     private val buildInfoProvider: BuildInfoProvider,
     private val settingsManager: CommonSettingsManager,
     private val storagesRepo: StoragesRepo,
-    private val favoritesManager: FavoritesManager,
+    private val favoritesRepo: FavoritesRepo,
     private val fillStorageFieldsFromDefaultSettingsUseCase: FillStorageFieldsFromDefaultSettingsUseCase,
 ) {
 
@@ -52,7 +49,10 @@ class MigrationInteractor(
                     if (result && buildInfoProvider.isFullVersion()) {
                         val favorites = settingsManager.getFavorites()
                         favorites.forEach { recordId ->
-                            favoritesManager.addFavorite(storage.id, recordId)
+                            favoritesRepo.addFavorite(
+                                storageId = storage.id,
+                                recordId = recordId,
+                            )
                         }
                     }
                     result.toRight()

@@ -9,7 +9,7 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidRecord
-import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
+import com.gee12.mytetroid.domain.usecase.storage.SaveStorageTreeUseCase
 import com.gee12.mytetroid.domain.usecase.tag.DeleteRecordTagsUseCase
 
 /**
@@ -26,7 +26,7 @@ class CutOrDeleteRecordUseCase(
     private val getRecordFolderUseCase: GetRecordFolderUseCase,
     private val deleteRecordTagsUseCase: DeleteRecordTagsUseCase,
     private val moveOrDeleteRecordFolderUseCase: MoveOrDeleteRecordFolderUseCase,
-    private val saveStorageUseCase: SaveStorageUseCase,
+    private val saveStorageTreeUseCase: SaveStorageTreeUseCase,
 ) : UseCase<UseCase.None, CutOrDeleteRecordUseCase.Params>() {
 
     data class Params(
@@ -71,7 +71,7 @@ class CutOrDeleteRecordUseCase(
         }
 
         // перезаписываем структуру хранилища в файл
-        saveStorageUseCase.run()
+        saveStorageTreeUseCase.run()
             .flatMap {
                 // удаляем из избранного
                 if (record.isFavorite) {

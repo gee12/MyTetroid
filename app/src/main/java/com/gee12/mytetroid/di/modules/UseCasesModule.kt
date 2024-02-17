@@ -2,9 +2,6 @@ package com.gee12.mytetroid.di.modules
 
 import android.print.PrintDocumentToFileUseCase
 import com.gee12.mytetroid.di.ScopeSource
-import com.gee12.mytetroid.domain.interactor.*
-import com.gee12.mytetroid.domain.manager.InteractionManager
-import com.gee12.mytetroid.domain.manager.PermissionManager
 import com.gee12.mytetroid.domain.usecase.*
 import com.gee12.mytetroid.domain.usecase.attach.*
 import com.gee12.mytetroid.domain.usecase.crypt.*
@@ -25,7 +22,6 @@ import com.gee12.mytetroid.domain.usecase.tag.DeleteRecordTagsUseCase
 import com.gee12.mytetroid.domain.usecase.tag.GetTagByNameUseCase
 import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
 import com.gee12.mytetroid.domain.usecase.tag.RenameTagInRecordsUseCase
-import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -42,42 +38,15 @@ object UseCasesModule {
             )
         }
 
-        // TODO: Manager
-        factory {
-            InteractionManager(
-                resourcesProvider = get(),
-                logger = get(),
-            )
-        }
-
-        // TODO: Manager
-        factory {
-            PermissionManager(
-                buildInfoProvider = get(),
-                logger = get(),
-                resourcesProvider = get(),
-            )
-        }
-
-        // TODO: Manager
-        factory {
-            StorageTreeObserver(
-                app = androidApplication(),
-                logger = get(),
-            )
-        }
-
-        // TODO: Manager
-        factory {
-            SyncInteractor(
-                resourcesProvider = get(),
-                logger = get(),
-            )
-        }
-
         factory {
             SwapFavoriteRecordsUseCase(
                 favoritesRepo = get(),
+            )
+        }
+
+        factory {
+            FillStorageFieldsFromDefaultSettingsUseCase(
+                context = androidContext()
             )
         }
 
@@ -117,21 +86,6 @@ object UseCasesModule {
         }
 
         scope<ScopeSource> {
-
-            //region Interactors
-
-            scoped {
-                MigrationInteractor(
-                    logger = get(),
-                    buildInfoProvider = get(),
-                    settingsManager = get(),
-                    storagesRepo = get(),
-                    favoritesManager = get(),
-                    fillStorageFieldsFromDefaultSettingsUseCase = get(),
-                )
-            }
-
-            //endregion Interactors
 
             //region App
 
@@ -243,7 +197,7 @@ object UseCasesModule {
             }
 
             scoped {
-                ReadStorageUseCase(
+                ReadStorageTreeUseCase(
                     context = androidContext(),
                     resourcesProvider = get(),
                     storageProvider = get(),
@@ -258,22 +212,16 @@ object UseCasesModule {
             }
 
             scoped {
-                SaveStorageUseCase(
+                SaveStorageTreeUseCase(
                     context = androidContext(),
                     resourcesProvider = get(),
                     logger = get(),
                     dataNameProvider = get(),
                     storagePathProvider = get(),
                     storageProvider = get(),
-                    storageTreeInteractor = get(),
+                    storageTreeObserver = get(),
                     moveFileUseCase = get(),
                     getStorageTrashFolderUseCase = get(),
-                )
-            }
-
-            scoped {
-                FillStorageFieldsFromDefaultSettingsUseCase(
-                    context = androidContext()
                 )
             }
 
@@ -290,7 +238,7 @@ object UseCasesModule {
                 ChangePasswordUseCase(
                     storageProvider = get(),
                     cryptManager = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                     decryptStorageUseCase = get(),
                     initPasswordUseCase = get(),
                     savePasswordInConfigUseCase = get(),
@@ -415,7 +363,7 @@ object UseCasesModule {
                     dataNameProvider = get(),
                     storageProvider = get(),
                     cryptManager = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                 )
             }
 
@@ -425,7 +373,7 @@ object UseCasesModule {
                     dataNameProvider = get(),
                     loadNodeIconUseCase = get(),
                     cryptManager = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                     cloneRecordToNodeUseCase = get(),
                 )
             }
@@ -441,7 +389,7 @@ object UseCasesModule {
                     logger = get(),
                     cryptManager = get(),
                     loadNodeIconUseCase = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                 )
             }
 
@@ -455,7 +403,7 @@ object UseCasesModule {
                     deleteRecordTagsUseCase = get(),
                     getRecordFolderUseCase = get(),
                     moveOrDeleteRecordFolderUseCase = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                 )
             }
 
@@ -463,7 +411,7 @@ object UseCasesModule {
                 EditNodeFieldsUseCase(
                     logger = get(),
                     cryptManager = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                 )
             }
 
@@ -512,7 +460,7 @@ object UseCasesModule {
                     getRecordFolderUseCase = get(),
                     deleteRecordTagsUseCase = get(),
                     moveOrDeleteRecordFolderUseCase = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                 )
             }
 
@@ -566,7 +514,7 @@ object UseCasesModule {
                     moveOrCopyRecordFolderUseCase = get(),
                     parseRecordTagsUseCase = get(),
                     cryptRecordFilesIfNeedUseCase = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                 )
             }
 
@@ -579,7 +527,7 @@ object UseCasesModule {
                     favoritesManager = get(),
                     getRecordFolderUseCase = get(),
                     parseRecordTagsUseCase = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                 )
             }
 
@@ -664,7 +612,7 @@ object UseCasesModule {
                     deleteRecordTagsUseCase = get(),
                     parseRecordTagsUseCase = get(),
                     cryptRecordFilesIfNeedUseCase = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                 )
             }
 
@@ -681,7 +629,7 @@ object UseCasesModule {
                     cryptManager = get(),
                     getRecordFolderUseCase = get(),
                     copyFileWithCryptUseCase = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                 )
             }
 
@@ -710,7 +658,7 @@ object UseCasesModule {
                     logger = get(),
                     cryptManager = get(),
                     getRecordFolderUseCase = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                 )
             }
 
@@ -729,7 +677,7 @@ object UseCasesModule {
                     context = androidContext(),
                     logger = get(),
                     getRecordFolderUseCase = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                 )
             }
 
@@ -768,7 +716,7 @@ object UseCasesModule {
             scoped {
                 RenameTagInRecordsUseCase(
                     storageProvider = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                 )
             }
 

@@ -6,13 +6,13 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
+import com.gee12.mytetroid.domain.usecase.storage.SaveStorageTreeUseCase
 
 class SetNodeIconUseCase(
     private val logger: ITetroidLogger,
     private val cryptManager: IStorageCryptManager,
     private val loadNodeIconUseCase: LoadNodeIconUseCase,
-    private val saveStorageUseCase: SaveStorageUseCase,
+    private val saveStorageTreeUseCase: SaveStorageTreeUseCase,
 ) : UseCase<UseCase.None, SetNodeIconUseCase.Params>() {
 
     data class Params(
@@ -37,7 +37,7 @@ class SetNodeIconUseCase(
             node.setDecryptedIconName(iconFileName)
         }
         // перезаписываем структуру хранилища в файл
-        return saveStorageUseCase.run()
+        return saveStorageTreeUseCase.run()
             .flatMap {
                 loadNodeIconUseCase.run(
                     LoadNodeIconUseCase.Params(node)

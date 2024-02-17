@@ -74,8 +74,8 @@ class MainViewModel(
     storageDataProcessor: IStorageDataProcessor,
 
     interactionManager: InteractionManager,
-    syncInteractor: SyncInteractor,
-    private val storageTreeInteractor: StorageTreeObserver,
+    syncManager: SyncManager,
+    private val storageTreeObserver: StorageTreeObserver,
 
     private val globalSearchUseCase: GlobalSearchUseCase,
     getFileModifiedDateUseCase: GetFileModifiedDateInStorageUseCase,
@@ -83,8 +83,8 @@ class MainViewModel(
     private val swapObjectsInListUseCase: SwapObjectsInListUseCase,
 
     initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
-    readStorageUseCase: ReadStorageUseCase,
-    saveStorageUseCase: SaveStorageUseCase,
+    readStorageTreeUseCase: ReadStorageTreeUseCase,
+    saveStorageTreeUseCase: SaveStorageTreeUseCase,
     decryptStorageUseCase: DecryptStorageUseCase,
     checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
     clearStorageTrashFolderUseCase: ClearStorageTrashFolderUseCase,
@@ -145,14 +145,14 @@ class MainViewModel(
 
     favoritesManager = favoritesManager,
     interactionManager = interactionManager,
-    syncInteractor = syncInteractor,
+    syncManager = syncManager,
 
     getFileModifiedDateUseCase = getFileModifiedDateUseCase,
     getFolderSizeUseCase = getFolderSizeUseCase,
 
     initOrCreateStorageUseCase = initOrCreateStorageUseCase,
-    readStorageUseCase = readStorageUseCase,
-    saveStorageUseCase = saveStorageUseCase,
+    readStorageTreeUseCase = readStorageTreeUseCase,
+    saveStorageTreeUseCase = saveStorageTreeUseCase,
     decryptStorageUseCase = decryptStorageUseCase,
     checkStorageFilesExistingUseCase = checkStorageFilesExistingUseCase,
     clearStorageTrashFolderUseCase = clearStorageTrashFolderUseCase,
@@ -2152,7 +2152,7 @@ class MainViewModel(
     // region FileObserver
 
     private fun setStorageTreeObserverCallbacks() {
-        with(storageTreeInteractor) {
+        with(storageTreeObserver) {
             treeChangedCallback = { event ->
                 // обработка внешнего изменения дерева записей
                 onStorageTreeOutsideChanged(event)
@@ -2176,13 +2176,13 @@ class MainViewModel(
                 this.isStorageTreeChangingHandled = false
 
                 launchOnMain {
-                    storageTreeInteractor.startObserver(
+                    storageTreeObserver.startObserver(
                         storagePath = storagePathProvider.getPathToMyTetraXml()
                     )
                 }
             }
         } else {
-            storageTreeInteractor.stopObserver()
+            storageTreeObserver.stopObserver()
         }
     }
 
@@ -2339,7 +2339,7 @@ class MainViewModel(
         log(R.string.log_app_exit)
 
         // останавливаем отслеживание изменения структуры хранилища
-        storageTreeInteractor.stopObserver()
+        storageTreeObserver.stopObserver()
 
         // удаляем загруженные данные хранилища из памяти
         clearStorageDataFromMemory()
@@ -2361,7 +2361,7 @@ class MainViewModel(
                 through = through,
             )
         ).flatMap { result ->
-            saveStorageUseCase.run()
+            saveStorageTreeUseCase.run()
                 .map { result }
         }
     }

@@ -47,14 +47,14 @@ class StorageSettingsViewModel(
 
     favoritesManager: FavoritesManager,
     interactionManager: InteractionManager,
-    syncInteractor: SyncInteractor,
+    syncManager: SyncManager,
 
     getFolderSizeUseCase: GetFolderSizeInStorageUseCase,
     getFileModifiedDateUseCase: GetFileModifiedDateInStorageUseCase,
 
     initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
-    readStorageUseCase: ReadStorageUseCase,
-    saveStorageUseCase: SaveStorageUseCase,
+    readStorageTreeUseCase: ReadStorageTreeUseCase,
+    saveStorageTreeUseCase: SaveStorageTreeUseCase,
     decryptStorageUseCase: DecryptStorageUseCase,
     checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
     clearStorageTrashFolderUseCase: ClearStorageTrashFolderUseCase,
@@ -89,14 +89,14 @@ class StorageSettingsViewModel(
 
     favoritesManager = favoritesManager,
     interactionManager = interactionManager,
-    syncInteractor = syncInteractor,
+    syncManager = syncManager,
 
     getFileModifiedDateUseCase = getFileModifiedDateUseCase,
     getFolderSizeUseCase = getFolderSizeUseCase,
 
     initOrCreateStorageUseCase = initOrCreateStorageUseCase,
-    readStorageUseCase = readStorageUseCase,
-    saveStorageUseCase = saveStorageUseCase,
+    readStorageTreeUseCase = readStorageTreeUseCase,
+    saveStorageTreeUseCase = saveStorageTreeUseCase,
     decryptStorageUseCase = decryptStorageUseCase,
     checkStorageFilesExistingUseCase = checkStorageFilesExistingUseCase,
     clearStorageTrashFolderUseCase = clearStorageTrashFolderUseCase,
