@@ -10,6 +10,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.isVisible
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -55,11 +56,13 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 
         recyclerView = findViewById(R.id.recycle_view)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.addItemDecoration(DividerItemDecoration(
-            context = recyclerView.context,
-            orientation = DividerItemDecoration.VERTICAL,
-            spaceBetweenRes = R.dimen.recycler_view_item_top_spacing
-        ))
+        recyclerView.addItemDecoration(
+            com.gee12.mytetroid.ui.base.views.DividerItemDecoration(
+                context = recyclerView.context,
+                orientation = DividerItemDecoration.VERTICAL,
+                spaceBetweenRes = R.dimen.recycler_view_item_top_spacing
+            )
+        )
         adapter = StoragesAdapter(
             context = this,
             currentStorageId = viewModel.getCurrentStorageId()
@@ -137,7 +140,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
 
     private fun showStoragesList(list: List<TetroidStorage>) {
         adapter.submitList(list)
-        findViewById<TextView>(R.id.text_view_empty_storages)?.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
+        findViewById<TextView>(R.id.text_view_empty_storages)?.isVisible = list.isEmpty()
     }
 
     private fun selectStorage(storage: TetroidStorage) {
@@ -289,14 +292,15 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
     }
 
     private fun showStorageSettings(storage: TetroidStorage) {
-        startActivityForResult(
-            StorageSettingsActivity.newIntent(this, storage),
-            Constants.REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY
+        StorageSettingsActivity.start(
+            activity = this,
+            storage = storage,
+            requestCode = Constants.REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY,
         )
     }
 
     private fun showStorageInfo(storage: TetroidStorage) {
-        StorageInfoActivity.start(this, storage.id)
+        StorageInfoActivity.start(context = this, storageId = storage.id)
     }
 
     private fun setDefault(storage: TetroidStorage) {

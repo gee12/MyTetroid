@@ -895,7 +895,7 @@ open class StorageViewModel(
      * @param node
      * @return
      */
-    fun createNodesHierarchy(node: TetroidNode): Stack<TetroidNode>? {
+    fun createNodesHierarchy(node: TetroidNode): Stack<TetroidNode> {
         val hierarchy = Stack<TetroidNode>()
         createNodesHierarchy(hierarchy, node)
         return hierarchy

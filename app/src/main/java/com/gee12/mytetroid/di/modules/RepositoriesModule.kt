@@ -1,8 +1,6 @@
 package com.gee12.mytetroid.di.modules
 
-import com.gee12.mytetroid.domain.repo.CommonSettingsRepo
-import com.gee12.mytetroid.domain.repo.FavoritesRepo
-import com.gee12.mytetroid.domain.repo.StoragesRepo
+import com.gee12.mytetroid.domain.repo.*
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -23,6 +21,18 @@ object RepositoriesModule {
 
         single {
             FavoritesRepo(
+                context = androidContext()
+            )
+        }
+
+        single {
+            ScriptsDbRepo(
+                context = androidContext()
+            )
+        }
+
+        single {
+            ScriptsToObjectsDbRepo(
                 context = androidContext()
             )
         }

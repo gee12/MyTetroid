@@ -58,11 +58,9 @@ import com.gee12.mytetroid.ui.main.found.FoundPageFragment
 import com.gee12.mytetroid.ui.node.NodesListAdapter
 import com.gee12.mytetroid.ui.node.icon.IconsActivity
 import com.gee12.mytetroid.ui.record.RecordActivity
-import com.gee12.mytetroid.ui.search.SearchActivity.Companion.start
-import com.gee12.mytetroid.ui.settings.SettingsActivity
+import com.gee12.mytetroid.ui.search.SearchActivity
 import com.gee12.mytetroid.ui.splash.SplashActivity
 import com.gee12.mytetroid.ui.storage.StorageEvent
-import com.gee12.mytetroid.ui.storage.info.StorageInfoActivity.Companion.start
 import com.gee12.mytetroid.ui.tag.TagsFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
@@ -1641,6 +1639,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         popupMenu.inflate(R.menu.node_context)
         val menu = popupMenu.menu
         val parentNode = node.parentNode
+
         val isNonCrypted = node.isNonCryptedOrDecrypted
         menu.findItem(R.id.action_expand_node)?.setVisible(node.isExpandable && isNonCrypted)
 //        menu.findItem(R.id.action_create_node), isNonCrypted);
@@ -1661,7 +1660,11 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         menu.findItem(R.id.action_encrypt_node)?.setVisible(!node.isCrypted)
         val canNoCrypt = node.isCrypted && (parentNode == null || !parentNode.isCrypted)
         menu.findItem(R.id.action_drop_encrypt_node)?.setVisible(canNoCrypt)
+        menu.findItem(R.id.action_scripts)?.apply {
+            isVisible = buildInfoProvider.isFullVersion() && isNonCrypted
+        }
         menu.findItem(R.id.action_info)?.setVisible(isNonCrypted)
+
         popupMenu.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
                 R.id.action_open_node -> {
@@ -1722,6 +1725,10 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 }
                 R.id.action_insert_subnode -> {
                     viewModel.insertNode(node, isSubNode = true)
+                    true
+                }
+                R.id.action_scripts -> {
+                    showScriptsActivity(obj = node)
                     true
                 }
                 R.id.action_info -> {
@@ -1997,7 +2004,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             }
             Constants.ACTION_MAIN_ACTIVITY -> {
                 if (intent.hasExtra(Constants.EXTRA_SHOW_STORAGE_INFO)) {
-                    showStorageInfoActivity()
+                    showStorageInfoActivity(storageId = viewModel.getStorageId())
                 }
             }
             Constants.ACTION_STORAGE_SETTINGS -> {
@@ -2310,6 +2317,10 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         menu.findItem(R.id.action_storage_sync)?.setEnabled(isStorageLoaded)
         val isStorageNotNull = viewModel.storage != null
         menu.findItem(R.id.action_storage_info)?.setEnabled(isStorageNotNull)
+        menu.findItem(R.id.action_scripts)?.apply {
+            isVisible = buildInfoProvider.isFullVersion()
+            isEnabled = isStorageLoaded
+        }
         menu.findItem(R.id.action_storage_settings)?.setEnabled(isStorageNotNull)
         menu.findItem(R.id.action_storage_reload)?.setEnabled(isStorageNotNull)
 
@@ -2348,7 +2359,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 true
             }
             R.id.action_storage_info -> {
-                showStorageInfoActivity()
+                showStorageInfoActivity(storageId = viewModel.getStorageId())
                 true
             }
             R.id.action_storage_reload -> {
@@ -2359,12 +2370,18 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 showStoragesActivity()
                 true
             }
+            R.id.action_scripts -> {
+                showScriptsActivity(obj = null)
+                true
+            }
             R.id.action_storage_settings -> {
-                showStorageSettingsActivity(viewModel.storage)
+                viewModel.storage?.also {
+                    showStorageSettingsActivity(storage = it)
+                }
                 true
             }
             R.id.action_settings -> {
-                showActivityForResult(SettingsActivity::class.java, Constants.REQUEST_CODE_COMMON_SETTINGS_ACTIVITY)
+                showSettingsActivity()
                 true
             }
             else -> if (onMainOptionsItemSelected(id)) {
@@ -2481,10 +2498,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     // endregion Exit
 
     // region StartActivity
-
-    private fun showStorageInfoActivity() {
-        start(this, viewModel.getStorageId())
-    }
 
     private fun showGlobalSearchActivity(query: String?) {
         if (viewModel.isLoadedFavoritesOnly()) {

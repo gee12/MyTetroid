@@ -4,8 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.GONE
-import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
@@ -63,8 +61,7 @@ class StoragesAdapter(
     }
 
     override fun getItemCount(): Int {
-        val size = data.size
-        return if (size == 0) 1 else size + 1
+        return data.size + 1
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -111,14 +108,11 @@ class StoragesAdapter(
             tvPath.text = storage.uri.uriToAbsolutePath(context)
             ivCurrent.isVisible = storage.id == currentStorageId
             ivDefault.isVisible = storage.isDefault
-            if (storage.error != null) {
-                ivError.visibility = VISIBLE
-                tvError.visibility = VISIBLE
-                tvError.text = storage.error
-            } else {
-                ivError.visibility = GONE
-                tvError.visibility = GONE
-            }
+
+            val isError = !storage.error.isNullOrEmpty()
+            ivError.isVisible = isError
+            tvError.isVisible = isError
+            tvError.text = storage.error
         }
     }
 

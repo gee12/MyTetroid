@@ -1,0 +1,234 @@
+package com.gee12.mytetroid.ui.scripts
+
+import android.app.Application
+import androidx.documentfile.provider.DocumentFile
+import com.gee12.mytetroid.common.extensions.orZero
+import com.gee12.mytetroid.common.onFailure
+import com.gee12.mytetroid.common.onSuccess
+import com.gee12.mytetroid.domain.IFailureHandler
+import com.gee12.mytetroid.domain.INotificator
+import com.gee12.mytetroid.domain.manager.CommonSettingsManager
+import com.gee12.mytetroid.domain.manager.ScriptsManager
+import com.gee12.mytetroid.domain.provider.*
+import com.gee12.mytetroid.domain.usecase.GetObjectByTypeAndIdUseCase
+import com.gee12.mytetroid.domain.usecase.file.ReadTextFileUseCase
+import com.gee12.mytetroid.domain.usecase.script.*
+import com.gee12.mytetroid.logs.ITetroidLogger
+import com.gee12.mytetroid.logs.LogObj
+import com.gee12.mytetroid.logs.LogOper
+import com.gee12.mytetroid.model.ITetroidObject
+import com.gee12.mytetroid.model.TetroidScript
+import com.gee12.mytetroid.model.TetroidScriptToObject
+import com.gee12.mytetroid.ui.base.BaseStorageViewModel
+
+class ScriptsViewModel(
+    app: Application,
+    buildInfoProvider: BuildInfoProvider,
+    resourcesProvider: IResourcesProvider,
+    logger: ITetroidLogger,
+    notificator: INotificator,
+    failureHandler: IFailureHandler,
+    settingsManager: CommonSettingsManager,
+    appPathProvider: IAppPathProvider,
+    storageProvider: IStorageProvider,
+    storagePathProvider: IStoragePathProvider,
+    private val scriptsManager: ScriptsManager,
+    private val getObjectByTypeAndIdUseCase: GetObjectByTypeAndIdUseCase,
+    private val readTextFileUseCase: ReadTextFileUseCase,
+    private val getScriptTextUseCase: GetScriptTextUseCase,
+    private val saveScriptUseCase: SaveScriptUseCase,
+    private val editScriptUseCase: EditScriptUseCase,
+    private val setScriptIsEnabledUseCase: SetScriptIsEnabledUseCase,
+    private val setScriptToObjectIsEnabledUseCase: SetScriptToObjectIsEnabledUseCase,
+    private val deleteScriptFileUseCase: DeleteScriptFileUseCase,
+) : BaseStorageViewModel(
+    app = app,
+    buildInfoProvider = buildInfoProvider,
+    resourcesProvider = resourcesProvider,
+    logger = logger,
+    notificator = notificator,
+    failureHandler = failureHandler,
+    settingsManager = settingsManager,
+    appPathProvider = appPathProvider,
+    storageProvider = storageProvider,
+    storagePathProvider = storagePathProvider,
+) {
+
+    private var scriptObject: ITetroidObject? = null
+
+    fun init(
+        objectTypeId: Int?,
+        objectId: String?,
+    ) {
+        launchOnMain {
+            initScriptObject(objectTypeId, objectId)
+            loadScripts()
+        }
+    }
+
+    private suspend fun initScriptObject(objectTypeId: Int?, objectId: String?) {
+        if (objectTypeId != null && !objectId.isNullOrEmpty()) {
+            withIo {
+                getObjectByTypeAndIdUseCase.run(
+                    GetObjectByTypeAndIdUseCase.Params(
+                        objectId = objectId,
+                        objectTypeId = objectTypeId,
+                    )
+                ).onFailure {
+                    logFailure(failure = it, show = true)
+                }.onSuccess {
+                    scriptObject = it
+                }
+            }
+        }
+    }
+
+    private suspend fun loadScripts() {
+        val scripts = withIo {
+            scriptsManager.getScripts(obj = scriptObject)
+        }
+        sendEvent(ScriptsEvent.LoadScripts(scriptObject, scripts))
+    }
+
+    fun openScriptForEdit(script: TetroidScript) {
+        launchOnMain {
+            val scriptText = withIo {
+                getScriptTextUseCase.run(
+                    GetScriptTextUseCase.Params(script)
+                ).foldResult(
+                    onLeft = { null },
+                    onRight = { it }
+                )
+            }
+            sendEvent(ScriptsEvent.ShowScriptDialog(
+                script = script,
+                scriptText = scriptText.orEmpty(),
+                isNew = false,
+            ))
+        }
+    }
+
+    fun addNewScript(fileName: String, description: String, scriptText: String) {
+        launchOnMain {
+            withIo {
+                saveScriptUseCase.run(
+                    SaveScriptUseCase.Params(
+                        fileName = fileName,
+                        description = description,
+                        scriptText = scriptText,
+                    )
+                )
+            }.onFailure {
+                logFailure(failure = it, show = true)
+            }.onSuccess {
+                logOperRes(LogObj.SCRIPT, LogOper.ADD)
+                loadScripts()
+            }
+        }
+    }
+
+    fun addNewScriptFromFile(scriptFile: DocumentFile) {
+        launchOnMain {
+            withIo {
+                readTextFileUseCase.run(
+                    ReadTextFileUseCase.Params(scriptFile)
+                )
+            }.onFailure {
+                 logFailure(failure = it, show = true)
+            }.onSuccess { scriptText ->
+               sendEvent(ScriptsEvent.ShowScriptDialog(
+                   script = TetroidScript(
+                       storageId = storageProvider.storage?.id.orZero(),
+                       fileName = scriptFile.name.orEmpty(),
+                       description = null,
+                   ),
+                   scriptText = scriptText,
+                   isNew = true,
+               ))
+            }
+        }
+    }
+
+    fun setScriptEnabled(script: TetroidScript, isEnabled: Boolean) {
+        launchOnMain {
+            withIo {
+                setScriptIsEnabledUseCase.run(
+                    SetScriptIsEnabledUseCase.Params(
+                        script = script,
+                        obj = scriptObject,
+                        isEnabled = isEnabled,
+                    )
+                )
+            }.onFailure {
+                logFailure(failure = it, show = true)
+            }.onSuccess {
+                loadScripts()
+            }
+        }
+    }
+
+    fun setScriptToObjectEnabled(scriptToObject: TetroidScriptToObject, isEnabled: Boolean) {
+        launchOnMain {
+            withIo {
+                setScriptToObjectIsEnabledUseCase.run(
+                    SetScriptToObjectIsEnabledUseCase.Params(
+                        scriptToObject = scriptToObject,
+                        isEnabled = isEnabled,
+                    )
+                )
+            }.onFailure {
+                logFailure(failure = it, show = true)
+            }.onSuccess {
+                loadScripts()
+            }
+        }
+    }
+
+    fun editScript(
+        script: TetroidScript,
+        fileName: String,
+        description: String?,
+        scriptText: String,
+    ) {
+        launchOnMain {
+            withIo {
+                editScriptUseCase.run(
+                    EditScriptUseCase.Params(
+                        script = script,
+                        fileName = fileName,
+                        description = description,
+                        scriptText = scriptText,
+                    )
+                )
+            }.onFailure {
+                logFailure(failure = it, show = true)
+            }.onSuccess {
+                logOperRes(LogObj.SCRIPT, LogOper.CHANGE)
+                loadScripts()
+            }
+        }
+    }
+
+    fun deleteScript(script: TetroidScript, withFile: Boolean) {
+        launchOnMain {
+            withIo {
+                deleteScriptFileUseCase.run(
+                    DeleteScriptFileUseCase.Params(
+                        script = script,
+                        withFile = withFile,
+                    )
+                )
+            }.onFailure {
+                logFailure(failure = it, show = true)
+            }.onSuccess {
+                logOperRes(LogObj.SCRIPT, LogOper.DELETE)
+                loadScripts()
+            }
+        }
+    }
+
+    fun isScriptForObject(): Boolean {
+        return scriptObject != null
+    }
+
+}

@@ -44,7 +44,7 @@
     <color name="background_last_opened_record">@color/background_selected</color>
     <color name="background_selected_tag">@color/background_selected</color>
     <color name="text_empty_list">#888</color>
-    <color name="list_separator">#272727</color>
+    <color name="list_separator">#34343C</color>
 
     <color name="icon_tint_toolbar">#EEE</color>
     <color name="icon_tint">#AAC</color>
@@ -54,6 +54,15 @@
     <color name="title_start_color">#122442</color>
     <color name="title_middle_color">#1F2853</color>
     <color name="title_end_color">#2B355E</color>
+
+    <color name="switch_thumb_checked_enabled">#009990</color>
+    <color name="switch_thumb_checked_disabled">#4D6868</color>
+    <color name="switch_thumb_unchecked_enabled">#5E6767</color>
+    <color name="switch_thumb_unchecked_disabled">#464C4C</color>
+    <color name="switch_track_checked_enabled">#394A4A</color>
+    <color name="switch_track_checked_disabled">#3A4040</color>
+    <color name="switch_track_unchecked_enabled">#2F3A3A</color>
+    <color name="switch_track_unchecked_disabled">#262E2E</color>
 
     <color name="fab_color_text">#E7E7E7</color>
     <color name="fab_color_normal">@color/color_green_50</color>

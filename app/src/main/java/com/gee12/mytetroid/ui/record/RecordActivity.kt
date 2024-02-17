@@ -1256,6 +1256,10 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         activateMenuItem(menu.findItem(R.id.action_attached_files), isLoaded, !isTemp)
         activateMenuItem(menu.findItem(R.id.action_cur_record_folder), true, !isTemp)
         activateMenuItem(menu.findItem(R.id.action_info), isLoaded, !isTemp)
+        menu.findItem(R.id.action_scripts)?.apply {
+            isVisible = buildInfoProvider.isFullVersion()
+            isEnabled = isLoaded
+        }
         menu.findItem(R.id.action_storage_settings)?.setEnabled(isLoaded)
         return super.onPrepareOptionsMenu(menu)
     }
@@ -1303,76 +1307,84 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
      * Обработчик выбора пунктов системного меню.
      */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
-        when (id) {
+        return when (item.itemId) {
             R.id.action_record_view -> {
                 viewModel.switchMode(EditorMode.VIEW)
-                return true
+                true
             }
             R.id.action_record_edit -> {
                 viewModel.switchMode(EditorMode.EDIT)
-                return true
+                true
             }
             R.id.action_record_html -> {
                 viewModel.switchMode(EditorMode.HTML)
-                return true
+                true
             }
             R.id.action_record_save -> {
                 viewModel.saveRecord(resultObj = ResultObject.None)
-                return true
+                true
             }
             R.id.action_record_edit_fields -> {
                 showEditFieldsDialog(resultObj = null)
-                return true
+                true
             }
             R.id.action_record_node -> {
                 viewModel.showRecordNode()
-                return true
+                true
             }
             R.id.action_attached_files -> {
                 viewModel.openRecordAttaches()
-                return true
+                true
             }
             R.id.action_cur_record_folder -> {
                 viewModel.openRecordFolder(activity = this)
-                return true
+                true
             }
             R.id.action_share -> {
                 shareRecord()
-                return true
+                true
             }
             R.id.action_export_pdf -> {
                 selectFolderToExportPdf()
-                return true
+                true
             }
             R.id.action_delete -> {
                 deleteRecord()
-                return true
+                true
             }
             R.id.action_info -> {
                 showRecordInfoDialog()
-                return true
+                true
             }
             R.id.action_fullscreen -> {
                 toggleFullscreen(false)
-                return true
+                true
+            }
+            R.id.action_scripts -> {
+                showScriptsActivity(obj = viewModel.curRecord.value)
+                true
             }
             R.id.action_storage_settings -> {
-                showStorageSettingsActivity(viewModel.storage)
+                viewModel.storage?.also {
+                    showStorageSettingsActivity(storage = it)
+                }
+                true
             }
             R.id.action_settings -> {
-                showActivityForResult(SettingsActivity::class.java, Constants.REQUEST_CODE_COMMON_SETTINGS_ACTIVITY)
-                return true
+                showSettingsActivity()
+                true
             }
             R.id.action_storage_info -> {
                 start(this, viewModel.getStorageId())
-                return true
+                true
             }
             android.R.id.home -> {
-                return !viewModel.isCanGoHome()
+                !viewModel.isCanGoHome()
+            }
+            else -> {
+                super.onOptionsItemSelected(item)
             }
         }
-        return super.onOptionsItemSelected(item)
     }
     
     // endregion Options menu

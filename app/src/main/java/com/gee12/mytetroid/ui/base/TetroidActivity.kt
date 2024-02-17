@@ -306,6 +306,9 @@ abstract class TetroidActivity<VM : BaseViewModel>
     //override fun onFileCreated(requestCode: Int, file: DocumentFile) {}
 
     // TODO: в отдельный FileStorageManager или TetroidActivityComponent (для android-зависимой логики)
+    /**
+     * @param filterMimeTypes пример: [com.anggrayudi.storage.file.MimeType]
+     */
     fun openFilePicker(
         requestCode: PermissionRequestCode,
         allowMultiple: Boolean = false,

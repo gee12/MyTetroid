@@ -20,7 +20,8 @@ enum class LogObj(private val tensesResArray: Int? = null) {
     IMAGE(R.array.obj_image),
     FILE_FIELDS(R.array.obj_file_fields),
     CUR_PASS,
-    NEW_PASS;
+    NEW_PASS,
+    SCRIPT(R.array.obj_script);
 
     fun getString(tense: Tense, resourcesProvider: IResourcesProvider): String {
         return tensesResArray?.takeIf { tense.id in 0..2 }?.let {

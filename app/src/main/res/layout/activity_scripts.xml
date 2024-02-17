@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/layout_coordinator"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.scripts.ScriptsActivity"
+    style="@style/RootLayout">
+
+    <include
+        layout="@layout/layout_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" >
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycle_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:scrollbars="vertical"
+            android:fadeScrollbars="false"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:textIsSelectable="true"
+            android:focusable="true"
+            tools:itemCount="5"
+            tools:listitem="@layout/list_item_script"/>
+
+        <TextView
+            android:id="@+id/text_view_empty_scripts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_gravity="center"
+            style="@style/LabelEmptyList"
+            android:textAlignment="center"
+            android:gravity="center_horizontal"
+            android:text="@string/title_scripts_empty_label"
+            android:visibility="gone"
+            tools:visibility="visible"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.github.clans.fab.FloatingActionMenu
+        android:id="@+id/fab_add_script"
+        app:menu_icon="@android:drawable/ic_input_add"
+        style="@style/FabClansMenu"
+        app:menu_labels_style="@style/FabClansLabel"
+        app:layout_anchor="@id/recycle_view"
+        app:layout_anchorGravity="bottom|right|end"
+        android:contentDescription="@string/title_add_script">
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fab_create_new"
+            android:src="@drawable/ic_add_white"
+            app:fab_label="@string/title_script_create_new"
+            style="@style/FabClansButton" />
+
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fab_pick_file"
+            android:src="@drawable/ic_file_white"
+            app:fab_label="@string/title_script_pick_file"
+            style="@style/FabClansButton" />
+
+    </com.github.clans.fab.FloatingActionMenu>
+
+    <include
+        android:id="@+id/layout_progress_bar"
+        layout="@layout/layout_progress_bar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

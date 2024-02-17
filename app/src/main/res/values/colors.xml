@@ -13,6 +13,7 @@
     <color name="link_blue">#303F9F</color>
     <color name="error_1">#AA0000</color>
     <color name="error_2">#810000</color>
+    <color name="warning">#FF8222</color>
 
     <color name="accent">#009990</color>
     <color name="accent_50">#4D01B8AD</color>
@@ -24,7 +25,7 @@
     <color name="color_blue_50">#8000BCD4</color>
 
     <color name="screen_title_1">#EEE</color>
-    <color name="screen_title_2">#BBB</color>
+    <color name="screen_title_2">#CCC</color>
 
     <color name="tab_layout_title">#BBB</color>
     <color name="tab_layout_title_selected">#EEE</color>
@@ -44,7 +45,7 @@
     <color name="background_last_opened_record">@color/background_selected</color>
     <color name="background_selected_tag">@color/background_selected</color>
     <color name="text_empty_list">#BBB</color>
-    <color name="list_separator">#EAEAEA</color>
+    <color name="list_separator">#EEE</color>
 
     <color name="icon_tint">#777</color>
     <color name="icon_tint_2">#BBB</color>
@@ -54,6 +55,15 @@
     <color name="title_start_color">#5A79AE</color>
     <color name="title_middle_color">#8391DA</color>
     <color name="title_end_color">#A4B2E4</color>
+
+    <color name="switch_thumb_checked_enabled">#009990</color>
+    <color name="switch_thumb_checked_disabled">#BDD6D4</color>
+    <color name="switch_thumb_unchecked_enabled">#A5A5A5</color>
+    <color name="switch_thumb_unchecked_disabled">#CCC</color>
+    <color name="switch_track_checked_enabled">#ACDADB</color>
+    <color name="switch_track_checked_disabled">#DBEAEC</color>
+    <color name="switch_track_unchecked_enabled">#C5C5C5</color>
+    <color name="switch_track_unchecked_disabled">#EEE</color>
 
     <color name="fab_color_text">#E7E7E7</color>
     <color name="fab_color_normal">@color/color_green_50</color>

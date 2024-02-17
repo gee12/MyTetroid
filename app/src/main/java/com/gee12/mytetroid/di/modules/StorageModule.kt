@@ -7,8 +7,8 @@ import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.data.xml.StorageDataXmlProcessor
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.manager.FavoritesManager
+import com.gee12.mytetroid.domain.manager.ScriptsManager
 import com.gee12.mytetroid.domain.provider.*
-import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -70,6 +70,16 @@ object StorageModule {
                     favoritesRepo = get(),
                     storageProvider = get(),
                     swapFavoriteRecordsUseCase = get(),
+                )
+            }
+
+            scoped {
+                ScriptsManager(
+                    storageProvider = get(),
+                    scriptsRepo = get(),
+                    scriptsToObjectsRepo = get(),
+                    getRecordByIdUseCase = get(),
+                    getNodeByIdUseCase = get(),
                 )
             }
 

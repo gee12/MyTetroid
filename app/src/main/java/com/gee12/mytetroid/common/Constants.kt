@@ -18,6 +18,7 @@ object Constants {
     const val TRASH_DIR_NAME = "trash"
     const val LOG_DIR_NAME = "log"
     const val ICONS_DIR_NAME = "icons"
+    const val SCRIPTS_DIR_NAME = "scripts"
     const val DOWNLOADS_DIR_NAME = "mytetroid"
     const val MYTETRA_XML_FILE_NAME = "mytetra.xml"
     const val DATABASE_INI_FILE_NAME = "database.ini"
@@ -45,8 +46,9 @@ object Constants {
     const val REQUEST_CODE_RECORD_ACTIVITY = 103            // текст записи
     const val REQUEST_CODE_SEARCH_ACTIVITY = 104            // глобальный поиск
     const val REQUEST_CODE_STORAGES_ACTIVITY = 105          // список хранилищ
-    const val REQUEST_CODE_NODE_ICON = 106                  // иконка ветки
-    const val REQUEST_CODE_SYNC_STORAGE = 107               // синхронизация хранилища
+    const val REQUEST_CODE_SCRIPTS_ACTIVITY = 106           // скрипты
+    const val REQUEST_CODE_NODE_ICON = 107                  // иконка ветки
+    const val REQUEST_CODE_SYNC_STORAGE = 108               // синхронизация хранилища
 
     const val RESULT_REINIT_STORAGE = 1
     const val RESULT_PASS_CHANGED = 2

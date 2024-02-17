@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.ui.storages
+package com.gee12.mytetroid.ui.base.views
 
 import android.content.Context
 import android.graphics.Canvas

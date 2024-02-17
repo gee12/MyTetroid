@@ -82,6 +82,7 @@
     <string name="title_show">Show</string>
     <string name="title_log_file_content">Logs</string>
     <string name="title_storages">Storages</string>
+    <string name="title_scripts">Scripts</string>
     <string name="title_storage_info">Storage info</string>
     <string name="title_node_icon_choice">Select icon</string>
     <string name="title_move_back">Move to back</string>
@@ -113,6 +114,7 @@
     <string name="title_select_the_node">Select the node…</string>
     <string name="title_need_load_storage_to_view_info">To view data you need to load the storage…</string>
     <string name="title_storages_empty_label">Add storage…</string>
+    <string name="title_scripts_empty_label">Add script…</string>
     <string name="title_files_is_missing">Attach is missing</string>
     <string name="title_license_gnu_gpl_v3_0">License GNU GPL v3.0</string>
     <string name="title_rate_app">Rate app</string>
@@ -161,6 +163,9 @@
     <string name="title_new_record">New record</string>
     <string name="title_add_record">Add record</string>
     <string name="title_add_storage">Add storage</string>
+    <string name="title_add_script">Add script</string>
+    <string name="title_script_create_new">Create new</string>
+    <string name="title_script_pick_file">Choose from file</string>
     <string name="title_edit_storage">Edit storage</string>
     <string name="title_select_folder"><![CDATA[<Select folder>]]></string>
     <string name="title_select_node"><![CDATA[<Select the node>]]></string>
@@ -209,6 +214,11 @@
     <string name="title_mytetroid_slogan">Personal knowledge base</string>
     <string name="title_settings_app_theme">App theme</string>
     <string name="title_settings_editor_theme">Text editor theme</string>
+    <string name="title_multiple_choice">Multiple choice</string>
+    <string name="title_filter">Filter</string>
+    <string name="title_script">Script</string>
+    <string name="title_create_script">Create script</string>
+    <string name="title_edit_script">Edit script</string>
 
     <string name="title_pick_folder">Select folder</string>
     <string name="title_pick_file">Select file</string>
@@ -221,11 +231,17 @@
     <string name="error_no_access_to_storage">Storage access permission not given</string>
     <string name="location_mask">Location: %s</string>
     <string name="dir_is_not_exist">Directory does not exist</string>
+    <string name="title_script_for_record_masked">For record «%s»</string>
+    <string name="title_script_for_node_masked">For node «%s»</string>
+    <string name="title_script_for_tag_masked">For tag «%s»</string>
+    <string name="title_script_for_all_storage">For all storage</string>
 
     <string name="subtitle_main_page_node_records">NODE</string>
     <string name="subtitle_main_page_record_files">FILES</string>
     <string name="subtitle_main_page_tag_records">TAG</string>
     <string name="subtitle_main_page_multiple_tags_records">TAGS</string>
+    <string name="subtitle_scripts_for_object_masked">For %s «%s»</string>
+    <string name="subtitle_scripts_for_all_storage_masked">For all storage «%s»</string>
 
     <string name="title_settings_app_theme_system">System default</string>
     <string name="title_settings_app_theme_light">Light</string>
@@ -553,6 +569,9 @@
     <string name="global_searching">Global searching…</string>
 
     <string name="label_name">Name</string>
+    <string name="label_description">Description</string>
+    <string name="label_text">Text</string>
+    <string name="label_file_name">File name</string>
     <string name="label_tags">Tags</string>
     <string name="label_tags_colon">Tags:</string>
     <string name="label_author">Author</string>
@@ -641,6 +660,7 @@
     <string name="ask_quickly_node_delete_mask">Node «%s» is used for quick insertion. Delete anyway?</string>
     <string name="ask_record_delete_mask">Delete record «%s» ?</string>
     <string name="ask_file_delete_mask">Delete file «%s» ?</string>
+    <string name="ask_script_delete_mask">Delete script «%s» ?</string>
     <string name="ask_request_read_ext_storage">Permission to read to external memory is required to work with storage files. Provide ?</string>
     <string name="ask_request_write_ext_storage">Permission to write to external memory is required to work with storage files. Provide ?</string>
     <string name="ask_request_camera">Permission required to turn on the camera to capture an image. Provide ?</string>

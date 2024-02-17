@@ -52,7 +52,8 @@ abstract class BaseStorageViewModel(
     val storageFolderPath: String
         get() = storageFolder?.uri?.path.orEmpty()
 
-    abstract fun startInitStorageFromBase(storageId: Int)
+
+    open fun startInitStorageFromBase(storageId: Int) {}
 
 
     // region Permissions
@@ -76,7 +77,7 @@ abstract class BaseStorageViewModel(
 
     fun isStorageLoaded() = storage?.isLoaded.orFalse() && storageProvider.isLoaded()
 
-    abstract fun isStorageEncrypted(): Boolean
+    open fun isStorageEncrypted(): Boolean = storageProvider.isExistCryptedNodes()
 
     fun isStorageDecrypted() = storage?.isDecrypted.orFalse()
 

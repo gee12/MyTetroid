@@ -266,11 +266,11 @@ class StorageSettingsActivity : TetroidSettingsActivity<StorageSettingsViewModel
 
     companion object {
 
-        @JvmStatic
-        fun newIntent(context: Context, storage: TetroidStorage): Intent {
-            return Intent(context, StorageSettingsActivity::class.java).apply {
+        fun start(activity: Activity, storage: TetroidStorage, requestCode: Int) {
+            val intent = Intent(activity, StorageSettingsActivity::class.java).apply {
                 putExtra(Constants.EXTRA_STORAGE_ID, storage.id)
             }
+            activity.startActivityForResult(intent, requestCode)
         }
     }
 

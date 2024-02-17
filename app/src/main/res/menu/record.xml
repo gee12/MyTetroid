@@ -47,6 +47,13 @@
         android:icon="@drawable/ic_show_node"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_scripts"
+        android:orderInCategory="55"
+        android:title="@string/title_scripts"
+        android:enabled="true"
+        android:icon="@drawable/ic_script"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_attached_files"
         android:orderInCategory="60"
         android:title="@string/title_attached_files"

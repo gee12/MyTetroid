@@ -188,6 +188,11 @@
         <item>File fields was&#160;</item>
         <item>file fields</item>
     </string-array>
+    <string-array name="obj_script">
+        <item>script</item>
+        <item>Script was&#160;</item>
+        <item>script</item>
+    </string-array>
 
     <string-array name="oper_set">
         <item>set</item>

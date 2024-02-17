@@ -7,6 +7,7 @@ import com.gee12.mytetroid.ui.logs.LogsViewModel
 import com.gee12.mytetroid.ui.main.MainViewModel
 import com.gee12.mytetroid.ui.node.icon.IconsViewModel
 import com.gee12.mytetroid.ui.record.RecordViewModel
+import com.gee12.mytetroid.ui.scripts.ScriptsViewModel
 import com.gee12.mytetroid.ui.settings.CommonSettingsViewModel
 import com.gee12.mytetroid.ui.settings.storage.StorageSettingsViewModel
 import com.gee12.mytetroid.ui.splash.SplashViewModel
@@ -344,6 +345,30 @@ object ViewModelsModule {
                     getIconsFolderNamesUseCase = get(),
                     getNodesIconsFromFolderUseCase = get(),
                     loadDrawableFromFileUseCase = get(),
+                )
+            }
+
+            viewModel {
+                ScriptsViewModel(
+                    app = androidApplication(),
+                    buildInfoProvider = get(),
+                    resourcesProvider = get(),
+                    logger = get(),
+                    notificator = get(),
+                    failureHandler = get(),
+                    settingsManager = get(),
+                    appPathProvider = get(),
+                    storageProvider = get(),
+                    storagePathProvider = get(),
+                    scriptsManager = get(),
+                    getObjectByTypeAndIdUseCase = get(),
+                    readTextFileUseCase = get(),
+                    getScriptTextUseCase = get(),
+                    saveScriptUseCase = get(),
+                    editScriptUseCase = get(),
+                    setScriptIsEnabledUseCase = get(),
+                    setScriptToObjectIsEnabledUseCase = get(),
+                    deleteScriptFileUseCase = get(),
                 )
             }
 

@@ -19,6 +19,7 @@ import com.gee12.mytetroid.domain.usecase.record.*
 import com.gee12.mytetroid.domain.usecase.network.DownloadFileFromWebUseCase
 import com.gee12.mytetroid.domain.usecase.network.DownloadImageFromWebUseCase
 import com.gee12.mytetroid.domain.usecase.network.DownloadWebPageContentUseCase
+import com.gee12.mytetroid.domain.usecase.script.*
 import com.gee12.mytetroid.domain.usecase.storage.*
 import com.gee12.mytetroid.domain.usecase.tag.DeleteRecordTagsUseCase
 import com.gee12.mytetroid.domain.usecase.tag.GetTagByNameUseCase
@@ -31,14 +32,26 @@ import org.koin.dsl.module
 object UseCasesModule {
     val useCasesModule = module {
 
-        single {
+        factory {
+            InitAppUseCase(
+                context = androidContext(),
+                resourcesProvider = get(),
+                logger = get(),
+                settingsManager = get(),
+                appPathProvider = get(),
+            )
+        }
+
+        // TODO: Manager
+        factory {
             InteractionManager(
                 resourcesProvider = get(),
                 logger = get(),
             )
         }
 
-        single {
+        // TODO: Manager
+        factory {
             PermissionManager(
                 buildInfoProvider = get(),
                 logger = get(),
@@ -46,34 +59,42 @@ object UseCasesModule {
             )
         }
 
-        single {
+        // TODO: Manager
+        factory {
             StorageTreeObserver(
                 app = androidApplication(),
                 logger = get(),
             )
         }
 
-        single {
+        // TODO: Manager
+        factory {
             SyncInteractor(
                 resourcesProvider = get(),
                 logger = get(),
             )
         }
 
-        single {
+        factory {
             SwapFavoriteRecordsUseCase(
                 favoritesRepo = get(),
             )
         }
 
-        single {
+        factory {
             ClearAllStoragesTrashFolderUseCase(
                 appPathProvider = get(),
                 clearFolderUseCase = get(),
             )
         }
 
-        single {
+        factory {
+            GetFolderUseCase(
+                context = androidContext(),
+            )
+        }
+
+        factory {
             ClearFolderUseCase(
                 context = androidContext(),
                 resourcesProvider = get(),
@@ -81,12 +102,18 @@ object UseCasesModule {
             )
         }
 
-        single {
+        factory {
             ReadTextBlocksFromFileUseCase()
         }
 
-        single {
+        factory {
             ReadTextBlocksFromStringUseCase()
+        }
+
+        factory {
+            ReadTextFileUseCase(
+                context = androidContext(),
+            )
         }
 
         scope<ScopeSource> {
@@ -109,16 +136,6 @@ object UseCasesModule {
             //region App
 
             scoped {
-                InitAppUseCase(
-                    context = androidContext(),
-                    resourcesProvider = get(),
-                    logger = get(),
-                    settingsManager = get(),
-                    appPathProvider = get(),
-                )
-            }
-
-            scoped {
                 GlobalSearchUseCase(
                     logger = get(),
                     storageProvider = get(),
@@ -129,6 +146,13 @@ object UseCasesModule {
 
             scoped {
                 SwapObjectsInListUseCase()
+            }
+
+            scoped {
+                GetObjectByTypeAndIdUseCase(
+                    getRecordByIdUseCase = get(),
+                    getNodeByIdUseCase = get(),
+                )
             }
 
             //endregion App
@@ -755,6 +779,66 @@ object UseCasesModule {
             }
 
             //endregion Tag
+
+            // region Script
+
+            scoped {
+                SaveScriptTextToFileUseCase(
+                    context = androidContext(),
+                    storagePathProvider = get(),
+                    getFolderUseCase = get(),
+                )
+            }
+
+            scoped {
+                SaveScriptUseCase(
+                    storageProvider = get(),
+                    scriptsManager = get(),
+                    saveScriptTextToFileUseCase = get(),
+                )
+            }
+
+            scoped {
+                EditScriptUseCase(
+                    context = androidContext(),
+                    storagePathProvider = get(),
+                    storageProvider = get(),
+                    scriptsManager = get(),
+                    saveScriptTextToFileUseCase = get(),
+                )
+            }
+
+            scoped {
+                GetScriptTextUseCase(
+                    context = androidContext(),
+                    storagePathProvider = get(),
+                    storageProvider = get(),
+                    readTextFileUseCase = get(),
+                )
+            }
+
+            scoped {
+                DeleteScriptFileUseCase(
+                    context = androidContext(),
+                    storagePathProvider = get(),
+                    storageProvider = get(),
+                    scriptsManager = get(),
+                )
+            }
+
+            scoped {
+                SetScriptIsEnabledUseCase(
+                    scriptsManager = get(),
+                )
+            }
+
+            scoped {
+                SetScriptToObjectIsEnabledUseCase(
+                    scriptsManager = get(),
+                )
+            }
+
+            // endregion Script
 
             //region Image
 

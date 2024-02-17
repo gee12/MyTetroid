@@ -1,0 +1,271 @@
+package com.gee12.mytetroid.ui.scripts
+
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
+import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.widget.TextView
+import androidx.appcompat.view.menu.MenuBuilder
+import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.isVisible
+import androidx.documentfile.provider.DocumentFile
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.gee12.mytetroid.R
+import com.gee12.mytetroid.common.extensions.buildIntent
+import com.gee12.mytetroid.common.extensions.showForcedWithIcons
+import com.gee12.mytetroid.di.ScopeSource
+import com.gee12.mytetroid.logs.LogObj
+import com.gee12.mytetroid.model.*
+import com.gee12.mytetroid.model.enums.Tense
+import com.gee12.mytetroid.model.enums.TetroidObjectType
+import com.gee12.mytetroid.model.permission.PermissionRequestCode
+import com.gee12.mytetroid.ui.base.BaseEvent
+import com.gee12.mytetroid.ui.base.TetroidActivity
+import com.gee12.mytetroid.ui.dialogs.AskDialogs
+import com.gee12.mytetroid.ui.dialogs.script.ScriptFieldsDialog
+import com.github.clans.fab.FloatingActionMenu
+
+
+class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
+
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: ScriptsAdapter
+
+    override fun getLayoutResourceId() = R.layout.activity_scripts
+
+    override fun getViewModelClazz() = ScriptsViewModel::class.java
+
+    override fun isSingleTitle() = false
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        recyclerView = findViewById(R.id.recycle_view)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerView.addItemDecoration(
+            com.gee12.mytetroid.ui.base.views.DividerItemDecoration(
+                context = recyclerView.context,
+                orientation = DividerItemDecoration.VERTICAL,
+                spaceBetweenRes = R.dimen.recycler_view_item_top_spacing
+            )
+        )
+        adapter = ScriptsAdapter(context = this, resourcesProvider)
+        adapter.onItemClickListener = { script, _ ->
+            viewModel.openScriptForEdit(script)
+        }
+        adapter.onItemLongClickListener = { script, view ->
+            showScriptPopupMenu(view, script)
+            true
+        }
+        adapter.onItemSwitchClickListener = { script, isChecked, _ ->
+            viewModel.setScriptEnabled(script, isEnabled = isChecked)
+        }
+        adapter.onItemMenuClickListener = { script, view ->
+            showScriptPopupMenu(view, script)
+        }
+        adapter.onObjectItemSwitchClickListener = { scriptToObject, isChecked, _ ->
+            viewModel.setScriptToObjectEnabled(scriptToObject, isEnabled = isChecked)
+        }
+        recyclerView.adapter = adapter
+
+        findViewById<FloatingActionMenu>(R.id.fab_add_script).also { fabAddScript ->
+            fabAddScript.isVisible = !viewModel.isScriptForObject()
+            fabAddScript.setClosedOnTouchOutside(true)
+
+            findViewById<com.github.clans.fab.FloatingActionButton>(R.id.fab_create_new).also {
+                it.setOnClickListener {
+                    fabAddScript.close(true)
+                    showScriptFieldsDialog(isNew = true)
+                }
+            }
+            findViewById<com.github.clans.fab.FloatingActionButton>(R.id.fab_pick_file).also {
+                it.setOnClickListener {
+                    fabAddScript.close(true)
+                    openFilePickerForAttachScript()
+                }
+            }
+        }
+
+        initData(receivedIntent)
+    }
+
+    override fun createDependencyScope() {
+        scopeSource = ScopeSource.current
+    }
+
+    override fun onBaseEvent(event: BaseEvent) {
+        when (event) {
+            is ScriptsEvent -> {
+                onStoragesEvent(event)
+            }
+            is BaseEvent.Permission.Granted -> {
+            }
+            else -> super.onBaseEvent(event)
+        }
+    }
+
+    private fun onStoragesEvent(event: ScriptsEvent) {
+        when (event) {
+            is ScriptsEvent.LoadScripts -> {
+                setData(
+                    scripts = event.scripts,
+                    tetroidObject = event.tetroidObject,
+                )
+            }
+            is ScriptsEvent.ShowScriptDialog -> {
+                showScriptFieldsDialog(
+                    script = event.script,
+                    text = event.scriptText,
+                    isNew = event.isNew,
+                )
+            }
+        }
+    }
+
+    private fun initData(intent: Intent?) {
+        val objectTypeId = intent?.getIntExtra(EXTRA_OBJECT_TYPE_ID, TetroidObjectType.NONE.id)
+        val objectId = intent?.getStringExtra(EXTRA_OBJECT_ID)
+
+        viewModel.init(objectTypeId, objectId)
+    }
+
+    private fun setData(scripts: List<TetroidScript>, tetroidObject: ITetroidObject?) {
+        val subtitle = if (tetroidObject != null) {
+            val logObj = FoundType(tetroidObject.type).toLogObj() ?: LogObj.NONE
+            val typeName = logObj.getString(Tense.PRESENT_CONTINUOUS, resourcesProvider)
+            resourcesProvider.getString(R.string.subtitle_scripts_for_object_masked, typeName, tetroidObject.name )
+        } else {
+            resourcesProvider.getString(R.string.subtitle_scripts_for_all_storage_masked, viewModel.getStorageName())
+        }
+        setSubtitle(subtitle)
+
+        adapter.submitList(scripts, tetroidObject)
+        findViewById<TextView>(R.id.text_view_empty_scripts)?.isVisible = scripts.isEmpty()
+    }
+
+    private fun showDeleteScriptDialog(script: TetroidScript) {
+        AskDialogs.showYesDialog(
+            context = this,
+            message = getString(R.string.ask_script_delete_mask, script.fileName),
+            onApply = {
+                viewModel.deleteScript(script, withFile = true)
+            }
+        )
+    }
+
+    private fun showScriptFieldsDialog(
+        script: TetroidScript? = null,
+        text: String? = null,
+        isNew: Boolean,
+    ) {
+        ScriptFieldsDialog(
+            script = script,
+            scriptText = text,
+            onApply = { fileName, description, updatedText ->
+                if (isNew) {
+                    viewModel.addNewScript(
+                        fileName = fileName,
+                        description = description,
+                        scriptText = updatedText,
+                    )
+                } else if (script != null) {
+                    viewModel.editScript(
+                        script = script,
+                        fileName = fileName,
+                        description = description,
+                        scriptText = updatedText,
+                    )
+                }
+            }
+        ).showIfPossibleAndNeeded(supportFragmentManager)
+    }
+
+    // region File
+
+    private fun openFilePickerForAttachScript() {
+        openFilePicker(
+            requestCode = PermissionRequestCode.PICK_SCRIPT_FILE,
+            allowMultiple = false,
+            // FIXME: не работает, не дает вообще выбрать файлы
+            //filterMimeTypes = arrayOf("text/javascript"),
+        )
+    }
+
+    override fun isUseFileStorage() = true
+
+    override fun onFileSelected(requestCode: Int, files: List<DocumentFile>) {
+        when (PermissionRequestCode.fromCode(requestCode)) {
+            PermissionRequestCode.PICK_SCRIPT_FILE -> {
+                files.firstOrNull()?.also {
+                    viewModel.addNewScriptFromFile(scriptFile = it)
+                }
+            }
+            else -> Unit
+        }
+    }
+
+    // endregion File
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.scripts, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.action_search -> {
+
+                return true
+            }
+            R.id.action_choice_mode -> {
+                // TODO: включаем режим множественного выбора (ActionMode) для RecyclerView
+//                ActionModeController(R.menu.storage_actions, ActionMode.TYPE_PRIMARY, a).startActionMode(this)
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    @SuppressLint("RestrictedApi")
+    private fun showScriptPopupMenu(anchorView: View, script: TetroidScript) {
+        val popupMenu = PopupMenu(this, anchorView)
+        popupMenu.inflate(R.menu.script_context)
+
+        popupMenu.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.action_edit -> {
+                    viewModel.openScriptForEdit(script)
+                    true
+                }
+                R.id.action_delete -> {
+                    showDeleteScriptDialog(script)
+                    true
+                }
+                else -> false
+            }
+        }
+        (popupMenu.menu as MenuBuilder).showForcedWithIcons(anchorView)
+    }
+
+    companion object {
+
+        private const val EXTRA_OBJECT_TYPE_ID = "EXTRA_OBJECT_TYPE_ID"
+        private const val EXTRA_OBJECT_ID = "EXTRA_OBJECT_ID"
+
+        fun start(activity: Activity, obj: TetroidObject?, requestCode: Int) {
+            val intent = buildIntent {
+                setClass(activity, ScriptsActivity::class.java)
+                obj?.also {
+                    putExtra(EXTRA_OBJECT_TYPE_ID, obj.type)
+                    putExtra(EXTRA_OBJECT_ID, obj.id)
+                }
+            }
+            activity.startActivityForResult(intent, requestCode)
+        }
+    }
+}

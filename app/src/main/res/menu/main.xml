@@ -73,6 +73,13 @@
         android:icon="@drawable/ic_storage"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_scripts"
+        android:orderInCategory="247"
+        android:title="@string/title_scripts"
+        android:enabled="true"
+        android:icon="@drawable/ic_script"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_fullscreen"
         android:orderInCategory="250"
         android:title="@string/title_fullscreen"
