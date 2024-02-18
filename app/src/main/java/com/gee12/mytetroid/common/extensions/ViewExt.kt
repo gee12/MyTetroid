@@ -16,6 +16,8 @@ import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.RecyclerView
+import kotlin.math.abs
 
 
 fun EditText.addAfterTextChangedListener(listener: (String) -> Unit) {
@@ -153,4 +155,25 @@ private fun createPopupWindow(
         )
     }
     return popupWindow
+}
+
+fun RecyclerView.addOnSwipeRefreshListener(onSwipeRefresh: () -> Unit) {
+    addOnScrollListener(object : RecyclerView.OnScrollListener() {
+        var scrolling = 0
+        var scrollingOnPrevIdleState = 0 // -1 or less prevents call getItemList() on first try
+        override fun onScrollStateChanged(rv: RecyclerView, newState: Int) {
+            super.onScrollStateChanged(rv, newState)
+            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                if (scrolling == scrollingOnPrevIdleState) {
+                    onSwipeRefresh()
+                }
+                scrollingOnPrevIdleState = scrolling
+            }
+        }
+
+        override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
+            super.onScrolled(rv, dx, dy)
+            scrolling += abs(dy)
+        }
+    })
 }

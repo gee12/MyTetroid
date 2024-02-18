@@ -82,7 +82,7 @@ class ScriptsViewModel(
         }
     }
 
-    private suspend fun loadScripts() {
+    fun loadScripts() {
         launchOnMain {
             withIo {
                 getScriptsUseCase.run(

@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.extensions.addOnSwipeRefreshListener
 import com.gee12.mytetroid.common.extensions.buildIntent
 import com.gee12.mytetroid.common.extensions.showForcedWithIcons
 import com.gee12.mytetroid.di.ScopeSource
@@ -63,6 +64,10 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
                 spaceBetweenRes = R.dimen.recycler_view_item_top_spacing
             )
         )
+        recyclerView.addOnSwipeRefreshListener {
+            viewModel.loadStorages()
+        }
+
         adapter = StoragesAdapter(
             context = this,
             currentStorageId = viewModel.getCurrentStorageId()

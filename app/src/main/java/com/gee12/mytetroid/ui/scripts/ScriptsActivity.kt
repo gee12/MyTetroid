@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.common.extensions.addOnSwipeRefreshListener
 import com.gee12.mytetroid.common.extensions.buildIntent
 import com.gee12.mytetroid.common.extensions.showForcedWithIcons
 import com.gee12.mytetroid.di.ScopeSource
@@ -54,6 +55,10 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
                 spaceBetweenRes = R.dimen.recycler_view_item_top_spacing
             )
         )
+        recyclerView.addOnSwipeRefreshListener {
+            viewModel.loadScripts()
+        }
+
         adapter = ScriptsAdapter(
             context = this,
             resourcesProvider = resourcesProvider,
