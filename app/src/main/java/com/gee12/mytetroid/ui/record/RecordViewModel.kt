@@ -1176,15 +1176,10 @@ class RecordViewModel(
     /**
      * Открытие каталога записи.
      */
-    fun openRecordFolder(activity: Activity) {
-        val record = curRecord.value!!
-        logger.logDebug(resourcesProvider.getString(R.string.log_start_record_folder_opening_mask, record.id))
-
+    fun openRecordFolder() {
         recordFolder?.also {
-            val uri = it.uri
-            if (!interactionManager.openFolder(activity, uri)) {
-                Utils.writeToClipboard(getContext(), resourcesProvider.getString(R.string.title_record_folder_uri), uri.toString())
-                logWarning(R.string.log_missing_file_manager, show = true)
+            launchOnMain {
+                sendEvent(RecordEvent.OpenRecordFolder(uri = it.uri))
             }
         }
     }

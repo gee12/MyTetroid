@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.ui.main
 
+import android.net.Uri
 import android.os.Bundle
 import com.gee12.mytetroid.common.Failure
 import com.gee12.mytetroid.model.*
@@ -176,7 +177,7 @@ sealed class MainEvent(
             class RequestToEnableDecryptAttachesToTempFolder(attach: TetroidFile) : Open(attach)
             class InProcess(attach: TetroidFile) : Open(attach)
             class Failed(attach: TetroidFile, val failure: Failure) : Open(attach)
-            class Success(attach: TetroidFile) : Open(attach)
+            class Success(attach: TetroidFile, val uri: Uri) : Open(attach)
         }
         sealed class Delete(val  attach: TetroidFile) : Attach() {
             class InProcess(attach: TetroidFile) : Delete(attach)
@@ -203,6 +204,8 @@ sealed class MainEvent(
     ) : MainEvent()
 
     data class PickFolderForAttach(val attach: TetroidFile) : MainEvent()
+
+    data class OpenRecordFolder(val uri: Uri) : MainEvent()
 
     // favorites
     object UpdateFavoritesNodeTitle : MainEvent()

@@ -392,6 +392,9 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             RecordEvent.StartCaptureCamera -> {
                 showProgress(getString(R.string.state_camera_capturing))
             }
+            is RecordEvent.OpenRecordFolder -> {
+                openRecordFolder(uri = event.uri)
+            }
             is RecordEvent.OpenImageFile -> {
                 openImageFile(
                     uri = event.uri,
@@ -1337,7 +1340,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 true
             }
             R.id.action_cur_record_folder -> {
-                viewModel.openRecordFolder(activity = this)
+                viewModel.openRecordFolder()
                 true
             }
             R.id.action_share -> {
@@ -1720,6 +1723,13 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 "utf-8",
                 file.openInputStream(this)
             )
+        }
+    }
+
+    private fun openRecordFolder(uri: Uri) {
+        if (!interactionManager.openFolder(activity = this, uri = uri)) {
+            Utils.writeToClipboard(this, resourcesProvider.getString(R.string.title_record_folder_uri), uri.toString())
+            showMessage(R.string.log_missing_file_manager)
         }
     }
 

@@ -392,7 +392,7 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
      */
     private fun openAttach(position: Int) {
         viewModel.curRecord?.attachedFiles?.getOrNull(position)?.also { attach ->
-            viewModel.checkPermissionIfNeedAndOpenAttach(activity = requireActivity(), attach)
+            viewModel.checkPermissionIfNeedAndOpenAttach(attach)
         }
     }
 
@@ -597,7 +597,7 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
                 true
             }
             R.id.action_open_record_folder -> {
-                viewModel.openRecordFolder(activity = requireActivity(), record)
+                viewModel.openRecordFolder(record)
                 true
             }
             R.id.action_copy_link -> {

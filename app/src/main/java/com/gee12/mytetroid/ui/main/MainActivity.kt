@@ -490,6 +490,9 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             is MainEvent.PickFolderForAttach -> {
                 openFolderPickerForAttach()
             }
+            is MainEvent.OpenRecordFolder -> {
+                openRecordFolder(uri = event.uri)
+            }
             MainEvent.Exit -> {
                 finish()
             }
@@ -614,7 +617,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                     titleResId = R.string.ask_decrypt_attached_files_in_trash_title,
                     messageResId = R.string.ask_decrypt_attached_files_in_trash_message,
                     onApply = {
-                        viewModel.enableDecryptAttachesToTempFolderAndOpen(activity = this, attach = event.attach)
+                        viewModel.enableDecryptAttachesToTempFolderAndOpen(attach = event.attach)
                     },
                     onCancel = {},
                 )
@@ -622,9 +625,12 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             is MainEvent.Attach.Open.InProcess -> {
                 showProgress(R.string.state_attach_opening)
             }
-            is MainEvent.Attach.Open.Failed,
+            is MainEvent.Attach.Open.Failed -> {
+                hideProgress()
+            }
             is MainEvent.Attach.Open.Success -> {
                 hideProgress()
+                interactionManager.openFile(this, uri = event.uri)
             }
             is MainEvent.Attach.Delete.InProcess -> {
                 showProgress(R.string.state_attach_deleting)
@@ -688,7 +694,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 }
             }
             PermissionRequestCode.OPEN_ATTACH_FILE -> {
-                viewModel.openTempAttachAfterCheckPermission(activity = this)
+                viewModel.openTempAttachAfterCheckPermission()
             }
             PermissionRequestCode.TERMUX -> {
                 viewModel.syncAndInitStorage(this)
@@ -1579,6 +1585,13 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         mainPage?.onRecordOpened(recordId)
     }
 
+    private fun openRecordFolder(uri: Uri) {
+        if (!interactionManager.openFolder(activity = this, uri = uri)) {
+            Utils.writeToClipboard(this, resourcesProvider.getString(R.string.title_record_folder_uri), uri.toString())
+            showMessage(R.string.log_missing_file_manager)
+        }
+    }
+
     // endregion Record
 
     // region Attach
@@ -2408,9 +2421,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 true
             }
             R.id.action_cur_record_folder -> {
-                viewModel.openCurrentRecordFolder(
-                    activity = this,
-                )
+                viewModel.openCurrentRecordFolder()
                 true
             }
             else -> {

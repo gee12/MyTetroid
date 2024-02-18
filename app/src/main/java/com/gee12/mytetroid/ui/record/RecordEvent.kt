@@ -64,6 +64,8 @@ sealed class RecordEvent : StorageEvent() {
         val mimeType: String,
     ) : RecordEvent()
 
+    data class OpenRecordFolder(val uri: Uri) : RecordEvent()
+
     object StartLoadImages : RecordEvent()
     object StartCaptureCamera : RecordEvent()
     data class InsertImages(
@@ -100,5 +102,4 @@ sealed class RecordEvent : StorageEvent() {
     data class OpenTag(val tagName: String) : RecordEvent()
     data class OpenRecordAttaches(val recordId: String) : RecordEvent()
     data class DeleteRecord(val recordId: String) : RecordEvent()
-
 }

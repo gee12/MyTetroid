@@ -913,17 +913,13 @@ class MainViewModel(
     /**
      * Открытие каталога записи.
      */
-    fun openCurrentRecordFolder(activity: Activity) {
+    fun openCurrentRecordFolder() {
         curRecord?.also {
-            openRecordFolder(
-                activity = activity,
-                record = it,
-            )
+            openRecordFolder(record = it)
         }
     }
 
-    fun openRecordFolder(activity: Activity, record: TetroidRecord) {
-        logger.logDebug(resourcesProvider.getString(R.string.log_start_record_folder_opening_mask, record.id))
+    fun openRecordFolder(record: TetroidRecord) {
         launchOnMain {
             withIo {
                 getRecordFolderUseCase.run(
@@ -937,11 +933,9 @@ class MainViewModel(
             }.onFailure {
                 logFailure(it)
             }.onSuccess { recordFolder ->
-                val uri = recordFolder.uri
-                if (!interactionManager.openFolder(activity, uri)) {
-                    Utils.writeToClipboard(getContext(), resourcesProvider.getString(R.string.title_record_folder_uri), uri.toString())
-                    logWarning(R.string.log_missing_file_manager, show = true)
-                }
+                sendEvent(MainEvent.OpenRecordFolder(
+                    uri = recordFolder.uri
+                ))
             }
         }
     }
@@ -1599,9 +1593,9 @@ class MainViewModel(
         curAttaches.addAll(attaches)
     }
 
-    fun checkPermissionIfNeedAndOpenAttach(activity: Activity, attach: TetroidFile) {
+    fun checkPermissionIfNeedAndOpenAttach(attach: TetroidFile) {
         if (!attach.isCrypted) {
-            openAttach(activity, attach)
+            openAttach(attach)
         } else {
             if (storageSettingsProvider.isDecryptAttachesToTempFolder()) {
                 // будет запрос разрешения на запись расшифрованного файла в память
@@ -1626,13 +1620,13 @@ class MainViewModel(
         }
     }
 
-    fun openTempAttachAfterCheckPermission(activity: Activity) {
+    fun openTempAttachAfterCheckPermission() {
         tempAttachToOpen?.let {
-            openAttach(activity, it)
+            openAttach(it)
         }
     }
 
-    private fun openAttach(activity: Activity, attach: TetroidFile) {
+    private fun openAttach(attach: TetroidFile) {
         launchOnMain {
             sendEvent(MainEvent.Attach.Open.InProcess(attach))
 
@@ -1646,16 +1640,15 @@ class MainViewModel(
                 logFailure(failure)
                 sendEvent(MainEvent.Attach.Open.Failed(attach, failure))
             }.onSuccess { fileUri ->
-                sendEvent(MainEvent.Attach.Open.Success(attach))
-                interactionManager.openFile(activity, fileUri)
+                sendEvent(MainEvent.Attach.Open.Success(attach, fileUri))
             }
         }
     }
 
-    fun enableDecryptAttachesToTempFolderAndOpen(activity: Activity, attach: TetroidFile) {
+    fun enableDecryptAttachesToTempFolderAndOpen(attach: TetroidFile) {
         launchOnIo {
             setIsDecryptToTempAndSaveStorageInDb(value = true)
-            checkPermissionIfNeedAndOpenAttach(activity, attach)
+            checkPermissionIfNeedAndOpenAttach(attach)
         }
     }
 
