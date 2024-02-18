@@ -973,6 +973,7 @@
     <string name="log_field_changed_mask">Changed storage option \"%1$s\" from \"%2$s\" to \"%3$s\"</string>
     <string name="log_storage_tree_changed_outside" translatable="false">The mytetra.xml file with the record tree has been modified by a third party program</string>
     <string name="log_storage_tree_deleted_outside" translatable="false">The mytetra.xml file with the record tree has been removed by a third party program</string>
+    <string name="log_loading_script_to_record_masked">Loading JS-script: %s</string>
 
     <string name="error_record_create_mask">Record creation error:\n%s</string>
     <string name="error_record_name_is_empty">Record name is empty</string>

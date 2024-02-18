@@ -215,6 +215,8 @@ object ViewModelsModule {
                     downloadFileFromWebUseCase = get(),
                     getImageDimensionsUseCase = get(),
                     prepareFileForOpenUseCase = get(),
+                    getActiveScriptsForRecordUseCase = get(),
+                    getScriptTextUseCase = get(),
                 )
             }
 

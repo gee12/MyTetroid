@@ -351,6 +351,9 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             RecordEvent.LoadRecordTextFromHtml -> {
                 loadRecordTextFromHtmlEditor()
             }
+            is RecordEvent.LoadUserJSScript -> {
+                loadUserJSScript(event.scriptText)
+            }
             is RecordEvent.AskForLoadAllNodes -> {
                 AskDialogs.showYesDialog(
                     context = this,
@@ -735,13 +738,11 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     }
 
     override fun onLoadUserJSScripts() {
-        // TODO: сделать как настройку
-        lifecycleScope.launch {
-            val scriptPath = "scripts/table_sort.js"
-            this@RecordActivity.readTextFileFromAssets(scriptPath)?.also { scriptText ->
-                editor.webView.execJavascript(scriptText)
-            }
-        }
+        viewModel.loadUserJSScripts()
+    }
+
+    private fun loadUserJSScript(scriptText: String) {
+        editor.webView.execJavascript(scriptText)
     }
 
     override fun onIsEditedChanged(isEdited: Boolean) {

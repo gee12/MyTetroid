@@ -39,6 +39,9 @@ sealed class RecordEvent : StorageEvent() {
         val recordText: String,
     ) : RecordEvent()
     object LoadRecordTextFromHtml : RecordEvent()
+
+    data class LoadUserJSScript(val scriptText: String) : RecordEvent()
+
     data class AskForLoadAllNodes(
         val resultObj: ResultObject,
     ) : RecordEvent()

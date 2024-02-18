@@ -739,6 +739,12 @@ object UseCasesModule {
             }
 
             scoped {
+                GetActiveScriptsForRecordUseCase(
+                    getScriptsUseCase = get(),
+                )
+            }
+
+            scoped {
                 SaveScriptTextToFileUseCase(
                     context = androidContext(),
                     storagePathProvider = get(),

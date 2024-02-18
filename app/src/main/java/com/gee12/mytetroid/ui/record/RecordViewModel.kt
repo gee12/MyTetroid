@@ -48,6 +48,8 @@ import com.gee12.mytetroid.domain.usecase.file.PrepareFileForOpenUseCase
 import com.gee12.mytetroid.domain.usecase.network.DownloadFileFromWebUseCase
 import com.gee12.mytetroid.domain.usecase.network.DownloadImageFromWebUseCase
 import com.gee12.mytetroid.domain.usecase.network.DownloadWebPageContentUseCase
+import com.gee12.mytetroid.domain.usecase.script.GetActiveScriptsForRecordUseCase
+import com.gee12.mytetroid.domain.usecase.script.GetScriptTextUseCase
 import com.gee12.mytetroid.domain.usecase.storage.*
 import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
@@ -112,6 +114,8 @@ class RecordViewModel(
     private val downloadFileFromWebUseCase: DownloadFileFromWebUseCase,
     private val getImageDimensionsUseCase: GetImageDimensionsUseCase,
     private val prepareFileForOpenUseCase: PrepareFileForOpenUseCase,
+    private val getActiveScriptsForRecordUseCase: GetActiveScriptsForRecordUseCase,
+    private val getScriptTextUseCase: GetScriptTextUseCase,
 
     cryptRecordFilesIfNeedUseCase: CryptRecordFilesIfNeedUseCase,
     parseRecordTagsUseCase: ParseRecordTagsUseCase,
@@ -373,6 +377,35 @@ class RecordViewModel(
     }
 
     // endregion Load page
+
+    // region Scripts
+
+    fun loadUserJSScripts() {
+        launchOnMain {
+            withIo {
+                getActiveScriptsForRecordUseCase.run(
+                    GetActiveScriptsForRecordUseCase.Params(record = curRecord.value!!)
+                )
+            }.onFailure {
+                logFailure(failure = it, show = false)
+            }.onSuccess { scripts ->
+                scripts.forEach { script ->
+                    getScriptTextUseCase.run(
+                        GetScriptTextUseCase.Params(script)
+                    ).onFailure {
+                        logFailure(failure = it, show = false)
+                    }.onSuccess { scriptText ->
+                        logDebug(getString(R.string.log_loading_script_to_record_masked, script.fileName))
+                        withMain {
+                            sendEvent(RecordEvent.LoadUserJSScript(scriptText))
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // endregion Scripts
 
     // region Load links
 
