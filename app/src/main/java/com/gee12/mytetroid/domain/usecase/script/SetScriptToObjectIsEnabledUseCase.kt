@@ -17,7 +17,7 @@ class SetScriptToObjectIsEnabledUseCase(
         val scriptToObject = params.scriptToObject
         val isEnabled = params.isEnabled
 
-        return if (scriptsManager.updateScriptIsEnabledForObject(scriptToObject, isEnabled)) {
+        return if (scriptsManager.updateScriptIsActiveForObject(scriptToObject, isEnabled)) {
             None.toRight()
         } else {
             Failure.Database.Update.toLeft()

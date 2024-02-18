@@ -8,7 +8,7 @@ import com.gee12.mytetroid.model.TetroidScriptToObject
 
 fun ScriptDbEntity.toEntity(
     objects: List<TetroidScriptToObject>? = null,
-    isEnabled: Boolean = false,
+    isActive: Boolean = false,
 ): TetroidScript {
     val dbEntity = this
     return TetroidScript(
@@ -20,7 +20,7 @@ fun ScriptDbEntity.toEntity(
         createdDate = dbEntity.createdDate,
         editedDate = dbEntity.editedDate,
         objects = objects,
-        isEnabled = isEnabled,
+        isActive = isActive,
     )
 }
 

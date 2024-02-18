@@ -14,10 +14,8 @@ import com.gee12.htmlwysiwygeditor.ext.showKeyboard
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Failure
 import com.gee12.mytetroid.common.extensions.buildIntent
-import com.gee12.mytetroid.domain.FailureHandler
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.TetroidActivity
-import org.koin.android.ext.android.inject
 import java.io.File
 
 class FolderPickerActivity : TetroidActivity<FolderPickerViewModel>() {
@@ -56,8 +54,6 @@ class FolderPickerActivity : TetroidActivity<FolderPickerViewModel>() {
             activity.startActivityForResult(intent, requestCode)
         }
     }
-
-    private val failureHandler: FailureHandler by inject()
 
     private lateinit var tbCurrentPath: TextView
     private lateinit var tbError: TextView

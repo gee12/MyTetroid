@@ -8,7 +8,7 @@ data class TetroidScriptToObject(
     val objectId: String?,
     val objectType: TetroidObjectType?,
     val objectName: String?,
-    var isEnabled: Boolean = true,
+    var isActive: Boolean = true,
 ) {
 
     fun isObjectFilled(): Boolean {

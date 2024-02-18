@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.common
 
 import com.gee12.mytetroid.model.FilePath
+import com.gee12.mytetroid.model.TetroidScript
 
 
 sealed class Failure(val ex: Throwable? = null) {
@@ -78,6 +79,10 @@ sealed class Failure(val ex: Throwable? = null) {
 
     sealed class Favorites(ex: Throwable? = null) : Failure(ex) {
         class UnknownError(ex: Exception) : Favorites(ex)
+    }
+
+    sealed class Script(ex: Throwable? = null) : Failure(ex) {
+        data class FileIsNotExist(val script: TetroidScript, val path: FilePath) : Script()
     }
 
     sealed class Image(ex: Throwable? = null) : Failure(ex) {

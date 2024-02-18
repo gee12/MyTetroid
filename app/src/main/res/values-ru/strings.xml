@@ -881,6 +881,8 @@
     <string name="error_db_delete">Не удалось удалить запись из бд</string>
     <string name="error_db_item_not_found">Не найдено ни одной записи в бд</string>
 
+    <string name="error_script_file_is_not_exist">Файл отсутствует</string>
+
     <string name="folder_name_mask">каталог %s</string>
     <string name="file_name_mask">файл %s</string>
     <string name="title_main_fragment">Главная</string>

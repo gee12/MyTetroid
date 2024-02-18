@@ -8,7 +8,6 @@ import com.gee12.mytetroid.common.onSuccess
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
-import com.gee12.mytetroid.domain.manager.ScriptsManager
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.domain.usecase.GetObjectByTypeAndIdUseCase
 import com.gee12.mytetroid.domain.usecase.file.ReadTextFileUseCase
@@ -32,7 +31,7 @@ class ScriptsViewModel(
     appPathProvider: IAppPathProvider,
     storageProvider: IStorageProvider,
     storagePathProvider: IStoragePathProvider,
-    private val scriptsManager: ScriptsManager,
+    private val getScriptsUseCase: GetScriptsUseCase,
     private val getObjectByTypeAndIdUseCase: GetObjectByTypeAndIdUseCase,
     private val readTextFileUseCase: ReadTextFileUseCase,
     private val getScriptTextUseCase: GetScriptTextUseCase,
@@ -84,10 +83,17 @@ class ScriptsViewModel(
     }
 
     private suspend fun loadScripts() {
-        val scripts = withIo {
-            scriptsManager.getScripts(obj = scriptObject)
+        launchOnMain {
+            withIo {
+                getScriptsUseCase.run(
+                    GetScriptsUseCase.Params(scriptObject)
+                )
+            }.onFailure {
+                logFailure(failure = it, show = true)
+            }.onSuccess { scripts ->
+                sendEvent(ScriptsEvent.LoadScripts(scriptObject, scripts))
+            }
         }
-        sendEvent(ScriptsEvent.LoadScripts(scriptObject, scripts))
     }
 
     fun openScriptForEdit(script: TetroidScript) {
@@ -149,14 +155,14 @@ class ScriptsViewModel(
         }
     }
 
-    fun setScriptEnabled(script: TetroidScript, isEnabled: Boolean) {
+    fun setScriptIsActive(script: TetroidScript, isActive: Boolean) {
         launchOnMain {
             withIo {
                 setScriptIsEnabledUseCase.run(
                     SetScriptIsEnabledUseCase.Params(
                         script = script,
                         obj = scriptObject,
-                        isEnabled = isEnabled,
+                        isActive = isActive,
                     )
                 )
             }.onFailure {

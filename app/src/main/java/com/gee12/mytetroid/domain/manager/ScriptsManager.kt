@@ -40,7 +40,7 @@ class ScriptsManager(
                 scriptId = scriptDbEntity.id,
             ).toMutableList()
 
-            var isEnabled = false
+            var isActive = false
             var objectName: String? = null
             if (objectTypeId != null && objectId != null) {
                 when (objectTypeId) {
@@ -69,25 +69,25 @@ class ScriptsManager(
                                         && it.objectId !in parentNodeIds
                             }
 
-                            // проверяем isEnabled для самой записи
-                            isEnabled = objects.any {
+                            // проверяем включен ли для самой записи
+                            isActive = objects.any {
                                 it.objectId == record.id
                                         && it.objectTypeId == TetroidObjectType.RECORD.id
                             }
-                            if (!isEnabled) {
-                                // проверяем isEnabled для родительских веток
+                            if (!isActive) {
+                                // проверяем включен ли для родительских веток
                                 var parentNode: TetroidNode? = record.node
-                                while (!isEnabled && parentNode != null) {
-                                    isEnabled = objects.any {
+                                while (!isActive && parentNode != null) {
+                                    isActive = objects.any {
                                         it.objectTypeId == TetroidObjectType.NODE.id
                                                 && it.objectId == parentNode?.id
                                     }
                                     parentNode = parentNode?.parentNode
                                 }
                             }
-                            if (!isEnabled) {
-                                // проверяем isEnabled скрипта для всего хранилища
-                                isEnabled = objects.any {
+                            if (!isActive) {
+                                // проверяем включен ли для всего хранилища
+                                isActive = objects.any {
                                     it.objectTypeId == null && it.objectId == null
                                 }
                             }
@@ -118,25 +118,25 @@ class ScriptsManager(
                                         || it.objectTypeId == TetroidObjectType.RECORD.id
                             }
 
-                            // проверяем isEnabled для самой ветки
-                            isEnabled = objects.any {
+                            // проверяем включен ли для самой ветки
+                            isActive = objects.any {
                                 it.objectId == node.id
                                         && it.objectTypeId == TetroidObjectType.NODE.id
                             }
-                            if (!isEnabled) {
-                                // проверяем isEnabled для родительских веток
+                            if (!isActive) {
+                                // проверяем включен ли для родительских веток
                                 var parentNode: TetroidNode? = node.parentNode
-                                while (!isEnabled && parentNode != null) {
-                                    isEnabled = objects.any {
+                                while (!isActive && parentNode != null) {
+                                    isActive = objects.any {
                                         it.objectTypeId == TetroidObjectType.NODE.id
                                                 && it.objectId == parentNode?.id
                                     }
                                     parentNode = parentNode?.parentNode
                                 }
                             }
-                            if (!isEnabled) {
-                                // проверяем isEnabled скрипта для всего хранилища
-                                isEnabled = objects.any {
+                            if (!isActive) {
+                                // проверяем включен ли для всего хранилища
+                                isActive = objects.any {
                                     it.objectTypeId == null && it.objectId == null
                                 }
                             }
@@ -145,12 +145,12 @@ class ScriptsManager(
                     //TetroidObjectType.TAG.id -> TODO ?
                     else -> {
                         objectName = null
-                        isEnabled = false
+                        isActive = false
                     }
                 }
             } else {
                 objectName = null
-                isEnabled = objects.any {
+                isActive = objects.any {
                     it.objectId == null && it.objectTypeId == null
                 }
             }
@@ -168,7 +168,7 @@ class ScriptsManager(
                         }
                     )
                 },
-                isEnabled = isEnabled,
+                isActive = isActive,
             )
         }
     }
@@ -211,9 +211,9 @@ class ScriptsManager(
         return scriptsToObjectsRepo.insert(scriptToObject.toDbEntity())
     }
 
-    suspend fun updateScriptIsEnabledForObject(scriptToObject: TetroidScriptToObject, isEnabled: Boolean): Boolean {
-        scriptToObject.isEnabled = isEnabled
-        return if (isEnabled) {
+    suspend fun updateScriptIsActiveForObject(scriptToObject: TetroidScriptToObject, isActive: Boolean): Boolean {
+        scriptToObject.isActive = isActive
+        return if (isActive) {
             if (scriptsToObjectsRepo.getAll(
                     scriptId = scriptToObject.scriptId,
                     objectTypeId = scriptToObject.objectType?.id,

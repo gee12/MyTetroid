@@ -55,6 +55,9 @@ class FailureHandler(
             is Failure.Favorites -> {
                 getFavoritesFailureMessage(failure)
             }
+            is Failure.Script -> {
+                getScriptFailureMessage(failure)
+            }
             is Failure.Image -> {
                 getImageFailureMessage(failure)
             }
@@ -289,8 +292,18 @@ class FailureHandler(
         return when (failure) {
             is Failure.Favorites.UnknownError -> {
                 NotificationData.Error(
-                    title = "Unknown error",
+                    title = getString(R.string.error_unknown),
                     message = failure.ex?.getInfo(),
+                )
+            }
+        }
+    }
+
+    private fun getScriptFailureMessage(failure: Failure.Script): NotificationData {
+        return when (failure) {
+            is Failure.Script.FileIsNotExist -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_script_file_is_not_exist),
                 )
             }
         }

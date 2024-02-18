@@ -25,6 +25,7 @@ import com.gee12.mytetroid.common.extensions.hideKeyboard
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.di.ScopeSource
+import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.manager.InteractionManager
 import com.gee12.mytetroid.domain.provider.BuildInfoProvider
@@ -59,6 +60,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
     val appPathProvider: IAppPathProvider by inject()
     val buildInfoProvider: BuildInfoProvider by inject()
     val interactionManager: InteractionManager by inject()
+    val failureHandler: IFailureHandler by inject()
     val logger: ITetroidLogger by inject()
 
     protected var receivedIntent: Intent? = null

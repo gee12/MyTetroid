@@ -54,7 +54,11 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
                 spaceBetweenRes = R.dimen.recycler_view_item_top_spacing
             )
         )
-        adapter = ScriptsAdapter(context = this, resourcesProvider)
+        adapter = ScriptsAdapter(
+            context = this,
+            resourcesProvider = resourcesProvider,
+            failureHandler = failureHandler,
+        )
         adapter.onItemClickListener = { script, _ ->
             viewModel.openScriptForEdit(script)
         }
@@ -63,7 +67,7 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
             true
         }
         adapter.onItemSwitchClickListener = { script, isChecked, _ ->
-            viewModel.setScriptEnabled(script, isEnabled = isChecked)
+            viewModel.setScriptIsActive(script, isActive = isChecked)
         }
         adapter.onItemMenuClickListener = { script, view ->
             showScriptPopupMenu(view, script)

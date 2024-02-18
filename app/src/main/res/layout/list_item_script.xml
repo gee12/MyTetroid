@@ -25,7 +25,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toEndOf="@id/image_view_icon"
-        app:layout_constraintEnd_toStartOf="@id/switch_script"
+        app:layout_constraintEnd_toStartOf="@id/switch_script_is_active"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginStart="6dp"
         android:layout_marginEnd="6dp"
@@ -36,7 +36,7 @@
         android:textSize="@dimen/font_default" />
 
     <androidx.appcompat.widget.SwitchCompat
-        android:id="@+id/switch_script"
+        android:id="@+id/switch_script_is_active"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toStartOf="@id/image_view_menu"
@@ -63,7 +63,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:barrierDirection="bottom"
-        app:constraint_referenced_ids="image_view_icon, text_view_file_name, switch_script, image_view_menu"/>
+        app:constraint_referenced_ids="image_view_icon, text_view_file_name, switch_script_is_active, image_view_menu"/>
 
     <TextView
         android:id="@+id/text_view_description"

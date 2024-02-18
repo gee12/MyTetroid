@@ -360,7 +360,7 @@ object ViewModelsModule {
                     appPathProvider = get(),
                     storageProvider = get(),
                     storagePathProvider = get(),
-                    scriptsManager = get(),
+                    getScriptsUseCase = get(),
                     getObjectByTypeAndIdUseCase = get(),
                     readTextFileUseCase = get(),
                     getScriptTextUseCase = get(),

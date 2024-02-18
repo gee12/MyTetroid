@@ -708,6 +708,7 @@
     <string name="error_storage_set_is_default_mask">Error setting storage «%s» is default</string>
     <string name="error_storage_folder_is_not_exists">Storage folder is not found</string>
     <string name="error_storage_folder_is_empty">Storage folder is empty</string>
+    <string name="error_script_file_is_not_exist">File is not exist</string>
 
     <string name="debug_not_implemented_yet">Not implemented yet..</string>
 <!--    <string name="details_in_logs">Details in the logs</string>-->

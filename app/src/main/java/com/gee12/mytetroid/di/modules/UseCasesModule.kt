@@ -731,6 +731,15 @@ object UseCasesModule {
             // region Script
 
             scoped {
+                GetScriptsUseCase(
+                    context = androidContext(),
+                    storagePathProvider = get(),
+                    storageProvider = get(),
+                    scriptsManager = get(),
+                )
+            }
+
+            scoped {
                 SaveScriptTextToFileUseCase(
                     context = androidContext(),
                     storagePathProvider = get(),

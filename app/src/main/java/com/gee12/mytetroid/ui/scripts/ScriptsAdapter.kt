@@ -11,6 +11,7 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.model.ITetroidObject
 import com.gee12.mytetroid.model.TetroidScript
@@ -20,6 +21,7 @@ import com.gee12.mytetroid.model.enums.TetroidObjectType
 class ScriptsAdapter(
     context: Context,
     private val resourcesProvider: IResourcesProvider,
+    private val failureHandler: IFailureHandler,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     enum class ItemViewType(val id: Int) {
@@ -120,14 +122,12 @@ class ScriptsAdapter(
 
         private val tvFileName: TextView = itemView.findViewById(R.id.text_view_file_name)
         private val tvDescription: TextView = itemView.findViewById(R.id.text_view_description)
-        private val switch: SwitchCompat = itemView.findViewById(R.id.switch_script)
+        private val switch: SwitchCompat = itemView.findViewById(R.id.switch_script_is_active)
         private val ivError: ImageView = itemView.findViewById(R.id.image_view_error)
         private val tvError: TextView = itemView.findViewById(R.id.text_view_error)
         private val ivMenu: ImageView = itemView.findViewById(R.id.image_view_menu)
 
         fun bind(script: TetroidScript) {
-            val isCanChangeEnabled = script.isCanChangeEnabled(currentObject)
-
             view.setOnClickListener {
                 onItemClickListener?.invoke(script, view)
             }
@@ -137,8 +137,9 @@ class ScriptsAdapter(
             ivMenu.setOnClickListener {
                 onItemMenuClickListener?.invoke(script, ivMenu)
             }
-            switch.isVisible = isCanChangeEnabled
-            switch.isChecked = script.isEnabled
+
+            switch.isVisible = script.isCanSwitchActivity(currentObject)
+            switch.isChecked = script.isActiveByErrors()
             switch.setOnCheckedChangeListener { button, isChecked ->
                 if (button.isPressed) {
                     onItemSwitchClickListener?.invoke(script, isChecked, switch)
@@ -149,10 +150,12 @@ class ScriptsAdapter(
             tvDescription.isVisible = !script.description.isNullOrBlank()
             tvDescription.text = script.description
 
-            val isError = !script.error.isNullOrEmpty()
+            val isError = !script.errors.isNullOrEmpty()
             ivError.isVisible = isError
             tvError.isVisible = isError
-            tvError.text = script.error
+            tvError.text = script.errors?.joinToString(separator = "\n") {
+                failureHandler.getFailureMessage(it).title
+            }
         }
     }
 
@@ -162,7 +165,7 @@ class ScriptsAdapter(
 
         private val ivIcon: ImageView = itemView.findViewById(R.id.image_view_icon)
         private val tvObjectName: TextView = itemView.findViewById(R.id.text_view_object_name)
-        private val switch: SwitchCompat = itemView.findViewById(R.id.switch_script)
+        private val switch: SwitchCompat = itemView.findViewById(R.id.switch_script_is_active)
 
         fun bind(scriptToObject: TetroidScriptToObject) {
             val isForAllStorage = currentObject == null

@@ -15,17 +15,17 @@ class SetScriptIsEnabledUseCase(
     data class Params(
         val script: TetroidScript,
         val obj: ITetroidObject?,
-        val isEnabled: Boolean,
+        val isActive: Boolean,
     )
 
     override suspend fun run(params: Params): Either<Failure, None> {
         val script = params.script
         val obj = params.obj
-        val isEnabled = params.isEnabled
+        val isActive = params.isActive
         var scriptToObject = script.getScriptObject(obj)
 
         return if (scriptToObject != null) {
-            if (scriptsManager.updateScriptIsEnabledForObject(scriptToObject, isEnabled)) {
+            if (scriptsManager.updateScriptIsActiveForObject(scriptToObject, isActive)) {
                 None.toRight()
             } else {
                 Failure.Database.Update.toLeft()
@@ -36,7 +36,7 @@ class SetScriptIsEnabledUseCase(
                 objectId = obj?.id,
                 objectType = obj?.type?.let { TetroidObjectType.getById(it) },
                 objectName = obj?.name,
-                isEnabled = isEnabled,
+                isActive = isActive,
             )
             if (scriptsManager.insertScriptToObject(scriptToObject)) {
                 None.toRight()
