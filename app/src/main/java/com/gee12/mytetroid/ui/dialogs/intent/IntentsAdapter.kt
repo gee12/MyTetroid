@@ -1,9 +1,8 @@
-package com.gee12.mytetroid.ui
+package com.gee12.mytetroid.ui.dialogs.intent
 
 import android.content.Context
 import android.graphics.Typeface
 import android.text.Html
-import android.text.Spannable
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.RelativeSizeSpan

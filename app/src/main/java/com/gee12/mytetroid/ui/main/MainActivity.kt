@@ -46,7 +46,7 @@ import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.TetroidStorageActivity
 import com.gee12.mytetroid.ui.base.views.SearchViewXListener
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
-import com.gee12.mytetroid.ui.dialogs.IntentDialog
+import com.gee12.mytetroid.ui.dialogs.intent.IntentsDialog
 import com.gee12.mytetroid.ui.dialogs.node.NodeFieldsDialog
 import com.gee12.mytetroid.ui.dialogs.node.NodeInfoDialog
 import com.gee12.mytetroid.ui.dialogs.pass.PassDialogs.IPassInputResult
@@ -2093,7 +2093,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 onCancel = {},
             )
         } else {
-            IntentDialog(
+            IntentsDialog(
                 resourcesProvider = resourcesProvider,
                 isText = isText,
                 onItemClick = { receivedData: ReceivedData ->

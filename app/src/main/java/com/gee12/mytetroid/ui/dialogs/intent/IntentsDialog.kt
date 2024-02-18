@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.ui.dialogs
+package com.gee12.mytetroid.ui.dialogs.intent
 
 import android.view.View
 import android.widget.AdapterView
@@ -7,13 +7,13 @@ import androidx.appcompat.app.AlertDialog
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.model.ReceivedData
-import com.gee12.mytetroid.ui.IntentsAdapter
+import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import com.gee12.mytetroid.ui.storage.StorageViewModel
 
 /**
  * Диалог со списком вариантов обработки переданного объекта.
  */
-class IntentDialog(
+class IntentsDialog(
     private val resourcesProvider: IResourcesProvider,
     private val isText: Boolean,
     private val onItemClick: (item: ReceivedData) -> Unit,
