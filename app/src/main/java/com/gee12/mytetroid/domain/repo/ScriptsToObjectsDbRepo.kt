@@ -45,6 +45,16 @@ class ScriptsToObjectsDbRepo(context: Context) : DbRepo() {
         dataBase.scriptsToObjectsDao.deleteById(id) > 0
     }
 
+    suspend fun deleteByObject(
+        objectTypeId: Int?,
+        objectId: String?,
+    ): Boolean = withContext(Dispatchers.IO) {
+        dataBase.scriptsToObjectsDao.deleteByObject(
+            objectTypeId = objectTypeId.orZero(),
+            objectId = objectId.orEmpty(),
+        ) > 0
+    }
+
     suspend fun delete(
         scriptId: Int,
         objectTypeId: Int?,

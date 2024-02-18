@@ -47,6 +47,9 @@ interface ScriptsDao {
     @Delete
     fun delete(entity: ScriptDbEntity): Int
 
+    @Query("DELETE FROM scripts WHERE storageId = :storageId")
+    fun deleteByStorageId(storageId: Int): Int
+
     @Query("DELETE FROM scripts WHERE storageId = :storageId AND id = :id")
     fun delete(storageId: Int, id: Int): Int
 

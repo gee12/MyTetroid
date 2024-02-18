@@ -48,7 +48,8 @@ interface ScriptsToObjectsDao {
     @Delete
     fun delete(entity: ScriptToObjectDbEntity): Int
 
-    @Query("""
+    @Query(
+        """
         DELETE FROM scriptsToObjects 
         WHERE scriptId = :scriptId
             AND IFNULL(objectTypeId, 0) = :objectTypeId 
@@ -57,6 +58,18 @@ interface ScriptsToObjectsDao {
     )
     fun delete(
         scriptId: Int,
+        objectTypeId: Int,
+        objectId: String,
+    ): Int
+
+    @Query(
+        """
+        DELETE FROM scriptsToObjects 
+        WHERE IFNULL(objectTypeId, 0) = :objectTypeId 
+            AND IFNULL(objectId, '') = :objectId 
+        """
+    )
+    fun deleteByObject(
         objectTypeId: Int,
         objectId: String,
     ): Int

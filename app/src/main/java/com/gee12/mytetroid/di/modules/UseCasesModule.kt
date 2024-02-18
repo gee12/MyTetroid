@@ -343,6 +343,7 @@ object UseCasesModule {
                     resourcesProvider = get(),
                     logger = get(),
                     appPathProvider = get(),
+                    scriptsManager = get(),
                     storagesRepo = get(),
                 )
             }
@@ -395,11 +396,10 @@ object UseCasesModule {
 
             scoped {
                 CutOrDeleteNodeUseCase(
-                    context = androidContext(),
                     logger = get(),
                     storageProvider = get(),
-                    recordPathProvider = get(),
                     favoritesManager = get(),
+                    scriptsManager = get(),
                     deleteRecordTagsUseCase = get(),
                     getRecordFolderUseCase = get(),
                     moveOrDeleteRecordFolderUseCase = get(),
@@ -453,10 +453,9 @@ object UseCasesModule {
 
             scoped {
                 CutOrDeleteRecordUseCase(
-                    context = androidContext(),
                     logger = get(),
-                    recordPathProvider = get(),
                     favoritesManager = get(),
+                    scriptsManager = get(),
                     getRecordFolderUseCase = get(),
                     deleteRecordTagsUseCase = get(),
                     moveOrDeleteRecordFolderUseCase = get(),

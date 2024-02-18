@@ -248,4 +248,19 @@ class ScriptsManager(
         }
     }
 
+    suspend fun deleteScriptByStorageId(storageId: Int): Boolean {
+        val scriptsByStorageId = scriptsRepo.getAll(storageId)
+        scriptsByStorageId.forEach { script ->
+            scriptsToObjectsRepo.deleteByScriptId(scriptId = script.id)
+        }
+        return scriptsRepo.deleteByStorageId(storageId)
+    }
+
+    suspend fun deleteScriptToObject(objectId: String, objectTypeId: Int): Boolean {
+        return scriptsToObjectsRepo.deleteByObject(
+            objectTypeId = objectTypeId,
+            objectId = objectId,
+        )
+    }
+
 }

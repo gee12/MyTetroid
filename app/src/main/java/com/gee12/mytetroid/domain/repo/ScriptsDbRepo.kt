@@ -43,6 +43,12 @@ class ScriptsDbRepo(context: Context) : DbRepo() {
         ) > 0
     }
 
+    suspend fun deleteByStorageId(storageId: Int): Boolean = withContext(Dispatchers.IO) {
+        dataBase.scriptsDao.deleteByStorageId(
+            storageId = storageId,
+        ) > 0
+    }
+
     suspend fun getMaxOrder(storageId: Int): Int = withContext(Dispatchers.IO) {
         dataBase.scriptsDao.getMaxOrder(storageId)
     }

@@ -1,16 +1,16 @@
 package com.gee12.mytetroid.domain.usecase.record
 
-import android.content.Context
 import androidx.documentfile.provider.DocumentFile
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.domain.provider.IRecordPathProvider
 import com.gee12.mytetroid.domain.manager.FavoritesManager
+import com.gee12.mytetroid.domain.manager.ScriptsManager
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.domain.usecase.storage.SaveStorageTreeUseCase
 import com.gee12.mytetroid.domain.usecase.tag.DeleteRecordTagsUseCase
+import com.gee12.mytetroid.model.enums.TetroidObjectType
 
 /**
  * Удаление/вырезание записи из ветки.
@@ -19,10 +19,9 @@ import com.gee12.mytetroid.domain.usecase.tag.DeleteRecordTagsUseCase
  * @param isCutting Если true, то запись вырезается, иначе - удаляется
  */
 class CutOrDeleteRecordUseCase(
-    private val context: Context,
     private val logger: ITetroidLogger,
-    private val recordPathProvider: IRecordPathProvider,
     private val favoritesManager: FavoritesManager,
+    private val scriptsManager: ScriptsManager,
     private val getRecordFolderUseCase: GetRecordFolderUseCase,
     private val deleteRecordTagsUseCase: DeleteRecordTagsUseCase,
     private val moveOrDeleteRecordFolderUseCase: MoveOrDeleteRecordFolderUseCase,
@@ -77,6 +76,11 @@ class CutOrDeleteRecordUseCase(
                 if (record.isFavorite) {
                     favoritesManager.remove(record, false)
                 }
+                // удаляем скрипты, активные только для этой записи
+                scriptsManager.deleteScriptToObject(
+                    objectId = record.id,
+                    objectTypeId = TetroidObjectType.RECORD.id,
+                )
                 // перезагружаем список меток
                 deleteRecordTagsUseCase.run(
                     DeleteRecordTagsUseCase.Params(record)
