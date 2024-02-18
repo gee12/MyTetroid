@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.domain.interactor
+package com.gee12.mytetroid.domain.manager
 
 import android.app.Activity
 import android.content.Context

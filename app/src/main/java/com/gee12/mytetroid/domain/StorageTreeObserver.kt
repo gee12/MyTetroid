@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.domain.interactor
+package com.gee12.mytetroid.domain
 
 import android.app.Application
 import android.os.FileObserver

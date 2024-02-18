@@ -9,7 +9,7 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.getStringFromTo
 import com.gee12.mytetroid.common.extensions.getStringTo
-import com.gee12.mytetroid.domain.interactor.StorageTreeObserver
+import com.gee12.mytetroid.domain.StorageTreeObserver
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.domain.usecase.file.MoveFileOrFolderUseCase
 import com.gee12.mytetroid.logs.ITetroidLogger

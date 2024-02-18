@@ -4,8 +4,8 @@ import com.gee12.mytetroid.domain.FailureHandler
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.domain.Notificator
-import com.gee12.mytetroid.domain.interactor.StorageTreeObserver
-import com.gee12.mytetroid.domain.interactor.SyncManager
+import com.gee12.mytetroid.domain.StorageTreeObserver
+import com.gee12.mytetroid.domain.manager.SyncManager
 import com.gee12.mytetroid.domain.manager.*
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.logs.ITetroidLogger
