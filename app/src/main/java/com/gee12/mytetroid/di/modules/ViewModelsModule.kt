@@ -214,7 +214,7 @@ object ViewModelsModule {
                     downloadImageFromWebUseCase = get(),
                     downloadFileFromWebUseCase = get(),
                     getImageDimensionsUseCase = get(),
-                    prepareImageForOpenUseCase = get(),
+                    prepareFileForOpenUseCase = get(),
                 )
             }
 
@@ -369,6 +369,7 @@ object ViewModelsModule {
                     setScriptIsEnabledUseCase = get(),
                     setScriptToObjectIsEnabledUseCase = get(),
                     deleteScriptFileUseCase = get(),
+                    prepareFileForOpenUseCase = get(),
                 )
             }
 

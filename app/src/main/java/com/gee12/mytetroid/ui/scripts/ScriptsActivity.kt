@@ -3,6 +3,7 @@ package com.gee12.mytetroid.ui.scripts
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -133,6 +134,12 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
                     isNew = event.isNew,
                 )
             }
+            is ScriptsEvent.OpenScriptFile -> {
+                openScriptFile(
+                    uri = event.uri,
+                    mimeType = event.mimeType,
+                )
+            }
         }
     }
 
@@ -218,6 +225,14 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
         }
     }
 
+    private fun openScriptFile(uri: Uri, mimeType: String) {
+        interactionManager.openFile(
+            activity = this,
+            uri = uri,
+            mimeType = mimeType,
+        )
+    }
+
     // endregion File
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -245,10 +260,17 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
         val popupMenu = PopupMenu(this, anchorView)
         popupMenu.inflate(R.menu.script_context)
 
+        val menu = popupMenu.menu
+        (menu.findItem(R.id.action_open_file))?.isVisible = script.isFileExist()
+
         popupMenu.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_edit -> {
                     viewModel.openScriptForEdit(script)
+                    true
+                }
+                R.id.action_open_file -> {
+                    viewModel.prepareScriptFileForOpen(script)
                     true
                 }
                 R.id.action_delete -> {

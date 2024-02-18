@@ -800,7 +800,7 @@ object UseCasesModule {
             //region Image
 
             scoped {
-                PrepareImageForOpenUseCase(
+                PrepareFileForOpenUseCase(
                     getContentUriFromFileUseCase = get(),
                 )
             }

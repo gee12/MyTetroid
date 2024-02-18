@@ -2,6 +2,7 @@ package com.gee12.mytetroid.ui.scripts
 
 import android.app.Application
 import androidx.documentfile.provider.DocumentFile
+import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.common.extensions.orZero
 import com.gee12.mytetroid.common.onFailure
 import com.gee12.mytetroid.common.onSuccess
@@ -10,6 +11,7 @@ import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.domain.usecase.GetObjectByTypeAndIdUseCase
+import com.gee12.mytetroid.domain.usecase.file.PrepareFileForOpenUseCase
 import com.gee12.mytetroid.domain.usecase.file.ReadTextFileUseCase
 import com.gee12.mytetroid.domain.usecase.script.*
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -19,6 +21,7 @@ import com.gee12.mytetroid.model.ITetroidObject
 import com.gee12.mytetroid.model.TetroidScript
 import com.gee12.mytetroid.model.TetroidScriptToObject
 import com.gee12.mytetroid.ui.base.BaseStorageViewModel
+import java.io.File
 
 class ScriptsViewModel(
     app: Application,
@@ -40,6 +43,7 @@ class ScriptsViewModel(
     private val setScriptIsEnabledUseCase: SetScriptIsEnabledUseCase,
     private val setScriptToObjectIsEnabledUseCase: SetScriptToObjectIsEnabledUseCase,
     private val deleteScriptFileUseCase: DeleteScriptFileUseCase,
+    private val prepareFileForOpenUseCase: PrepareFileForOpenUseCase,
 ) : BaseStorageViewModel(
     app = app,
     buildInfoProvider = buildInfoProvider,
@@ -229,6 +233,29 @@ class ScriptsViewModel(
             }.onSuccess {
                 logOperRes(LogObj.SCRIPT, LogOper.DELETE)
                 loadScripts()
+            }
+        }
+    }
+
+    fun prepareScriptFileForOpen(script: TetroidScript) {
+        launchOnMain {
+            withIo {
+                val scriptsFolderPath = storagePathProvider.getPathToScriptsFolder()
+                val scriptFileName = makePath(scriptsFolderPath, script.fileName)
+                prepareFileForOpenUseCase.run(
+                    PrepareFileForOpenUseCase.Params(
+                        file = File(scriptFileName)
+                    )
+                )
+            }.onFailure {
+                logFailure(it, show = true)
+            }.onSuccess { result ->
+                sendEvent(
+                    ScriptsEvent.OpenScriptFile(
+                        uri = result.uri,
+                        mimeType = result.mimeType,
+                    )
+                )
             }
         }
     }

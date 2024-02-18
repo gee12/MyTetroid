@@ -50,4 +50,8 @@ data class TetroidScript(
         } ?: false
     }
 
+    fun isFileExist(): Boolean {
+        return errors?.any { it is Failure.Script.FileIsNotExist }?.not() ?: true
+    }
+
 }

@@ -44,7 +44,7 @@ import com.gee12.mytetroid.domain.usecase.record.*
 import com.gee12.mytetroid.domain.usecase.image.SaveImageFromBitmapUseCase
 import com.gee12.mytetroid.domain.usecase.image.SaveImageFromUriUseCase
 import com.gee12.mytetroid.domain.usecase.image.GetImageDimensionsUseCase
-import com.gee12.mytetroid.domain.usecase.image.PrepareImageForOpenUseCase
+import com.gee12.mytetroid.domain.usecase.file.PrepareFileForOpenUseCase
 import com.gee12.mytetroid.domain.usecase.network.DownloadFileFromWebUseCase
 import com.gee12.mytetroid.domain.usecase.network.DownloadImageFromWebUseCase
 import com.gee12.mytetroid.domain.usecase.network.DownloadWebPageContentUseCase
@@ -54,6 +54,7 @@ import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.model.permission.TetroidPermission
 import com.gee12.mytetroid.ui.storage.StorageEvent
 import java.io.File
+import java.net.URI
 
 
 class RecordViewModel(
@@ -110,7 +111,7 @@ class RecordViewModel(
     private val downloadImageFromWebUseCase : DownloadImageFromWebUseCase,
     private val downloadFileFromWebUseCase: DownloadFileFromWebUseCase,
     private val getImageDimensionsUseCase: GetImageDimensionsUseCase,
-    private val prepareImageForOpenUseCase: PrepareImageForOpenUseCase,
+    private val prepareFileForOpenUseCase: PrepareFileForOpenUseCase,
 
     cryptRecordFilesIfNeedUseCase: CryptRecordFilesIfNeedUseCase,
     parseRecordTagsUseCase: ParseRecordTagsUseCase,
@@ -691,8 +692,10 @@ class RecordViewModel(
     fun openImage(imageFileName: String) {
         launchOnMain {
             withIo {
-                prepareImageForOpenUseCase.run(
-                    PrepareImageForOpenUseCase.Params(imageFileName)
+                prepareFileForOpenUseCase.run(
+                    PrepareFileForOpenUseCase.Params(
+                        file = File(URI(imageFileName))
+                    )
                 )
             }.onFailure {
                 logFailure(it, show = true)
