@@ -755,6 +755,16 @@ object UseCasesModule {
             }
 
             scoped {
+                AddDefaultScriptUseCase(
+                    context = androidContext(),
+                    resourcesProvider = get(),
+                    storageProvider = get(),
+                    scriptsManager = get(),
+                    saveScriptTextToFileUseCase = get(),
+                )
+            }
+
+            scoped {
                 EditScriptUseCase(
                     context = androidContext(),
                     storagePathProvider = get(),

@@ -166,6 +166,8 @@
     <string name="title_add_script">Add script</string>
     <string name="title_script_create_new">Create new</string>
     <string name="title_script_pick_file">Choose from file</string>
+    <string name="title_default_scripts">Default scripts</string>
+    <string name="title_script_pick_default">Choose from defaults</string>
     <string name="title_edit_storage">Edit storage</string>
     <string name="title_select_folder"><![CDATA[<Select folder>]]></string>
     <string name="title_select_node"><![CDATA[<Select the node>]]></string>
@@ -235,6 +237,11 @@
     <string name="title_script_for_node_masked">For node «%s»</string>
     <string name="title_script_for_tag_masked">For tag «%s»</string>
     <string name="title_script_for_all_storage">For all storage</string>
+
+    <string name="title_def_script_title_table_sort">Sort tables</string>
+    <string name="title_def_script_description_table_sort">The table rows will be sorted after clicking on the column header</string>
+    <string name="title_def_script_title_table_totals">Tables totals</string>
+    <string name="title_def_script_description_table_totals">Will be added a row with totals for each column of the table</string>
 
     <string name="subtitle_main_page_node_records">NODE</string>
     <string name="subtitle_main_page_record_files">FILES</string>
@@ -571,6 +578,7 @@
     <string name="label_name">Name</string>
     <string name="label_description">Description</string>
     <string name="label_text">Text</string>
+    <string name="label_js_code">Javascript code</string>
     <string name="label_file_name">File name</string>
     <string name="label_tags">Tags</string>
     <string name="label_tags_colon">Tags:</string>
@@ -661,6 +669,7 @@
     <string name="ask_record_delete_mask">Delete record «%s» ?</string>
     <string name="ask_file_delete_mask">Delete file «%s» ?</string>
     <string name="ask_script_delete_mask">Delete script «%s» ?</string>
+    <string name="ask_script_add_default">Scripts are Javascript scripts that allow you to add additional functionality to the note text editor.\n\nThe script list is empty, should I choose from the standard ones?</string>
     <string name="ask_request_read_ext_storage">Permission to read to external memory is required to work with storage files. Provide ?</string>
     <string name="ask_request_write_ext_storage">Permission to write to external memory is required to work with storage files. Provide ?</string>
     <string name="ask_request_camera">Permission required to turn on the camera to capture an image. Provide ?</string>

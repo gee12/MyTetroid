@@ -73,6 +73,12 @@
             app:fab_label="@string/title_script_pick_file"
             style="@style/FabClansButton" />
 
+        <com.github.clans.fab.FloatingActionButton
+            android:id="@+id/fab_choose_default"
+            android:src="@drawable/ic_default_script_white"
+            app:fab_label="@string/title_script_pick_default"
+            style="@style/FabClansButton" />
+
     </com.github.clans.fab.FloatingActionMenu>
 
     <include

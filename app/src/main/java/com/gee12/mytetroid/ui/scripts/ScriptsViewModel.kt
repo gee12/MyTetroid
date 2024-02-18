@@ -20,6 +20,7 @@ import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.ITetroidObject
 import com.gee12.mytetroid.model.TetroidScript
 import com.gee12.mytetroid.model.TetroidScriptToObject
+import com.gee12.mytetroid.model.enums.DefaultScript
 import com.gee12.mytetroid.ui.base.BaseStorageViewModel
 import java.io.File
 
@@ -39,6 +40,7 @@ class ScriptsViewModel(
     private val readTextFileUseCase: ReadTextFileUseCase,
     private val getScriptTextUseCase: GetScriptTextUseCase,
     private val saveScriptUseCase: SaveScriptUseCase,
+    private val addDefaultScriptUseCase: AddDefaultScriptUseCase,
     private val editScriptUseCase: EditScriptUseCase,
     private val setScriptIsEnabledUseCase: SetScriptIsEnabledUseCase,
     private val setScriptToObjectIsEnabledUseCase: SetScriptToObjectIsEnabledUseCase,
@@ -65,7 +67,7 @@ class ScriptsViewModel(
     ) {
         launchOnMain {
             initScriptObject(objectTypeId, objectId)
-            loadScripts()
+            loadScripts(isShowDefaultScripts = true)
         }
     }
 
@@ -86,7 +88,7 @@ class ScriptsViewModel(
         }
     }
 
-    fun loadScripts() {
+    fun loadScripts(isShowDefaultScripts: Boolean = false) {
         launchOnMain {
             withIo {
                 getScriptsUseCase.run(
@@ -96,6 +98,10 @@ class ScriptsViewModel(
                 logFailure(failure = it, show = true)
             }.onSuccess { scripts ->
                 sendEvent(ScriptsEvent.LoadScripts(scriptObject, scripts))
+
+                if (scripts.isEmpty() && isShowDefaultScripts) {
+                    sendEvent(ScriptsEvent.ShowRequestForDefaultScripts)
+                }
             }
         }
     }
@@ -155,6 +161,21 @@ class ScriptsViewModel(
                    scriptText = scriptText,
                    isNew = true,
                ))
+            }
+        }
+    }
+
+    fun addDefaultScript(script: DefaultScript) {
+        launchOnMain {
+            withIo {
+                addDefaultScriptUseCase.run(
+                    AddDefaultScriptUseCase.Params(script)
+                )
+            }.onFailure {
+                logFailure(failure = it, show = true)
+            }.onSuccess {
+                logOperRes(LogObj.SCRIPT, LogOper.ADD)
+                loadScripts()
             }
         }
     }

@@ -29,6 +29,7 @@ import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.TetroidActivity
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
+import com.gee12.mytetroid.ui.dialogs.script.DefaultScriptsDialog
 import com.gee12.mytetroid.ui.dialogs.script.ScriptFieldsDialog
 import com.github.clans.fab.FloatingActionMenu
 
@@ -99,6 +100,12 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
                     openFilePickerForAttachScript()
                 }
             }
+            findViewById<com.github.clans.fab.FloatingActionButton>(R.id.fab_choose_default).also {
+                it.setOnClickListener {
+                    fabAddScript.close(true)
+                    showDefaultScriptsDialog()
+                }
+            }
         }
 
         initData(receivedIntent)
@@ -126,6 +133,9 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
                     scripts = event.scripts,
                     tetroidObject = event.tetroidObject,
                 )
+            }
+            ScriptsEvent.ShowRequestForDefaultScripts -> {
+                showRequestForDefaultScriptsDialog()
             }
             is ScriptsEvent.ShowScriptDialog -> {
                 showScriptFieldsDialog(
@@ -162,6 +172,25 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
 
         adapter.submitList(scripts, tetroidObject)
         findViewById<TextView>(R.id.text_view_empty_scripts)?.isVisible = scripts.isEmpty()
+    }
+
+    private fun showRequestForDefaultScriptsDialog() {
+        AskDialogs.showYesDialog(
+            context = this,
+            message = getString(R.string.ask_script_add_default),
+            onApply = {
+                showDefaultScriptsDialog()
+            }
+        )
+    }
+
+    private fun showDefaultScriptsDialog() {
+        DefaultScriptsDialog(
+            resourcesProvider = resourcesProvider,
+            onItemClick = {
+                viewModel.addDefaultScript(script = it)
+            },
+        ).showIfPossibleAndNeeded(supportFragmentManager)
     }
 
     private fun showDeleteScriptDialog(script: TetroidScript) {

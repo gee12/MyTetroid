@@ -12,6 +12,8 @@ sealed class ScriptsEvent : BaseEvent() {
         val scripts: List<TetroidScript>,
     ) : ScriptsEvent()
 
+    object ShowRequestForDefaultScripts : ScriptsEvent()
+
     data class ShowScriptDialog(
         val script: TetroidScript,
         val scriptText: String,

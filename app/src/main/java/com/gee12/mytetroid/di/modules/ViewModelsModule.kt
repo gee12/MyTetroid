@@ -365,6 +365,7 @@ object ViewModelsModule {
                     readTextFileUseCase = get(),
                     getScriptTextUseCase = get(),
                     saveScriptUseCase = get(),
+                    addDefaultScriptUseCase = get(),
                     editScriptUseCase = get(),
                     setScriptIsEnabledUseCase = get(),
                     setScriptToObjectIsEnabledUseCase = get(),

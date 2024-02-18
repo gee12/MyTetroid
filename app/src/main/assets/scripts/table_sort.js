@@ -1,4 +1,3 @@
-
 setTableSortCallbacks();
 
 function setTableSortCallbacks() {
@@ -27,16 +26,9 @@ function sortTableByColumn(table, cell) {
     RE.textChange();
 }
 
-// Returns a function responsible for sorting a specific column index
-// (idx = columnIndex, asc = ascending order?).
 var comparer = function(colIndex, asc) {
-    // This is used by the array.sort() function...
     return function(a, b) {
-        // This is a transient function, that is called straight away.
-        // It allows passing in different order of args, based on
-        // the ascending/descending order.
         return function(v1, v2) {
-            // sort based on a numeric or localeCompare, based on type...
             return (v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2))
                 ? v1 - v2
                 : v1.toString().localeCompare(v2);
@@ -45,5 +37,6 @@ var comparer = function(colIndex, asc) {
 };
 
 function getCellValue(row, colIndex) {
-    return row.children[colIndex].innerText || row.children[colIndex].textContent;
+    var cell = row.children[colIndex];
+    return cell.innerText || cell.textContent;
 }
