@@ -8,6 +8,11 @@ android {
     compileSdk sdk.compileSdk
     flavorDimensions = ['default']
 
+    kotlinOptions {
+        jvmTarget = '1.8'
+        freeCompilerArgs = ["-Xcontext-receivers"]
+    }
+
     signingConfigs {
         debug {
             storeFile file("external/debug.keystore")
