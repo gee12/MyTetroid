@@ -19,6 +19,9 @@ interface ScriptsDao {
     @Query("SELECT COUNT(1) FROM scripts WHERE storageId = :storageId")
     fun getCount(storageId: Int): Int
 
+    @Query("SELECT COUNT(1) FROM scripts WHERE storageId = :storageId AND fileName = :fileName AND id != :scriptId")
+    fun getCountByFileName(storageId: Int, scriptId: Int, fileName: String): Int
+
     @Query("SELECT MIN(orderNum) FROM scripts WHERE storageId = :storageId")
     fun getMinOrder(storageId: Int): Int
 

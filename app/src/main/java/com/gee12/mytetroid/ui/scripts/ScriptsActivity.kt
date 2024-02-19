@@ -211,6 +211,7 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
         ScriptFieldsDialog(
             script = script,
             scriptText = text,
+            storageId = viewModel.getStorageId(),
             onApply = { fileName, description, updatedText ->
                 if (isNew) {
                     viewModel.addNewScript(

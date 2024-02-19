@@ -994,6 +994,7 @@
     <string name="error_db_update">Failed to update record in db</string>
     <string name="error_db_delete">Failed to delete record from db</string>
     <string name="error_db_item_not_found">Nothing was found in the database</string>
+    <string name="error_script_file_name_is_not_unique">Имя файла не уникально</string>
 
     <string name="folder_name_mask">folder %s</string>
     <string name="file_name_mask">file %s</string>

@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.domain.repo
 
 import android.content.Context
+import com.gee12.mytetroid.common.extensions.orZero
 import com.gee12.mytetroid.database.TetroidDatabase
 import com.gee12.mytetroid.database.entity.ScriptDbEntity
 import kotlinx.coroutines.Dispatchers
@@ -15,6 +16,10 @@ class ScriptsDbRepo(context: Context) : DbRepo() {
         dataBase.scriptsDao.getAll(
             storageId = storageId,
         )
+    }
+
+    suspend fun isUniqueFileName(storageId: Int, scriptId: Int?, fileName: String): Boolean = withContext(Dispatchers.IO) {
+        dataBase.scriptsDao.getCountByFileName(storageId, scriptId.orZero(), fileName) == 0
     }
 
     suspend fun insert(

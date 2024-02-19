@@ -4,15 +4,21 @@ import android.text.InputType
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
 import com.gee12.mytetroid.BuildConfig
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.extensions.addAfterTextChangedListener
-import com.gee12.mytetroid.domain.provider.IResourcesProvider
+import com.gee12.mytetroid.common.extensions.orZero
+import com.gee12.mytetroid.common.extensions.withIo
+import com.gee12.mytetroid.domain.manager.ScriptsManager
 import com.gee12.mytetroid.model.TetroidScript
 import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import com.gee12.mytetroid.ui.storage.StorageViewModel
-import org.koin.android.ext.android.inject
+import kotlinx.coroutines.launch
 import java.util.Random
 import kotlin.math.abs
 
@@ -22,10 +28,11 @@ import kotlin.math.abs
 class ScriptFieldsDialog(
     private val script: TetroidScript?,
     private val scriptText: String?,
+    override var storageId: Int?,
     private val onApply: (fileName: String, description: String, text: String) -> Unit,
 ) : TetroidStorageDialogFragment<StorageViewModel>() {
 
-    val resourcesProvider: IResourcesProvider by inject()
+    private lateinit var scriptsManager: ScriptsManager
 
 
     override fun getRequiredTag() = TAG
@@ -37,8 +44,12 @@ class ScriptFieldsDialog(
     override fun getViewModelClazz() = StorageViewModel::class.java
 
     private lateinit var etFileName: EditText
+    private lateinit var ivError: ImageView
+    private lateinit var tvError: TextView
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
+        scriptsManager = koinScope.get<ScriptsManager>()
+
         setTitle(if (script != null) R.string.title_edit_script else R.string.title_create_script)
 
         etFileName = dialogView.findViewById(R.id.edit_text_file_name)
@@ -46,6 +57,9 @@ class ScriptFieldsDialog(
         etDescription.imeOptions = EditorInfo.IME_ACTION_NEXT
         etDescription.setRawInputType(InputType.TYPE_CLASS_TEXT)
         val etText = dialogView.findViewById<EditText>(R.id.edit_text_text)
+
+        ivError = dialogView.findViewById(R.id.image_view_error)
+        tvError = dialogView.findViewById(R.id.text_view_error)
 
         if (BuildConfig.DEBUG && script == null) {
             val rand = Random()
@@ -78,9 +92,27 @@ class ScriptFieldsDialog(
     }
 
     private fun checkPositiveButtonIsEnabled() {
-        // TODO: проверять уникальность имени файла
+        val enteredFileName = etFileName.text.toString()
+        getPositiveButton()?.isEnabled = false
 
-        getPositiveButton()?.isEnabled = etFileName.text.isNotEmpty()
+        lifecycleScope.launch {
+            val isUniqueFileName = withIo {
+                scriptsManager.isUniqueFileName(
+                    storageId = storageId.orZero(),
+                    scriptId = script?.id,
+                    fileName = enteredFileName,
+                )
+            }
+            ivError.isVisible = enteredFileName.isNotEmpty() && !isUniqueFileName
+            tvError.isVisible = enteredFileName.isNotEmpty() && !isUniqueFileName
+            tvError.text = buildString {
+                if (enteredFileName.isNotEmpty() && !isUniqueFileName) {
+                    append(getString(R.string.error_script_file_name_is_not_unique))
+                }
+            }
+
+            getPositiveButton()?.isEnabled = enteredFileName.isNotEmpty() && isUniqueFileName
+        }
     }
 
     companion object {

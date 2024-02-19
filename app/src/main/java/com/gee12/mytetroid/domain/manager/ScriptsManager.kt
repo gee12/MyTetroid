@@ -203,6 +203,10 @@ class ScriptsManager(
         }
     }
 
+    suspend fun isUniqueFileName(storageId: Int, scriptId: Int?, fileName: String): Boolean {
+        return scriptsRepo.isUniqueFileName(storageId, scriptId, fileName)
+    }
+
     suspend fun insertScript(script: TetroidScript): Boolean {
         return scriptsRepo.insert(script.toDbEntity())
     }
