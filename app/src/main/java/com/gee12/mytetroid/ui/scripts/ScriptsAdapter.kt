@@ -171,6 +171,7 @@ class ScriptsAdapter(
             val isForAllStorage = currentObject == null
             view.isEnabled = isForAllStorage
 
+            switch.isVisible = scriptToObject.script?.isActiveByErrors().orFalse()
             switch.isEnabled = isForAllStorage
             switch.isChecked = true
             switch.setOnCheckedChangeListener { button, isChecked ->

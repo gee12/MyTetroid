@@ -37,7 +37,9 @@ class SetScriptIsEnabledUseCase(
                 objectType = obj?.type?.let { TetroidObjectType.getById(it) },
                 objectName = obj?.name,
                 isActive = isActive,
-            )
+            ).also {
+                it.script = script
+            }
             if (scriptsManager.insertScriptToObject(scriptToObject)) {
                 None.toRight()
             } else {

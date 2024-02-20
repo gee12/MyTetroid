@@ -28,11 +28,11 @@ class ScriptsManager(
         get() = storageProvider.storage?.id ?: 0
 
     suspend fun getScripts(obj: ITetroidObject? = null): List<TetroidScript> {
-        val objectScripts = scriptsRepo.getAll(
+        val storageScripts = scriptsRepo.getAll(
             storageId = storageId,
         )
 
-        return objectScripts.map { scriptDbEntity ->
+        return storageScripts.map { scriptDbEntity ->
             val objectTypeId = obj?.type
             val objectId = obj?.id
 
@@ -41,14 +41,12 @@ class ScriptsManager(
             ).toMutableList()
 
             var isActive = false
-            var objectName: String? = null
             if (objectTypeId != null && objectId != null) {
                 when (objectTypeId) {
                     TetroidObjectType.RECORD.id -> {
                         getRecordByIdUseCase.run(
                             GetRecordByIdUseCase.Params(recordId = objectId)
                         ).map { record ->
-                            objectName = record.name
 
                             // собираем список родительских веток
                             val parentNodes = buildList {
@@ -97,7 +95,6 @@ class ScriptsManager(
                         getNodeByIdUseCase.run(
                             GetNodeByIdUseCase.Params(nodeId = objectId)
                         ).map { node ->
-                            objectName = node.name
 
                             // собираем список родительских веток
                             val parentNodes = buildList {
@@ -144,22 +141,23 @@ class ScriptsManager(
                     }
                     //TetroidObjectType.TAG.id -> TODO ?
                     else -> {
-                        objectName = null
                         isActive = false
                     }
                 }
             } else {
-                objectName = null
                 isActive = objects.any {
                     it.objectId == null && it.objectTypeId == null
                 }
             }
 
             scriptDbEntity.toEntity(
-                objects = objects.map {
+                isActive = isActive,
+            ).also { script ->
+                script.objects = objects.map {
                     it.toEntity(
+                        script = script,
                         objectName = if (objectId == it.objectId && objectTypeId == it.objectTypeId) {
-                            objectName
+                            obj?.name
                         } else {
                             getObjectName(
                                 objectId = it.objectId,
@@ -167,9 +165,8 @@ class ScriptsManager(
                             )
                         }
                     )
-                },
-                isActive = isActive,
-            )
+                }.filter { it.objectName != null || !it.isObjectFilled() }
+            }
         }
     }
 
