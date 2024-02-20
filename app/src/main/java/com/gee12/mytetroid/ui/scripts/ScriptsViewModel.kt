@@ -60,6 +60,7 @@ class ScriptsViewModel(
 ) {
 
     private var scriptObject: ITetroidObject? = null
+    private var isScriptsChanged = false
 
     fun init(
         objectTypeId: Int?,
@@ -137,6 +138,7 @@ class ScriptsViewModel(
             }.onFailure {
                 logFailure(failure = it, show = true)
             }.onSuccess {
+                isScriptsChanged = true
                 logOperRes(LogObj.SCRIPT, LogOper.ADD)
                 loadScripts(isMoveToLastItem = true)
             }
@@ -174,6 +176,7 @@ class ScriptsViewModel(
             }.onFailure {
                 logFailure(failure = it, show = true)
             }.onSuccess {
+                isScriptsChanged = true
                 logOperRes(LogObj.SCRIPT, LogOper.ADD)
                 loadScripts(isMoveToLastItem = true)
             }
@@ -193,6 +196,7 @@ class ScriptsViewModel(
             }.onFailure {
                 logFailure(failure = it, show = true)
             }.onSuccess {
+                isScriptsChanged = true
                 loadScripts()
             }
         }
@@ -210,6 +214,7 @@ class ScriptsViewModel(
             }.onFailure {
                 logFailure(failure = it, show = true)
             }.onSuccess {
+                isScriptsChanged = true
                 loadScripts()
             }
         }
@@ -234,6 +239,7 @@ class ScriptsViewModel(
             }.onFailure {
                 logFailure(failure = it, show = true)
             }.onSuccess {
+                isScriptsChanged = true
                 logOperRes(LogObj.SCRIPT, LogOper.CHANGE)
                 loadScripts()
             }
@@ -252,6 +258,7 @@ class ScriptsViewModel(
             }.onFailure {
                 logFailure(failure = it, show = true)
             }.onSuccess {
+                isScriptsChanged = true
                 logOperRes(LogObj.SCRIPT, LogOper.DELETE)
                 loadScripts()
             }
@@ -283,6 +290,10 @@ class ScriptsViewModel(
 
     fun isScriptForObject(): Boolean {
         return scriptObject != null
+    }
+
+    fun isScriptsChanged(): Boolean {
+        return isScriptsChanged
     }
 
 }

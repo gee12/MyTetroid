@@ -79,6 +79,7 @@
     <string name="title_record_html">html-код</string>
     <string name="title_filter_records">Фильтр записей</string>
     <string name="title_edit_record_fields">Редактировать свойства</string>
+    <string name="title_reload_record_text">Перезагрузить текст</string>
     <string name="title_edit_mode">Редактирование</string>
     <string name="title_view_mode">Просмотр</string>
     <string name="title_open_tag_records">Открыть записи метки</string>

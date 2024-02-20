@@ -52,6 +52,7 @@
     <string name="title_filter_records">Records filter</string>
     <string name="title_open_tag_records">Open tag records</string>
     <string name="title_edit_record_fields">Edit properties</string>
+    <string name="title_reload_record_text">Reload text</string>
     <string name="title_edit_mode">Editing</string>
     <string name="title_view_mode">Viewing</string>
     <string name="title_expand_node_subnodes">Expand all subnodes</string>

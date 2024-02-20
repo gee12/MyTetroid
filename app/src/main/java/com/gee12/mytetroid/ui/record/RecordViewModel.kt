@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.ui.record
 
-import android.app.Activity
 import android.app.Application
 import android.content.ContentResolver
 import android.content.Intent
@@ -617,6 +616,18 @@ class RecordViewModel(
         }
     }
 
+    fun reloadRecordTextFromFile() {
+        curRecord.value?.also {
+            loadRecordTextFromFile(it)
+        }
+    }
+
+    fun saveAndReloadText() {
+        if (!onSaveRecord(resultObj = ResultObject.Reload, isAskForSave = true)) {
+            reloadRecordTextFromFile()
+        }
+    }
+
     private fun loadRecordTextFromFile(record: TetroidRecord) {
         launchOnMain {
             var text: String? = null
@@ -1155,6 +1166,9 @@ class RecordViewModel(
      */
     private fun onAfterSaving(resultObj: ResultObject) {
         when (resultObj) {
+            is ResultObject.Reload -> {
+                reloadRecordTextFromFile()
+            }
             is ResultObject.Finish -> {
                 finishRequest(isOpenMainActivity = resultObj.isOpenMainActivity)
             }

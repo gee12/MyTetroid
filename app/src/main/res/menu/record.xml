@@ -41,21 +41,20 @@
         android:icon="@drawable/ic_edit_fields"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_reload_record"
+        android:orderInCategory="47"
+        android:title="@string/title_reload_record_text"
+        android:icon="@drawable/ic_reload"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_record_node"
         android:orderInCategory="50"
         android:title="@string/title_to_node"
         android:icon="@drawable/ic_show_node"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_scripts"
-        android:orderInCategory="55"
-        android:title="@string/title_scripts"
-        android:enabled="true"
-        android:icon="@drawable/ic_script"
-        app:showAsAction="never" />
-    <item
         android:id="@+id/action_attached_files"
-        android:orderInCategory="60"
+        android:orderInCategory="55"
         android:title="@string/title_attached_files"
         android:icon="@drawable/ic_attachment"
         app:showAsAction="never" />
@@ -79,16 +78,23 @@
         android:icon="@drawable/ic_export_pdf"
         app:showAsAction="never" />
     <item
-        android:id="@+id/action_delete"
-        android:orderInCategory="90"
-        android:title="@string/title_delete_record"
-        android:icon="@drawable/ic_delete"
+        android:id="@+id/action_scripts"
+        android:orderInCategory="87"
+        android:title="@string/title_scripts"
+        android:enabled="true"
+        android:icon="@drawable/ic_script"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_info"
-        android:orderInCategory="95"
+        android:orderInCategory="90"
         android:title="@string/title_record_info"
         android:icon="@drawable/ic_info"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_delete"
+        android:orderInCategory="95"
+        android:title="@string/title_delete_record"
+        android:icon="@drawable/ic_delete"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_fullscreen"
@@ -96,13 +102,6 @@
         android:title="@string/title_fullscreen"
         android:icon="@drawable/ic_fullscreen"
         app:showAsAction="never" />
-<!--    <item-->
-<!--        android:id="@+id/action_storage_info"-->
-<!--        android:orderInCategory="250"-->
-<!--        android:title="@string/title_storage_info"-->
-<!--        android:enabled="false"-->
-<!--        android:icon="@drawable/ic_statistics"-->
-<!--        app:showAsAction="never" />-->
     <item
         android:id="@+id/action_storage_settings"
         android:orderInCategory="270"

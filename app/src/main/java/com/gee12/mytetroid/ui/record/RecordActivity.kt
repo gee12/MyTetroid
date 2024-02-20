@@ -59,7 +59,6 @@ import com.gee12.mytetroid.ui.dialogs.record.RecordFieldsDialog
 import com.gee12.mytetroid.ui.dialogs.record.RecordInfoDialog
 import com.gee12.mytetroid.ui.dialogs.storage.StorageDialogs
 import com.gee12.mytetroid.ui.record.TetroidEditor.IEditorListener
-import com.gee12.mytetroid.ui.settings.SettingsActivity
 import com.gee12.mytetroid.ui.splash.SplashActivity
 import com.gee12.mytetroid.ui.storage.StorageEvent
 import com.gee12.mytetroid.ui.storage.info.StorageInfoActivity.Companion.start
@@ -69,13 +68,13 @@ import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
 import com.gee12.htmlwysiwygeditor.IColorPicker
 import com.gee12.htmlwysiwygeditor.EditableWebView.*
 import com.gee12.htmlwysiwygeditor.WysiwygEditor
-import com.gee12.htmlwysiwygeditor.ext.readTextFileFromAssets
 import com.gee12.htmlwysiwygeditor.model.ImageParams
 import com.gee12.mytetroid.common.extensions.*
 import com.gee12.mytetroid.common.onSuccess
 import com.gee12.mytetroid.domain.usecase.html.CreateTagsHtmlStringUseCase
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.logs.Message
+import com.gee12.mytetroid.ui.scripts.ScriptsActivity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.cachapa.expandablelayout.ExpandableLayout
@@ -588,6 +587,22 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 finish()
             }
         )
+    }
+
+    private fun onStorageChanged(data: Intent) {
+        if (viewModel.isStorageLoaded()) {
+            // спрашиваем о перезагрузке хранилище, только если оно уже загружено
+            val isCreate = data.getBooleanExtra(Constants.EXTRA_IS_CREATE_STORAGE, false)
+            StorageDialogs.showReloadStorageDialog(
+                context = this,
+                toCreate = isCreate,
+                pathChanged = true,
+                onApply = {
+                    // перезагружаем хранилище в главной активности, если изменили путь,
+                    activityComponent.finishWithResult(Constants.RESULT_REINIT_STORAGE, data.extras)
+                },
+            )
+        }
     }
 
     // endregion Storage
@@ -1182,32 +1197,26 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == Constants.REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY) {
-            if (data != null) {
-                if (data.getBooleanExtra(Constants.EXTRA_IS_REINIT_STORAGE, false)) {
+        when (requestCode) {
+            Constants.REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY -> {
+                if (data?.getBooleanExtra(Constants.EXTRA_IS_REINIT_STORAGE, false) == true) {
                     // хранилище изменено
-                    if (viewModel.isStorageLoaded()) {
-                        // спрашиваем о перезагрузке хранилище, только если оно уже загружено
-                        val isCreate = data.getBooleanExtra(Constants.EXTRA_IS_CREATE_STORAGE, false)
-                        StorageDialogs.showReloadStorageDialog(
-                            context = this,
-                            toCreate = isCreate,
-                            pathChanged = true,
-                            onApply = {
-                                // перезагружаем хранилище в главной активности, если изменили путь,
-                                activityComponent.finishWithResult(Constants.RESULT_REINIT_STORAGE, data.extras)
-                            },
-                        )
-                    }
-                } else if (data.getBooleanExtra(Constants.EXTRA_IS_PASS_CHANGED, false)) {
+                    onStorageChanged(data)
+                } else if (data?.getBooleanExtra(Constants.EXTRA_IS_PASS_CHANGED, false) == true) {
                     // пароль изменен
                     activityComponent.finishWithResult(Constants.RESULT_PASS_CHANGED, data.extras)
                 }
             }
-        } else if (requestCode == Constants.REQUEST_CODE_COMMON_SETTINGS_ACTIVITY) {
-            // не гасим экран, если установили опцию
-            checkKeepScreenOn(this)
-            editor.onSettingsChanged()
+            Constants.REQUEST_CODE_COMMON_SETTINGS_ACTIVITY -> {
+                // не гасим экран, если установили опцию
+                checkKeepScreenOn(this)
+                editor.onSettingsChanged()
+            }
+            Constants.REQUEST_CODE_SCRIPTS_ACTIVITY -> {
+                if (data?.getBooleanExtra(ScriptsActivity.EXTRA_IS_SCRIPTS_CHANGED, false) == true) {
+                    viewModel.saveAndReloadText()
+                }
+            }
         }
     }
 
@@ -1255,6 +1264,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         val isLoadedFavoritesOnly = viewModel.isLoadedFavoritesOnly()
         val isTemp = viewModel.isRecordTemporary()
         activateMenuItem(menu.findItem(R.id.action_record_edit_fields), isLoaded && !isLoadedFavoritesOnly, !isTemp)
+        activateMenuItem(menu.findItem(R.id.action_reload_record), isLoaded && !isLoadedFavoritesOnly, !isTemp)
         activateMenuItem(menu.findItem(R.id.action_record_node), isLoaded && !isLoadedFavoritesOnly, !isTemp)
         activateMenuItem(menu.findItem(R.id.action_delete), isLoaded && !isLoadedFavoritesOnly, !isTemp)
         activateMenuItem(menu.findItem(R.id.action_attached_files), isLoaded, !isTemp)
@@ -1330,6 +1340,10 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             }
             R.id.action_record_edit_fields -> {
                 showEditFieldsDialog(resultObj = null)
+                true
+            }
+            R.id.action_reload_record -> {
+                viewModel.saveAndReloadText()
                 true
             }
             R.id.action_record_node -> {

@@ -338,10 +338,23 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
         (popupMenu.menu as MenuBuilder).showForcedWithIcons(anchorView)
     }
 
+    override fun finish() {
+        setResult()
+        super.finish()
+    }
+
+    private fun setResult() {
+        val intent = buildIntent {
+            putExtra(EXTRA_IS_SCRIPTS_CHANGED, viewModel.isScriptsChanged())
+        }
+        setResult(Activity.RESULT_OK, intent)
+    }
+
     companion object {
 
         private const val EXTRA_OBJECT_TYPE_ID = "EXTRA_OBJECT_TYPE_ID"
         private const val EXTRA_OBJECT_ID = "EXTRA_OBJECT_ID"
+        const val EXTRA_IS_SCRIPTS_CHANGED = "IS_SCRIPTS_CHANGED"
 
         fun start(activity: Activity, obj: TetroidObject?, requestCode: Int) {
             val intent = buildIntent {
