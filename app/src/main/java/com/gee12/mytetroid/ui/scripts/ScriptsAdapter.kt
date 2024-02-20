@@ -11,6 +11,7 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.common.extensions.orFalse
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.model.ITetroidObject
@@ -114,6 +115,10 @@ class ScriptsAdapter(
 
     fun getItem(position: Int): Any? {
         return data.getOrNull(position)
+    }
+
+    fun getItemPositionById(scriptId: Int): Int {
+        return data.indexOfFirst { it is TetroidScript && scriptId == it.id }
     }
 
     inner class ScriptViewHolder internal constructor(

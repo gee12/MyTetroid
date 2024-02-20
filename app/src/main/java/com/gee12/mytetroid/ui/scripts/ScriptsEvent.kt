@@ -10,6 +10,7 @@ sealed class ScriptsEvent : BaseEvent() {
     data class LoadScripts(
         val tetroidObject: ITetroidObject?,
         val scripts: List<TetroidScript>,
+        val isMoveToLastItem: Boolean,
     ) : ScriptsEvent()
 
     object ShowRequestForDefaultScripts : ScriptsEvent()

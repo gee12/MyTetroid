@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.extensions.addOnSwipeRefreshListener
 import com.gee12.mytetroid.common.extensions.buildIntent
+import com.gee12.mytetroid.common.extensions.orZero
 import com.gee12.mytetroid.common.extensions.showForcedWithIcons
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.logs.LogObj
@@ -132,6 +133,7 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
                 setData(
                     scripts = event.scripts,
                     tetroidObject = event.tetroidObject,
+                    isMoveToLastItem = event.isMoveToLastItem,
                 )
             }
             ScriptsEvent.ShowRequestForDefaultScripts -> {
@@ -160,7 +162,11 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
         viewModel.init(objectTypeId, objectId)
     }
 
-    private fun setData(scripts: List<TetroidScript>, tetroidObject: ITetroidObject?) {
+    private fun setData(
+        scripts: List<TetroidScript>,
+        tetroidObject: ITetroidObject?,
+        isMoveToLastItem: Boolean,
+    ) {
         val subtitle = if (tetroidObject != null) {
             val logObj = FoundType(tetroidObject.type).toLogObj() ?: LogObj.NONE
             val typeName = logObj.getString(Tense.PRESENT_CONTINUOUS, resourcesProvider)
@@ -172,6 +178,25 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
 
         adapter.submitList(scripts, tetroidObject)
         findViewById<TextView>(R.id.text_view_empty_scripts)?.isVisible = scripts.isEmpty()
+
+        if (isMoveToLastItem) {
+            scrollToLastScript()
+        }
+    }
+
+    fun scrollToScript(script: TetroidScript) {
+        val position = adapter.getItemPositionById(scriptId = script.id.orZero())
+        if (position > -1) {
+            recyclerView.postDelayed(
+                { recyclerView.smoothScrollToPosition(position) }, 300
+            )
+        }
+    }
+
+    private fun scrollToLastScript() {
+        recyclerView.postDelayed(
+            { recyclerView.smoothScrollToPosition(adapter.itemCount - 1) }, 300
+        )
     }
 
     private fun showRequestForDefaultScriptsDialog() {

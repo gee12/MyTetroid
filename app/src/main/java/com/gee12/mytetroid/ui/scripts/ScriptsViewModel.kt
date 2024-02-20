@@ -88,7 +88,7 @@ class ScriptsViewModel(
         }
     }
 
-    fun loadScripts(isShowDefaultScripts: Boolean = false) {
+    fun loadScripts(isShowDefaultScripts: Boolean = false, isMoveToLastItem: Boolean = false) {
         launchOnMain {
             withIo {
                 getScriptsUseCase.run(
@@ -97,7 +97,7 @@ class ScriptsViewModel(
             }.onFailure {
                 logFailure(failure = it, show = true)
             }.onSuccess { scripts ->
-                sendEvent(ScriptsEvent.LoadScripts(scriptObject, scripts))
+                sendEvent(ScriptsEvent.LoadScripts(scriptObject, scripts, isMoveToLastItem))
 
                 if (scripts.isEmpty() && isShowDefaultScripts) {
                     sendEvent(ScriptsEvent.ShowRequestForDefaultScripts)
@@ -138,7 +138,7 @@ class ScriptsViewModel(
                 logFailure(failure = it, show = true)
             }.onSuccess {
                 logOperRes(LogObj.SCRIPT, LogOper.ADD)
-                loadScripts()
+                loadScripts(isMoveToLastItem = true)
             }
         }
     }
@@ -175,7 +175,7 @@ class ScriptsViewModel(
                 logFailure(failure = it, show = true)
             }.onSuccess {
                 logOperRes(LogObj.SCRIPT, LogOper.ADD)
-                loadScripts()
+                loadScripts(isMoveToLastItem = true)
             }
         }
     }
