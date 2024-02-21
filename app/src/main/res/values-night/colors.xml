@@ -55,6 +55,9 @@
     <color name="title_middle_color">#1F2853</color>
     <color name="title_end_color">#2B355E</color>
 
+    <color name="script_activate">#00B1A7</color>
+    <color name="script_inactive">#535360</color>
+
     <color name="switch_thumb_checked_enabled">#009990</color>
     <color name="switch_thumb_checked_disabled">#4D6868</color>
     <color name="switch_thumb_unchecked_enabled">#5E6767</color>

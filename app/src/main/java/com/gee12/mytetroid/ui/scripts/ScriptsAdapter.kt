@@ -12,6 +12,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.extensions.orFalse
+import com.gee12.mytetroid.common.extensions.setTintList
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.model.ITetroidObject
@@ -125,6 +126,7 @@ class ScriptsAdapter(
         private val view: View,
     ) : RecyclerView.ViewHolder(view) {
 
+        private val ivIcon: ImageView = itemView.findViewById(R.id.image_view_icon)
         private val tvFileName: TextView = itemView.findViewById(R.id.text_view_file_name)
         private val tvDescription: TextView = itemView.findViewById(R.id.text_view_description)
         private val switch: SwitchCompat = itemView.findViewById(R.id.switch_script_is_active)
@@ -143,8 +145,11 @@ class ScriptsAdapter(
                 onItemMenuClickListener?.invoke(script, ivMenu)
             }
 
+            val isActive = script.isActiveByErrors()
+            ivIcon.setTintList(if (isActive) R.color.script_activate else R.color.script_inactive)
+
             switch.isVisible = script.isCanSwitchActivity(currentObject)
-            switch.isChecked = script.isActiveByErrors()
+            switch.isChecked = isActive
             switch.setOnCheckedChangeListener { button, isChecked ->
                 if (button.isPressed) {
                     onItemSwitchClickListener?.invoke(script, isChecked, switch)

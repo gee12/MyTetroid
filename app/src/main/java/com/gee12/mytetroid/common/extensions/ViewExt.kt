@@ -3,19 +3,21 @@ package com.gee12.mytetroid.common.extensions
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.*
 import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
-import android.widget.PopupWindow
-import android.widget.RelativeLayout
+import android.widget.*
+import androidx.annotation.ColorRes
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.widget.ImageViewCompat
 import androidx.recyclerview.widget.RecyclerView
 import kotlin.math.abs
 
@@ -36,6 +38,12 @@ fun EditText.addAfterTextChangedListener(listener: (String) -> Unit) {
 
 fun EditText.setSelectionAtEnd() {
     setSelection(text.length)
+}
+
+fun ImageView.setTintList(@ColorRes colorResId: Int) {
+    val color = ContextCompat.getColor(context, colorResId)
+    val colorList = ColorStateList.valueOf(color)
+    ImageViewCompat.setImageTintList(this, colorList)
 }
 
 /**

@@ -74,6 +74,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="4dp"
         android:textColor="@color/text_2"
+        android:textStyle="italic"
         tools:text="@tools:sample/backgrounds/scenic"
         android:textSize="@dimen/font_small" />
 
