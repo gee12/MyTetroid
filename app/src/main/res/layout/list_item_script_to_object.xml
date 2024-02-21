@@ -7,7 +7,7 @@
     android:layout_height="wrap_content"
     android:background="?android:attr/activatedBackgroundIndicator"
     android:descendantFocusability="blocksDescendants"
-    android:paddingVertical="8dp"
+    android:paddingVertical="6dp"
     android:paddingHorizontal="12dp"
     android:paddingStart="36dp">
 
@@ -35,7 +35,7 @@
         android:ellipsize="end"
         android:textColor="@color/text_2"
         tools:text="Включено для записи «Тестовая запись с длинным названием»"
-        android:textSize="@dimen/font_small" />
+        android:textSize="@dimen/font_small_small" />
 
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/switch_script_is_active"
@@ -45,6 +45,8 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginStart="12dp"
         android:layout_marginEnd="6dp"
+        android:scaleX="0.8"
+        android:scaleY="0.8"
         app:trackTint="@drawable/switch_track_selector"
         app:thumbTint="@drawable/switch_thumb_selector"
         tools:checked="true"

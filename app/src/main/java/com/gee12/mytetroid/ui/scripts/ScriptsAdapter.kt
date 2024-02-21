@@ -181,7 +181,7 @@ class ScriptsAdapter(
             val isForAllStorage = currentObject == null
             view.isEnabled = isForAllStorage
 
-            switch.isVisible = scriptToObject.script?.isActiveByErrors().orFalse()
+            switch.isVisible = isForAllStorage || scriptToObject.script?.isActiveByErrors().orFalse()
             switch.isEnabled = isForAllStorage
             switch.isChecked = true
             switch.setOnCheckedChangeListener { button, isChecked ->
@@ -191,6 +191,7 @@ class ScriptsAdapter(
             }
 
             tvObjectName.text = scriptToObject.stringTitle()
+            ivIcon.alpha = 0.6f
             scriptToObject.objectType.iconResId()?.also {
                 ivIcon.setImageResource(it)
             }
