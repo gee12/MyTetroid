@@ -65,7 +65,7 @@ class FilesListAdapter(
         // размер
         val sizeString = getAttachedFileSize(file)
         if (sizeString != null) {
-            viewHolder.iconView.setImageResource(R.drawable.ic_file)
+            viewHolder.iconView.setImageResource(R.drawable.ic_file_2)
             viewHolder.sizeView.text = sizeString
         } else {
             viewHolder.iconView.setImageResource(R.drawable.ic_file_missing)

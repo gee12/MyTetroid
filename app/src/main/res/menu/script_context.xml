@@ -9,7 +9,7 @@
         android:id="@+id/action_open_file"
         android:title="@string/title_open_file"
         android:orderInCategory="20"
-        android:icon="@drawable/ic_file" />
+        android:icon="@drawable/ic_file_2" />
     <item
         android:id="@+id/action_delete"
         android:title="@string/title_delete"

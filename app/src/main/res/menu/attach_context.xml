@@ -5,7 +5,7 @@
         android:id="@+id/action_open_file"
         android:orderInCategory="10"
         android:title="@string/title_open_file"
-        android:icon="@drawable/ic_file"
+        android:icon="@drawable/ic_file_2"
         app:showAsAction="always" />
     <item
         android:id="@+id/action_rename"

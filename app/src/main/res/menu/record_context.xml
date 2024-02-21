@@ -34,7 +34,7 @@
         android:id="@+id/action_attached_files"
         android:orderInCategory="60"
         android:title="@string/title_show_attached_files"
-        android:icon="@drawable/ic_file" />
+        android:icon="@drawable/ic_file_2" />
     <item
         android:id="@+id/action_open_record_folder"
         android:orderInCategory="70"
