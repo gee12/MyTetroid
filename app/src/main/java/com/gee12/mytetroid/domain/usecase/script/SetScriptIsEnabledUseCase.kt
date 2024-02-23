@@ -3,7 +3,7 @@ package com.gee12.mytetroid.domain.usecase.script
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.orZero
 import com.gee12.mytetroid.domain.manager.ScriptsManager
-import com.gee12.mytetroid.model.ITetroidObject
+import com.gee12.mytetroid.model.TetroidObject
 import com.gee12.mytetroid.model.TetroidScript
 import com.gee12.mytetroid.model.TetroidScriptToObject
 import com.gee12.mytetroid.model.enums.TetroidObjectType
@@ -14,7 +14,7 @@ class SetScriptIsEnabledUseCase(
 
     data class Params(
         val script: TetroidScript,
-        val obj: ITetroidObject?,
+        val obj: TetroidObject?,
         val isActive: Boolean,
     )
 
@@ -35,10 +35,10 @@ class SetScriptIsEnabledUseCase(
                 scriptId = script.id.orZero(),
                 objectId = obj?.id,
                 objectType = obj?.type?.let { TetroidObjectType.getById(it) },
-                objectName = obj?.name,
                 isActive = isActive,
             ).also {
                 it.script = script
+                it.obj = obj
             }
             if (scriptsManager.insertScriptToObject(scriptToObject)) {
                 None.toRight()

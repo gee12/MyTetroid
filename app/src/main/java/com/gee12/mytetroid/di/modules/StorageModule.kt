@@ -74,6 +74,7 @@ object StorageModule {
 
             scoped {
                 ScriptsManager(
+                    resourcesProvider = get(),
                     storageProvider = get(),
                     scriptsRepo = get(),
                     scriptsToObjectsRepo = get(),

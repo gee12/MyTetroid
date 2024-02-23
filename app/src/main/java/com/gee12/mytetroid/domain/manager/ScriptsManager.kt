@@ -1,22 +1,22 @@
 package com.gee12.mytetroid.domain.manager
 
+import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.map
 import com.gee12.mytetroid.database.map.script.toDbEntity
 import com.gee12.mytetroid.database.map.script.toEntity
 import com.gee12.mytetroid.database.map.scriptToObject.toDbEntity
 import com.gee12.mytetroid.database.map.scriptToObject.toEntity
+import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.domain.repo.ScriptsDbRepo
 import com.gee12.mytetroid.domain.repo.ScriptsToObjectsDbRepo
 import com.gee12.mytetroid.domain.usecase.node.GetNodeByIdUseCase
 import com.gee12.mytetroid.domain.usecase.record.GetRecordByIdUseCase
-import com.gee12.mytetroid.model.ITetroidObject
-import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.model.TetroidScript
-import com.gee12.mytetroid.model.TetroidScriptToObject
+import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.model.enums.TetroidObjectType
 
 class ScriptsManager(
+    private val resourcesProvider: IResourcesProvider,
     private val storageProvider: IStorageProvider,
     private val scriptsRepo: ScriptsDbRepo,
     private val scriptsToObjectsRepo: ScriptsToObjectsDbRepo,
@@ -27,7 +27,7 @@ class ScriptsManager(
     private val storageId: Int
         get() = storageProvider.storage?.id ?: 0
 
-    suspend fun getScripts(obj: ITetroidObject? = null): List<TetroidScript> {
+    suspend fun getScripts(obj: TetroidObject? = null): List<TetroidScript> {
         val storageScripts = scriptsRepo.getAll(
             storageId = storageId,
         )
@@ -156,21 +156,21 @@ class ScriptsManager(
                 script.objects = objects.map {
                     it.toEntity(
                         script = script,
-                        objectName = if (objectId == it.objectId && objectTypeId == it.objectTypeId) {
-                            obj?.name
+                        obj = if (objectId == it.objectId && objectTypeId == it.objectTypeId) {
+                            obj
                         } else {
-                            getObjectName(
+                            getObject(
                                 objectId = it.objectId,
                                 objectTypeId = it.objectTypeId,
                             )
                         }
                     )
-                }.filter { it.objectName != null || !it.isObjectFilled() }
+                }.filter { it.obj != null || !it.isObjectFilled() }
             }
         }
     }
 
-    private suspend fun getObjectName(objectId: String?, objectTypeId: Int?): String? {
+    private suspend fun getObject(objectId: String?, objectTypeId: Int?): TetroidObject? {
         return when (objectTypeId) {
             TetroidObjectType.RECORD.id -> {
                 objectId?.let {
@@ -178,7 +178,7 @@ class ScriptsManager(
                         GetRecordByIdUseCase.Params(recordId = objectId)
                     ).foldResult(
                         onLeft = { null },
-                        onRight = { it.name }
+                        onRight = { it }
                     )
                 }
 
@@ -189,7 +189,7 @@ class ScriptsManager(
                         GetNodeByIdUseCase.Params(nodeId = objectId)
                     ).foldResult(
                         onLeft = { null },
-                        onRight = { it.name }
+                        onRight = { it }
                     )
                 }
             }

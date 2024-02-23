@@ -8,4 +8,5 @@ interface ITetroidObject {
     var name: String
     val id: String
     val isCrypted: Boolean
+    val isDecrypted: Boolean
 }

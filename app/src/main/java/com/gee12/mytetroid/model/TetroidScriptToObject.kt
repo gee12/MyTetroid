@@ -7,10 +7,10 @@ data class TetroidScriptToObject(
     val scriptId: Int,
     val objectId: String?,
     val objectType: TetroidObjectType?,
-    val objectName: String?,
     var isActive: Boolean = true,
 ) {
     var script: TetroidScript? = null
+    var obj: TetroidObject? = null
 
     fun isObjectFilled(): Boolean {
         return objectId != null && objectType != null

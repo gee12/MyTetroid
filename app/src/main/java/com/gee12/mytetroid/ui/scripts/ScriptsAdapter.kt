@@ -24,6 +24,7 @@ class ScriptsAdapter(
     context: Context,
     private val resourcesProvider: IResourcesProvider,
     private val failureHandler: IFailureHandler,
+    private val isLoadedFavoritesOnly: Boolean,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     enum class ItemViewType(val id: Int) {
@@ -208,20 +209,27 @@ class ScriptsAdapter(
         }
 
         private fun TetroidScriptToObject.stringTitle(): String? {
-            return when (objectType) {
-                TetroidObjectType.RECORD -> {
-                    resourcesProvider.getString(R.string.title_script_for_record_masked, objectName.orEmpty())
+            return if (obj?.isNonCryptedOrDecrypted == true) {
+                val objName = obj?.name.orEmpty()
+                when (objectType) {
+                    TetroidObjectType.RECORD -> {
+                        resourcesProvider.getString(R.string.title_script_for_record_masked, objName)
+                    }
+                    TetroidObjectType.NODE -> {
+                        resourcesProvider.getString(R.string.title_script_for_node_masked, objName)
+                    }
+                    TetroidObjectType.TAG -> {
+                        resourcesProvider.getString(R.string.title_script_for_tag_masked, objName)
+                    }
+                    TetroidObjectType.NONE, null -> {
+                        resourcesProvider.getString(R.string.title_script_for_all_storage)
+                    }
+                    else -> null
                 }
-                TetroidObjectType.NODE -> {
-                    resourcesProvider.getString(R.string.title_script_for_node_masked, objectName.orEmpty())
-                }
-                TetroidObjectType.TAG -> {
-                    resourcesProvider.getString(R.string.title_script_for_tag_masked, objectName.orEmpty())
-                }
-                TetroidObjectType.NONE, null -> {
-                    resourcesProvider.getString(R.string.title_script_for_all_storage)
-                }
-                else -> null
+            } else if (isLoadedFavoritesOnly) {
+                resourcesProvider.getString(R.string.title_load_all_nodes_object_name)
+            } else {
+                resourcesProvider.getString(R.string.title_decrypt_storage_object_name)
             }
         }
 

@@ -1,21 +1,22 @@
 package com.gee12.mytetroid.database.map.scriptToObject
 
 import com.gee12.mytetroid.database.entity.ScriptToObjectDbEntity
+import com.gee12.mytetroid.model.TetroidObject
 import com.gee12.mytetroid.model.TetroidScript
 import com.gee12.mytetroid.model.TetroidScriptToObject
 import com.gee12.mytetroid.model.enums.TetroidObjectType
 
 
-fun ScriptToObjectDbEntity.toEntity(script: TetroidScript, objectName: String? = null): TetroidScriptToObject {
+fun ScriptToObjectDbEntity.toEntity(script: TetroidScript, obj: TetroidObject? = null): TetroidScriptToObject {
     val dbEntity = this
     return TetroidScriptToObject(
         id = dbEntity.id,
         scriptId = dbEntity.scriptId,
         objectType = dbEntity.objectTypeId?.let { TetroidObjectType.getById(it) },
-        objectName = objectName,
         objectId = dbEntity.objectId,
     ).also {
         it.script = script
+        it.obj = obj
     }
 }
 

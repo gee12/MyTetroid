@@ -150,6 +150,7 @@
     <string name="title_use_global_search">Use global search</string>
     <string name="title_reload_storage">Reload storage</string>
     <string name="title_load_all_nodes">Load all nodes</string>
+    <string name="title_load_all_nodes_for_scripts">Load all nodes to display all objects in the list</string>
     <string name="title_more_in_logs">More in logs</string>
     <string name="title_author">Author</string>
     <string name="title_tags">Tags</string>
@@ -238,6 +239,8 @@
     <string name="title_script_for_node_masked">For node «%s»</string>
     <string name="title_script_for_tag_masked">For tag «%s»</string>
     <string name="title_script_for_all_storage">For all storage</string>
+    <string name="title_decrypt_storage_object_name"><![CDATA[<Decrypt storage>]]></string>
+    <string name="title_load_all_nodes_object_name"><![CDATA[<Load all nodes>]]></string>
 
     <string name="title_def_script_title_table_sort">Sort tables</string>
     <string name="title_def_script_description_table_sort">The table rows will be sorted after clicking on the column header</string>

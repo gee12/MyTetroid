@@ -10,7 +10,7 @@ import com.gee12.mytetroid.domain.manager.ScriptsManager
 import com.gee12.mytetroid.domain.provider.IStoragePathProvider
 import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.model.FilePath
-import com.gee12.mytetroid.model.ITetroidObject
+import com.gee12.mytetroid.model.TetroidObject
 import com.gee12.mytetroid.model.TetroidScript
 
 class GetScriptsUseCase(
@@ -21,7 +21,7 @@ class GetScriptsUseCase(
 ) : UseCase<List<TetroidScript>, GetScriptsUseCase.Params>() {
 
     data class Params(
-        val scriptObject: ITetroidObject?,
+        val scriptObject: TetroidObject?,
     )
 
     override suspend fun run(params: Params): Either<Failure, List<TetroidScript>> {

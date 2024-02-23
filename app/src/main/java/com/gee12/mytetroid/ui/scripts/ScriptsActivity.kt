@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.PopupMenu
@@ -66,6 +67,7 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
             context = this,
             resourcesProvider = resourcesProvider,
             failureHandler = failureHandler,
+            isLoadedFavoritesOnly = viewModel.isLoadedFavoritesOnly()
         )
         adapter.onItemClickListener = { script, _ ->
             viewModel.openScriptForEdit(script)
@@ -176,11 +178,26 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
         }
         setSubtitle(subtitle)
 
+        showWarnings()
+
         adapter.submitList(scripts, tetroidObject)
         findViewById<TextView>(R.id.text_view_empty_scripts)?.isVisible = scripts.isEmpty()
 
         if (isMoveToLastItem) {
             scrollToLastScript()
+        }
+    }
+
+    private fun showWarnings() {
+        val warnings = buildString {
+            if (viewModel.isLoadedFavoritesOnly()) {
+                appendLine(resourcesProvider.getString(R.string.title_load_all_nodes_for_scripts))
+            }
+        }
+        findViewById<ImageView>(R.id.image_view_warning)?.isVisible = warnings.isNotEmpty()
+        findViewById<TextView>(R.id.text_view_warning)?.apply {
+            isVisible = warnings.isNotEmpty()
+            text = warnings
         }
     }
 
