@@ -313,6 +313,7 @@ class RecordViewModel(
     /**
      * Событие окончания загрузки страницы.
      */
+    @UiThread
     fun onPageLoaded() {
         if (isFirstLoad) {
             isFirstLoad = false

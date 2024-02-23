@@ -676,9 +676,9 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         val created = record.created
         tvCreated.text = if (created != null) Utils.dateToString(created, dateFormat) else ""
         if (viewModel.buildInfoProvider.isFullVersion()) {
-            findViewById<View>(R.id.label_record_edited).visibility = View.VISIBLE
+            findViewById<View>(R.id.label_record_edited).isVisible = true
             val tvEdited = findViewById<TextView>(R.id.text_view_record_edited)
-            tvEdited.visibility = View.VISIBLE
+            tvEdited.isVisible = true
 
             //TODO: использовать события вместо корутины
             lifecycleScope.launch {
@@ -952,30 +952,25 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
     //region Mode
 
-    private fun switchEditorMode(newMode: EditorMode, isLoadJSEngine: Boolean = true) {
+    private fun switchEditorMode(newMode: EditorMode) {
         //viewModel.logDebug("switchViews: mode=$newMode")
         when (newMode) {
             EditorMode.VIEW -> {
-                editor.visibility = View.VISIBLE
+                editor.isVisible = true
                 editor.setToolBarVisibility(false)
-                mScrollViewHtml.visibility = View.GONE
+                mScrollViewHtml.isVisible = false
                 setRecordFieldsVisibility(true)
+                editor.webView.loadEditorJSEngine(isMakeHtmlRequest = false)
                 editor.setEditMode(false)
                 editor.setScrollButtonsVisibility(true)
                 setSubtitle(getString(R.string.subtitle_record_view))
                 editor.webView.hideKeyboard()
             }
             EditorMode.EDIT -> {
-                editor.visibility = View.VISIBLE
-                // загружаем Javascript (если нужно)
-//                if (!mEditor.getWebView().isEditorJSLoaded()) {
-//                    setProgressVisibility(true);
-//                }
-                if (isLoadJSEngine) {
-                    editor.webView.loadEditorJSEngine(isMakeHtmlRequest = false)
-                }
+                editor.isVisible = true
+                editor.webView.loadEditorJSEngine(isMakeHtmlRequest = false)
                 editor.setToolBarVisibility(true)
-                mScrollViewHtml.visibility = View.GONE
+                mScrollViewHtml.isVisible = false
                 setRecordFieldsVisibility(false)
                 editor.setEditMode(true)
                 editor.setScrollButtonsVisibility(false)
@@ -984,7 +979,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 editor.webView.focusAndShowKeyboard()
             }
             EditorMode.HTML -> {
-                editor.visibility = View.GONE
+                editor.isVisible = false
                 if (editor.webView.isHtmlRequestMade) {
                     val htmlText = editor.webView.editableHtml
                     mEditTextHtml.setText(htmlText)
@@ -993,8 +988,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                     // загружаем Javascript (если нужно), и затем делаем запрос на html-текст
                     editor.webView.loadEditorJSEngine(isMakeHtmlRequest = true)
                 }
-                //                mEditor.getWebView().makeEditableHtmlRequest();
-                mScrollViewHtml.visibility = View.VISIBLE
+                mScrollViewHtml.isVisible = true
                 setRecordFieldsVisibility(false)
                 setSubtitle(getString(R.string.subtitle_record_html))
                 mEditTextHtml.focusAndShowKeyboard()
@@ -1533,10 +1527,10 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
      */
     private fun setRecordFieldsVisibility(isVisible: Boolean) {
         if (isVisible) {
-            mFieldsExpanderLayout.visibility = View.VISIBLE
+            mFieldsExpanderLayout.isVisible = true
             mButtonToggleFields.show()
         } else {
-            mFieldsExpanderLayout.visibility = View.GONE
+            mFieldsExpanderLayout.isVisible = false
             mButtonToggleFields.hide()
         }
     }
