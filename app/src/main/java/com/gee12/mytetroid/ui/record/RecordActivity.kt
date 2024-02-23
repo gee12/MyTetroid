@@ -5,6 +5,7 @@ import android.app.Activity
 import android.app.SearchManager
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.PointF
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -24,25 +25,31 @@ import android.widget.*
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.SearchView
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.isVisible
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import com.anggrayudi.storage.file.getAbsolutePath
 import com.anggrayudi.storage.file.mimeType
 import com.anggrayudi.storage.file.openInputStream
+import com.gee12.htmlwysiwygeditor.*
+import com.gee12.htmlwysiwygeditor.EditableWebView.*
 import com.gee12.htmlwysiwygeditor.enums.ActionState
-import com.gee12.htmlwysiwygeditor.IImagePicker
-import com.gee12.htmlwysiwygeditor.INetworkWorker
-import com.gee12.htmlwysiwygeditor.IVoiceInputListener
+import com.gee12.htmlwysiwygeditor.model.ImageParams
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.extensions.*
+import com.gee12.mytetroid.common.onSuccess
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.TetroidClipboardListener
 import com.gee12.mytetroid.domain.provider.TetroidSuggestionProvider
+import com.gee12.mytetroid.domain.usecase.html.CreateTagsHtmlStringUseCase
+import com.gee12.mytetroid.logs.LogType
+import com.gee12.mytetroid.logs.Message
 import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
@@ -59,22 +66,13 @@ import com.gee12.mytetroid.ui.dialogs.record.RecordFieldsDialog
 import com.gee12.mytetroid.ui.dialogs.record.RecordInfoDialog
 import com.gee12.mytetroid.ui.dialogs.storage.StorageDialogs
 import com.gee12.mytetroid.ui.record.TetroidEditor.IEditorListener
+import com.gee12.mytetroid.ui.scripts.ScriptsActivity
 import com.gee12.mytetroid.ui.splash.SplashActivity
 import com.gee12.mytetroid.ui.storage.StorageEvent
 import com.gee12.mytetroid.ui.storage.info.StorageInfoActivity.Companion.start
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
-import com.gee12.htmlwysiwygeditor.IColorPicker
-import com.gee12.htmlwysiwygeditor.EditableWebView.*
-import com.gee12.htmlwysiwygeditor.WysiwygEditor
-import com.gee12.htmlwysiwygeditor.model.ImageParams
-import com.gee12.mytetroid.common.extensions.*
-import com.gee12.mytetroid.common.onSuccess
-import com.gee12.mytetroid.domain.usecase.html.CreateTagsHtmlStringUseCase
-import com.gee12.mytetroid.logs.LogType
-import com.gee12.mytetroid.logs.Message
-import com.gee12.mytetroid.ui.scripts.ScriptsActivity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.cachapa.expandablelayout.ExpandableLayout
@@ -109,6 +107,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     private lateinit var mButtonFindPrev: FloatingActionButton
     private lateinit var mFindListener: TextFindListener
     private lateinit var mSearchView: SearchView
+    private var lastTouchPoint: PointF? = null
     private var recordFieldsDialog: RecordFieldsDialog? = null
     private var voiceSpeechDialog: VoiceSpeechDialog? = null
     private val syncObject = Object()
@@ -274,6 +273,13 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         if (viewModel.isCanBack()) {
             super.onBackPressed()
         }
+    }
+
+    override fun onTouch(v: View, event: MotionEvent): Boolean {
+        if (event.actionMasked == MotionEvent.ACTION_DOWN) {
+            lastTouchPoint = PointF(event.x, event.y)
+        }
+        return super.onTouch(v, event)
     }
 
     // endregion Lifecycle
@@ -1424,7 +1430,17 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
     @SuppressLint("RestrictedApi")
     private fun showImagePopupMenu(anchorView: View, imageFileName: String) {
-        val popupMenu = PopupMenu(this, anchorView, Gravity.CENTER_VERTICAL)
+        val (popupMenu,view) = lastTouchPoint?.let {
+            val rootView = findViewById<CoordinatorLayout>(R.id.layout_coordinator)
+            val view = rootView.addEmptyViewAt(x = it.x, y = it.y)
+
+            PopupMenu(this, view, Gravity.CENTER_VERTICAL).also { popupMenu ->
+                popupMenu.setOnDismissListener {
+                    rootView.removeView(view)
+                }
+            } to view
+        } ?: (PopupMenu(this, anchorView, Gravity.CENTER_VERTICAL) to anchorView)
+
         popupMenu.inflate(R.menu.web_view_context)
         val menu = popupMenu.menu
         menu.findItem(R.id.action_edit_image)?.setVisible(viewModel.isEditMode())
@@ -1442,7 +1458,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 else -> false
             }
         }
-        (popupMenu.menu as MenuBuilder).showForcedWithIcons(anchorView)
+        (popupMenu.menu as MenuBuilder).showForcedWithIcons(view)
     }
 
     // endregion Context menu
