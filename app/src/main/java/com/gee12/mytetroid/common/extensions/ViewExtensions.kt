@@ -3,6 +3,7 @@ package com.gee12.mytetroid.common.extensions
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.text.Editable
@@ -153,4 +154,14 @@ private fun createPopupWindow(
         )
     }
     return popupWindow
+}
+
+fun ViewGroup.addEmptyViewAt(x: Float, y: Float): View {
+    return View(context).also { view ->
+        view.layoutParams = ViewGroup.LayoutParams(1, 1)
+        view.setBackgroundColor(Color.TRANSPARENT)
+        addView(view)
+        view.x = x
+        view.y = y
+    }
 }

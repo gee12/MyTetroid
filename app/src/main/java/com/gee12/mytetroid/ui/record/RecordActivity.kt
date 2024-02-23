@@ -5,6 +5,7 @@ import android.app.Activity
 import android.app.SearchManager
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.PointF
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -24,6 +25,7 @@ import android.widget.*
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.SearchView
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.isVisible
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
@@ -109,6 +111,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     private lateinit var mButtonFindPrev: FloatingActionButton
     private lateinit var mFindListener: TextFindListener
     private lateinit var mSearchView: SearchView
+    private var lastTouchPoint: PointF? = null
     private var recordFieldsDialog: RecordFieldsDialog? = null
     private var voiceSpeechDialog: VoiceSpeechDialog? = null
     private val syncObject = Object()
@@ -274,6 +277,13 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         if (viewModel.isCanBack()) {
             super.onBackPressed()
         }
+    }
+
+    override fun onTouch(v: View, event: MotionEvent): Boolean {
+        if (event.actionMasked == MotionEvent.ACTION_DOWN) {
+            lastTouchPoint = PointF(event.x, event.y)
+        }
+        return super.onTouch(v, event)
     }
 
     // endregion Lifecycle
@@ -1383,7 +1393,17 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
     @SuppressLint("RestrictedApi")
     private fun showImagePopupMenu(anchorView: View, imageFileName: String) {
-        val popupMenu = PopupMenu(this, anchorView, Gravity.CENTER_VERTICAL)
+        val (popupMenu,view) = lastTouchPoint?.let {
+            val rootView = findViewById<CoordinatorLayout>(R.id.layout_coordinator)
+            val view = rootView.addEmptyViewAt(x = it.x, y = it.y)
+
+            PopupMenu(this, view, Gravity.CENTER_VERTICAL).also { popupMenu ->
+                popupMenu.setOnDismissListener {
+                    rootView.removeView(view)
+                }
+            } to view
+        } ?: (PopupMenu(this, anchorView, Gravity.CENTER_VERTICAL) to anchorView)
+
         popupMenu.inflate(R.menu.web_view_context)
         val menu = popupMenu.menu
         menu.findItem(R.id.action_edit_image)?.setVisible(viewModel.isEditMode())
@@ -1401,7 +1421,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 else -> false
             }
         }
-        (popupMenu.menu as MenuBuilder).showForcedWithIcons(anchorView)
+        (popupMenu.menu as MenuBuilder).showForcedWithIcons(view)
     }
 
     // endregion Context menu
