@@ -1,13 +1,11 @@
 package com.gee12.mytetroid.domain.manager
 
-import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.map
 import com.gee12.mytetroid.database.entity.ScriptToObjectDbEntity
 import com.gee12.mytetroid.database.map.script.toDbEntity
 import com.gee12.mytetroid.database.map.script.toEntity
 import com.gee12.mytetroid.database.map.scriptToObject.toDbEntity
 import com.gee12.mytetroid.database.map.scriptToObject.toEntity
-import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.domain.repo.ScriptsDbRepo
 import com.gee12.mytetroid.domain.repo.ScriptsToObjectsDbRepo
@@ -17,7 +15,6 @@ import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.model.enums.TetroidObjectType
 
 class ScriptsManager(
-    private val resourcesProvider: IResourcesProvider,
     private val storageProvider: IStorageProvider,
     private val scriptsRepo: ScriptsDbRepo,
     private val scriptsToObjectsRepo: ScriptsToObjectsDbRepo,

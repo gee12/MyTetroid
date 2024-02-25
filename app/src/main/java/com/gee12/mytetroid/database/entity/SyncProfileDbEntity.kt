@@ -2,7 +2,7 @@ package com.gee12.mytetroid.database.entity
 
 import androidx.room.ColumnInfo
 
-open class SyncProfileDbEntity (
+data class SyncProfileDbEntity (
     @ColumnInfo(name = "isEnabled")
     var isEnabled: Boolean
 ) {
