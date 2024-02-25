@@ -22,7 +22,7 @@ class GetActiveScriptsForRecordUseCase(
             )
         ).map { scripts ->
             scripts.filter {
-                it.isActiveByErrors()
+                it.isActiveWithoutErrors()
             }
         }
     }

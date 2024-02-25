@@ -77,7 +77,7 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
             true
         }
         adapter.onItemSwitchClickListener = { script, isChecked, _ ->
-            viewModel.setScriptIsActive(script, isActive = isChecked)
+            viewModel.setScriptIsActiveForCurrentObject(script, isActive = isChecked)
         }
         adapter.onItemMenuClickListener = { script, view ->
             showScriptPopupMenu(view, script)
@@ -336,6 +336,10 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
         val isFileExist = script.isFileExist()
         (menu.findItem(R.id.action_open_file))?.isVisible = isFileExist
         (menu.findItem(R.id.action_duplicate))?.isVisible = isFileExist
+        val isScriptForObject = viewModel.isScriptForObject() && !script.isHasErrors()
+        val isScriptActiveForStorage = script.isActiveForObject(null)
+        (menu.findItem(R.id.action_activate_for_storage))?.isVisible = isScriptForObject && !isScriptActiveForStorage
+        (menu.findItem(R.id.action_deactivate_for_storage))?.isVisible = isScriptForObject && isScriptActiveForStorage
 
         popupMenu.setOnMenuItemClickListener { item ->
             when (item.itemId) {
@@ -349,6 +353,14 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
                 }
                 R.id.action_open_file -> {
                     viewModel.prepareScriptFileForOpen(script)
+                    true
+                }
+                R.id.action_activate_for_storage -> {
+                    viewModel.setScriptIsActiveForAllStorage(script, isActive = true)
+                    true
+                }
+                R.id.action_deactivate_for_storage -> {
+                    viewModel.setScriptIsActiveForAllStorage(script, isActive = false)
                     true
                 }
                 R.id.action_delete -> {

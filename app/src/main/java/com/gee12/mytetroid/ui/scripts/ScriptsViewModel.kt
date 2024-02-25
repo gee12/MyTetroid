@@ -187,13 +187,21 @@ class ScriptsViewModel(
         }
     }
 
-    fun setScriptIsActive(script: TetroidScript, isActive: Boolean) {
+    fun setScriptIsActiveForCurrentObject(script: TetroidScript, isActive: Boolean) {
+        setScriptIsActive(script, isActive, obj = scriptObject)
+    }
+
+    fun setScriptIsActiveForAllStorage(script: TetroidScript, isActive: Boolean) {
+        setScriptIsActive(script, isActive, obj = null)
+    }
+
+    private fun setScriptIsActive(script: TetroidScript, isActive: Boolean, obj: TetroidObject?) {
         launchOnMain {
             withIo {
                 setScriptIsEnabledUseCase.run(
                     SetScriptIsEnabledUseCase.Params(
                         script = script,
-                        obj = scriptObject,
+                        obj = obj,
                         isActive = isActive,
                     )
                 )

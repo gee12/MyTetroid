@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_edit"
         android:title="@string/title_edit"
@@ -16,8 +17,19 @@
         android:orderInCategory="30"
         android:icon="@drawable/ic_file_2" />
     <item
+        android:id="@+id/action_activate_for_storage"
+        android:title="@string/action_activate_for_storage"
+        android:orderInCategory="40"
+        android:icon="@drawable/ic_toggle_on"
+        app:iconTint="@color/action_button_checked" />
+    <item
+        android:id="@+id/action_deactivate_for_storage"
+        android:title="@string/action_deactivate_for_storage"
+        android:orderInCategory="40"
+        android:icon="@drawable/ic_toggle_off"/>
+    <item
         android:id="@+id/action_delete"
         android:title="@string/title_delete"
-        android:orderInCategory="40"
+        android:orderInCategory="50"
         android:icon="@drawable/ic_delete" />
 </menu>

@@ -146,7 +146,7 @@ class ScriptsAdapter(
                 onItemMenuClickListener?.invoke(script, ivMenu)
             }
 
-            val isActive = script.isActiveByErrors()
+            val isActive = script.isActiveWithoutErrors()
             ivIcon.setTintList(if (isActive) R.color.script_activate else R.color.script_inactive)
 
             switch.isVisible = script.isCanSwitchActivity(currentObject)
@@ -182,7 +182,7 @@ class ScriptsAdapter(
             val isForAllStorage = currentObject == null
             view.isEnabled = isForAllStorage
 
-            switch.isVisible = isForAllStorage || scriptToObject.script?.isActiveByErrors().orFalse()
+            switch.isVisible = isForAllStorage || scriptToObject.script?.isActiveWithoutErrors().orFalse()
             switch.isEnabled = isForAllStorage
             switch.isChecked = true
             switch.setOnCheckedChangeListener { button, isChecked ->
@@ -209,7 +209,7 @@ class ScriptsAdapter(
         }
 
         private fun TetroidScriptToObject.stringTitle(): String? {
-            return if (obj?.isNonCryptedOrDecrypted == true) {
+            return if (obj?.isNonCryptedOrDecrypted == true || objectType in arrayOf(TetroidObjectType.NONE, null)) {
                 val objName = obj?.name.orEmpty()
                 when (objectType) {
                     TetroidObjectType.RECORD -> {

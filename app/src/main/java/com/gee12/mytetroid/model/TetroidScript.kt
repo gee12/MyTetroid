@@ -16,8 +16,12 @@ data class TetroidScript(
 ) {
     var errors: List<Failure>? = null
 
-    fun isActiveByErrors(): Boolean {
-        return isActive && errors.isNullOrEmpty()
+    fun isHasErrors(): Boolean {
+        return !errors.isNullOrEmpty()
+    }
+
+    fun isActiveWithoutErrors(): Boolean {
+        return isActive && !isHasErrors()
     }
 
     // Скрипт можно активировать/деактивировать, если:
@@ -28,7 +32,7 @@ data class TetroidScript(
     fun isCanSwitchActivity(obj: ITetroidObject?): Boolean {
         val isActiveForCurrentObject = getScriptObject(obj)?.isActive ?: false
         return (obj == null || !isActive || isActiveForCurrentObject)
-                && errors.isNullOrEmpty()
+                && !isHasErrors()
     }
 
     fun getObjects(obj: ITetroidObject?): List<TetroidScriptToObject>? {

@@ -559,6 +559,8 @@
     <string name="action_create_folder">Создать</string>
     <string name="action_home">Домой</string>
     <string name="action_duplicate">Дублировать</string>
+    <string name="action_activate_for_storage">Включить для хранилища</string>
+    <string name="action_deactivate_for_storage">Отключить для хранилища</string>
 
     <string name="ask_exit_from_app">Выйти из приложения?</string>
     <string name="ask_node_delete_mask">Удалить ветку «%s» ?</string>
