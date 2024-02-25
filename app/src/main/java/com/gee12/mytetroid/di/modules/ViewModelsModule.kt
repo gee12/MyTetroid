@@ -371,6 +371,7 @@ object ViewModelsModule {
                     editScriptUseCase = get(),
                     setScriptIsEnabledUseCase = get(),
                     setScriptToObjectIsEnabledUseCase = get(),
+                    duplicateScriptUseCase = get(),
                     deleteScriptFileUseCase = get(),
                     prepareFileForOpenUseCase = get(),
                 )

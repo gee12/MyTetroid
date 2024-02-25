@@ -3,7 +3,7 @@ package com.gee12.mytetroid.model
 import com.gee12.mytetroid.model.enums.TetroidObjectType
 
 data class TetroidScriptToObject(
-    val id: Int = 0,
+    var id: Int = 0,
     val scriptId: Int,
     val objectId: String?,
     val objectType: TetroidObjectType?,

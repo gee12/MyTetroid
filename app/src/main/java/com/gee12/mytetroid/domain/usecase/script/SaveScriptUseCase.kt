@@ -1,10 +1,7 @@
 package com.gee12.mytetroid.domain.usecase.script
 
-import com.gee12.mytetroid.common.Either
-import com.gee12.mytetroid.common.Failure
-import com.gee12.mytetroid.common.UseCase
+import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.orZero
-import com.gee12.mytetroid.common.toLeft
 import com.gee12.mytetroid.domain.manager.ScriptsManager
 import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.model.TetroidScript
@@ -13,15 +10,15 @@ class SaveScriptUseCase(
     private val storageProvider: IStorageProvider,
     private val scriptsManager: ScriptsManager,
     private val saveScriptTextToFileUseCase: SaveScriptTextToFileUseCase,
-) : UseCase<UseCase.None, SaveScriptUseCase.Params>() {
+) : UseCase<TetroidScript, SaveScriptUseCase.Params>() {
 
     data class Params(
         val fileName: String,
-        val description: String,
+        val description: String?,
         val scriptText: String,
     )
 
-    override suspend fun run(params: Params): Either<Failure, None> {
+    override suspend fun run(params: Params): Either<Failure, TetroidScript> {
         val script = TetroidScript(
             storageId = storageProvider.storage?.id.orZero(),
             fileName = params.fileName,
@@ -33,7 +30,7 @@ class SaveScriptUseCase(
                     scriptFileName = script.fileName,
                     scriptText = params.scriptText,
                 )
-            )
+            ).map { script }
         } else {
             Failure.Database.Insert.toLeft()
         }

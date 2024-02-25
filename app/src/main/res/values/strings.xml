@@ -657,6 +657,7 @@
     <string name="action_load">Load</string>
     <string name="action_create_folder">New</string>
     <string name="action_home">Home</string>
+    <string name="action_duplicate">Duplicate</string>
 
     <string name="ask_oper_without_record_dir_mask">Record directory is missing. %s anyway ?</string>
     <string name="ask_attach_delete_without_file">File is missing on the disk. Delete anyway ?</string>

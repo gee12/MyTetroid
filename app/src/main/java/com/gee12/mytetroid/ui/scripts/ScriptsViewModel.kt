@@ -44,6 +44,7 @@ class ScriptsViewModel(
     private val editScriptUseCase: EditScriptUseCase,
     private val setScriptIsEnabledUseCase: SetScriptIsEnabledUseCase,
     private val setScriptToObjectIsEnabledUseCase: SetScriptToObjectIsEnabledUseCase,
+    private val duplicateScriptUseCase: DuplicateScriptUseCase,
     private val deleteScriptFileUseCase: DeleteScriptFileUseCase,
     private val prepareFileForOpenUseCase: PrepareFileForOpenUseCase,
 ) : BaseStorageViewModel(
@@ -68,7 +69,7 @@ class ScriptsViewModel(
     ) {
         launchOnMain {
             initScriptObject(objectTypeId, objectId)
-            loadScripts(isShowDefaultScripts = true)
+            loadScripts(isShowDefaultScriptsIfNeed = true)
         }
     }
 
@@ -89,7 +90,10 @@ class ScriptsViewModel(
         }
     }
 
-    fun loadScripts(isShowDefaultScripts: Boolean = false, isMoveToLastItem: Boolean = false) {
+    fun loadScripts(
+        isShowDefaultScriptsIfNeed: Boolean = false,
+        isMoveToLastItem: Boolean = false,
+    ) {
         launchOnMain {
             withIo {
                 getScriptsUseCase.run(
@@ -100,7 +104,7 @@ class ScriptsViewModel(
             }.onSuccess { scripts ->
                 sendEvent(ScriptsEvent.LoadScripts(scriptObject, scripts, isMoveToLastItem))
 
-                if (scripts.isEmpty() && isShowDefaultScripts) {
+                if (scripts.isEmpty() && isShowDefaultScriptsIfNeed) {
                     sendEvent(ScriptsEvent.ShowRequestForDefaultScripts)
                 }
             }
@@ -242,6 +246,24 @@ class ScriptsViewModel(
                 isScriptsChanged = true
                 logOperRes(LogObj.SCRIPT, LogOper.CHANGE)
                 loadScripts()
+            }
+        }
+    }
+
+    fun duplicateScript(script: TetroidScript) {
+        launchOnMain {
+            withIo {
+                duplicateScriptUseCase.run(
+                    DuplicateScriptUseCase.Params(
+                        script = script,
+                    )
+                )
+            }.onFailure {
+                logFailure(failure = it, show = true)
+            }.onSuccess {
+                isScriptsChanged = true
+                logOperRes(LogObj.SCRIPT, LogOper.ADD)
+                loadScripts(isMoveToLastItem = true)
             }
         }
     }

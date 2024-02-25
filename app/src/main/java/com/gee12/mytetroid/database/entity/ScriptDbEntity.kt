@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "scripts")
-open class ScriptDbEntity(
+data class ScriptDbEntity(
     @ColumnInfo(name = "storageId")
     var storageId: Int,
 

@@ -2,6 +2,7 @@ package com.gee12.mytetroid.domain.manager
 
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.map
+import com.gee12.mytetroid.database.entity.ScriptToObjectDbEntity
 import com.gee12.mytetroid.database.map.script.toDbEntity
 import com.gee12.mytetroid.database.map.script.toEntity
 import com.gee12.mytetroid.database.map.scriptToObject.toDbEntity
@@ -36,119 +37,15 @@ class ScriptsManager(
             val objectTypeId = obj?.type
             val objectId = obj?.id
 
-            val objects = scriptsToObjectsRepo.getAllByScriptId(
+            val objects = getScriptObjects(
                 scriptId = scriptDbEntity.id,
             ).toMutableList()
 
-            var isActive = false
-            if (objectTypeId != null && objectId != null) {
-                when (objectTypeId) {
-                    TetroidObjectType.RECORD.id -> {
-                        getRecordByIdUseCase.run(
-                            GetRecordByIdUseCase.Params(recordId = objectId)
-                        ).map { record ->
-
-                            // собираем список родительских веток
-                            val parentNodes = buildList {
-                                var parentNode: TetroidNode? = record.node
-                                while (parentNode != null) {
-                                    add(parentNode)
-                                    parentNode = parentNode?.parentNode
-                                }
-                            }
-                            val parentNodeIds = parentNodes.filterNotNull().map { it.id }
-
-                            // удаляем записи по другим заметкам (лишние)
-                            //  или не по родительским веткам
-                            objects.removeAll {
-                                it.objectTypeId == TetroidObjectType.RECORD.id
-                                        && it.objectId != objectId
-                                        || it.objectTypeId == TetroidObjectType.NODE.id
-                                        && it.objectId !in parentNodeIds
-                            }
-
-                            // проверяем включен ли для самой записи
-                            isActive = objects.any {
-                                it.objectId == record.id
-                                        && it.objectTypeId == TetroidObjectType.RECORD.id
-                            }
-                            if (!isActive) {
-                                // проверяем включен ли для родительских веток
-                                var parentNode: TetroidNode? = record.node
-                                while (!isActive && parentNode != null) {
-                                    isActive = objects.any {
-                                        it.objectTypeId == TetroidObjectType.NODE.id
-                                                && it.objectId == parentNode?.id
-                                    }
-                                    parentNode = parentNode?.parentNode
-                                }
-                            }
-                            if (!isActive) {
-                                // проверяем включен ли для всего хранилища
-                                isActive = objects.any {
-                                    it.objectTypeId == null && it.objectId == null
-                                }
-                            }
-                        }
-                    }
-                    TetroidObjectType.NODE.id -> {
-                        getNodeByIdUseCase.run(
-                            GetNodeByIdUseCase.Params(nodeId = objectId)
-                        ).map { node ->
-
-                            // собираем список родительских веток
-                            val parentNodes = buildList {
-                                var parentNode: TetroidNode? = node.parentNode
-                                while (parentNode != null) {
-                                    add(parentNode)
-                                    parentNode = parentNode?.parentNode
-                                }
-                            }
-                            val parentNodeIds = parentNodes.filterNotNull().map { it.id }
-
-                            // удаляем записи по другим веткам (лишние)
-                            //  или записи по заметкам
-                            objects.removeAll {
-                                it.objectTypeId == TetroidObjectType.NODE.id
-                                        && it.objectId != objectId
-                                        && it.objectId !in parentNodeIds
-                                        || it.objectTypeId == TetroidObjectType.RECORD.id
-                            }
-
-                            // проверяем включен ли для самой ветки
-                            isActive = objects.any {
-                                it.objectId == node.id
-                                        && it.objectTypeId == TetroidObjectType.NODE.id
-                            }
-                            if (!isActive) {
-                                // проверяем включен ли для родительских веток
-                                var parentNode: TetroidNode? = node.parentNode
-                                while (!isActive && parentNode != null) {
-                                    isActive = objects.any {
-                                        it.objectTypeId == TetroidObjectType.NODE.id
-                                                && it.objectId == parentNode?.id
-                                    }
-                                    parentNode = parentNode?.parentNode
-                                }
-                            }
-                            if (!isActive) {
-                                // проверяем включен ли для всего хранилища
-                                isActive = objects.any {
-                                    it.objectTypeId == null && it.objectId == null
-                                }
-                            }
-                        }
-                    }
-                    //TetroidObjectType.TAG.id -> TODO ?
-                    else -> {
-                        isActive = false
-                    }
-                }
-            } else {
-                isActive = objects.any {
-                    it.objectId == null && it.objectTypeId == null
-                }
-            }
+            val isActive = isScriptActive(
+                objectTypeId = objectTypeId,
+                objectId = objectId,
+                objects = objects,
+            )
 
             scriptDbEntity.toEntity(
                 isActive = isActive,
@@ -168,6 +65,129 @@ class ScriptsManager(
                 }.filter { it.obj != null || !it.isObjectFilled() }
             }
         }
+    }
+
+    suspend fun getScriptObjects(scriptId: Int): List<ScriptToObjectDbEntity> {
+        return scriptsToObjectsRepo.getAllByScriptId(
+            scriptId = scriptId,
+        )
+    }
+
+    private suspend fun isScriptActive(
+        objectTypeId: Int?,
+        objectId: String?,
+        objects: MutableList<ScriptToObjectDbEntity>,
+    ): Boolean {
+        var isActive = false
+        if (objectTypeId != null && objectId != null) {
+            when (objectTypeId) {
+                TetroidObjectType.RECORD.id -> {
+                    getRecordByIdUseCase.run(
+                        GetRecordByIdUseCase.Params(recordId = objectId)
+                    ).map { record ->
+
+                        // собираем список родительских веток
+                        val parentNodes = buildList {
+                            var parentNode: TetroidNode? = record.node
+                            while (parentNode != null) {
+                                add(parentNode)
+                                parentNode = parentNode?.parentNode
+                            }
+                        }
+                        val parentNodeIds = parentNodes.filterNotNull().map { it.id }
+
+                        // удаляем записи по другим заметкам (лишние)
+                        //  или не по родительским веткам
+                        objects.removeAll {
+                            it.objectTypeId == TetroidObjectType.RECORD.id
+                                    && it.objectId != objectId
+                                    || it.objectTypeId == TetroidObjectType.NODE.id
+                                    && it.objectId !in parentNodeIds
+                        }
+
+                        // проверяем включен ли для самой записи
+                        isActive = objects.any {
+                            it.objectId == record.id
+                                    && it.objectTypeId == TetroidObjectType.RECORD.id
+                        }
+                        if (!isActive) {
+                            // проверяем включен ли для родительских веток
+                            var parentNode: TetroidNode? = record.node
+                            while (!isActive && parentNode != null) {
+                                isActive = objects.any {
+                                    it.objectTypeId == TetroidObjectType.NODE.id
+                                            && it.objectId == parentNode?.id
+                                }
+                                parentNode = parentNode?.parentNode
+                            }
+                        }
+                        if (!isActive) {
+                            // проверяем включен ли для всего хранилища
+                            isActive = objects.any {
+                                it.objectTypeId == null && it.objectId == null
+                            }
+                        }
+                    }
+                }
+                TetroidObjectType.NODE.id -> {
+                    getNodeByIdUseCase.run(
+                        GetNodeByIdUseCase.Params(nodeId = objectId)
+                    ).map { node ->
+
+                        // собираем список родительских веток
+                        val parentNodes = buildList {
+                            var parentNode: TetroidNode? = node.parentNode
+                            while (parentNode != null) {
+                                add(parentNode)
+                                parentNode = parentNode?.parentNode
+                            }
+                        }
+                        val parentNodeIds = parentNodes.filterNotNull().map { it.id }
+
+                        // удаляем записи по другим веткам (лишние)
+                        //  или записи по заметкам
+                        objects.removeAll {
+                            it.objectTypeId == TetroidObjectType.NODE.id
+                                    && it.objectId != objectId
+                                    && it.objectId !in parentNodeIds
+                                    || it.objectTypeId == TetroidObjectType.RECORD.id
+                        }
+
+                        // проверяем включен ли для самой ветки
+                        isActive = objects.any {
+                            it.objectId == node.id
+                                    && it.objectTypeId == TetroidObjectType.NODE.id
+                        }
+                        if (!isActive) {
+                            // проверяем включен ли для родительских веток
+                            var parentNode: TetroidNode? = node.parentNode
+                            while (!isActive && parentNode != null) {
+                                isActive = objects.any {
+                                    it.objectTypeId == TetroidObjectType.NODE.id
+                                            && it.objectId == parentNode?.id
+                                }
+                                parentNode = parentNode?.parentNode
+                            }
+                        }
+                        if (!isActive) {
+                            // проверяем включен ли для всего хранилища
+                            isActive = objects.any {
+                                it.objectTypeId == null && it.objectId == null
+                            }
+                        }
+                    }
+                }
+                //TetroidObjectType.TAG.id -> TODO ?
+                else -> {
+                    isActive = false
+                }
+            }
+        } else {
+            isActive = objects.any {
+                it.objectId == null && it.objectTypeId == null
+            }
+        }
+        return isActive
     }
 
     private suspend fun getObject(objectId: String?, objectTypeId: Int?): TetroidObject? {
@@ -205,11 +225,17 @@ class ScriptsManager(
     }
 
     suspend fun insertScript(script: TetroidScript): Boolean {
-        return scriptsRepo.insert(script.toDbEntity())
+        val dbEntity = script.toDbEntity()
+        return scriptsRepo.insert(dbEntity).also {
+            script.id = dbEntity.id
+        }
     }
 
     suspend fun insertScriptToObject(scriptToObject: TetroidScriptToObject): Boolean {
-        return scriptsToObjectsRepo.insert(scriptToObject.toDbEntity())
+        val dbEntity = scriptToObject.toDbEntity()
+        return scriptsToObjectsRepo.insert(dbEntity).also {
+            scriptToObject.id = dbEntity.id
+        }
     }
 
     suspend fun updateScriptIsActiveForObject(scriptToObject: TetroidScriptToObject, isActive: Boolean): Boolean {

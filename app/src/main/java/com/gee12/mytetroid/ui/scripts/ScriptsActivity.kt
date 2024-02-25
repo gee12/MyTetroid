@@ -333,12 +333,18 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
         popupMenu.inflate(R.menu.script_context)
 
         val menu = popupMenu.menu
-        (menu.findItem(R.id.action_open_file))?.isVisible = script.isFileExist()
+        val isFileExist = script.isFileExist()
+        (menu.findItem(R.id.action_open_file))?.isVisible = isFileExist
+        (menu.findItem(R.id.action_duplicate))?.isVisible = isFileExist
 
         popupMenu.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_edit -> {
                     viewModel.openScriptForEdit(script)
+                    true
+                }
+                R.id.action_duplicate -> {
+                    viewModel.duplicateScript(script)
                     true
                 }
                 R.id.action_open_file -> {

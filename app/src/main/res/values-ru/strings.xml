@@ -558,6 +558,7 @@
     <string name="action_load">Загрузить</string>
     <string name="action_create_folder">Создать</string>
     <string name="action_home">Домой</string>
+    <string name="action_duplicate">Дублировать</string>
 
     <string name="ask_exit_from_app">Выйти из приложения?</string>
     <string name="ask_node_delete_mask">Удалить ветку «%s» ?</string>

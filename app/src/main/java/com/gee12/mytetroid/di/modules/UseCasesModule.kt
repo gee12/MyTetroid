@@ -767,6 +767,7 @@ object UseCasesModule {
                     storageProvider = get(),
                     scriptsManager = get(),
                     saveScriptTextToFileUseCase = get(),
+                    getUniqueScriptFileNameUseCase = get(),
                 )
             }
 
@@ -786,6 +787,22 @@ object UseCasesModule {
                     storagePathProvider = get(),
                     storageProvider = get(),
                     readTextFileUseCase = get(),
+                )
+            }
+
+            scoped {
+                DuplicateScriptUseCase(
+                    scriptsManager = get(),
+                    getUniqueScriptFileNameUseCase = get(),
+                    getScriptTextUseCase = get(),
+                    saveScriptUseCase = get(),
+                )
+            }
+
+            scoped {
+                GetUniqueScriptFileNameUseCase(
+                    storageProvider = get(),
+                    scriptsManager = get(),
                 )
             }
 

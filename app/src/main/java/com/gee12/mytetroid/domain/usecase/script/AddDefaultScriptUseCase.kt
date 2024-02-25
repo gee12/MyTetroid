@@ -4,11 +4,9 @@ import android.content.Context
 import com.gee12.htmlwysiwygeditor.ext.readTextFileFromAssets
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.orZero
-import com.gee12.mytetroid.common.extensions.splitToBaseAndExtension
 import com.gee12.mytetroid.domain.manager.ScriptsManager
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.domain.provider.IStorageProvider
-import com.gee12.mytetroid.model.FileName
 import com.gee12.mytetroid.model.FilePath
 import com.gee12.mytetroid.model.TetroidScript
 import com.gee12.mytetroid.model.enums.DefaultScript
@@ -19,6 +17,7 @@ class AddDefaultScriptUseCase(
     private val storageProvider: IStorageProvider,
     private val scriptsManager: ScriptsManager,
     private val saveScriptTextToFileUseCase: SaveScriptTextToFileUseCase,
+    private val getUniqueScriptFileNameUseCase: GetUniqueScriptFileNameUseCase,
 ) : UseCase<UseCase.None, AddDefaultScriptUseCase.Params>() {
 
     data class Params(
@@ -31,7 +30,11 @@ class AddDefaultScriptUseCase(
     override suspend fun run(params: Params): Either<Failure, None> {
         val defaultScript = params.script
 
-        return getUniqueFileName(defaultScript.fileName).flatMap { newFileName ->
+        return getUniqueScriptFileNameUseCase.run(
+            GetUniqueScriptFileNameUseCase.Params(
+                originalFileName = defaultScript.fileName,
+            )
+        ).flatMap { newFileName ->
             val script = TetroidScript(
                 storageId = storageId,
                 fileName = newFileName,
@@ -47,24 +50,6 @@ class AddDefaultScriptUseCase(
                 Failure.Database.Insert.toLeft()
             }
         }
-    }
-
-    private suspend fun getUniqueFileName(scriptName: String): Either<Failure, String> {
-        var name = scriptName
-        var index = 1
-        while (!scriptsManager.isUniqueFileName(storageId, scriptId = null, fileName = name)) {
-            val parts = scriptName.splitToBaseAndExtension()
-            name = when (parts) {
-                is FileName.FromFullName -> {
-                    "${parts.fullName}_${index}"
-                }
-                is FileName.FromParts -> {
-                    "${parts.base}_${index}.${parts.extension}"
-                }
-            }
-            index++
-        }
-        return name.toRight()
     }
 
     private suspend fun saveScriptTextToFile(
