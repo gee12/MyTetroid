@@ -1,16 +1,22 @@
 setTableSortCallbacks();
 
 function setTableSortCallbacks() {
-    Array.from(document.querySelectorAll("table")).forEach(table => {
+    const tables = document.querySelectorAll("table");
+    for (var i = 0; i < tables.length; i++) {
+        const table = tables[i];
         if (table.rows.length > 0) {
-            var cells = table.rows[0].cells;
-            Array.from(cells).forEach(cell => {
-                cell.onclick = function() {
-                    sortTableByColumn(table, cell);
-                };
-            });
+            const cells = table.rows[0].cells;
+            for (var j = 0; j < cells.length; j++) {
+                setCellCallback(table, cells[j]);
+            }
         }
-    });
+    }
+}
+
+function setCellCallback(table, cell) {
+    cell.onclick = function() {
+        sortTableByColumn(table, cell);
+    };
 }
 
 function sortTableByColumn(table, cell) {
@@ -18,25 +24,47 @@ function sortTableByColumn(table, cell) {
 
     const tbody = table.querySelector("tbody");
     const parent = (tbody != null) ? tbody : table;
+    const rows = parent.querySelectorAll('tr:nth-child(n+2)');
 
-    Array.from(parent.querySelectorAll('tr:nth-child(n+2)'))
-        .sort(comparer(cell.cellIndex, this.asc = !this.asc))
-        .forEach(row => parent.appendChild(row) );
+    const rowsArray = toArray(rows);
+    const compareFn = compareRowsFnFactory(cell.cellIndex, this.asc = !this.asc);
+    rowsArray.sort(compareFn);
+    for (var i = 0; i < rowsArray.length; i++) {
+        parent.appendChild(rowsArray[i]);
+    }
 
     RE.textChange();
 }
 
-var comparer = function(colIndex, asc) {
+function compareRowsFnFactory(colIndex, asc) {
     return function(a, b) {
-        return function(v1, v2) {
-            return (v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2))
-                ? v1 - v2
-                : v1.toString().localeCompare(v2);
-        } (getCellValue(asc ? a : b, colIndex), getCellValue(asc ? b : a, colIndex));
-    }
-};
+        const cellValue1 = getCellValue(a, colIndex);
+        const cellValue2 = getCellValue(b, colIndex);
+        return asc
+            ? compareCellValues(cellValue1, cellValue2)
+            : compareCellValues(cellValue2, cellValue1);
+    };
+}
 
 function getCellValue(row, colIndex) {
-    var cell = row.children[colIndex];
+    const cell = row.children[colIndex];
     return cell.innerText || cell.textContent;
+}
+
+function compareCellValues(cellValue1, cellValue2) {
+    return isEmptyOrNaN(cellValue1) || isEmptyOrNaN(cellValue2)
+        ? cellValue1.toString().localeCompare(cellValue2)
+        : cellValue1 - cellValue2;
+}
+
+function isEmptyOrNaN(value) {
+    return value === "" || isNaN(value);
+}
+
+function toArray(nodesList) {
+	var arr = [];
+	for(var i = 0, node; node = nodesList[i]; ++i) {
+		arr.push(node);
+	}
+	return arr;
 }
