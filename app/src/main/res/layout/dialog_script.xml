@@ -110,8 +110,9 @@
                 android:gravity="top"
                 android:inputType="text|textMultiLine"
                 android:minLines="10"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:textColor="@color/text_2"
+                android:typeface="monospace"
                 tools:text="@tools:sample/lorem/random" />
 
         </com.google.android.material.textfield.TextInputLayout>

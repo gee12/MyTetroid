@@ -16,6 +16,7 @@ import com.gee12.mytetroid.common.extensions.orZero
 import com.gee12.mytetroid.common.extensions.withIo
 import com.gee12.mytetroid.domain.manager.ScriptsManager
 import com.gee12.mytetroid.model.TetroidScript
+import com.gee12.mytetroid.ui.dialogs.AskDialogs
 import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import com.gee12.mytetroid.ui.storage.StorageViewModel
 import kotlinx.coroutines.launch
@@ -34,6 +35,7 @@ class ScriptFieldsDialog(
 
     private lateinit var scriptsManager: ScriptsManager
 
+    private var isTextChanged = false
 
     override fun getRequiredTag() = TAG
 
@@ -50,6 +52,7 @@ class ScriptFieldsDialog(
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
         scriptsManager = koinScope.get<ScriptsManager>()
 
+        isCancelable = false
         setTitle(if (script != null) R.string.title_edit_script else R.string.title_create_script)
 
         etFileName = dialogView.findViewById(R.id.edit_text_file_name)
@@ -82,9 +85,26 @@ class ScriptFieldsDialog(
                 etText.text.toString(),
             )
         }
-        setNegativeButton(R.string.answer_cancel)
+        setNegativeButton(R.string.answer_cancel, isCloseDialog = false) { _, _ ->
+            if (isTextChanged) {
+                AskDialogs.showYesDialog(
+                    context = requireContext(),
+                    message = getString(R.string.ask_script_was_changed_request),
+                    onApply = {
+                        dismiss()
+                    }
+                )
+            } else {
+                dismiss()
+            }
+        }
 
-        etFileName.addAfterTextChangedListener { checkPositiveButtonIsEnabled() }
+        etFileName.addAfterTextChangedListener {
+            checkPositiveButtonIsEnabled()
+        }
+        etText.addAfterTextChangedListener {
+            isTextChanged = true
+        }
     }
 
     override fun onDialogShowed(dialog: AlertDialog, view: View) {

@@ -227,7 +227,7 @@
     <string name="title_load_all_nodes_object_name"><![CDATA[<Загрузите все ветки>]]></string>
 
     <string name="title_def_script_title_table_sort">Сортировка таблиц</string>
-    <string name="title_def_script_description_table_sort">Строки таблицы будут отсортированы после клика на заголовке колонки</string>
+    <string name="title_def_script_description_table_sort">Строки таблицы будут отсортированы при клике на заголовке колонки</string>
     <string name="title_def_script_title_table_totals">Итоги таблиц</string>
     <string name="title_def_script_description_table_totals">Будет добавлена строка с итоговыми суммами по каждой колонке таблицы</string>
 
@@ -609,6 +609,7 @@
     <string name="ask_open_storage_settings">Открыть настройки хранилища ?</string>
     <string name="ask_decrypt_attached_files_in_trash_title">Открытие зашифрованного файла</string>
     <string name="ask_decrypt_attached_files_in_trash_message">Отключена опция \"Расшифровывать файлы в каталог\".\nВключить опцию и открыть файл?</string>
+    <string name="ask_script_was_changed_request">Код скрипта был изменен. Все равно выйти?</string>
 
     <string name="subtitle_record_view">ПРОСМОТР</string>
     <string name="subtitle_record_edit">РЕДАКТОР</string>
