@@ -14,9 +14,12 @@ function setTableSortCallbacks() {
 }
 
 function setCellCallback(table, cell) {
-    cell.onclick = function() {
+    const event = 'contextmenu'; // click
+    cell.addEventListener(event, function(e) {
+        e.preventDefault();
+        RE.clearSelection();
         sortTableByColumn(table, cell);
-    };
+    });
 }
 
 function sortTableByColumn(table, cell) {
