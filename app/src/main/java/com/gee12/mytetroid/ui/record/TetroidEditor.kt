@@ -144,10 +144,11 @@ class TetroidEditor @JvmOverloads constructor(
         /**
      * Вызывается перед сохранением текста записи в файл.
      */
-    fun beforeSaveAsync(deleteStyleEmpty: Boolean) {
-        if (deleteStyleEmpty) {
+    fun beforeSaveAsync(isDeleteStyleEmpty: Boolean) {
+        if (isDeleteStyleEmpty) {
             deleteStyleEmpty()
         }
+        webView.onBeforeSaveHtmlContent()
         isCalledHtmlRequest = true
         webView.makeEditableHtmlRequest()
     }

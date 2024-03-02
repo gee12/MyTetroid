@@ -1056,7 +1056,7 @@ class RecordViewModel(
      * @return true - запущена ли перед сохранением предобработка в асинхронном режиме.
      */
     fun saveRecord(resultObj: ResultObject): Boolean {
-        val runBeforeSaving = CommonSettings.isFixEmptyParagraphs(getContext())
+        val runBeforeSaving = true
         if (runBeforeSaving) {
             this.resultObj = resultObj
         }

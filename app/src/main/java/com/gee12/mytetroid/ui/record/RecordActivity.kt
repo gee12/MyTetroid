@@ -1021,7 +1021,9 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
      * Выполнение кода продолжиться в функции onReceiveEditableHtml().
      */
     private fun onBeforeSavingAsync() {
-        editor.beforeSaveAsync(true)
+        editor.beforeSaveAsync(
+            isDeleteStyleEmpty = CommonSettings.isFixEmptyParagraphs(this),
+        )
     }
 
     private fun saveRecord(resultObj: ResultObject) {
