@@ -30,19 +30,20 @@ function setLinksCallbacks() {
 }
 
 function setLinkCallbacks(linkElem) {
-    const event = 'contextmenu'; // onmouseover/click
-    linkElem.removeEventListener(event, onShowTooltip);
-    linkElem.addEventListener(event, onShowTooltip);
+    // or onmouseover/click
+    linkElem.oncontextmenu = function(e) {
+        onShowTooltip(linkElem.href, e);
+    }
 
     linkElem.onmouseout = onRemoveTooltip;
 }
 
-const onShowTooltip = function(e) {
+function onShowTooltip(href, e) {
      e.preventDefault();
      RE.clearSelection();
 
      const target = e.target;
-     const tooltipHtml = target.href;
+     const tooltipHtml = href;
 
      tooltipElem = document.createElement("div");
      tooltipElem.className = "tooltip";

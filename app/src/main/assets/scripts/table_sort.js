@@ -1,25 +1,25 @@
-setTableSortCallbacks();
-
-function setTableSortCallbacks() {
+function setTablesCallbacks() {
     const tables = document.querySelectorAll("table");
     for (var i = 0; i < tables.length; i++) {
-        const table = tables[i];
-        if (table.rows.length > 0) {
-            const cells = table.rows[0].cells;
-            for (var j = 0; j < cells.length; j++) {
-                setCellCallback(table, cells[j]);
-            }
+        setTableCallbacks(tables[i]);
+    }
+}
+
+function setTableCallbacks(table) {
+    if (table.rows.length > 0) {
+        const cells = table.rows[0].cells;
+        for (var j = 0; j < cells.length; j++) {
+            setCellCallback(table, cells[j]);
         }
     }
 }
 
 function setCellCallback(table, cell) {
-    const event = 'contextmenu'; // click
-    cell.addEventListener(event, function(e) {
+    cell.onclick = function(e) {
         e.preventDefault();
         RE.clearSelection();
         sortTableByColumn(table, cell);
-    });
+    };
 }
 
 function sortTableByColumn(table, cell) {
@@ -71,3 +71,7 @@ function toArray(nodesList) {
 	}
 	return arr;
 }
+
+RE.addOnAfterLoadHtmlContentEventListener(function () {
+    setTablesCallbacks();
+});
