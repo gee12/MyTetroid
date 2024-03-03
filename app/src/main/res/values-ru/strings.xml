@@ -230,6 +230,8 @@
     <string name="title_def_script_description_table_sort">Строки таблицы будут отсортированы при долгом клике на заголовке колонки</string>
     <string name="title_def_script_title_table_totals">Итоги таблиц</string>
     <string name="title_def_script_description_table_totals">Будет добавлена строка с итоговыми суммами по каждой колонке таблицы</string>
+    <string name="title_def_script_title_link_url">Показывать адрес ссылки</string>
+    <string name="title_def_script_description_link_url">При долгом клике по ссылке будет отображен ее URL во всплывающем окне</string>
 
     <string name="title_pick_folder">Выберите каталог</string>
     <string name="title_pick_file">Выберите файл</string>
