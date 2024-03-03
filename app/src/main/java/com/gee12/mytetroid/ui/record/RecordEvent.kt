@@ -40,7 +40,10 @@ sealed class RecordEvent : StorageEvent() {
     ) : RecordEvent()
     object LoadRecordTextFromHtml : RecordEvent()
 
-    data class LoadUserJSScript(val scriptText: String) : RecordEvent()
+    sealed class UserJSScript : RecordEvent() {
+        data class Loaded(val scriptText: String) : RecordEvent()
+        object LoadedAll : RecordEvent()
+    }
 
     data class AskForLoadAllNodes(
         val resultObj: ResultObject,

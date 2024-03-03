@@ -390,17 +390,20 @@ class RecordViewModel(
                 logFailure(failure = it, show = false)
             }.onSuccess { scripts ->
                 scripts.forEach { script ->
-                    getScriptTextUseCase.run(
-                        GetScriptTextUseCase.Params(script)
-                    ).onFailure {
+                    withIo {
+                        getScriptTextUseCase.run(
+                            GetScriptTextUseCase.Params(script)
+                        )
+                    }.onFailure {
                         logFailure(failure = it, show = false)
                     }.onSuccess { scriptText ->
                         logDebug(getString(R.string.log_loading_script_to_record_masked, script.fileName))
                         withMain {
-                            sendEvent(RecordEvent.LoadUserJSScript(scriptText))
+                            sendEvent(RecordEvent.UserJSScript.Loaded(scriptText))
                         }
                     }
                 }
+                sendEvent(RecordEvent.UserJSScript.LoadedAll)
             }
         }
     }

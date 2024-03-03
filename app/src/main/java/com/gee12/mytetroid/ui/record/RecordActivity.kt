@@ -356,8 +356,14 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             RecordEvent.LoadRecordTextFromHtml -> {
                 loadRecordTextFromHtmlEditor()
             }
-            is RecordEvent.LoadUserJSScript -> {
+            is RecordEvent.UserJSScript.Loaded -> {
                 loadUserJSScript(event.scriptText)
+            }
+            is RecordEvent.UserJSScript.LoadedAll -> {
+                // вызываем событие, когда загрузили текст заметки, editor.js и скрипты
+                lifecycleScope.launch {
+                    editor.webView.onAfterLoadHtmlContent()
+                }
             }
             is RecordEvent.AskForLoadAllNodes -> {
                 AskDialogs.showYesDialog(
@@ -786,6 +792,9 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             // если этот метод был вызван в результате запроса isCalledHtmlRequest, то:
             editor.setHtmlRequestHandled()
             viewModel.onHtmlRequestHandled()
+            lifecycleScope.launch {
+                editor.webView.onAfterLoadHtmlContent()
+            }
         } else {
             // метод вызывается в параллельном потоке, поэтому устанавливаем текст в основном
             lifecycleScope.launch {
