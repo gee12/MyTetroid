@@ -72,42 +72,40 @@ function tableTotals_userScript() {
     }
 
     function onShowTooltip(textContent, e) {
-         const target = e.target;
+        const target = e.target;
 
-         const tooltipElem = document.createElement("div");
-         tooltipElem.className = "tableTotals_tooltip";
-         tooltipElem.innerHTML = textContent;
-         document.body.appendChild(tooltipElem);
+        const tooltipElem = document.createElement("div");
+        tooltipElem.className = "tableTotals_tooltip";
+        tooltipElem.innerHTML = textContent;
+        document.body.appendChild(tooltipElem);
 
-         const coords = target.getBoundingClientRect();
-         var left = coords.left + (target.offsetWidth - tooltipElem.offsetWidth) / 2;
-         if (left < 0) left = 0;
-         var top = coords.top - tooltipElem.offsetHeight - 5;
-         if (top < 0) {
-             top = coords.top + target.offsetHeight + 5;
-         }
-         var maxWidth = RE.editor.offsetWidth - 26;
+        const coords = target.getBoundingClientRect();
+        var left = coords.left + (target.offsetWidth - tooltipElem.offsetWidth) / 2;
+        if (left < 0) left = 0;
+        var top = coords.top - tooltipElem.offsetHeight - 5;
+        if (top < 0) {
+            top = coords.top + target.offsetHeight + 5;
+        }
+        var maxWidth = RE.editor.offsetWidth - 26;
 
-         tooltipElem.style.left = left + 'px';
-         tooltipElem.style.top = top + 'px';
-         if (maxWidth > 0) {
-             tooltipElem.style.maxWidth = maxWidth + 'px';
-         }
-         tableTotals_tooltipElem = tooltipElem;
-    };
+        tooltipElem.style.left = left + 'px';
+        tooltipElem.style.top = top + 'px';
+        if (maxWidth > 0) {
+            tooltipElem.style.maxWidth = maxWidth + 'px';
+        }
 
-    const onRemoveTooltip = function(e) {
-
-    // FIXME
-        const divElem = e.relatedTarget;
-
-        if (tableTotals_tooltipElem && tableTotals_tooltipElem !== divElem) {
+        if (tableTotals_tooltipElem) {
             tableTotals_tooltipElem.remove();
             tableTotals_tooltipElem = null;
-        } else if (divElem) {
-            divElem.onmouseout = function(e) {
-                divElem.remove();
-            }
+        }
+
+        tableTotals_tooltipElem = tooltipElem;
+    };
+
+    function onRemoveTooltip(e) {
+        if (tableTotals_tooltipElem) {
+            tableTotals_tooltipElem.remove();
+            tableTotals_tooltipElem = null;
         }
     };
 

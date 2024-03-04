@@ -45,48 +45,51 @@ function linkUrl_userScript() {
     }
 
     function onShowTooltip(href, e) {
-         const target = e.target;
+        const target = e.target;
 
-         const tooltipElem = document.createElement("div");
-         tooltipElem.className = "linkUrl_tooltip";
+        const tooltipElem = document.createElement("div");
+        tooltipElem.className = "linkUrl_tooltip";
 
-         const innerLinkElem = document.createElement("a");
-         innerLinkElem.href = href;
-         innerLinkElem.innerText = href;
-         tooltipElem.appendChild(innerLinkElem);
+        const innerLinkElem = document.createElement("a");
+        innerLinkElem.href = href;
+        innerLinkElem.innerText = href;
+        innerLinkElem.onclick = function(e) {
+            tooltipElem.remove();
+        };
+        tooltipElem.appendChild(innerLinkElem);
 
-         document.body.appendChild(tooltipElem);
+        document.body.appendChild(tooltipElem);
 
-         const coords = target.getBoundingClientRect();
-         var left = coords.left + (target.offsetWidth - tooltipElem.offsetWidth) / 2;
-         if (left < 0) left = 0;
-         var top = coords.top - tooltipElem.offsetHeight - 5;
-         if (top < 0) {
-             top = coords.top + target.offsetHeight + 5;
-         }
-         var maxWidth = RE.editor.offsetWidth - 26;
+        const coords = target.getBoundingClientRect();
+        var left = coords.left + (target.offsetWidth - tooltipElem.offsetWidth) / 2;
+        if (left < 0) left = 0;
+        var top = coords.top - tooltipElem.offsetHeight - 5;
+        if (top < 0) {
+            top = coords.top + target.offsetHeight + 5;
+        }
+        var maxWidth = RE.editor.offsetWidth - 26;
 
-         tooltipElem.style.left = left + 'px';
-         tooltipElem.style.top = top + 'px';
-         if (maxWidth > 0) {
+        tooltipElem.style.left = left + 'px';
+        tooltipElem.style.top = top + 'px';
+        if (maxWidth > 0) {
              tooltipElem.style.maxWidth = maxWidth + 'px';
-         }
-         linkUrl_tooltipElem = tooltipElem;
+        }
+
+        if (linkUrl_tooltipElem) {
+            linkUrl_tooltipElem.remove();
+            linkUrl_tooltipElem = null;
+        }
+
+        linkUrl_tooltipElem = tooltipElem;
     };
 
-    const onRemoveTooltip = function(e) {
-
-    // FIXME
+    function onRemoveTooltip(e) {
         const elem = e.relatedTarget;
         const divElem = (elem.nodeName.toLowerCase() == "div") ? elem : elem.parentNode;
 
         if (linkUrl_tooltipElem && linkUrl_tooltipElem !== divElem) {
             linkUrl_tooltipElem.remove();
             linkUrl_tooltipElem = null;
-        } else if (divElem) {
-            divElem.onmouseout = function(e) {
-                divElem.remove();
-            }
         }
     };
 
