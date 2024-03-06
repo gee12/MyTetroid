@@ -18,10 +18,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.extensions.addOnSwipeRefreshListener
-import com.gee12.mytetroid.common.extensions.buildIntent
-import com.gee12.mytetroid.common.extensions.orZero
-import com.gee12.mytetroid.common.extensions.showForcedWithIcons
+import com.gee12.mytetroid.common.extensions.*
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.model.*
@@ -170,6 +167,7 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
         isMoveToLastItem: Boolean,
     ) {
         val subtitle = if (tetroidObject != null) {
+            tvSubtitle?.applyTextColor(R.color.warning_2)
             val logObj = FoundType(tetroidObject.type).toLogObj() ?: LogObj.NONE
             val typeName = logObj.getString(Tense.PRESENT_CONTINUOUS, resourcesProvider)
             resourcesProvider.getString(R.string.subtitle_scripts_for_object_masked, typeName, tetroidObject.name )

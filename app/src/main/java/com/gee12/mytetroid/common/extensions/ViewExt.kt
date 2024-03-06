@@ -41,6 +41,11 @@ fun EditText.setSelectionAtEnd() {
     setSelection(text.length)
 }
 
+fun TextView.applyTextColor(@ColorRes colorResId: Int) {
+    val color = ContextCompat.getColor(context, colorResId)
+    setTextColor(color)
+}
+
 fun ImageView.setTintList(@ColorRes colorResId: Int) {
     val color = ContextCompat.getColor(context, colorResId)
     val colorList = ColorStateList.valueOf(color)

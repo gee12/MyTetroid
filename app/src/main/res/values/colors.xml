@@ -14,6 +14,7 @@
     <color name="error_1">#AA0000</color>
     <color name="error_2">#810000</color>
     <color name="warning">#FF8222</color>
+    <color name="warning_2">#FFD53B</color>
 
     <color name="accent">#009990</color>
     <color name="accent_50">#4D01B8AD</color>

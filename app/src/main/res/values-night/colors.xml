@@ -13,6 +13,8 @@
     <color name="link_blue">#4F63E1</color>
     <color name="error_1">#DF3A3A</color>
     <color name="error_2">#E00</color>
+    <color name="warning">#FF8222</color>
+    <color name="warning_2">#CDAC31</color>
 
     <color name="accent">#009990</color>
     <color name="accent_50">#4D01B8AD</color>
