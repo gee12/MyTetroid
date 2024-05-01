@@ -114,7 +114,7 @@ class PinCodeDialog(
                                 dialog.dismiss()
                             }
                         }
-                    ).showIfPossibleAndNeeded(parentFragmentManager)
+                    ).showIfPossible(parentFragmentManager)
                 }
             }
         }
