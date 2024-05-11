@@ -6,6 +6,7 @@ import java.util.Date
 data class TetroidScript(
     val storageId: Int,
     var id: Int? = null,
+    var name: String,
     var fileName: String,
     var description: String?,
     var order: Int = 0,

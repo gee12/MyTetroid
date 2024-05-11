@@ -8,7 +8,7 @@ enum class DefaultScript(val fileName: String) {
     TableTotals("table_totals.js"),
     LinkUrl("link_url_tooltip.js");
 
-    fun getTitle(resourcesProvider: IResourcesProvider): String {
+    fun getName(resourcesProvider: IResourcesProvider): String {
         return resourcesProvider.getString(
             when (this) {
                 TableSort -> R.string.title_def_script_title_table_sort

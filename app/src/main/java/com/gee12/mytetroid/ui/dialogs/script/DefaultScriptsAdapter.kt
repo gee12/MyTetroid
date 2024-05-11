@@ -57,7 +57,7 @@ class DefaultScriptsAdapter(
         fun bind(pos: Int) {
             val item = getItem(pos)
 
-            tvTitle.text = item.getTitle(resourcesProvider)
+            tvTitle.text = item.getName(resourcesProvider)
             tvDescription.text = item.getDescription(resourcesProvider)
         }
     }

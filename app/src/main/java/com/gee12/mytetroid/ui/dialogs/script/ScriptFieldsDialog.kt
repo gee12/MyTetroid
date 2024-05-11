@@ -30,7 +30,7 @@ class ScriptFieldsDialog(
     private val script: TetroidScript?,
     private val scriptText: String?,
     override var storageId: Int?,
-    private val onApply: (fileName: String, description: String, text: String) -> Unit,
+    private val onApply: (name: String, fileName: String, description: String, text: String) -> Unit,
 ) : TetroidStorageDialogFragment<StorageViewModel>() {
 
     private lateinit var scriptsManager: ScriptsManager
@@ -45,6 +45,7 @@ class ScriptFieldsDialog(
 
     override fun getViewModelClazz() = StorageViewModel::class.java
 
+    private lateinit var etName: EditText
     private lateinit var etFileName: EditText
     private lateinit var ivError: ImageView
     private lateinit var tvError: TextView
@@ -55,6 +56,7 @@ class ScriptFieldsDialog(
         isCancelable = false
         setTitle(if (script != null) R.string.title_edit_script else R.string.title_create_script)
 
+        etName = dialogView.findViewById(R.id.edit_text_name)
         etFileName = dialogView.findViewById(R.id.edit_text_file_name)
         val etDescription = dialogView.findViewById<EditText>(R.id.edit_text_description)
         etDescription.imeOptions = EditorInfo.IME_ACTION_NEXT
@@ -67,12 +69,14 @@ class ScriptFieldsDialog(
         if (BuildConfig.DEBUG && script == null) {
             val rand = Random()
             val num = abs(rand.nextInt())
+            etName.setText("Test script ${num}")
             etFileName.setText("script_${num}.js")
             etDescription.setText("Description $num")
             etText.setText("Test script text $num")
         }
 
         if (script != null) {
+            etName.setText(script.name)
             etFileName.setText(script.fileName)
             etDescription.setText(script.description)
             etText.setText(scriptText)
@@ -80,6 +84,7 @@ class ScriptFieldsDialog(
 
         setPositiveButton(R.string.answer_ok) { _,_ ->
             onApply(
+                etName.text.toString(),
                 etFileName.text.toString(),
                 etDescription.text.toString(),
                 etText.text.toString(),
@@ -99,6 +104,9 @@ class ScriptFieldsDialog(
             }
         }
 
+        etName.addAfterTextChangedListener {
+            checkPositiveButtonIsEnabled()
+        }
         etFileName.addAfterTextChangedListener {
             checkPositiveButtonIsEnabled()
         }
@@ -112,6 +120,7 @@ class ScriptFieldsDialog(
     }
 
     private fun checkPositiveButtonIsEnabled() {
+        val enteredName = etName.text.toString()
         val enteredFileName = etFileName.text.toString()
         getPositiveButton()?.isEnabled = false
 
@@ -131,7 +140,7 @@ class ScriptFieldsDialog(
                 }
             }
 
-            getPositiveButton()?.isEnabled = enteredFileName.isNotEmpty() && isUniqueFileName
+            getPositiveButton()?.isEnabled = enteredFileName.isNotEmpty() && enteredName.isNotEmpty() && isUniqueFileName
         }
     }
 

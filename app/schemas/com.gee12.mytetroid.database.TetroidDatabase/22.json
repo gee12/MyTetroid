@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 22,
-    "identityHash": "8315c3e0ff2b8937edf6b70a90689f3a",
+    "identityHash": "aae7b69620c9d36c0a6fb76c8967a472",
     "entities": [
       {
         "tableName": "storages",
@@ -226,7 +226,7 @@
       },
       {
         "tableName": "scripts",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`storageId` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `fileName` TEXT NOT NULL, `description` TEXT, `orderNum` INTEGER NOT NULL, `createdDate` INTEGER, `editedDate` INTEGER)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`storageId` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `fileName` TEXT NOT NULL, `description` TEXT, `orderNum` INTEGER NOT NULL, `createdDate` INTEGER, `editedDate` INTEGER)",
         "fields": [
           {
             "fieldPath": "storageId",
@@ -238,6 +238,12 @@
             "fieldPath": "id",
             "columnName": "id",
             "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -334,7 +340,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8315c3e0ff2b8937edf6b70a90689f3a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'aae7b69620c9d36c0a6fb76c8967a472')"
     ]
   }
 }

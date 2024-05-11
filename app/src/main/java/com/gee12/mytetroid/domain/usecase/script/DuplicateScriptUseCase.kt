@@ -30,6 +30,7 @@ class DuplicateScriptUseCase(
             ).flatMap { newFileName ->
                 saveScriptUseCase.run(
                     SaveScriptUseCase.Params(
+                        name = script.name,
                         fileName = newFileName,
                         description = script.description,
                         scriptText = scriptText,

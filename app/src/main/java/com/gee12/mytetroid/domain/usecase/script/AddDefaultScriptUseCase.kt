@@ -37,12 +37,9 @@ class AddDefaultScriptUseCase(
         ).flatMap { newFileName ->
             val script = TetroidScript(
                 storageId = storageId,
+                name = defaultScript.getName(resourcesProvider),
                 fileName = newFileName,
-                description = buildString {
-                    append(defaultScript.getTitle(resourcesProvider))
-                    append(": ")
-                    append(defaultScript.getDescription(resourcesProvider))
-                },
+                description = defaultScript.getDescription(resourcesProvider),
             )
             if (scriptsManager.insertScript(script)) {
                 saveScriptTextToFile(defaultScript, script)

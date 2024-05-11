@@ -13,6 +13,7 @@ class SaveScriptUseCase(
 ) : UseCase<TetroidScript, SaveScriptUseCase.Params>() {
 
     data class Params(
+        val name: String,
         val fileName: String,
         val description: String?,
         val scriptText: String,
@@ -21,6 +22,7 @@ class SaveScriptUseCase(
     override suspend fun run(params: Params): Either<Failure, TetroidScript> {
         val script = TetroidScript(
             storageId = storageProvider.storage?.id.orZero(),
+            name = params.name,
             fileName = params.fileName,
             description = params.description,
         )

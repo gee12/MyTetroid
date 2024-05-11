@@ -19,6 +19,7 @@ class EditScriptUseCase(
 
     data class Params(
         val script: TetroidScript,
+        val name: String,
         val fileName: String,
         val description: String?,
         val scriptText: String,
@@ -26,10 +27,11 @@ class EditScriptUseCase(
 
     override suspend fun run(params: Params): Either<Failure, None> {
         val script = params.script
+        val name = params.name
         val fileName = params.fileName
         val description = params.description
         val oldFileName = script.fileName
-        return if (scriptsManager.updateScriptFields(script, fileName, description)) {
+        return if (scriptsManager.updateScriptFields(script, name, fileName, description)) {
             if (oldFileName != fileName) {
                 renameScriptFile(oldFileName, fileName)
             } else {

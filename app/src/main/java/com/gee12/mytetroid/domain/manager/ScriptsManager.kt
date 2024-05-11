@@ -257,7 +257,8 @@ class ScriptsManager(
         }
     }
 
-    suspend fun updateScriptFields(script: TetroidScript, fileName: String, description: String?): Boolean {
+    suspend fun updateScriptFields(script: TetroidScript, name: String, fileName: String, description: String?): Boolean {
+        script.name = name
         script.fileName = fileName
         script.description = description
         return scriptsRepo.update(script.toDbEntity())

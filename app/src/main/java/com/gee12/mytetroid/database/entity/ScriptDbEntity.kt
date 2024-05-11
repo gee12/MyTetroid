@@ -13,6 +13,9 @@ data class ScriptDbEntity(
     @ColumnInfo(name = "id")
     var id: Int = 0,
 
+    @ColumnInfo(name = "name")
+    var name: String,
+
     @ColumnInfo(name = "fileName")
     var fileName: String,
 

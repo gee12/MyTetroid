@@ -252,9 +252,10 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
             script = script,
             scriptText = text,
             storageId = viewModel.getStorageId(),
-            onApply = { fileName, description, updatedText ->
+            onApply = { name, fileName, description, updatedText ->
                 if (isNew) {
                     viewModel.addNewScript(
+                        name = name,
                         fileName = fileName,
                         description = description,
                         scriptText = updatedText,
@@ -262,6 +263,7 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
                 } else if (script != null) {
                     viewModel.editScript(
                         script = script,
+                        name = name,
                         fileName = fileName,
                         description = description,
                         scriptText = updatedText,

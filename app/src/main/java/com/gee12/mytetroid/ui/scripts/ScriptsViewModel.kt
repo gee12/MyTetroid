@@ -129,11 +129,12 @@ class ScriptsViewModel(
         }
     }
 
-    fun addNewScript(fileName: String, description: String, scriptText: String) {
+    fun addNewScript(name: String, fileName: String, description: String, scriptText: String) {
         launchOnMain {
             withIo {
                 saveScriptUseCase.run(
                     SaveScriptUseCase.Params(
+                        name = name,
                         fileName = fileName,
                         description = description,
                         scriptText = scriptText,
@@ -161,6 +162,7 @@ class ScriptsViewModel(
                sendEvent(ScriptsEvent.ShowScriptDialog(
                    script = TetroidScript(
                        storageId = storageProvider.storage?.id.orZero(),
+                       name = "",
                        fileName = scriptFile.name.orEmpty(),
                        description = null,
                    ),
@@ -234,6 +236,7 @@ class ScriptsViewModel(
 
     fun editScript(
         script: TetroidScript,
+        name: String,
         fileName: String,
         description: String?,
         scriptText: String,
@@ -243,6 +246,7 @@ class ScriptsViewModel(
                 editScriptUseCase.run(
                     EditScriptUseCase.Params(
                         script = script,
+                        name = name,
                         fileName = fileName,
                         description = description,
                         scriptText = scriptText,

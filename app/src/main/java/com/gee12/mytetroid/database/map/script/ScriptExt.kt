@@ -14,6 +14,7 @@ fun ScriptDbEntity.toEntity(
     return TetroidScript(
         storageId = dbEntity.storageId,
         id = dbEntity.id,
+        name = dbEntity.name,
         fileName = dbEntity.fileName,
         description = dbEntity.description,
         order = dbEntity.order,
@@ -29,6 +30,7 @@ fun TetroidScript.toDbEntity(): ScriptDbEntity {
     return ScriptDbEntity(
         storageId = entity.storageId,
         id = entity.id.orZero(),
+        name = entity.name,
         fileName = entity.fileName,
         description = entity.description,
         order = entity.order,

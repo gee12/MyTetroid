@@ -128,6 +128,7 @@ class ScriptsAdapter(
     ) : RecyclerView.ViewHolder(view) {
 
         private val ivIcon: ImageView = itemView.findViewById(R.id.image_view_icon)
+        private val tvName: TextView = itemView.findViewById(R.id.text_view_name)
         private val tvFileName: TextView = itemView.findViewById(R.id.text_view_file_name)
         private val tvDescription: TextView = itemView.findViewById(R.id.text_view_description)
         private val switch: SwitchCompat = itemView.findViewById(R.id.switch_script_is_active)
@@ -157,6 +158,7 @@ class ScriptsAdapter(
                 }
             }
 
+            tvName.text = script.name
             tvFileName.text = script.fileName
             tvDescription.isVisible = !script.description.isNullOrBlank()
             tvDescription.text = script.description
