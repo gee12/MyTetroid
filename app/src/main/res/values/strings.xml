@@ -243,11 +243,11 @@
     <string name="title_load_all_nodes_object_name"><![CDATA[<Load all nodes>]]></string>
 
     <string name="title_def_script_title_table_sort">Sort tables</string>
-    <string name="title_def_script_description_table_sort">The table rows will be sorted after long clicking on the column header</string>
+    <string name="title_def_script_description_table_sort">The table rows will be sorted after clicking on the column header</string>
     <string name="title_def_script_title_table_totals">Tables totals</string>
-    <string name="title_def_script_description_table_totals">Will be added a row with totals for each column of the table</string>
+    <string name="title_def_script_description_table_totals">The total amount of the table column will be displayed in a pop-up window when you long-click on its header</string>
     <string name="title_def_script_title_link_url">Show link address</string>
-    <string name="title_def_script_description_link_url">If you click on the link for a long time, its URL will be displayed in a pop-up window</string>
+    <string name="title_def_script_description_link_url">If you click on the link header for a long time, its URL will be displayed in a pop-up window</string>
 
     <string name="subtitle_main_page_node_records">NODE</string>
     <string name="subtitle_main_page_record_files">FILES</string>
