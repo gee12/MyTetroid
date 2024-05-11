@@ -11,6 +11,9 @@ import com.gee12.mytetroid.ui.storage.StorageViewModel
 import com.google.android.material.textfield.TextInputLayout
 import java.util.*
 
+/**
+ * Диалог установки длины ПИН-кода.
+ */
 class PinCodeLengthDialog(
     private val curSize: Int,
     private val minSize: Int,

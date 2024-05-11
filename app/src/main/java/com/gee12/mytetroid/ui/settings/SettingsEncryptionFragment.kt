@@ -75,15 +75,12 @@ class SettingsEncryptionFragment : TetroidSettingsFragment() {
                         length = length,
                         isSetup = true,
                         fragmentManager = parentFragmentManager,
-                        callback = object : PinCodeDialog.IPinInputResult {
-                            override fun onApply(pin: String): Boolean {
-                                baseViewModel.setupPinCode(pin)
-                                setPinCodePrefIsChecked(true)
-                                return true
-                            }
-
-                            override fun onCancel() {}
-                        })
+                        onApply = { pin ->
+                            baseViewModel.setupPinCode(pin)
+                            setPinCodePrefIsChecked(true)
+                            true
+                        },
+                    )
                 }
 
                 override fun onCancel() {}
@@ -97,14 +94,12 @@ class SettingsEncryptionFragment : TetroidSettingsFragment() {
             length = CommonSettings.getPinCodeLength(context),
             isSetup = false,
             fragmentManager = parentFragmentManager,
-            callback = object : PinCodeDialog.IPinInputResult {
-                override fun onApply(pin: String): Boolean {
-                    return baseViewModel.checkAndDropPinCode(pin).also {
-                        if (it) setPinCodePrefIsChecked(false)
+            onApply = { pin ->
+                baseViewModel.checkAndDropPinCode(pin).also { isChecked ->
+                    if (isChecked) {
+                        setPinCodePrefIsChecked(false)
                     }
                 }
-
-                override fun onCancel() {}
             }
         )
     }

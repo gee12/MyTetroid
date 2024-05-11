@@ -7,6 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="false"
+    android:background="@color/background_default"
     tools:context=".ui.record.RecordActivity">
 
     <include
@@ -49,7 +50,8 @@
             android:layout_height="match_parent"
             android:layout_alignParentTop="true"
             android:layout_alignParentBottom="true"
-            android:visibility="gone">
+            android:visibility="gone"
+            tools:visibility="visible">
 
             <com.gee12.mytetroid.ui.base.views.TetroidEditText
                 android:id="@+id/edit_text_html"
@@ -62,8 +64,8 @@
                 android:inputType="textMultiLine"
                 android:gravity="top"
                 android:textSize="14sp"
-                android:background="@null"
-                />
+                android:textColor="@color/text_color_primary"
+                android:background="@null" />
 
         </ScrollView>
 
@@ -76,8 +78,7 @@
             android:layout_centerVertical="true"
             android:layout_centerInParent="true"
             android:indeterminate="true"
-            android:visibility="gone"
-            />
+            android:visibility="gone" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/button_find_prev"

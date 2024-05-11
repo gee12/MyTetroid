@@ -10,18 +10,17 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import com.gee12.mytetroid.ui.storage.StorageViewModel
 
+/**
+ * Диалог установки/ввода ПИН-кода.
+ */
 class PinCodeDialog(
     private val length: Int,
     private val isSetup: Boolean,
     private val isConfirm: Boolean,
     private val firstPin: String?,
-    private val callback: IPinInputResult
+    private val onApply: (pin: String) -> Boolean,
+    private val onCancel: (() -> Unit)? = null,
 ) : TetroidStorageDialogFragment<StorageViewModel>() {
-
-    interface IPinInputResult {
-        fun onApply(pin: String): Boolean
-        fun onCancel()
-    }
 
     override fun getRequiredTag() = TAG
 
@@ -53,7 +52,7 @@ class PinCodeDialog(
                     pinLockView.tag = pin
                     setEnabledOk(true)
                 } else {
-                    if (callback.onApply(pin)) {
+                    if (onApply(pin)) {
                         dialog.dismiss()
                     } else {
                         // запускаем анимацию дрожания
@@ -86,7 +85,7 @@ class PinCodeDialog(
                 if (isConfirm) {
                     // если это запрос подтверждения ввода, то сравниванием коды
                     if (firstPin == pin) {
-                        callback.onApply(firstPin)
+                        onApply(firstPin)
                         dialog.dismiss()
                     } else {
                         // запускаем анимацию дрожания
@@ -102,23 +101,22 @@ class PinCodeDialog(
                         isSetup = true,
                         isConfirm = true,
                         firstPin = pin,
-                        callback = object : IPinInputResult {
-                            override fun onApply(pin: String): Boolean {
-                                callback.onApply(pin)
-                                dialog.dismiss()
-                                return true
-                            }
-
-                            override fun onCancel() {
-                                callback.onCancel()
-                                dialog.dismiss()
-                            }
+                        onApply = {
+                            onApply(pin)
+                            dialog.dismiss()
+                            true
+                        },
+                        onCancel = {
+                            onCancel?.invoke()
+                            dialog.dismiss()
                         }
-                    ).showIfPossibleAndNeeded(parentFragmentManager)
+                    ).showIfPossible(parentFragmentManager)
                 }
             }
         }
-        setNegativeButton(R.string.answer_cancel) { _, _ -> callback.onCancel() }
+        setNegativeButton(R.string.answer_cancel) { _, _ ->
+            onCancel?.invoke()
+        }
     }
 
     override fun onDialogShowed(dialog: AlertDialog, view: View) {
@@ -128,20 +126,23 @@ class PinCodeDialog(
     }
 
     companion object {
-        const val TAG = "PINCodeDialog"
+        const val TAG = "PinCodeDialog"
 
-        /**
-         * Диалог установки/ввода ПИН-кода.
-         * @param isSetup
-         * @param callback
-         */
         fun showDialog(
             length: Int,
             isSetup: Boolean,
             fragmentManager: FragmentManager,
-            callback: IPinInputResult
+            onApply: (pin: String) -> Boolean,
+            onCancel: (() -> Unit)? = null,
         ) {
-            PinCodeDialog(length, isSetup, false, null, callback)
+            PinCodeDialog(
+                length = length,
+                isSetup = isSetup,
+                isConfirm = false,
+                firstPin = null,
+                onApply = onApply,
+                onCancel = onCancel,
+            )
                 .showIfPossibleAndNeeded(fragmentManager)
         }
 

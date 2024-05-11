@@ -51,8 +51,7 @@ import com.gee12.mytetroid.ui.dialogs.node.NodeFieldsDialog
 import com.gee12.mytetroid.ui.dialogs.node.NodeInfoDialog
 import com.gee12.mytetroid.ui.dialogs.pass.PassDialogs.IPassInputResult
 import com.gee12.mytetroid.ui.dialogs.pass.PassDialogs.showPasswordEnterDialog
-import com.gee12.mytetroid.ui.dialogs.pin.PinCodeDialog.Companion.showDialog
-import com.gee12.mytetroid.ui.dialogs.pin.PinCodeDialog.IPinInputResult
+import com.gee12.mytetroid.ui.dialogs.pin.PinCodeDialog
 import com.gee12.mytetroid.ui.dialogs.storage.StorageDialogs
 import com.gee12.mytetroid.ui.main.found.FoundPageFragment
 import com.gee12.mytetroid.ui.node.NodesListAdapter
@@ -1199,16 +1198,12 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     }
 
     private fun showPinCodeDialog(callbackEvent: BaseEvent) {
-        showDialog(
+        PinCodeDialog.showDialog(
             length = CommonSettings.getPinCodeLength(this),
             isSetup = !viewModel.isStorageEncrypted(),
             fragmentManager = supportFragmentManager,
-            callback = object : IPinInputResult {
-                override fun onApply(pin: String): Boolean {
-                    return viewModel.startCheckPinCode(pin, callbackEvent)
-                }
-
-                override fun onCancel() {}
+            onApply = { pin ->
+                viewModel.startCheckPinCode(pin, callbackEvent)
             }
         )
     }
