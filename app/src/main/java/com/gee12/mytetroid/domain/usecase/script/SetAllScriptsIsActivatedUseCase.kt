@@ -6,7 +6,7 @@ import com.gee12.mytetroid.model.TetroidObject
 
 class SetAllScriptsIsActivatedUseCase(
     private val scriptsManager: ScriptsManager,
-    private val setScriptIsEnabledUseCase: SetScriptIsEnabledUseCase,
+    private val setScriptIsEnabledUseCase: SetScriptIsActivatedUseCase,
 ) : UseCase<UseCase.None, SetAllScriptsIsActivatedUseCase.Params>() {
 
     data class Params(
@@ -24,7 +24,7 @@ class SetAllScriptsIsActivatedUseCase(
 
         scripts.forEach { script ->
             setScriptIsEnabledUseCase.run(
-                SetScriptIsEnabledUseCase.Params(
+                SetScriptIsActivatedUseCase.Params(
                     script = script,
                     obj = obj,
                     isActive = isActive,

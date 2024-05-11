@@ -823,13 +823,13 @@ object UseCasesModule {
             }
 
             scoped {
-                SetScriptIsEnabledUseCase(
+                SetScriptIsActivatedUseCase(
                     scriptsManager = get(),
                 )
             }
 
             scoped {
-                SetScriptToObjectIsEnabledUseCase(
+                SetScriptToObjectIsActivatedUseCase(
                     scriptsManager = get(),
                 )
             }

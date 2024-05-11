@@ -42,9 +42,9 @@ class ScriptsViewModel(
     private val saveScriptUseCase: SaveScriptUseCase,
     private val addDefaultScriptUseCase: AddDefaultScriptUseCase,
     private val editScriptUseCase: EditScriptUseCase,
-    private val setScriptIsEnabledUseCase: SetScriptIsEnabledUseCase,
+    private val setScriptIsActivatedUseCase: SetScriptIsActivatedUseCase,
     private val setScriptsIsActivatedUseCase: SetAllScriptsIsActivatedUseCase,
-    private val setScriptToObjectIsEnabledUseCase: SetScriptToObjectIsEnabledUseCase,
+    private val setScriptToObjectIsActivatedUseCase: SetScriptToObjectIsActivatedUseCase,
     private val duplicateScriptUseCase: DuplicateScriptUseCase,
     private val deleteScriptFileUseCase: DeleteScriptFileUseCase,
     private val prepareFileForOpenUseCase: PrepareFileForOpenUseCase,
@@ -201,8 +201,8 @@ class ScriptsViewModel(
     private fun setScriptIsActive(script: TetroidScript, isActive: Boolean, forCurrentObjectOnly: Boolean) {
         launchOnMain {
             withIo {
-                setScriptIsEnabledUseCase.run(
-                    SetScriptIsEnabledUseCase.Params(
+                setScriptIsActivatedUseCase.run(
+                    SetScriptIsActivatedUseCase.Params(
                         script = script,
                         obj = scriptObject,
                         isActive = isActive,
@@ -236,13 +236,13 @@ class ScriptsViewModel(
         }
     }
 
-    fun setScriptToObjectEnabled(scriptToObject: TetroidScriptToObject, isEnabled: Boolean) {
+    fun setScriptToObjectActivated(scriptToObject: TetroidScriptToObject, isActive: Boolean) {
         launchOnMain {
             withIo {
-                setScriptToObjectIsEnabledUseCase.run(
-                    SetScriptToObjectIsEnabledUseCase.Params(
+                setScriptToObjectIsActivatedUseCase.run(
+                    SetScriptToObjectIsActivatedUseCase.Params(
                         scriptToObject = scriptToObject,
-                        isEnabled = isEnabled,
+                        isActive = isActive,
                     )
                 )
             }.onFailure {

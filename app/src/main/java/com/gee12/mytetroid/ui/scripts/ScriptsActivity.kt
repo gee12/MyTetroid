@@ -80,7 +80,7 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
             showScriptPopupMenu(view, script)
         }
         adapter.onObjectItemSwitchClickListener = { scriptToObject, isChecked, _ ->
-            viewModel.setScriptToObjectEnabled(scriptToObject, isEnabled = isChecked)
+            viewModel.setScriptToObjectActivated(scriptToObject, isActive = isChecked)
         }
         recyclerView.adapter = adapter
 

@@ -4,20 +4,20 @@ import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.domain.manager.ScriptsManager
 import com.gee12.mytetroid.model.TetroidScriptToObject
 
-class SetScriptToObjectIsEnabledUseCase(
+class SetScriptToObjectIsActivatedUseCase(
     private val scriptsManager: ScriptsManager,
-) : UseCase<UseCase.None, SetScriptToObjectIsEnabledUseCase.Params>() {
+) : UseCase<UseCase.None, SetScriptToObjectIsActivatedUseCase.Params>() {
 
     data class Params(
         val scriptToObject: TetroidScriptToObject,
-        val isEnabled: Boolean,
+        val isActive: Boolean,
     )
 
     override suspend fun run(params: Params): Either<Failure, None> {
         val scriptToObject = params.scriptToObject
-        val isEnabled = params.isEnabled
+        val isActive = params.isActive
 
-        return if (scriptsManager.updateScriptIsActiveForObject(scriptToObject, isEnabled)) {
+        return if (scriptsManager.updateScriptIsActiveForObject(scriptToObject, isActive)) {
             None.toRight()
         } else {
             Failure.Database.Update.toLeft()

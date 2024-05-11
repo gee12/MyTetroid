@@ -8,9 +8,9 @@ import com.gee12.mytetroid.model.TetroidScript
 import com.gee12.mytetroid.model.TetroidScriptToObject
 import com.gee12.mytetroid.model.enums.TetroidObjectType
 
-class SetScriptIsEnabledUseCase(
+class SetScriptIsActivatedUseCase(
     private val scriptsManager: ScriptsManager,
-) : UseCase<UseCase.None, SetScriptIsEnabledUseCase.Params>() {
+) : UseCase<UseCase.None, SetScriptIsActivatedUseCase.Params>() {
 
     data class Params(
         val script: TetroidScript,
