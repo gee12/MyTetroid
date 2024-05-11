@@ -314,6 +314,14 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.action_activate_all -> {
+                viewModel.setAllScriptsIsActiveForAllStorage(isActive = true)
+                return true
+            }
+            R.id.action_deactivate_all -> {
+                viewModel.setAllScriptsIsActiveForAllStorage(isActive = false)
+                return true
+            }
             R.id.action_search -> {
 
                 return true

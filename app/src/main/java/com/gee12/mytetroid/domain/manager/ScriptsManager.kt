@@ -238,12 +238,12 @@ class ScriptsManager(
     suspend fun updateScriptIsActiveForObject(scriptToObject: TetroidScriptToObject, isActive: Boolean): Boolean {
         scriptToObject.isActive = isActive
         return if (isActive) {
-            if (scriptsToObjectsRepo.getAll(
-                    scriptId = scriptToObject.scriptId,
-                    objectTypeId = scriptToObject.objectType?.id,
-                    objectId = scriptToObject.objectId,
-                ).isEmpty()
-            ) {
+            val existingScriptsToObject = scriptsToObjectsRepo.getAll(
+                scriptId = scriptToObject.scriptId,
+                objectTypeId = scriptToObject.objectType?.id,
+                objectId = scriptToObject.objectId,
+            )
+            if (existingScriptsToObject.isEmpty()) {
                 scriptsToObjectsRepo.insert(scriptToObject.toDbEntity())
             } else {
                 true
@@ -254,6 +254,7 @@ class ScriptsManager(
                 objectTypeId = scriptToObject.objectType?.id,
                 objectId = scriptToObject.objectId,
             )
+            true
         }
     }
 
@@ -266,23 +267,23 @@ class ScriptsManager(
 
     suspend fun deleteScript(script: TetroidScript): Boolean {
         val dbEntity = script.toDbEntity()
-        return scriptsRepo.delete(dbEntity).also { isInserted ->
-            if (isInserted) {
+        return scriptsRepo.delete(dbEntity).also { isDeleted ->
+            if (isDeleted) {
                 scriptsToObjectsRepo.deleteByScriptId(scriptId = dbEntity.id)
             }
         }
     }
 
-    suspend fun deleteScriptByStorageId(storageId: Int): Boolean {
+    suspend fun deleteScriptByStorageId(storageId: Int) {
         val scriptsByStorageId = scriptsRepo.getAll(storageId)
         scriptsByStorageId.forEach { script ->
             scriptsToObjectsRepo.deleteByScriptId(scriptId = script.id)
         }
-        return scriptsRepo.deleteByStorageId(storageId)
+        scriptsRepo.deleteByStorageId(storageId)
     }
 
-    suspend fun deleteScriptToObject(objectId: String, objectTypeId: Int): Boolean {
-        return scriptsToObjectsRepo.deleteByObject(
+    suspend fun deleteScriptToObject(objectId: String, objectTypeId: Int) {
+        scriptsToObjectsRepo.deleteByObject(
             objectTypeId = objectTypeId,
             objectId = objectId,
         )

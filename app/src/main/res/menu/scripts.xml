@@ -2,6 +2,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/action_activate_all"
+        android:title="@string/action_activate_all_for_storage"
+        android:icon="@drawable/ic_toggle_on"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_deactivate_all"
+        android:title="@string/action_deactivate_all_for_storage"
+        android:icon="@drawable/ic_toggle_off"
+        app:showAsAction="never"/>
+    <item
         android:id="@+id/action_search"
         android:title="@string/title_filter"
         android:icon="@drawable/ic_search_white"

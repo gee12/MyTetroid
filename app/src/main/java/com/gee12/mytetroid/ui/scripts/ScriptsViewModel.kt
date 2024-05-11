@@ -43,6 +43,7 @@ class ScriptsViewModel(
     private val addDefaultScriptUseCase: AddDefaultScriptUseCase,
     private val editScriptUseCase: EditScriptUseCase,
     private val setScriptIsEnabledUseCase: SetScriptIsEnabledUseCase,
+    private val setScriptsIsActivatedUseCase: SetAllScriptsIsActivatedUseCase,
     private val setScriptToObjectIsEnabledUseCase: SetScriptToObjectIsEnabledUseCase,
     private val duplicateScriptUseCase: DuplicateScriptUseCase,
     private val deleteScriptFileUseCase: DeleteScriptFileUseCase,
@@ -190,20 +191,39 @@ class ScriptsViewModel(
     }
 
     fun setScriptIsActiveForCurrentObject(script: TetroidScript, isActive: Boolean) {
-        setScriptIsActive(script, isActive, obj = scriptObject)
+        setScriptIsActive(script, isActive, forCurrentObjectOnly = true)
     }
 
     fun setScriptIsActiveForAllStorage(script: TetroidScript, isActive: Boolean) {
-        setScriptIsActive(script, isActive, obj = null)
+        setScriptIsActive(script, isActive, forCurrentObjectOnly = false)
     }
 
-    private fun setScriptIsActive(script: TetroidScript, isActive: Boolean, obj: TetroidObject?) {
+    private fun setScriptIsActive(script: TetroidScript, isActive: Boolean, forCurrentObjectOnly: Boolean) {
         launchOnMain {
             withIo {
                 setScriptIsEnabledUseCase.run(
                     SetScriptIsEnabledUseCase.Params(
                         script = script,
-                        obj = obj,
+                        obj = scriptObject,
+                        isActive = isActive,
+                        forCurrentObjectOnly = forCurrentObjectOnly,
+                    )
+                )
+            }.onFailure {
+                logFailure(failure = it, show = true)
+            }.onSuccess {
+                isScriptsChanged = true
+                loadScripts()
+            }
+        }
+    }
+
+    fun setAllScriptsIsActiveForAllStorage(isActive: Boolean) {
+        launchOnMain {
+            withIo {
+                setScriptsIsActivatedUseCase.run(
+                    SetAllScriptsIsActivatedUseCase.Params(
+                        obj = scriptObject,
                         isActive = isActive,
                     )
                 )

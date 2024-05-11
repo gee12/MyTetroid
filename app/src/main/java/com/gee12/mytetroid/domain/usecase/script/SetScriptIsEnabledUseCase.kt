@@ -16,22 +16,39 @@ class SetScriptIsEnabledUseCase(
         val script: TetroidScript,
         val obj: TetroidObject?,
         val isActive: Boolean,
+        val forCurrentObjectOnly : Boolean,
     )
 
     override suspend fun run(params: Params): Either<Failure, None> {
         val script = params.script
         val obj = params.obj
         val isActive = params.isActive
-        var scriptToObject = script.getScriptObject(obj)
 
-        return if (scriptToObject != null) {
-            if (scriptsManager.updateScriptIsActiveForObject(scriptToObject, isActive)) {
-                None.toRight()
+        return setScriptIsActivated(
+            script = script,
+            obj = obj,
+            isActive = isActive,
+        ).flatMap {
+            // устанавливаем и для всего хранилища (obj=null), если нужно
+            if (!params.forCurrentObjectOnly && obj != null) {
+                setScriptIsActivated(
+                    script = script,
+                    obj = null,
+                    isActive = isActive,
+                )
             } else {
-                Failure.Database.Update.toLeft()
+                None.toRight()
             }
-        } else {
-            scriptToObject = TetroidScriptToObject(
+        }
+    }
+
+    private suspend fun setScriptIsActivated(
+        script: TetroidScript,
+        obj: TetroidObject?,
+        isActive: Boolean,
+    ): Either<Failure, None> {
+        val scriptToObject = script.getScriptObject(obj)
+            ?: TetroidScriptToObject(
                 scriptId = script.id.orZero(),
                 objectId = obj?.id,
                 objectType = obj?.type?.let { TetroidObjectType.getById(it) },
@@ -40,11 +57,11 @@ class SetScriptIsEnabledUseCase(
                 it.script = script
                 it.obj = obj
             }
-            if (scriptsManager.insertScriptToObject(scriptToObject)) {
-                None.toRight()
-            } else {
-                Failure.Database.Insert.toLeft()
-            }
+
+        return if (scriptsManager.updateScriptIsActiveForObject(scriptToObject, isActive)) {
+            None.toRight()
+        } else {
+            Failure.Database.Update.toLeft()
         }
     }
 

@@ -816,6 +816,13 @@ object UseCasesModule {
             }
 
             scoped {
+                SetAllScriptsIsActivatedUseCase(
+                    scriptsManager = get(),
+                    setScriptIsEnabledUseCase = get(),
+                )
+            }
+
+            scoped {
                 SetScriptIsEnabledUseCase(
                     scriptsManager = get(),
                 )

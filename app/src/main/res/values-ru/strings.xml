@@ -225,6 +225,8 @@
     <string name="title_script_for_all_storage">Для всего хранилища</string>
     <string name="title_decrypt_storage_object_name"><![CDATA[<Расшифруйте хранилище>]]></string>
     <string name="title_load_all_nodes_object_name"><![CDATA[<Загрузите все ветки>]]></string>
+    <string name="action_activate_all_for_storage">Включить все для хранилища</string>
+    <string name="action_deactivate_all_for_storage">Отключить все для хранилища</string>
 
     <string name="title_def_script_title_table_sort">Сортировка таблиц</string>
     <string name="title_def_script_description_table_sort">Строки таблицы будут отсортированы при клике на заголовке колонки</string>
