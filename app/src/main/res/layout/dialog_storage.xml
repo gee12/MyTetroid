@@ -96,7 +96,8 @@
             android:gravity="end|center_vertical"
             android:checkMark="@drawable/checkbox_selector_gray"
             android:text="@string/label_read_only"
-            style="@style/AppLabelInLayout"/>
+            style="@style/AppLabelInLayout"
+            android:visibility="gone"/>
 
     </LinearLayout>
 

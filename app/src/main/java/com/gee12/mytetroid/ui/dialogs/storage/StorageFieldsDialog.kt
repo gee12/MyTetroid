@@ -53,7 +53,7 @@ class StorageFieldsDialog(
         cbIsDefault = view.findViewById(R.id.check_box_is_default)
         cbIsDefault.setOnClickListener { cbIsDefault.isChecked = !cbIsDefault.isChecked }
         val cbReadOnly = view.findViewById<CheckedTextView>(R.id.check_box_read_only)
-        cbReadOnly.isVisible = !isNew
+        //cbReadOnly.isVisible = !isNew
         // TODO: принудительно отключаем (пока)
         cbReadOnly.isEnabled = false
 
