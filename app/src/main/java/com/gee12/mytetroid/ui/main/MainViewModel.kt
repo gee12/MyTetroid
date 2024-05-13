@@ -552,7 +552,7 @@ class MainViewModel(
             }.onSuccess { record ->
                 if (isText) {
                     // запускаем активность просмотра записи
-                    openRecord(record.id)
+                    openRecord(recordId = record.id)
                 } else {
                     // загружаем изображения в каталоги записи
                     if (!receivedData.isAttach) {
@@ -851,33 +851,29 @@ class MainViewModel(
 
     /**
      * Открытие записи.
-     * Реализация метода интерфейса IMainView.
-     * @param record
      */
     fun openRecord(record: TetroidRecord) {
         // проверка нужно ли расшифровать избранную запись перед отображением
         // (т.к. в избранной ветке записи могут быть нерасшифрованные)
         if (!checkAndDecryptRecord(record)) {
-            openRecord(record.id)
+            openRecord(recordId = record.id, recordName = record.name)
         }
     }
 
     /**
      * Открытие записи по Id.
-     * @param recordId
      */
-    fun openRecord(recordId: String) {
+    fun openRecord(recordId: String, recordName: String? = null) {
         launchOnMain {
             val bundle = Bundle()
             bundle.putString(Constants.EXTRA_RECORD_ID, recordId)
+            bundle.putString(Constants.EXTRA_RECORD_NAME, recordName)
             openRecord(recordId, bundle)
         }
     }
 
     /**
      * Открытие записи с последующим добавлением в ее содержимое изображений.
-     * @param recordId
-     * @param imagesUri
      */
     private fun openRecordWithImages(recordId: String, imagesUri: List<Uri>) {
         val bundle = Bundle()
@@ -888,7 +884,6 @@ class MainViewModel(
 
     /**
      *
-     * @param recordId
      */
     private fun openRecordWithAttachedFiles(recordId: String) {
         val bundle = Bundle()
@@ -899,7 +894,6 @@ class MainViewModel(
 
     /**
      * Открытие активности RecordActivity.
-     * @param bundle
      */
     private fun openRecord(recordId: String, bundle: Bundle) {
         bundle.putInt(Constants.EXTRA_STORAGE_ID, storage?.id.orZero())

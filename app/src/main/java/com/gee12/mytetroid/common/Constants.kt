@@ -61,6 +61,7 @@ object Constants {
     const val EXTRA_START_RECORD_ACTIVITY = "START_RECORD_ACTIVITY"
 
     const val EXTRA_RECORD_ID = "RECORD_ID"
+    const val EXTRA_RECORD_NAME = "RECORD_NAME"
     const val EXTRA_CUR_NODE_ID = "CUR_NODE_ID"
     const val EXTRA_NODE_ID = "NODE_ID"
     const val EXTRA_STORAGE_ID = "STORAGE_ID"

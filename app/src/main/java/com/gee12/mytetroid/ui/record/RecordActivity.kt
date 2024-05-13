@@ -147,6 +147,9 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             return
         } else {
             viewModel.init(intent)
+
+            val recordName = intent.getStringExtra(Constants.EXTRA_RECORD_NAME)
+            title = recordName
         }
 
         activityComponent = RecordActivityComponent(
