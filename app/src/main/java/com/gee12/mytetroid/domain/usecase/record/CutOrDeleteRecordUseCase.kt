@@ -70,7 +70,7 @@ class CutOrDeleteRecordUseCase(
         }
 
         // перезаписываем структуру хранилища в файл
-        saveStorageTreeUseCase.run()
+        return saveStorageTreeUseCase.run()
             .flatMap {
                 // удаляем из избранного
                 if (record.isFavorite) {
@@ -87,22 +87,21 @@ class CutOrDeleteRecordUseCase(
                 ).onFailure {
                     logger.logFailure(it, show = false)
                 }
+
+                if (!withoutDir) {
+                    moveOrDeleteRecordFolderUseCase.run(
+                        MoveOrDeleteRecordFolderUseCase.Params(
+                            record = record,
+                            recordFolder = recordFolder!!,
+                            isMoveToTrash = true,
+                        )
+                    )
+                } else {
+                    None.toRight()
+                }
             }.onFailure {
                 logger.logOperCancel(LogObj.RECORD, LogOper.DELETE)
-                return it.toLeft()
             }
-
-        return if (!withoutDir) {
-            moveOrDeleteRecordFolderUseCase.run(
-                MoveOrDeleteRecordFolderUseCase.Params(
-                    record = record,
-                    recordFolder = recordFolder!!,
-                    isMoveToTrash = true,
-                )
-            )
-        } else {
-            None.toRight()
-        }
     }
 
 }

@@ -788,10 +788,10 @@ class MainViewModel(
                     )
                 )
             }.onFailure { failure ->
+                logFailure(failure)
                 sendEvent(if (isCutting) MainEvent.Record.Cut.Failed(record, failure) else MainEvent.Record.Delete.Failed(record, failure))
                 when (failure) {
                     is Failure.File -> {
-                        logFailure(failure)
                         sendEvent(BaseEvent.ShowMoreInLogs)
                     }
                     is Failure.Folder -> {
@@ -801,9 +801,7 @@ class MainViewModel(
                             sendEvent(MainEvent.AskForOperationWithoutFolder(ClipboardParams(LogOper.DELETE, record)))
                         }
                     }
-                    else -> {
-                        logFailure(failure)
-                    }
+                    else -> Unit
                 }
             }.onSuccess {
                 curRecords.remove(record)

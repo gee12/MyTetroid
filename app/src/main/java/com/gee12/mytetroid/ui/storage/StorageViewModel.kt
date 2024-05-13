@@ -330,7 +330,7 @@ open class StorageViewModel(
         }
     }
 
-    fun initStorage(storage: TetroidStorage, isLoadFavoritesOnly: Boolean? = null, isLoadAfter: Boolean = false) {
+    private fun initStorage(storage: TetroidStorage, isLoadFavoritesOnly: Boolean? = null, isLoadAfter: Boolean = false) {
         launchOnMain {
             isAlreadyTryDecrypt = false
             withIo {

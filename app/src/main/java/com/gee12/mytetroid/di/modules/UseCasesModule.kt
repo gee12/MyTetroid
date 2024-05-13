@@ -193,6 +193,7 @@ object UseCasesModule {
                 InitStorageUseCase(
                     context = androidContext(),
                     favoritesManager = get(),
+                    getStorageTrashFolderUseCase = get(),
                 )
             }
 
@@ -594,6 +595,7 @@ object UseCasesModule {
                     storagePathProvider = get(),
                     moveFileUseCase = get(),
                     dataNameProvider = get(),
+                    getStorageTrashFolderUseCase = get(),
                 )
             }
 
