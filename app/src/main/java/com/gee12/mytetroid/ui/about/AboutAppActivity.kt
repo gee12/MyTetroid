@@ -9,7 +9,6 @@ import android.view.MenuItem
 import android.widget.Button
 import android.widget.TextView
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.extensions.getAppVersionName
 import com.gee12.mytetroid.ui.base.TetroidActivity
 
 /**
@@ -26,7 +25,7 @@ class AboutAppActivity : TetroidActivity<AboutAppViewModel>() {
         super.onCreate(savedInstanceState)
 
         findViewById<TextView>(R.id.text_view_version).also {
-            it.text = this.getAppVersionName()
+            it.text = buildInfoProvider.appVersionNameAndCode
         }
         findViewById<Button>(R.id.button_rate_app).also {
             it.setOnClickListener {

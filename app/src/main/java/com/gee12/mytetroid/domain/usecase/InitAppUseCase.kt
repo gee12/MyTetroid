@@ -8,8 +8,8 @@ import com.anggrayudi.storage.file.DocumentFileType
 import com.anggrayudi.storage.file.makeFolder
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.common.extensions.getAppVersionName
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
+import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 import com.gee12.mytetroid.domain.provider.IAppPathProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -20,6 +20,7 @@ import com.gee12.mytetroid.model.FilePath
  */
 class InitAppUseCase(
     private val context: Context,
+    private val buildInfoProvider: BuildInfoProvider,
     private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
     private val settingsManager: CommonSettingsManager,
@@ -37,7 +38,7 @@ class InitAppUseCase(
             isWriteToFile = settingsManager.isWriteLogToFile()
         )
         logger.logRaw("************************************************************")
-        logger.log(resourcesProvider.getString(R.string.log_app_start_mask, context.getAppVersionName().orEmpty()), false)
+        logger.log(resourcesProvider.getString(R.string.log_app_start_mask, buildInfoProvider.appVersionNameAndCode), false)
 
         if (settingsManager.isCopiedFromFree()) {
             logger.log(R.string.log_settings_copied_from_free, show = true)

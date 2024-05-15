@@ -11,6 +11,7 @@ class BuildInfoProvider(context: Context) {
     val applicationId: String = BuildConfig.APPLICATION_ID
 
     fun isFullVersion() = BuildConfig.FLAVOR == "pro" || BuildConfig.FLAVOR == "googlePlayPro"
+
     fun isFreeVersion() = BuildConfig.FLAVOR == "free" || BuildConfig.FLAVOR == "googlePlayFree"
 
     fun hasAllFilesAccessVersion() = BuildConfig.FLAVOR != "googlePlayPro" && BuildConfig.FLAVOR != "googlePlayFree"
@@ -18,12 +19,18 @@ class BuildInfoProvider(context: Context) {
     val appUpdateTime: Long = context.packageManager.getPackageInfo(context.packageName, 0).lastUpdateTime
 
     val appVersionName: String = BuildConfig.VERSION_NAME
+
     val appVersionCode: Int = BuildConfig.VERSION_CODE
 
+    val appVersionNameAndCode: String
+        get() = "$appVersionName ($appVersionCode)"
+
     val sdkVersionName: String = Build.VERSION.RELEASE
+
     val sdkVersionCode: Int = Build.VERSION.SDK_INT
 
     val brand = Build.BRAND
+
     val model = Build.MODEL
 
 }

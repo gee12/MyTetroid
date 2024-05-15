@@ -31,6 +31,7 @@ object UseCasesModule {
         factory {
             InitAppUseCase(
                 context = androidContext(),
+                buildInfoProvider = get(),
                 resourcesProvider = get(),
                 logger = get(),
                 settingsManager = get(),

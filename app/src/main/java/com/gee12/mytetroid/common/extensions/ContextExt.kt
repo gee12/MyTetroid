@@ -1,19 +1,8 @@
 package com.gee12.mytetroid.common.extensions
 
 import android.content.Context
-import android.content.pm.PackageInfo
-import android.content.pm.PackageManager
 import android.os.Environment
 import com.gee12.mytetroid.common.utils.FileUtils
-
-fun Context.getAppVersionName(): String? {
-    return try {
-        val pInfo: PackageInfo = packageManager.getPackageInfo(packageName, 0)
-        return pInfo.versionName
-    } catch (ex: PackageManager.NameNotFoundException) {
-        null
-    }
-}
 
 /**
  * Получение каталога приложения во внешнем хранилище (удаляется вместе с приложением).

@@ -7,7 +7,6 @@ import android.widget.TextView
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.common.extensions.getAppVersionName
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.ui.base.BaseEvent
@@ -46,7 +45,7 @@ class SplashActivity : TetroidActivity<SplashViewModel>() {
         setVisibilityActionHome(false)
 
         val tvVersion = findViewById<TextView>(R.id.text_view_version)
-        tvVersion.text = this.getAppVersionName()
+        tvVersion.text = buildInfoProvider.appVersionNameAndCode
 
         viewModel.initApp()
     }
