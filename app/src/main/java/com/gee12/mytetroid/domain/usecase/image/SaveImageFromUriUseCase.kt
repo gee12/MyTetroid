@@ -32,6 +32,8 @@ class SaveImageFromUriUseCase(
         val record: TetroidRecord,
         val srcImageUri: Uri,
         val deleteSrcImageFile: Boolean,
+        val format: Bitmap.CompressFormat = Bitmap.CompressFormat.PNG,
+        val quality: Int = 100,
     )
 
     override suspend fun run(params: Params): Either<Failure, TetroidImage> {
@@ -53,6 +55,8 @@ class SaveImageFromUriUseCase(
                 SaveImageFromBitmapUseCase.Params(
                     record = record,
                     bitmap = bitmap,
+                    format = params.format,
+                    quality = params.quality,
                 )
             )
         }.flatMap { image ->

@@ -1,0 +1,234 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 21,
+    "identityHash": "8315c3e0ff2b8937edf6b70a90689f3a",
+    "entities": [
+      {
+        "tableName": "storages",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `path` TEXT NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `isDefault` INTEGER NOT NULL, `isReadOnly` INTEGER NOT NULL, `orderNum` INTEGER NOT NULL, `trashPath` TEXT, `isClearTrashBeforeExit` INTEGER NOT NULL, `isAskBeforeClearTrashBeforeExit` INTEGER NOT NULL, `quickNodeId` TEXT, `isLoadFavoritesOnly` INTEGER NOT NULL, `isKeepLastNode` INTEGER NOT NULL, `lastNodeId` TEXT, `isSavePassLocal` INTEGER NOT NULL, `middlePassHash` TEXT, `isDecryptToTemp` INTEGER NOT NULL, `createdDate` INTEGER, `editedDate` INTEGER, `syncProfileisEnabled` INTEGER NOT NULL, `syncProfileappName` TEXT NOT NULL, `syncProfilecommand` TEXT NOT NULL, `syncProfileisSyncBeforeInit` INTEGER NOT NULL, `syncProfileisSyncBeforeExit` INTEGER NOT NULL, `syncProfileisAskBeforeSyncOnInit` INTEGER NOT NULL, `syncProfileisAskBeforeSyncOnExit` INTEGER NOT NULL, `syncProfileisCheckOutsideChanging` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "uri",
+            "columnName": "path",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isDefault",
+            "columnName": "isDefault",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isReadOnly",
+            "columnName": "isReadOnly",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "order",
+            "columnName": "orderNum",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "trashPath",
+            "columnName": "trashPath",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "isClearTrashBeforeExit",
+            "columnName": "isClearTrashBeforeExit",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isAskBeforeClearTrashBeforeExit",
+            "columnName": "isAskBeforeClearTrashBeforeExit",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quickNodeId",
+            "columnName": "quickNodeId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "isLoadFavoritesOnly",
+            "columnName": "isLoadFavoritesOnly",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isKeepLastNode",
+            "columnName": "isKeepLastNode",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastNodeId",
+            "columnName": "lastNodeId",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "isSavePassLocal",
+            "columnName": "isSavePassLocal",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "middlePassHash",
+            "columnName": "middlePassHash",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "isDecryptToTemp",
+            "columnName": "isDecryptToTemp",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdDate",
+            "columnName": "createdDate",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "editedDate",
+            "columnName": "editedDate",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "syncProfile.isEnabled",
+            "columnName": "syncProfileisEnabled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syncProfile.appName",
+            "columnName": "syncProfileappName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syncProfile.command",
+            "columnName": "syncProfilecommand",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syncProfile.isSyncBeforeInit",
+            "columnName": "syncProfileisSyncBeforeInit",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syncProfile.isSyncBeforeExit",
+            "columnName": "syncProfileisSyncBeforeExit",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syncProfile.isAskBeforeSyncOnInit",
+            "columnName": "syncProfileisAskBeforeSyncOnInit",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syncProfile.isAskBeforeSyncOnExit",
+            "columnName": "syncProfileisAskBeforeSyncOnExit",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "syncProfile.isCheckOutsideChanging",
+            "columnName": "syncProfileisCheckOutsideChanging",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "favorites",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`storageId` INTEGER NOT NULL, `objectId` TEXT NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `orderNum` INTEGER NOT NULL, `createdDate` INTEGER, `editedDate` INTEGER)",
+        "fields": [
+          {
+            "fieldPath": "storageId",
+            "columnName": "storageId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "objectId",
+            "columnName": "objectId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "order",
+            "columnName": "orderNum",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdDate",
+            "columnName": "createdDate",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "editedDate",
+            "columnName": "editedDate",
+            "affinity": "INTEGER",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8315c3e0ff2b8937edf6b70a90689f3a')"
+    ]
+  }
+}

@@ -11,7 +11,6 @@ import com.gee12.mytetroid.data.settings.TetroidPreferenceDataStore
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
-import com.gee12.mytetroid.domain.interactor.*
 import com.gee12.mytetroid.domain.manager.*
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -47,14 +46,14 @@ class StorageSettingsViewModel(
 
     favoritesManager: FavoritesManager,
     interactionManager: InteractionManager,
-    syncInteractor: SyncInteractor,
+    syncManager: SyncManager,
 
     getFolderSizeUseCase: GetFolderSizeInStorageUseCase,
     getFileModifiedDateUseCase: GetFileModifiedDateInStorageUseCase,
 
     initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
-    readStorageUseCase: ReadStorageUseCase,
-    saveStorageUseCase: SaveStorageUseCase,
+    readStorageTreeUseCase: ReadStorageTreeUseCase,
+    saveStorageTreeUseCase: SaveStorageTreeUseCase,
     decryptStorageUseCase: DecryptStorageUseCase,
     checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
     clearStorageTrashFolderUseCase: ClearStorageTrashFolderUseCase,
@@ -89,14 +88,14 @@ class StorageSettingsViewModel(
 
     favoritesManager = favoritesManager,
     interactionManager = interactionManager,
-    syncInteractor = syncInteractor,
+    syncManager = syncManager,
 
     getFileModifiedDateUseCase = getFileModifiedDateUseCase,
     getFolderSizeUseCase = getFolderSizeUseCase,
 
     initOrCreateStorageUseCase = initOrCreateStorageUseCase,
-    readStorageUseCase = readStorageUseCase,
-    saveStorageUseCase = saveStorageUseCase,
+    readStorageTreeUseCase = readStorageTreeUseCase,
+    saveStorageTreeUseCase = saveStorageTreeUseCase,
     decryptStorageUseCase = decryptStorageUseCase,
     checkStorageFilesExistingUseCase = checkStorageFilesExistingUseCase,
     clearStorageTrashFolderUseCase = clearStorageTrashFolderUseCase,

@@ -2,9 +2,6 @@ package com.gee12.mytetroid.di.modules
 
 import android.print.PrintDocumentToFileUseCase
 import com.gee12.mytetroid.di.ScopeSource
-import com.gee12.mytetroid.domain.interactor.*
-import com.gee12.mytetroid.domain.manager.InteractionManager
-import com.gee12.mytetroid.domain.manager.PermissionManager
 import com.gee12.mytetroid.domain.usecase.*
 import com.gee12.mytetroid.domain.usecase.attach.*
 import com.gee12.mytetroid.domain.usecase.crypt.*
@@ -12,71 +9,61 @@ import com.gee12.mytetroid.domain.usecase.crypt.DecryptStorageUseCase
 import com.gee12.mytetroid.domain.usecase.file.*
 import com.gee12.mytetroid.domain.usecase.html.CreateTagsHtmlStringUseCase
 import com.gee12.mytetroid.domain.usecase.html.HtmlElementToTextUseCase
-import com.gee12.mytetroid.domain.usecase.image.LoadDrawableFromFileUseCase
+import com.gee12.mytetroid.domain.usecase.image.*
 import com.gee12.mytetroid.domain.usecase.node.*
 import com.gee12.mytetroid.domain.usecase.node.icon.*
 import com.gee12.mytetroid.domain.usecase.record.*
-import com.gee12.mytetroid.domain.usecase.image.SaveImageFromBitmapUseCase
-import com.gee12.mytetroid.domain.usecase.image.SaveImageFromUriUseCase
-import com.gee12.mytetroid.domain.usecase.image.GetImageDimensionsUseCase
 import com.gee12.mytetroid.domain.usecase.network.DownloadFileFromWebUseCase
 import com.gee12.mytetroid.domain.usecase.network.DownloadImageFromWebUseCase
 import com.gee12.mytetroid.domain.usecase.network.DownloadWebPageContentUseCase
+import com.gee12.mytetroid.domain.usecase.script.*
 import com.gee12.mytetroid.domain.usecase.storage.*
 import com.gee12.mytetroid.domain.usecase.tag.DeleteRecordTagsUseCase
 import com.gee12.mytetroid.domain.usecase.tag.GetTagByNameUseCase
 import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
 import com.gee12.mytetroid.domain.usecase.tag.RenameTagInRecordsUseCase
-import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 object UseCasesModule {
     val useCasesModule = module {
 
-        single {
-            InteractionManager(
+        factory {
+            InitAppUseCase(
+                context = androidContext(),
                 resourcesProvider = get(),
                 logger = get(),
+                settingsManager = get(),
+                appPathProvider = get(),
             )
         }
 
-        single {
-            PermissionManager(
-                buildInfoProvider = get(),
-                logger = get(),
-                resourcesProvider = get(),
-            )
-        }
-
-        single {
-            StorageTreeObserver(
-                app = androidApplication(),
-                logger = get(),
-            )
-        }
-
-        single {
-            SyncInteractor(
-                resourcesProvider = get(),
-                logger = get(),
-            )
-        }
-
-        single {
+        factory {
             SwapFavoriteRecordsUseCase(
                 favoritesRepo = get(),
             )
         }
 
-        single {
+        factory {
+            FillStorageFieldsFromDefaultSettingsUseCase(
+                context = androidContext()
+            )
+        }
+
+        factory {
             ClearAllStoragesTrashFolderUseCase(
                 appPathProvider = get(),
                 clearFolderUseCase = get(),
             )
         }
 
-        single {
+        factory {
+            GetFolderUseCase(
+                context = androidContext(),
+            )
+        }
+
+        factory {
             ClearFolderUseCase(
                 context = androidContext(),
                 resourcesProvider = get(),
@@ -84,42 +71,23 @@ object UseCasesModule {
             )
         }
 
-        single {
+        factory {
             ReadTextBlocksFromFileUseCase()
         }
 
-        single {
+        factory {
             ReadTextBlocksFromStringUseCase()
+        }
+
+        factory {
+            ReadTextFileUseCase(
+                context = androidContext(),
+            )
         }
 
         scope<ScopeSource> {
 
-            //region Interactors
-
-            scoped {
-                MigrationInteractor(
-                    logger = get(),
-                    buildInfoProvider = get(),
-                    settingsManager = get(),
-                    storagesRepo = get(),
-                    favoritesManager = get(),
-                    fillStorageFieldsFromDefaultSettingsUseCase = get(),
-                )
-            }
-
-            //endregion Interactors
-
             //region App
-
-            scoped {
-                InitAppUseCase(
-                    context = androidContext(),
-                    resourcesProvider = get(),
-                    logger = get(),
-                    settingsManager = get(),
-                    appPathProvider = get(),
-                )
-            }
 
             scoped {
                 GlobalSearchUseCase(
@@ -134,9 +102,23 @@ object UseCasesModule {
                 SwapObjectsInListUseCase()
             }
 
+            scoped {
+                GetObjectByTypeAndIdUseCase(
+                    getRecordByIdUseCase = get(),
+                    getNodeByIdUseCase = get(),
+                )
+            }
+
             //endregion App
 
             //region File
+
+            scoped {
+                GetContentUriFromFileUseCase(
+                    context = get(),
+                    appBuildInfoProvider = get(),
+                )
+            }
 
             scoped {
                 GetFolderSizeInStorageUseCase(
@@ -202,8 +184,8 @@ object UseCasesModule {
 
             scoped {
                 GetStorageTrashFolderUseCase(
-                    context = androidContext(),
                     appPathProvider = get(),
+                    getFolderUseCase = get(),
                 )
             }
 
@@ -211,11 +193,12 @@ object UseCasesModule {
                 InitStorageUseCase(
                     context = androidContext(),
                     favoritesManager = get(),
+                    getStorageTrashFolderUseCase = get(),
                 )
             }
 
             scoped {
-                ReadStorageUseCase(
+                ReadStorageTreeUseCase(
                     context = androidContext(),
                     resourcesProvider = get(),
                     storageProvider = get(),
@@ -230,22 +213,16 @@ object UseCasesModule {
             }
 
             scoped {
-                SaveStorageUseCase(
+                SaveStorageTreeUseCase(
                     context = androidContext(),
                     resourcesProvider = get(),
                     logger = get(),
                     dataNameProvider = get(),
                     storagePathProvider = get(),
                     storageProvider = get(),
-                    storageTreeInteractor = get(),
+                    storageTreeObserver = get(),
                     moveFileUseCase = get(),
                     getStorageTrashFolderUseCase = get(),
-                )
-            }
-
-            scoped {
-                FillStorageFieldsFromDefaultSettingsUseCase(
-                    context = androidContext()
                 )
             }
 
@@ -262,7 +239,7 @@ object UseCasesModule {
                 ChangePasswordUseCase(
                     storageProvider = get(),
                     cryptManager = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                     decryptStorageUseCase = get(),
                     initPasswordUseCase = get(),
                     savePasswordInConfigUseCase = get(),
@@ -367,6 +344,7 @@ object UseCasesModule {
                     resourcesProvider = get(),
                     logger = get(),
                     appPathProvider = get(),
+                    scriptsManager = get(),
                     storagesRepo = get(),
                 )
             }
@@ -387,7 +365,7 @@ object UseCasesModule {
                     dataNameProvider = get(),
                     storageProvider = get(),
                     cryptManager = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                 )
             }
 
@@ -397,7 +375,7 @@ object UseCasesModule {
                     dataNameProvider = get(),
                     loadNodeIconUseCase = get(),
                     cryptManager = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                     cloneRecordToNodeUseCase = get(),
                 )
             }
@@ -413,21 +391,20 @@ object UseCasesModule {
                     logger = get(),
                     cryptManager = get(),
                     loadNodeIconUseCase = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                 )
             }
 
             scoped {
                 CutOrDeleteNodeUseCase(
-                    context = androidContext(),
                     logger = get(),
                     storageProvider = get(),
-                    recordPathProvider = get(),
                     favoritesManager = get(),
+                    scriptsManager = get(),
                     deleteRecordTagsUseCase = get(),
                     getRecordFolderUseCase = get(),
                     moveOrDeleteRecordFolderUseCase = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                 )
             }
 
@@ -435,7 +412,7 @@ object UseCasesModule {
                 EditNodeFieldsUseCase(
                     logger = get(),
                     cryptManager = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                 )
             }
 
@@ -477,14 +454,13 @@ object UseCasesModule {
 
             scoped {
                 CutOrDeleteRecordUseCase(
-                    context = androidContext(),
                     logger = get(),
-                    recordPathProvider = get(),
                     favoritesManager = get(),
+                    scriptsManager = get(),
                     getRecordFolderUseCase = get(),
                     deleteRecordTagsUseCase = get(),
                     moveOrDeleteRecordFolderUseCase = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                 )
             }
 
@@ -538,7 +514,7 @@ object UseCasesModule {
                     moveOrCopyRecordFolderUseCase = get(),
                     parseRecordTagsUseCase = get(),
                     cryptRecordFilesIfNeedUseCase = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                 )
             }
 
@@ -551,7 +527,7 @@ object UseCasesModule {
                     favoritesManager = get(),
                     getRecordFolderUseCase = get(),
                     parseRecordTagsUseCase = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                 )
             }
 
@@ -619,6 +595,7 @@ object UseCasesModule {
                     storagePathProvider = get(),
                     moveFileUseCase = get(),
                     dataNameProvider = get(),
+                    getStorageTrashFolderUseCase = get(),
                 )
             }
 
@@ -636,7 +613,7 @@ object UseCasesModule {
                     deleteRecordTagsUseCase = get(),
                     parseRecordTagsUseCase = get(),
                     cryptRecordFilesIfNeedUseCase = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                 )
             }
 
@@ -653,7 +630,7 @@ object UseCasesModule {
                     cryptManager = get(),
                     getRecordFolderUseCase = get(),
                     copyFileWithCryptUseCase = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                 )
             }
 
@@ -682,7 +659,7 @@ object UseCasesModule {
                     logger = get(),
                     cryptManager = get(),
                     getRecordFolderUseCase = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                 )
             }
 
@@ -701,7 +678,7 @@ object UseCasesModule {
                     context = androidContext(),
                     logger = get(),
                     getRecordFolderUseCase = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                 )
             }
 
@@ -716,6 +693,7 @@ object UseCasesModule {
                     storageSettingsProvider = get(),
                     getRecordFolderUseCase = get(),
                     encryptOrDecryptFileIfNeedUseCase = get(),
+                    getContentUriFromFileUseCase = get(),
                 )
             }
 
@@ -739,7 +717,7 @@ object UseCasesModule {
             scoped {
                 RenameTagInRecordsUseCase(
                     storageProvider = get(),
-                    saveStorageUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                 )
             }
 
@@ -751,7 +729,122 @@ object UseCasesModule {
 
             //endregion Tag
 
+            // region Script
+
+            scoped {
+                GetScriptsUseCase(
+                    context = androidContext(),
+                    storagePathProvider = get(),
+                    storageProvider = get(),
+                    scriptsManager = get(),
+                )
+            }
+
+            scoped {
+                GetActiveScriptsForRecordUseCase(
+                    getScriptsUseCase = get(),
+                )
+            }
+
+            scoped {
+                SaveScriptTextToFileUseCase(
+                    context = androidContext(),
+                    storagePathProvider = get(),
+                    getFolderUseCase = get(),
+                )
+            }
+
+            scoped {
+                SaveScriptUseCase(
+                    storageProvider = get(),
+                    scriptsManager = get(),
+                    saveScriptTextToFileUseCase = get(),
+                )
+            }
+
+            scoped {
+                AddDefaultScriptUseCase(
+                    context = androidContext(),
+                    resourcesProvider = get(),
+                    storageProvider = get(),
+                    scriptsManager = get(),
+                    saveScriptTextToFileUseCase = get(),
+                    getUniqueScriptFileNameUseCase = get(),
+                )
+            }
+
+            scoped {
+                EditScriptUseCase(
+                    context = androidContext(),
+                    storagePathProvider = get(),
+                    storageProvider = get(),
+                    scriptsManager = get(),
+                    saveScriptTextToFileUseCase = get(),
+                )
+            }
+
+            scoped {
+                GetScriptTextUseCase(
+                    context = androidContext(),
+                    storagePathProvider = get(),
+                    storageProvider = get(),
+                    readTextFileUseCase = get(),
+                )
+            }
+
+            scoped {
+                DuplicateScriptUseCase(
+                    scriptsManager = get(),
+                    getUniqueScriptFileNameUseCase = get(),
+                    getScriptTextUseCase = get(),
+                    saveScriptUseCase = get(),
+                )
+            }
+
+            scoped {
+                GetUniqueScriptFileNameUseCase(
+                    storageProvider = get(),
+                    scriptsManager = get(),
+                )
+            }
+
+            scoped {
+                DeleteScriptFileUseCase(
+                    context = androidContext(),
+                    storagePathProvider = get(),
+                    storageProvider = get(),
+                    scriptsManager = get(),
+                )
+            }
+
+            scoped {
+                SetAllScriptsIsActivatedUseCase(
+                    scriptsManager = get(),
+                    setScriptIsEnabledUseCase = get(),
+                )
+            }
+
+            scoped {
+                SetScriptIsActivatedUseCase(
+                    scriptsManager = get(),
+                )
+            }
+
+            scoped {
+                SetScriptToObjectIsActivatedUseCase(
+                    scriptsManager = get(),
+                )
+            }
+
+            // endregion Script
+
             //region Image
+
+            scoped {
+                PrepareFileForOpenUseCase(
+                    getContentUriFromFileUseCase = get(),
+                )
+            }
 
             scoped {
                 LoadDrawableFromFileUseCase(

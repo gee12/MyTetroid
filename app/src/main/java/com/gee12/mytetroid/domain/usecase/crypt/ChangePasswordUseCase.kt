@@ -7,12 +7,12 @@ import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.TaskStage
 import com.gee12.mytetroid.domain.provider.IStorageProvider
-import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
+import com.gee12.mytetroid.domain.usecase.storage.SaveStorageTreeUseCase
 
 class ChangePasswordUseCase(
     private val storageProvider: IStorageProvider,
     private val cryptManager: IStorageCryptManager,
-    private val saveStorageUseCase: SaveStorageUseCase,
+    private val saveStorageTreeUseCase: SaveStorageTreeUseCase,
     private val decryptStorageUseCase: DecryptStorageUseCase,
     private val initPasswordUseCase: InitPasswordUseCase,
     private val savePasswordInConfigUseCase: SavePasswordInConfigUseCase,
@@ -89,7 +89,7 @@ class ChangePasswordUseCase(
 
     private suspend fun saveStorage(params: Params) : Either<Failure, None> {
         return params.taskProgress.nextStage(LogObj.STORAGE, LogOper.SAVE) {
-            saveStorageUseCase.run()
+            saveStorageTreeUseCase.run()
         }
     }
 

@@ -25,7 +25,6 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.domain.repo.StoragesRepo
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.storage.StorageEvent
-import com.gee12.mytetroid.domain.interactor.*
 import com.gee12.mytetroid.domain.manager.*
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.domain.usecase.GlobalSearchUseCase
@@ -74,8 +73,8 @@ class MainViewModel(
     storageDataProcessor: IStorageDataProcessor,
 
     interactionManager: InteractionManager,
-    syncInteractor: SyncInteractor,
-    private val storageTreeInteractor: StorageTreeObserver,
+    syncManager: SyncManager,
+    private val storageTreeObserver: StorageTreeObserver,
 
     private val globalSearchUseCase: GlobalSearchUseCase,
     getFileModifiedDateUseCase: GetFileModifiedDateInStorageUseCase,
@@ -83,8 +82,8 @@ class MainViewModel(
     private val swapObjectsInListUseCase: SwapObjectsInListUseCase,
 
     initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
-    readStorageUseCase: ReadStorageUseCase,
-    saveStorageUseCase: SaveStorageUseCase,
+    readStorageTreeUseCase: ReadStorageTreeUseCase,
+    saveStorageTreeUseCase: SaveStorageTreeUseCase,
     decryptStorageUseCase: DecryptStorageUseCase,
     checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
     clearStorageTrashFolderUseCase: ClearStorageTrashFolderUseCase,
@@ -145,14 +144,14 @@ class MainViewModel(
 
     favoritesManager = favoritesManager,
     interactionManager = interactionManager,
-    syncInteractor = syncInteractor,
+    syncManager = syncManager,
 
     getFileModifiedDateUseCase = getFileModifiedDateUseCase,
     getFolderSizeUseCase = getFolderSizeUseCase,
 
     initOrCreateStorageUseCase = initOrCreateStorageUseCase,
-    readStorageUseCase = readStorageUseCase,
-    saveStorageUseCase = saveStorageUseCase,
+    readStorageTreeUseCase = readStorageTreeUseCase,
+    saveStorageTreeUseCase = saveStorageTreeUseCase,
     decryptStorageUseCase = decryptStorageUseCase,
     checkStorageFilesExistingUseCase = checkStorageFilesExistingUseCase,
     clearStorageTrashFolderUseCase = clearStorageTrashFolderUseCase,
@@ -553,7 +552,7 @@ class MainViewModel(
             }.onSuccess { record ->
                 if (isText) {
                     // запускаем активность просмотра записи
-                    openRecord(record.id)
+                    openRecord(recordId = record.id)
                 } else {
                     // загружаем изображения в каталоги записи
                     if (!receivedData.isAttach) {
@@ -789,10 +788,10 @@ class MainViewModel(
                     )
                 )
             }.onFailure { failure ->
+                logFailure(failure)
                 sendEvent(if (isCutting) MainEvent.Record.Cut.Failed(record, failure) else MainEvent.Record.Delete.Failed(record, failure))
                 when (failure) {
                     is Failure.File -> {
-                        logFailure(failure)
                         sendEvent(BaseEvent.ShowMoreInLogs)
                     }
                     is Failure.Folder -> {
@@ -802,9 +801,7 @@ class MainViewModel(
                             sendEvent(MainEvent.AskForOperationWithoutFolder(ClipboardParams(LogOper.DELETE, record)))
                         }
                     }
-                    else -> {
-                        logFailure(failure)
-                    }
+                    else -> Unit
                 }
             }.onSuccess {
                 curRecords.remove(record)
@@ -854,33 +851,29 @@ class MainViewModel(
 
     /**
      * Открытие записи.
-     * Реализация метода интерфейса IMainView.
-     * @param record
      */
     fun openRecord(record: TetroidRecord) {
         // проверка нужно ли расшифровать избранную запись перед отображением
         // (т.к. в избранной ветке записи могут быть нерасшифрованные)
         if (!checkAndDecryptRecord(record)) {
-            openRecord(record.id)
+            openRecord(recordId = record.id, recordName = record.name)
         }
     }
 
     /**
      * Открытие записи по Id.
-     * @param recordId
      */
-    fun openRecord(recordId: String) {
+    fun openRecord(recordId: String, recordName: String? = null) {
         launchOnMain {
             val bundle = Bundle()
             bundle.putString(Constants.EXTRA_RECORD_ID, recordId)
+            bundle.putString(Constants.EXTRA_RECORD_NAME, recordName)
             openRecord(recordId, bundle)
         }
     }
 
     /**
      * Открытие записи с последующим добавлением в ее содержимое изображений.
-     * @param recordId
-     * @param imagesUri
      */
     private fun openRecordWithImages(recordId: String, imagesUri: List<Uri>) {
         val bundle = Bundle()
@@ -891,7 +884,6 @@ class MainViewModel(
 
     /**
      *
-     * @param recordId
      */
     private fun openRecordWithAttachedFiles(recordId: String) {
         val bundle = Bundle()
@@ -902,7 +894,6 @@ class MainViewModel(
 
     /**
      * Открытие активности RecordActivity.
-     * @param bundle
      */
     private fun openRecord(recordId: String, bundle: Bundle) {
         bundle.putInt(Constants.EXTRA_STORAGE_ID, storage?.id.orZero())
@@ -914,17 +905,13 @@ class MainViewModel(
     /**
      * Открытие каталога записи.
      */
-    fun openCurrentRecordFolder(activity: Activity) {
+    fun openCurrentRecordFolder() {
         curRecord?.also {
-            openRecordFolder(
-                activity = activity,
-                record = it,
-            )
+            openRecordFolder(record = it)
         }
     }
 
-    fun openRecordFolder(activity: Activity, record: TetroidRecord) {
-        logger.logDebug(resourcesProvider.getString(R.string.log_start_record_folder_opening_mask, record.id))
+    fun openRecordFolder(record: TetroidRecord) {
         launchOnMain {
             withIo {
                 getRecordFolderUseCase.run(
@@ -938,11 +925,9 @@ class MainViewModel(
             }.onFailure {
                 logFailure(it)
             }.onSuccess { recordFolder ->
-                val uri = recordFolder.uri
-                if (!interactionManager.openFolder(activity, uri)) {
-                    Utils.writeToClipboard(getContext(), resourcesProvider.getString(R.string.title_record_folder_uri), uri.toString())
-                    logWarning(R.string.log_missing_file_manager, show = true)
-                }
+                sendEvent(MainEvent.OpenRecordFolder(
+                    uri = recordFolder.uri
+                ))
             }
         }
     }
@@ -1600,9 +1585,9 @@ class MainViewModel(
         curAttaches.addAll(attaches)
     }
 
-    fun checkPermissionIfNeedAndOpenAttach(activity: Activity, attach: TetroidFile) {
+    fun checkPermissionIfNeedAndOpenAttach(attach: TetroidFile) {
         if (!attach.isCrypted) {
-            openAttach(activity, attach)
+            openAttach(attach)
         } else {
             if (storageSettingsProvider.isDecryptAttachesToTempFolder()) {
                 // будет запрос разрешения на запись расшифрованного файла в память
@@ -1627,13 +1612,13 @@ class MainViewModel(
         }
     }
 
-    fun openTempAttachAfterCheckPermission(activity: Activity) {
+    fun openTempAttachAfterCheckPermission() {
         tempAttachToOpen?.let {
-            openAttach(activity, it)
+            openAttach(it)
         }
     }
 
-    private fun openAttach(activity: Activity, attach: TetroidFile) {
+    private fun openAttach(attach: TetroidFile) {
         launchOnMain {
             sendEvent(MainEvent.Attach.Open.InProcess(attach))
 
@@ -1647,16 +1632,15 @@ class MainViewModel(
                 logFailure(failure)
                 sendEvent(MainEvent.Attach.Open.Failed(attach, failure))
             }.onSuccess { fileUri ->
-                sendEvent(MainEvent.Attach.Open.Success(attach))
-                interactionManager.openFile(activity, fileUri)
+                sendEvent(MainEvent.Attach.Open.Success(attach, fileUri))
             }
         }
     }
 
-    fun enableDecryptAttachesToTempFolderAndOpen(activity: Activity, attach: TetroidFile) {
+    fun enableDecryptAttachesToTempFolderAndOpen(attach: TetroidFile) {
         launchOnIo {
             setIsDecryptToTempAndSaveStorageInDb(value = true)
-            checkPermissionIfNeedAndOpenAttach(activity, attach)
+            checkPermissionIfNeedAndOpenAttach(attach)
         }
     }
 
@@ -2152,7 +2136,7 @@ class MainViewModel(
     // region FileObserver
 
     private fun setStorageTreeObserverCallbacks() {
-        with(storageTreeInteractor) {
+        with(storageTreeObserver) {
             treeChangedCallback = { event ->
                 // обработка внешнего изменения дерева записей
                 onStorageTreeOutsideChanged(event)
@@ -2176,13 +2160,13 @@ class MainViewModel(
                 this.isStorageTreeChangingHandled = false
 
                 launchOnMain {
-                    storageTreeInteractor.startObserver(
+                    storageTreeObserver.startObserver(
                         storagePath = storagePathProvider.getPathToMyTetraXml()
                     )
                 }
             }
         } else {
-            storageTreeInteractor.stopObserver()
+            storageTreeObserver.stopObserver()
         }
     }
 
@@ -2339,7 +2323,7 @@ class MainViewModel(
         log(R.string.log_app_exit)
 
         // останавливаем отслеживание изменения структуры хранилища
-        storageTreeInteractor.stopObserver()
+        storageTreeObserver.stopObserver()
 
         // удаляем загруженные данные хранилища из памяти
         clearStorageDataFromMemory()
@@ -2361,7 +2345,7 @@ class MainViewModel(
                 through = through,
             )
         ).flatMap { result ->
-            saveStorageUseCase.run()
+            saveStorageTreeUseCase.run()
                 .map { result }
         }
     }

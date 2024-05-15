@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.common
 
 import com.gee12.mytetroid.model.FilePath
+import com.gee12.mytetroid.model.TetroidScript
 
 
 sealed class Failure(val ex: Throwable? = null) {
@@ -13,6 +14,15 @@ sealed class Failure(val ex: Throwable? = null) {
 
     class RequiredApiVersion(val minApiVersion: Int, ex: Throwable? = null) : Failure(ex)
     class UnknownError(ex: Throwable? = null) : Failure(ex)
+
+    sealed class Database(ex: Throwable? = null) : Failure (ex) {
+        object Insert : Database()
+        object Update : Database()
+        object Delete : Database()
+        object ItemNotFound : Database()
+        class SqlError(ex: Throwable) : Database(ex)
+        class Unknown(ex: Throwable) : Database(ex)
+    }
 
     sealed class Storage(ex: Throwable? = null) : Failure(ex) {
         object StorageNotInited : Load()
@@ -71,6 +81,10 @@ sealed class Failure(val ex: Throwable? = null) {
         class UnknownError(ex: Exception) : Favorites(ex)
     }
 
+    sealed class Script(ex: Throwable? = null) : Failure(ex) {
+        data class FileIsNotExist(val script: TetroidScript, val path: FilePath) : Script()
+    }
+
     sealed class Image(ex: Throwable? = null) : Failure(ex) {
         class LoadFromFile(val path: FilePath, ex: Throwable? = null) : Image(ex)
         class SaveToFile(val path: FilePath, ex: Throwable? = null) : Image(ex)
@@ -98,11 +112,16 @@ sealed class Failure(val ex: Throwable? = null) {
         class Copy(val from: FilePath, val to: FilePath, ex: Throwable? = null) : File(ex)
         class Delete(val path: FilePath, ex: Throwable? = null) : File(ex)
         class GetContentUri(val path: FilePath, ex: Throwable? = null) : File(ex)
+        data class UnknownExtension(val path: FilePath) : File()
+        data class UnknownMimeType(val path: FilePath) : File()
         class Unknown(val path: FilePath, ex: Exception) : File(ex)
     }
 
     sealed class Folder(ex: Throwable? = null) : Failure(ex) {
         class NotExist(val path: FilePath) : Folder()
+        class NotFolder(val path: FilePath) : Folder()
+        class Write(val path: FilePath) : Folder()
+        class NotEmpty(val path: FilePath) : Folder()
         class Create(val path: FilePath, ex: Throwable? = null) : Folder(ex)
         class Get(val path: FilePath, ex: Throwable? = null) : Folder(ex)
         class GetFolderSize(val path: FilePath, ex: Throwable? = null) : Folder(ex)

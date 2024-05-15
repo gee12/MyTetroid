@@ -61,7 +61,7 @@ abstract class BaseTetroidLogger(
     }
 
     override fun logFailure(failure: Failure, show: Boolean) {
-        val message = failureHandler.getFailureMessage(failure).getFullMassage()
+        val message = failureHandler.getFailureMessage(failure).getFullMessage()
         // TODO: сделать многострочные уведомления
 
         log(message, LogType.ERROR, show)

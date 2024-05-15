@@ -282,7 +282,7 @@ abstract class BaseViewModel(
         if (show) {
             showError(message.title)
         }
-        logger.logError(message.getFullMassage(), show = false)
+        logger.logError(message.getFullMessage(), show = false)
     }
 
     // common
@@ -300,7 +300,7 @@ abstract class BaseViewModel(
 
     // operation result
     open fun logOperRes(obj: LogObj, oper: LogOper): String {
-        return logger.logOperRes(obj, oper, "", true)
+        return logger.logOperRes(obj, oper, "", show = true)
     }
 
     open fun logOperRes(obj: LogObj, oper: LogOper, tetroidObj: TetroidObject, show: Boolean): String {
@@ -361,7 +361,7 @@ abstract class BaseViewModel(
     }
 
     fun showFailure(failure: Failure) {
-        val message = failureHandler.getFailureMessage(failure).getFullMassage()
+        val message = failureHandler.getFailureMessage(failure).getFullMessage()
         showMessage(message, LogType.ERROR)
     }
 

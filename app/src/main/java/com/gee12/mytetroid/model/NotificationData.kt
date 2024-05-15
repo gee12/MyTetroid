@@ -38,7 +38,7 @@ sealed class NotificationData(
         message: String? = null,
     ) : NotificationData(title, message, Type.ERROR)
 
-    fun getFullMassage(): String {
+    fun getFullMessage(): String {
         return buildString {
             appendLine(title)
             if (!message.isNullOrBlank()) {

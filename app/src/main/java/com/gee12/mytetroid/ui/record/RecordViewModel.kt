@@ -1,6 +1,5 @@
 package com.gee12.mytetroid.ui.record
 
-import android.app.Activity
 import android.app.Application
 import android.content.ContentResolver
 import android.content.Intent
@@ -28,7 +27,6 @@ import java.util.*
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.domain.*
-import com.gee12.mytetroid.domain.interactor.*
 import com.gee12.mytetroid.domain.manager.*
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.domain.repo.StoragesRepo
@@ -45,15 +43,19 @@ import com.gee12.mytetroid.domain.usecase.record.*
 import com.gee12.mytetroid.domain.usecase.image.SaveImageFromBitmapUseCase
 import com.gee12.mytetroid.domain.usecase.image.SaveImageFromUriUseCase
 import com.gee12.mytetroid.domain.usecase.image.GetImageDimensionsUseCase
+import com.gee12.mytetroid.domain.usecase.file.PrepareFileForOpenUseCase
 import com.gee12.mytetroid.domain.usecase.network.DownloadFileFromWebUseCase
 import com.gee12.mytetroid.domain.usecase.network.DownloadImageFromWebUseCase
 import com.gee12.mytetroid.domain.usecase.network.DownloadWebPageContentUseCase
+import com.gee12.mytetroid.domain.usecase.script.GetActiveScriptsForRecordUseCase
+import com.gee12.mytetroid.domain.usecase.script.GetScriptTextUseCase
 import com.gee12.mytetroid.domain.usecase.storage.*
 import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.model.permission.TetroidPermission
 import com.gee12.mytetroid.ui.storage.StorageEvent
 import java.io.File
+import java.net.URI
 
 
 class RecordViewModel(
@@ -78,14 +80,14 @@ class RecordViewModel(
 
     favoritesManager: FavoritesManager,
     interactionManager: InteractionManager,
-    syncInteractor: SyncInteractor,
+    syncManager: SyncManager,
 
     getFileModifiedDateUseCase : GetFileModifiedDateInStorageUseCase,
     getFolderSizeUseCase: GetFolderSizeInStorageUseCase,
 
     initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
-    readStorageUseCase: ReadStorageUseCase,
-    saveStorageUseCase: SaveStorageUseCase,
+    readStorageTreeUseCase: ReadStorageTreeUseCase,
+    saveStorageTreeUseCase: SaveStorageTreeUseCase,
     decryptStorageUseCase: DecryptStorageUseCase,
     checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
     clearStorageTrashFolderUseCase: ClearStorageTrashFolderUseCase,
@@ -110,6 +112,9 @@ class RecordViewModel(
     private val downloadImageFromWebUseCase : DownloadImageFromWebUseCase,
     private val downloadFileFromWebUseCase: DownloadFileFromWebUseCase,
     private val getImageDimensionsUseCase: GetImageDimensionsUseCase,
+    private val prepareFileForOpenUseCase: PrepareFileForOpenUseCase,
+    private val getActiveScriptsForRecordUseCase: GetActiveScriptsForRecordUseCase,
+    private val getScriptTextUseCase: GetScriptTextUseCase,
 
     cryptRecordFilesIfNeedUseCase: CryptRecordFilesIfNeedUseCase,
     parseRecordTagsUseCase: ParseRecordTagsUseCase,
@@ -134,14 +139,14 @@ class RecordViewModel(
 
     favoritesManager = favoritesManager,
     interactionManager = interactionManager,
-    syncInteractor = syncInteractor,
+    syncManager = syncManager,
 
     getFileModifiedDateUseCase = getFileModifiedDateUseCase,
     getFolderSizeUseCase = getFolderSizeUseCase,
 
     initOrCreateStorageUseCase = initOrCreateStorageUseCase,
-    readStorageUseCase = readStorageUseCase,
-    saveStorageUseCase = saveStorageUseCase,
+    readStorageTreeUseCase = readStorageTreeUseCase,
+    saveStorageTreeUseCase = saveStorageTreeUseCase,
     decryptStorageUseCase = decryptStorageUseCase,
     checkPasswordOrPinAndDecryptUseCase = checkStoragePasswordAndDecryptUseCase,
     checkPasswordOrPinUseCase = checkStoragePasswordUseCase,
@@ -308,6 +313,7 @@ class RecordViewModel(
     /**
      * Событие окончания загрузки страницы.
      */
+    @UiThread
     fun onPageLoaded() {
         if (isFirstLoad) {
             isFirstLoad = false
@@ -371,6 +377,38 @@ class RecordViewModel(
     }
 
     // endregion Load page
+
+    // region Scripts
+
+    fun loadUserJSScripts() {
+        launchOnMain {
+            withIo {
+                getActiveScriptsForRecordUseCase.run(
+                    GetActiveScriptsForRecordUseCase.Params(record = curRecord.value!!)
+                )
+            }.onFailure {
+                logFailure(failure = it, show = false)
+            }.onSuccess { scripts ->
+                scripts.forEach { script ->
+                    withIo {
+                        getScriptTextUseCase.run(
+                            GetScriptTextUseCase.Params(script)
+                        )
+                    }.onFailure {
+                        logFailure(failure = it, show = false)
+                    }.onSuccess { scriptText ->
+                        logDebug(getString(R.string.log_loading_script_to_record_masked, script.fileName))
+                        withMain {
+                            sendEvent(RecordEvent.UserJSScript.Loaded(scriptText))
+                        }
+                    }
+                }
+                sendEvent(RecordEvent.UserJSScript.LoadedAll)
+            }
+        }
+    }
+
+    // endregion Scripts
 
     // region Load links
 
@@ -582,6 +620,18 @@ class RecordViewModel(
         }
     }
 
+    fun reloadRecordTextFromFile() {
+        curRecord.value?.also {
+            loadRecordTextFromFile(it)
+        }
+    }
+
+    fun saveAndReloadText() {
+        if (!onSaveRecord(resultObj = ResultObject.Reload, isAskForSave = true)) {
+            reloadRecordTextFromFile()
+        }
+    }
+
     private fun loadRecordTextFromFile(record: TetroidRecord) {
         launchOnMain {
             var text: String? = null
@@ -686,6 +736,27 @@ class RecordViewModel(
     //endregion Open another objects
 
     //region Image
+
+    fun openImage(imageFileName: String) {
+        launchOnMain {
+            withIo {
+                prepareFileForOpenUseCase.run(
+                    PrepareFileForOpenUseCase.Params(
+                        file = File(URI(imageFileName))
+                    )
+                )
+            }.onFailure {
+                logFailure(it, show = true)
+            }.onSuccess { result ->
+                sendEvent(
+                    RecordEvent.OpenImageFile(
+                        uri = result.uri,
+                        mimeType = result.mimeType,
+                    )
+                )
+            }
+        }
+    }
 
     fun saveImages(imageUris: List<Uri>, isCamera: Boolean) {
         if (imageUris.isEmpty()) return
@@ -919,7 +990,7 @@ class RecordViewModel(
      */
     @UiThread
     fun switchMode(newMode: EditorMode) {
-        switchMode(newMode, true)
+        switchMode(newMode, isNeedSave = true)
     }
 
     @UiThread
@@ -988,7 +1059,7 @@ class RecordViewModel(
      * @return true - запущена ли перед сохранением предобработка в асинхронном режиме.
      */
     fun saveRecord(resultObj: ResultObject): Boolean {
-        val runBeforeSaving = CommonSettings.isFixEmptyParagraphs(getContext())
+        val runBeforeSaving = true
         if (runBeforeSaving) {
             this.resultObj = resultObj
         }
@@ -1099,6 +1170,9 @@ class RecordViewModel(
      */
     private fun onAfterSaving(resultObj: ResultObject) {
         when (resultObj) {
+            is ResultObject.Reload -> {
+                reloadRecordTextFromFile()
+            }
             is ResultObject.Finish -> {
                 finishRequest(isOpenMainActivity = resultObj.isOpenMainActivity)
             }
@@ -1156,15 +1230,10 @@ class RecordViewModel(
     /**
      * Открытие каталога записи.
      */
-    fun openRecordFolder(activity: Activity) {
-        val record = curRecord.value!!
-        logger.logDebug(resourcesProvider.getString(R.string.log_start_record_folder_opening_mask, record.id))
-
+    fun openRecordFolder() {
         recordFolder?.also {
-            val uri = it.uri
-            if (!interactionManager.openFolder(activity, uri)) {
-                Utils.writeToClipboard(getContext(), resourcesProvider.getString(R.string.title_record_folder_uri), uri.toString())
-                logWarning(R.string.log_missing_file_manager, show = true)
+            launchOnMain {
+                sendEvent(RecordEvent.OpenRecordFolder(uri = it.uri))
             }
         }
     }

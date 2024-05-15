@@ -17,7 +17,7 @@ import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.domain.usecase.record.GetRecordFolderUseCase
-import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
+import com.gee12.mytetroid.domain.usecase.storage.SaveStorageTreeUseCase
 import com.gee12.mytetroid.model.FilePath
 
 /**
@@ -31,7 +31,7 @@ class EditAttachFieldsUseCase(
     private val logger: ITetroidLogger,
     private val cryptManager: IStorageCryptManager,
     private val getRecordFolderUseCase: GetRecordFolderUseCase,
-    private val saveStorageUseCase: SaveStorageUseCase,
+    private val saveStorageTreeUseCase: SaveStorageTreeUseCase,
 ) : UseCase<UseCase.None, EditAttachFieldsUseCase.Params>() {
 
     data class Params(
@@ -97,7 +97,7 @@ class EditAttachFieldsUseCase(
         }
 
         // перезаписываем структуру хранилища в файл
-        return saveStorageUseCase.run()
+        return saveStorageTreeUseCase.run()
             .flatMap {
                 // меняем расширение, если изменилось
                 if (isExtensionChanged && srcFile != null && srcFilePath != null) {

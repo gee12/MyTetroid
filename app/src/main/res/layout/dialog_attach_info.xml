@@ -22,7 +22,7 @@
 
     <TableRow>
         <TextView
-            android:text="@string/label_record"
+            android:text="@string/label_record_colon"
             style="@style/GridCellLabel"/>
 
         <TextView
@@ -33,7 +33,7 @@
 
     <TableRow>
         <TextView
-            android:text="@string/label_attach_crypted"
+            android:text="@string/label_attach_crypted_colon"
             style="@style/GridCellLabel"/>
 
         <TextView
@@ -47,7 +47,7 @@
         android:visibility="gone"
         tools:visibility="visible">
         <TextView
-            android:text="@string/label_edited"
+            android:text="@string/label_edited_colon"
             style="@style/GridCellLabel"/>
 
         <TextView
@@ -58,7 +58,7 @@
 
     <TableRow>
         <TextView
-            android:text="@string/label_path"
+            android:text="@string/label_path_colon"
             style="@style/GridCellLabel"/>
 
         <TextView
@@ -69,7 +69,7 @@
 
     <TableRow>
         <TextView
-            android:text="@string/label_file_size"
+            android:text="@string/label_file_size_colon"
             style="@style/GridCellLabel"/>
 
         <TextView

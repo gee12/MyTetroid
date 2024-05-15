@@ -1,6 +1,6 @@
 package com.gee12.mytetroid.ui.dialogs
 
-import com.gee12.mytetroid.common.extensions.ifTrueOrNull
+import com.gee12.mytetroid.common.extensions.takeIfTrue
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.domain.provider.IStorageProvider
@@ -29,7 +29,7 @@ abstract class TetroidStorageDialogFragment<VM : BaseStorageViewModel> : Tetroid
         super.initViewModel()
 
         val storageId = storageId
-            ?: isInitCurrentStorage.ifTrueOrNull {
+            ?: isInitCurrentStorage.takeIfTrue {
                 viewModel.getStorageId()
             }
         storageId?.let {

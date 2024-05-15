@@ -1,32 +1,31 @@
 package com.gee12.mytetroid.domain.usecase.node
 
-import android.content.Context
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.domain.manager.FavoritesManager
+import com.gee12.mytetroid.domain.manager.ScriptsManager
+import com.gee12.mytetroid.domain.provider.IStorageProvider
+import com.gee12.mytetroid.domain.usecase.record.GetRecordFolderUseCase
+import com.gee12.mytetroid.domain.usecase.record.MoveOrDeleteRecordFolderUseCase
+import com.gee12.mytetroid.domain.usecase.storage.SaveStorageTreeUseCase
+import com.gee12.mytetroid.domain.usecase.tag.DeleteRecordTagsUseCase
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.domain.provider.IRecordPathProvider
-import com.gee12.mytetroid.domain.provider.IStorageProvider
-import com.gee12.mytetroid.domain.usecase.record.GetRecordFolderUseCase
-import com.gee12.mytetroid.domain.usecase.record.MoveOrDeleteRecordFolderUseCase
-import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
-import com.gee12.mytetroid.domain.usecase.tag.DeleteRecordTagsUseCase
+import com.gee12.mytetroid.model.enums.TetroidObjectType
 
 /**
  * Удаление или вырезание ветки из родительской ветки.
  */
 class CutOrDeleteNodeUseCase(
-    private val context: Context,
     private val logger: ITetroidLogger,
     private val storageProvider: IStorageProvider,
-    private val recordPathProvider: IRecordPathProvider,
     private val favoritesManager: FavoritesManager,
+    private val scriptsManager: ScriptsManager,
     private val deleteRecordTagsUseCase: DeleteRecordTagsUseCase,
     private val getRecordFolderUseCase: GetRecordFolderUseCase,
     private val moveOrDeleteRecordFolderUseCase: MoveOrDeleteRecordFolderUseCase,
-    private val saveStorageUseCase: SaveStorageUseCase,
+    private val saveStorageTreeUseCase: SaveStorageTreeUseCase,
 ) : UseCase<UseCase.None, CutOrDeleteNodeUseCase.Params>() {
 
     data class Params(
@@ -51,7 +50,7 @@ class CutOrDeleteNodeUseCase(
         }
 
         // перезаписываем структуру хранилища в файл
-        return saveStorageUseCase.run()
+        return saveStorageTreeUseCase.run()
             .flatMap {
                 // удаление всех объектов ветки рекурсивно
                 deleteNodeRecursively(
@@ -69,6 +68,12 @@ class CutOrDeleteNodeUseCase(
         isCutting: Boolean,
         breakOnFsErrors: Boolean,
     ): Either<Failure, None> {
+
+        // удаляем скрипты, активные только для этой ветки
+        scriptsManager.deleteScriptToObject(
+            objectId = node.id,
+            objectTypeId = TetroidObjectType.NODE.id,
+        )
 
         if (node.recordsCount > 0) {
             for (record in node.records) {

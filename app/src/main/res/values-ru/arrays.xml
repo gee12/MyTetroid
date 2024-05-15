@@ -87,6 +87,11 @@
         <item>Свойства файла&#160;</item>
         <item>свойств файла</item>
     </string-array>
+    <string-array name="obj_script">
+        <item>скрипт</item>
+        <item>Скрипт&#160;</item>
+        <item>скрипта</item>
+    </string-array>
 
     <string-array name="oper_set">
         <item>установить</item>

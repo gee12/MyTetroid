@@ -2,16 +2,26 @@ package com.gee12.mytetroid.domain.repo
 
 import android.content.Context
 import com.gee12.mytetroid.database.TetroidDatabase
-import com.gee12.mytetroid.database.entity.FavoriteEntity
+import com.gee12.mytetroid.database.entity.FavoriteDbEntity
 import com.gee12.mytetroid.model.TetroidFavorite
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class FavoritesRepo(context: Context) {
-    val dataBase = TetroidDatabase.create(context)
+class FavoritesRepo(context: Context) : DbRepo() {
+
+    private val dataBase = TetroidDatabase.create(context)
 
     suspend fun getFavorites(storageId: Int) = withContext(Dispatchers.IO) {
         dataBase.favoritesDao.getAll(storageId).map(::toTetroidFavorite)
+    }
+
+    suspend fun addFavorite(storageId: Int, recordId: String): Boolean {
+        return addFavorite(
+            TetroidFavorite(
+                storageId = storageId,
+                objectId = recordId,
+            )
+        )
     }
 
     suspend fun addFavorite(favorite: TetroidFavorite, updateOrder: Boolean = true) = withContext(Dispatchers.IO) {
@@ -54,7 +64,7 @@ class FavoritesRepo(context: Context) {
         dataBase.favoritesDao.getMinOrder(storageId)
     }
 
-    private fun toTetroidFavorite(entity: FavoriteEntity) = TetroidFavorite(
+    private fun toTetroidFavorite(entity: FavoriteDbEntity) = TetroidFavorite(
         storageId = entity.storageId,
         objectId = entity.objectId,
         order = entity.order,

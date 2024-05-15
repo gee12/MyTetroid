@@ -18,6 +18,7 @@ import com.gee12.mytetroid.model.TetroidStorage
 class InitStorageUseCase(
     private val context: Context,
     private val favoritesManager: FavoritesManager,
+    private val getStorageTrashFolderUseCase: GetStorageTrashFolderUseCase,
 ) : UseCase<UseCase.None, InitStorageUseCase.Params>() {
 
     data class Params(
@@ -33,6 +34,14 @@ class InitStorageUseCase(
                 storage.isInited = false
             }.flatMap {
                 storage.isInited = true
+
+                // создаем каталог корзины, если нужно
+                getStorageTrashFolderUseCase.run(
+                    GetStorageTrashFolderUseCase.Params(
+                        storage = storage,
+                        isCreateIfNotExist = true,
+                    )
+                )
 
                 favoritesManager.initIfNeed()
 

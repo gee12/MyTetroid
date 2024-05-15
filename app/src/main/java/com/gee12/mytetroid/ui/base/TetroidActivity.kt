@@ -17,13 +17,17 @@ import androidx.core.view.isVisible
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import com.anggrayudi.storage.SimpleStorageHelper
+import com.anggrayudi.storage.file.DocumentFileCompat
+import com.anggrayudi.storage.file.DocumentFileType
 import com.anggrayudi.storage.file.FileFullPath
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.extensions.hideKeyboard
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.di.ScopeSource
+import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
+import com.gee12.mytetroid.domain.manager.InteractionManager
 import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 import com.gee12.mytetroid.domain.provider.IAppPathProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
@@ -35,6 +39,7 @@ import com.gee12.mytetroid.model.permission.TetroidPermission
 import com.gee12.mytetroid.ui.TetroidMessage
 import com.gee12.mytetroid.ui.about.AboutAppActivity
 import com.gee12.mytetroid.ui.base.views.ActivityDoubleTapListener
+import com.gee12.mytetroid.ui.file.FolderPickerActivity
 import com.gee12.mytetroid.ui.record.RecordActivity
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
@@ -54,6 +59,8 @@ abstract class TetroidActivity<VM : BaseViewModel>
     val settingsManager: CommonSettingsManager by inject()
     val appPathProvider: IAppPathProvider by inject()
     val buildInfoProvider: BuildInfoProvider by inject()
+    val interactionManager: InteractionManager by inject()
+    val failureHandler: IFailureHandler by inject()
     val logger: ITetroidLogger by inject()
 
     protected var receivedIntent: Intent? = null
@@ -301,36 +308,45 @@ abstract class TetroidActivity<VM : BaseViewModel>
     //override fun onFileCreated(requestCode: Int, file: DocumentFile) {}
 
     // TODO: в отдельный FileStorageManager или TetroidActivityComponent (для android-зависимой логики)
+    /**
+     * @param filterMimeTypes пример: [com.anggrayudi.storage.file.MimeType]
+     */
     fun openFilePicker(
         requestCode: PermissionRequestCode,
         allowMultiple: Boolean = false,
         initialPath: String? = null,
         filterMimeTypes: Array<String> = emptyArray(),
     ) {
-        // в Android 4.4 при использовании сущуствующего пути file:///storage/sdcard/... диалог SAF отображает "This folder's empty!"
-        val path = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-            initialPath ?: settingsManager.getLastSelectedFolderPathOrDefault(true)
-        } else {
-            null
-        }
-        try {
-            fileStorageHelper?.openFilePicker(
-                requestCode = requestCode.code,
-                allowMultiple = allowMultiple,
-                initialPath = path?.let { FileFullPath(this, fullPath = it) },
-                filterMimeTypes = filterMimeTypes,
+        if (Build.VERSION.SDK_INT < 21) {
+            openCustomFileOrFolderPicker(
+                requestCode = requestCode,
+                initialPath = initialPath,
+                isPickFile = true,
+                forStorageFolder = false,
+                isNeedEmptyFolder = false,
+                isNeedCheckFolderWritePermission = false,
             )
-        } catch (ex: Exception) {
+        } else {
+            val path = initialPath ?: settingsManager.getLastSelectedFolderPathOrDefault(forWrite = true)
             try {
                 fileStorageHelper?.openFilePicker(
                     requestCode = requestCode.code,
                     allowMultiple = allowMultiple,
-                    initialPath = null,
+                    initialPath = path?.let { FileFullPath(this, fullPath = it) },
                     filterMimeTypes = filterMimeTypes,
                 )
-                viewModel.logWarning(getString(R.string.error_incorrent_initial_path_for_picker_mask, initialPath), show = false)
             } catch (ex: Exception) {
-                viewModel.logError(getString(R.string.error_open_file_folder_picker), show = true)
+                try {
+                    fileStorageHelper?.openFilePicker(
+                        requestCode = requestCode.code,
+                        allowMultiple = allowMultiple,
+                        initialPath = null,
+                        filterMimeTypes = filterMimeTypes,
+                    )
+                    viewModel.logWarning(getString(R.string.error_incorrent_initial_path_for_picker_mask, initialPath), show = false)
+                } catch (ex: Exception) {
+                    viewModel.logError(getString(R.string.error_open_file_folder_picker), show = true)
+                }
             }
         }
     }
@@ -339,29 +355,59 @@ abstract class TetroidActivity<VM : BaseViewModel>
     fun openFolderPicker(
         requestCode: PermissionRequestCode,
         initialPath: String? = null,
+        forStorageFolder: Boolean = false,
+        isNeedEmptyFolder: Boolean = false,
+        isNeedCheckFolderWritePermission: Boolean = false,
     ) {
-        // в Android 4.4 при использовании сущуствующего пути file:///storage/sdcard/... диалог SAF отображает "This folder's empty!"
-        val path = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT) {
-            initialPath ?: settingsManager.getLastSelectedFolderPathOrDefault(true)
-        } else {
-            null
-        }
-        try {
-            fileStorageHelper?.openFolderPicker(
-                requestCode = requestCode.code,
-                initialPath = path?.let { FileFullPath(this, fullPath = it) },
+        if (Build.VERSION.SDK_INT < 21) {
+            openCustomFileOrFolderPicker(
+                requestCode = requestCode,
+                initialPath = initialPath,
+                isPickFile = false,
+                forStorageFolder = forStorageFolder,
+                isNeedEmptyFolder = isNeedEmptyFolder,
+                isNeedCheckFolderWritePermission = isNeedCheckFolderWritePermission,
             )
-        } catch (ex: Exception) {
+        } else {
+            val path = initialPath ?: settingsManager.getLastSelectedFolderPathOrDefault(forWrite = true)
             try {
                 fileStorageHelper?.openFolderPicker(
                     requestCode = requestCode.code,
-                    initialPath = null,
+                    initialPath = path?.let { FileFullPath(this, fullPath = it) },
                 )
-                viewModel.logWarning(getString(R.string.error_incorrent_initial_path_for_picker_mask, initialPath), show = false)
             } catch (ex: Exception) {
-                viewModel.logError(getString(R.string.error_open_file_folder_picker), show = true)
+                try {
+                    fileStorageHelper?.openFolderPicker(
+                        requestCode = requestCode.code,
+                        initialPath = null,
+                    )
+                    viewModel.logWarning(getString(R.string.error_incorrent_initial_path_for_picker_mask, initialPath), show = false)
+                } catch (ex: Exception) {
+                    viewModel.logError(getString(R.string.error_open_file_folder_picker), show = true)
+                }
             }
         }
+    }
+
+    private fun openCustomFileOrFolderPicker(
+        requestCode: PermissionRequestCode,
+        initialPath: String?,
+        isPickFile: Boolean,
+        forStorageFolder: Boolean,
+        isNeedEmptyFolder: Boolean,
+        isNeedCheckFolderWritePermission: Boolean,
+    ) {
+        val desc = resourcesProvider.getString(R.string.title_storage_path_desc).takeIf { forStorageFolder }
+
+        FolderPickerActivity.start(
+            activity = this,
+            initialPath = initialPath,
+            description = desc,
+            isNeedEmptyFolder = isNeedEmptyFolder,
+            isPickFile = isPickFile,
+            requestCode = requestCode.code,
+            isNeedCheckFolderWritePermission = isNeedCheckFolderWritePermission,
+        )
     }
 
     // endregion File
@@ -481,12 +527,36 @@ abstract class TetroidActivity<VM : BaseViewModel>
     /**
      * Обработчик результата активити.
      */
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        // TODO: ?
-        // разрешение на запись в память на Android 11 запрашивается с помощью Intent
-        if (requestCode == PermissionRequestCode.OPEN_STORAGE_FOLDER.code) {
+        if (Build.VERSION.SDK_INT < 21 && data?.hasExtra(FolderPickerActivity.EXTRA_PATH) == true) {
+            val path = data.getStringExtra(FolderPickerActivity.EXTRA_PATH).orEmpty()
+            val isPickedFile = data.getBooleanExtra(FolderPickerActivity.EXTRA_IS_PICK_FILES, false)
+
+            // сохраняем путь
+            settingsManager.setLastSelectedFolderPath(path = path)
+
+            DocumentFileCompat.fromFullPath(
+                context = this,
+                fullPath = path,
+                documentType = if (isPickedFile) DocumentFileType.FILE else DocumentFileType.FOLDER,
+                requiresWriteAccess = true,
+            )?.also { documentFile ->
+                if (isPickedFile) {
+                    onFileSelected(requestCode, listOf(documentFile))
+                } else {
+                    if (requestCodeForStorageAccess?.code == requestCode) {
+                        onStorageAccessGranted(requestCode, documentFile)
+                    } else {
+                        onFolderSelected(requestCode, documentFile)
+                    }
+                }
+            }
+        } else if (requestCode == PermissionRequestCode.OPEN_STORAGE_FOLDER.code) {
+            // TODO: ?
+            // разрешение на запись в память на Android 11 запрашивается с помощью Intent
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 val isGranted = (viewModel.permissionManager.hasWriteExtStoragePermission(this))
                 onRequestPermissionsResult(

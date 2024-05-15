@@ -45,10 +45,6 @@ class IconsViewModel(
 
     lateinit var nodeId: String
 
-    override fun startInitStorageFromBase(storageId: Int) {}
-
-    override fun isStorageEncrypted() = storageProvider.isExistCryptedNodes()
-
     fun init(nodeId: String, currentIconPath: String) {
         this.nodeId = nodeId
 

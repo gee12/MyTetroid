@@ -122,14 +122,6 @@ public class TetroidRecord extends TetroidObject {
         return mTags;
     }
 
-    /**
-     * Получение признака, что запись не зашифрована.
-     * @return True, если не зашифровано, или уже расшифровано.
-     */
-    public boolean isNonCryptedOrDecrypted() {
-        return (!isCrypted || isDecrypted);
-    }
-
     public void setTagsString(String tagsString) {
         this.mTagsString = tagsString;
     }

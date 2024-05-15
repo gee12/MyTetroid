@@ -139,6 +139,8 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment(), ITetroidFi
         settingsActivity?.openFolderPicker(
             requestCode = PermissionRequestCode.CHANGE_STORAGE_FOLDER,
             initialPath = viewModel.storageFolder?.uri?.toString(),
+            forStorageFolder = true,
+            isNeedCheckFolderWritePermission = true,
         )
     }
 
@@ -195,7 +197,7 @@ class StorageMainSettingsFragment : TetroidStorageSettingsFragment(), ITetroidFi
                     },
                 )
             },
-        ).showIfPossible(parentFragmentManager)
+        ).showIfPossibleAndNeeded(parentFragmentManager)
     }
 
     override fun onUpdateStorageFieldEvent(key: String, value: String) {

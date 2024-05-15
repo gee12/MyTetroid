@@ -1,11 +1,11 @@
 package com.gee12.mytetroid.ui.dialogs.record
 
-import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.text.InputType
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import com.gee12.mytetroid.BuildConfig
 import com.gee12.mytetroid.R
@@ -44,7 +44,7 @@ class RecordFieldsDialog(
 
     private lateinit var etName: EditText
     private lateinit var etNode: EditText
-    private lateinit var layoutNode: RelativeLayout
+    private lateinit var layoutNode: ConstraintLayout
 
     private var recordNode: TetroidNode? = null
     private var selectedNode: TetroidNode? = null
@@ -71,7 +71,6 @@ class RecordFieldsDialog(
         val bNode = dialogView.findViewById<ImageButton>(R.id.button_node)
         val ctvFavor = dialogView.findViewById<CheckedTextView>(R.id.check_box_favor)
 
-        @SuppressLint("SetTextI18n")
         if (BuildConfig.DEBUG && record == null) {
             val rand = Random()
             val num = abs(rand.nextInt())
@@ -139,7 +138,7 @@ class RecordFieldsDialog(
                             }
                         }
                     },
-                ).showIfPossible(parentFragmentManager)
+                ).showIfPossibleAndNeeded(parentFragmentManager)
             }
 
             etNode.setOnClickListener(clickListener)

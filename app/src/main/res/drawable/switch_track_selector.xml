@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/switch_track_checked_enabled"
+        android:state_enabled="true"
+        android:state_checked="true" />
+    <item android:color="@color/switch_track_unchecked_enabled"
+        android:state_enabled="true"
+        android:state_checked="false" />
+
+    <item android:color="@color/switch_track_checked_disabled"
+        android:state_enabled="false"
+        android:state_checked="true" />
+    <item android:color="@color/switch_track_unchecked_disabled"
+        android:state_enabled="false"
+        android:state_checked="false"/>
+</selector>

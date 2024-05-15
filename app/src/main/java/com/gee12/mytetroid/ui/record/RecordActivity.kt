@@ -5,7 +5,7 @@ import android.app.Activity
 import android.app.SearchManager
 import android.content.Intent
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
+import android.graphics.PointF
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -25,28 +25,31 @@ import android.widget.*
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.SearchView
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.isVisible
 import androidx.documentfile.provider.DocumentFile
 import androidx.lifecycle.lifecycleScope
 import com.anggrayudi.storage.file.getAbsolutePath
 import com.anggrayudi.storage.file.mimeType
 import com.anggrayudi.storage.file.openInputStream
+import com.gee12.htmlwysiwygeditor.*
+import com.gee12.htmlwysiwygeditor.EditableWebView.*
 import com.gee12.htmlwysiwygeditor.enums.ActionState
-import com.gee12.htmlwysiwygeditor.IImagePicker
-import com.gee12.htmlwysiwygeditor.INetworkWorker
-import com.gee12.htmlwysiwygeditor.IVoiceInputListener
+import com.gee12.htmlwysiwygeditor.model.ImageParams
 import com.gee12.mytetroid.App
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
-import com.gee12.mytetroid.common.extensions.focusAndShowKeyboard
-import com.gee12.mytetroid.common.extensions.fromHtml
-import com.gee12.mytetroid.common.extensions.hideKeyboard
+import com.gee12.mytetroid.common.extensions.*
+import com.gee12.mytetroid.common.onSuccess
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.TetroidClipboardListener
 import com.gee12.mytetroid.domain.provider.TetroidSuggestionProvider
+import com.gee12.mytetroid.domain.usecase.html.CreateTagsHtmlStringUseCase
+import com.gee12.mytetroid.logs.LogType
+import com.gee12.mytetroid.logs.Message
 import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
@@ -63,20 +66,13 @@ import com.gee12.mytetroid.ui.dialogs.record.RecordFieldsDialog
 import com.gee12.mytetroid.ui.dialogs.record.RecordInfoDialog
 import com.gee12.mytetroid.ui.dialogs.storage.StorageDialogs
 import com.gee12.mytetroid.ui.record.TetroidEditor.IEditorListener
-import com.gee12.mytetroid.ui.settings.SettingsActivity
+import com.gee12.mytetroid.ui.scripts.ScriptsActivity
 import com.gee12.mytetroid.ui.splash.SplashActivity
 import com.gee12.mytetroid.ui.storage.StorageEvent
 import com.gee12.mytetroid.ui.storage.info.StorageInfoActivity.Companion.start
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.jaredrummler.android.colorpicker.ColorPickerDialog
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener
-import com.gee12.htmlwysiwygeditor.IColorPicker
-import com.gee12.htmlwysiwygeditor.EditableWebView.*
-import com.gee12.htmlwysiwygeditor.WysiwygEditor
-import com.gee12.htmlwysiwygeditor.model.ImageParams
-import com.gee12.mytetroid.common.extensions.showForcedWithIcons
-import com.gee12.mytetroid.common.onSuccess
-import com.gee12.mytetroid.domain.usecase.html.CreateTagsHtmlStringUseCase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.cachapa.expandablelayout.ExpandableLayout
@@ -87,7 +83,7 @@ import java.util.*
  */
 class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     IPageLoadListener, 
-    ILinkLoadListener, 
+    ILinkListener,
     IHtmlReceiveListener, 
     IImagePicker,
     IColorPicker,
@@ -111,6 +107,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     private lateinit var mButtonFindPrev: FloatingActionButton
     private lateinit var mFindListener: TextFindListener
     private lateinit var mSearchView: SearchView
+    private var lastTouchPoint: PointF? = null
     private var recordFieldsDialog: RecordFieldsDialog? = null
     private var voiceSpeechDialog: VoiceSpeechDialog? = null
     private val syncObject = Object()
@@ -150,6 +147,9 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             return
         } else {
             viewModel.init(intent)
+
+            val recordName = intent.getStringExtra(Constants.EXTRA_RECORD_NAME)
+            title = recordName
         }
 
         activityComponent = RecordActivityComponent(
@@ -170,7 +170,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
         val webView = editor.webView
         webView.setOnTouchListener(this)
-        webView.urlLoadListener = this
+        webView.linkListener = this
         webView.htmlReceiveListener = this
         webView.clipboardListener = TetroidClipboardListener(this)
         webView.loadContentListener = { uri ->
@@ -278,6 +278,13 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         }
     }
 
+    override fun onTouch(v: View, event: MotionEvent): Boolean {
+        if (event.actionMasked == MotionEvent.ACTION_DOWN) {
+            lastTouchPoint = PointF(event.x, event.y)
+        }
+        return super.onTouch(v, event)
+    }
+
     // endregion Lifecycle
 
     // region Events
@@ -352,6 +359,15 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             RecordEvent.LoadRecordTextFromHtml -> {
                 loadRecordTextFromHtmlEditor()
             }
+            is RecordEvent.UserJSScript.Loaded -> {
+                loadUserJSScript(event.scriptText)
+            }
+            is RecordEvent.UserJSScript.LoadedAll -> {
+                // вызываем событие, когда загрузили текст заметки, editor.js и скрипты
+                lifecycleScope.launch {
+                    editor.webView.onAfterLoadHtmlContent()
+                }
+            }
             is RecordEvent.AskForLoadAllNodes -> {
                 AskDialogs.showYesDialog(
                     context = this,
@@ -392,6 +408,15 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             }
             RecordEvent.StartCaptureCamera -> {
                 showProgress(getString(R.string.state_camera_capturing))
+            }
+            is RecordEvent.OpenRecordFolder -> {
+                openRecordFolder(uri = event.uri)
+            }
+            is RecordEvent.OpenImageFile -> {
+                openImageFile(
+                    uri = event.uri,
+                    mimeType = event.mimeType,
+                )
             }
             RecordEvent.StartLoadImages -> {
                 showProgress(getString(R.string.state_images_loading))
@@ -579,6 +604,22 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         )
     }
 
+    private fun onStorageChanged(data: Intent) {
+        if (viewModel.isStorageLoaded()) {
+            // спрашиваем о перезагрузке хранилище, только если оно уже загружено
+            val isCreate = data.getBooleanExtra(Constants.EXTRA_IS_CREATE_STORAGE, false)
+            StorageDialogs.showReloadStorageDialog(
+                context = this,
+                toCreate = isCreate,
+                pathChanged = true,
+                onApply = {
+                    // перезагружаем хранилище в главной активности, если изменили путь,
+                    activityComponent.finishWithResult(Constants.RESULT_REINIT_STORAGE, data.extras)
+                },
+            )
+        }
+    }
+
     // endregion Storage
 
     // region Open record
@@ -644,9 +685,9 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         val created = record.created
         tvCreated.text = if (created != null) Utils.dateToString(created, dateFormat) else ""
         if (viewModel.buildInfoProvider.isFullVersion()) {
-            findViewById<View>(R.id.label_record_edited).visibility = View.VISIBLE
+            findViewById<View>(R.id.label_record_edited).isVisible = true
             val tvEdited = findViewById<TextView>(R.id.text_view_record_edited)
-            tvEdited.visibility = View.VISIBLE
+            tvEdited.isVisible = true
 
             //TODO: использовать события вместо корутины
             lifecycleScope.launch {
@@ -662,8 +703,23 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
      * Загрузка html-кода записи из редактора html-кода (fromHtmlEditor) в WebView.
      */
     private fun loadRecordTextFromHtmlEditor() {
-        val textHtml = mEditTextHtml.text.toString()
-        loadRecordText(textHtml)
+        val html = mEditTextHtml.text.toString()
+
+        // FIXME: перед применением изменений сырого html нужно сохранить состояние,
+        //  чтобы работало undo/redo
+        //  Способы:
+        //  1) вызвать saveCurrentStateToHistory() и перезагрузить страницу loadDataWithBaseURL().
+        //   Проблема: после перезагрузки всей страницы ерезагружается и JS вместе с историей изменений
+        editor.webView.saveCurrentStateToHistory()
+        loadRecordText(html)
+
+        //  2) заменить только innerHTML безе перезагрузки всей страницы и JS.
+        //   Проблема 1: не работает отправка голового html в JS, нужно экранирование или кодирование спецсимволов
+        //   Проблема 2: нужно все равно добавить сохранение html в файл записи, если включено автосохранение
+        //editor.webView.setHtmlContent(html)
+        //switchEditorMode(EditorMode.EDIT, isLoadJSEngine = false)
+        // или для автосохранения
+        //viewModel.switchMode(EditorMode.EDIT)
     }
 
     private fun loadRecordText(textHtml: String) {
@@ -711,12 +767,24 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         viewModel.onEditorJSLoaded(intent)
     }
 
+    override fun onLoadUserJSScripts() {
+        viewModel.loadUserJSScripts()
+    }
+
+    private fun loadUserJSScript(scriptText: String) {
+        editor.webView.execJavascript(scriptText)
+    }
+
     override fun onIsEditedChanged(isEdited: Boolean) {
         viewModel.setTextIsEdited(isEdited)
     }
 
     override fun onEditImage(params: ImageParams) {
         viewModel.getImageDimensions(params)
+    }
+
+    override fun onShowMessage(message: String) {
+        showMessage(Message(message, LogType.INFO))
     }
 
     /**
@@ -727,6 +795,9 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             // если этот метод был вызван в результате запроса isCalledHtmlRequest, то:
             editor.setHtmlRequestHandled()
             viewModel.onHtmlRequestHandled()
+            lifecycleScope.launch {
+                editor.webView.onAfterLoadHtmlContent()
+            }
         } else {
             // метод вызывается в параллельном потоке, поэтому устанавливаем текст в основном
             lifecycleScope.launch {
@@ -743,15 +814,40 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     /**
      * Открытие ссылки в тексте.
      */
-    override fun onLinkLoad(url: String): Boolean {
+    override fun onLinkLoaded(url: String): Boolean {
         val baseUrl = editor.webView.baseUrl
         viewModel.onLinkLoad(url, baseUrl)
         return true
     }
 
-    override fun onYoutubeLinkLoad(videoId: String) {
+    override fun onYoutubeLinkLoaded(videoId: String) {
         val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=$videoId"))
         startActivity(webIntent)
+    }
+
+    override fun onSelectedTextForNewLinkLoaded(text: String) {
+        lifecycleScope.launch {
+            editor.showLinkDialog(
+                isEdit = false,
+                link = null,
+                title = text,
+                withTitle = true,
+            )
+        }
+    }
+
+    override fun onSelectedLinkParamsLoaded(url: String, title: String) {
+        val baseUrl = editor.webView.baseUrl.orEmpty()
+        val linkWithoutBaseUrl = url.trimStartSubstring(baseUrl)
+
+        lifecycleScope.launch {
+            editor.showLinkDialog(
+                isEdit = true,
+                link = linkWithoutBaseUrl,
+                title = title,
+                withTitle = true,
+            )
+        }
     }
 
     private fun openWebLink(url: String) {
@@ -797,6 +893,14 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     // endregion ColorPicker
 
     // region Image
+
+    private fun openImageFile(uri: Uri, mimeType: String) {
+        interactionManager.openFile(
+            activity = this,
+            uri = uri,
+            mimeType = mimeType,
+        )
+    }
 
     override fun startPicker() {
         imagePicker.startPicker()
@@ -864,24 +968,21 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         //viewModel.logDebug("switchViews: mode=$newMode")
         when (newMode) {
             EditorMode.VIEW -> {
-                editor.visibility = View.VISIBLE
+                editor.isVisible = true
                 editor.setToolBarVisibility(false)
-                mScrollViewHtml.visibility = View.GONE
+                mScrollViewHtml.isVisible = false
                 setRecordFieldsVisibility(true)
+                editor.webView.loadEditorJSEngine(isMakeHtmlRequest = false)
                 editor.setEditMode(false)
                 editor.setScrollButtonsVisibility(true)
                 setSubtitle(getString(R.string.subtitle_record_view))
                 editor.webView.hideKeyboard()
             }
             EditorMode.EDIT -> {
-                editor.visibility = View.VISIBLE
-                // загружаем Javascript (если нужно)
-//                if (!mEditor.getWebView().isEditorJSLoaded()) {
-//                    setProgressVisibility(true);
-//                }
-                editor.webView.loadEditorJSScript(false)
+                editor.isVisible = true
+                editor.webView.loadEditorJSEngine(isMakeHtmlRequest = false)
                 editor.setToolBarVisibility(true)
-                mScrollViewHtml.visibility = View.GONE
+                mScrollViewHtml.isVisible = false
                 setRecordFieldsVisibility(false)
                 editor.setEditMode(true)
                 editor.setScrollButtonsVisibility(false)
@@ -890,17 +991,16 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 editor.webView.focusAndShowKeyboard()
             }
             EditorMode.HTML -> {
-                editor.visibility = View.GONE
+                editor.isVisible = false
                 if (editor.webView.isHtmlRequestMade) {
                     val htmlText = editor.webView.editableHtml
                     mEditTextHtml.setText(htmlText)
                 } else {
                     setEditorProgressVisibility(true)
                     // загружаем Javascript (если нужно), и затем делаем запрос на html-текст
-                    editor.webView.loadEditorJSScript(true)
+                    editor.webView.loadEditorJSEngine(isMakeHtmlRequest = true)
                 }
-                //                mEditor.getWebView().makeEditableHtmlRequest();
-                mScrollViewHtml.visibility = View.VISIBLE
+                mScrollViewHtml.isVisible = true
                 setRecordFieldsVisibility(false)
                 setSubtitle(getString(R.string.subtitle_record_html))
                 mEditTextHtml.focusAndShowKeyboard()
@@ -933,7 +1033,9 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
      * Выполнение кода продолжиться в функции onReceiveEditableHtml().
      */
     private fun onBeforeSavingAsync() {
-        editor.beforeSaveAsync(true)
+        editor.beforeSaveAsync(
+            isDeleteStyleEmpty = CommonSettings.isFixEmptyParagraphs(this),
+        )
     }
 
     private fun saveRecord(resultObj: ResultObject) {
@@ -967,6 +1069,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         openFolderPicker(
             requestCode = PermissionRequestCode.EXPORT_PDF,
             initialPath = appPathProvider.getPathToDownloadsFolder(),
+            isNeedCheckFolderWritePermission = true,
         )
     }
 
@@ -997,8 +1100,8 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             context = this,
             message = getString(R.string.ask_open_exported_pdf, pdfFile.getAbsolutePath(this)),
             onApply = {
-                viewModel.interactionManager.openFile(
-                    context = this,
+                interactionManager.openFile(
+                    activity = this,
                     uri = pdfFile.uri,
                     mimeType = "application/pdf"
                 )
@@ -1023,7 +1126,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         RecordInfoDialog(
             viewModel.curRecord.value!!,
             viewModel.getStorageId()
-        ).showIfPossible(supportFragmentManager)
+        ).showIfPossibleAndNeeded(supportFragmentManager)
     }
 
     // endregion Options record
@@ -1108,32 +1211,26 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == Constants.REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY) {
-            if (data != null) {
-                if (data.getBooleanExtra(Constants.EXTRA_IS_REINIT_STORAGE, false)) {
+        when (requestCode) {
+            Constants.REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY -> {
+                if (data?.getBooleanExtra(Constants.EXTRA_IS_REINIT_STORAGE, false) == true) {
                     // хранилище изменено
-                    if (viewModel.isStorageLoaded()) {
-                        // спрашиваем о перезагрузке хранилище, только если оно уже загружено
-                        val isCreate = data.getBooleanExtra(Constants.EXTRA_IS_CREATE_STORAGE, false)
-                        StorageDialogs.showReloadStorageDialog(
-                            context = this,
-                            toCreate = isCreate,
-                            pathChanged = true,
-                            onApply = {
-                                // перезагружаем хранилище в главной активности, если изменили путь,
-                                activityComponent.finishWithResult(Constants.RESULT_REINIT_STORAGE, data.extras)
-                            },
-                        )
-                    }
-                } else if (data.getBooleanExtra(Constants.EXTRA_IS_PASS_CHANGED, false)) {
+                    onStorageChanged(data)
+                } else if (data?.getBooleanExtra(Constants.EXTRA_IS_PASS_CHANGED, false) == true) {
                     // пароль изменен
                     activityComponent.finishWithResult(Constants.RESULT_PASS_CHANGED, data.extras)
                 }
             }
-        } else if (requestCode == Constants.REQUEST_CODE_COMMON_SETTINGS_ACTIVITY) {
-            // не гасим экран, если установили опцию
-            checkKeepScreenOn(this)
-            editor.onSettingsChanged()
+            Constants.REQUEST_CODE_COMMON_SETTINGS_ACTIVITY -> {
+                // не гасим экран, если установили опцию
+                checkKeepScreenOn(this)
+                editor.onSettingsChanged()
+            }
+            Constants.REQUEST_CODE_SCRIPTS_ACTIVITY -> {
+                if (data?.getBooleanExtra(ScriptsActivity.EXTRA_IS_SCRIPTS_CHANGED, false) == true) {
+                    viewModel.saveAndReloadText()
+                }
+            }
         }
     }
 
@@ -1181,11 +1278,16 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         val isLoadedFavoritesOnly = viewModel.isLoadedFavoritesOnly()
         val isTemp = viewModel.isRecordTemporary()
         activateMenuItem(menu.findItem(R.id.action_record_edit_fields), isLoaded && !isLoadedFavoritesOnly, !isTemp)
+        activateMenuItem(menu.findItem(R.id.action_reload_record), isLoaded && !isLoadedFavoritesOnly, !isTemp)
         activateMenuItem(menu.findItem(R.id.action_record_node), isLoaded && !isLoadedFavoritesOnly, !isTemp)
         activateMenuItem(menu.findItem(R.id.action_delete), isLoaded && !isLoadedFavoritesOnly, !isTemp)
         activateMenuItem(menu.findItem(R.id.action_attached_files), isLoaded, !isTemp)
         activateMenuItem(menu.findItem(R.id.action_cur_record_folder), true, !isTemp)
         activateMenuItem(menu.findItem(R.id.action_info), isLoaded, !isTemp)
+        menu.findItem(R.id.action_scripts)?.apply {
+            isVisible = buildInfoProvider.isFullVersion()
+            isEnabled = isLoaded
+        }
         menu.findItem(R.id.action_storage_settings)?.setEnabled(isLoaded)
         return super.onPrepareOptionsMenu(menu)
     }
@@ -1233,149 +1335,138 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
      * Обработчик выбора пунктов системного меню.
      */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
-        when (id) {
+        return when (item.itemId) {
             R.id.action_record_view -> {
                 viewModel.switchMode(EditorMode.VIEW)
-                return true
+                true
             }
             R.id.action_record_edit -> {
                 viewModel.switchMode(EditorMode.EDIT)
-                return true
+                true
             }
             R.id.action_record_html -> {
                 viewModel.switchMode(EditorMode.HTML)
-                return true
+                true
             }
             R.id.action_record_save -> {
                 viewModel.saveRecord(resultObj = ResultObject.None)
-                return true
+                true
             }
             R.id.action_record_edit_fields -> {
                 showEditFieldsDialog(resultObj = null)
-                return true
+                true
+            }
+            R.id.action_reload_record -> {
+                viewModel.saveAndReloadText()
+                true
             }
             R.id.action_record_node -> {
                 viewModel.showRecordNode()
-                return true
+                true
             }
             R.id.action_attached_files -> {
                 viewModel.openRecordAttaches()
-                return true
+                true
             }
             R.id.action_cur_record_folder -> {
-                viewModel.openRecordFolder(activity = this)
-                return true
+                viewModel.openRecordFolder()
+                true
             }
             R.id.action_share -> {
                 shareRecord()
-                return true
+                true
             }
             R.id.action_export_pdf -> {
                 selectFolderToExportPdf()
-                return true
+                true
             }
             R.id.action_delete -> {
                 deleteRecord()
-                return true
+                true
             }
             R.id.action_info -> {
                 showRecordInfoDialog()
-                return true
+                true
             }
             R.id.action_fullscreen -> {
                 toggleFullscreen(false)
-                return true
+                true
+            }
+            R.id.action_scripts -> {
+                showScriptsActivity(obj = viewModel.curRecord.value)
+                true
             }
             R.id.action_storage_settings -> {
-                showStorageSettingsActivity(viewModel.storage)
+                viewModel.storage?.also {
+                    showStorageSettingsActivity(storage = it)
+                }
+                true
             }
             R.id.action_settings -> {
-                showActivityForResult(SettingsActivity::class.java, Constants.REQUEST_CODE_COMMON_SETTINGS_ACTIVITY)
-                return true
+                showSettingsActivity()
+                true
             }
             R.id.action_storage_info -> {
                 start(this, viewModel.getStorageId())
-                return true
+                true
             }
             android.R.id.home -> {
-                return !viewModel.isCanGoHome()
+                !viewModel.isCanGoHome()
+            }
+            else -> {
+                super.onOptionsItemSelected(item)
             }
         }
-        return super.onOptionsItemSelected(item)
     }
     
     // endregion Options menu
 
     // region Context menu
 
-override fun onCreateContextMenu(menu: ContextMenu, view: View, menuInfo: ContextMenu.ContextMenuInfo?) {
-    super.onCreateContextMenu(menu, view, menuInfo)
+    override fun onCreateContextMenu(menu: ContextMenu, view: View, menuInfo: ContextMenu.ContextMenuInfo?) {
+        super.onCreateContextMenu(menu, view, menuInfo)
 
-    val result = editor.webView.hitTestResult
-    when (result.type) {
-        WebView.HitTestResult.IMAGE_TYPE,
-        WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE -> {
-            if (viewModel.editorMode == EditorMode.EDIT) {
-                showEditImagePopupMenu(view)
+        val result = editor.webView.hitTestResult
+        val imageFileName = result.extra.orEmpty()
+        when (result.type) {
+            WebView.HitTestResult.IMAGE_TYPE,
+            WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE -> {
+                showImagePopupMenu(view, imageFileName)
             }
         }
     }
-}
 
     @SuppressLint("RestrictedApi")
-    private fun showEditImagePopupMenu(anchorView: View) {
-        val popupMenu = PopupMenu(this, anchorView, Gravity.CENTER_VERTICAL)
+    private fun showImagePopupMenu(anchorView: View, imageFileName: String) {
+        val (popupMenu,view) = lastTouchPoint?.let {
+            val rootView = findViewById<CoordinatorLayout>(R.id.layout_coordinator)
+            val view = rootView.addEmptyViewAt(x = it.x, y = it.y)
+
+            PopupMenu(this, view, Gravity.CENTER_VERTICAL).also { popupMenu ->
+                popupMenu.setOnDismissListener {
+                    rootView.removeView(view)
+                }
+            } to view
+        } ?: (PopupMenu(this, anchorView, Gravity.CENTER_VERTICAL) to anchorView)
+
         popupMenu.inflate(R.menu.web_view_context)
+        val menu = popupMenu.menu
+        menu.findItem(R.id.action_edit_image)?.setVisible(viewModel.isEditMode())
+
         popupMenu.setOnMenuItemClickListener { item ->
             when (item.itemId) {
+                R.id.action_open_image -> {
+                    viewModel.openImage(imageFileName)
+                    true
+                }
                 R.id.action_edit_image -> {
-                    editor.webView.getImage()
+                    editor.webView.getImageParams()
                     true
                 }
                 else -> false
             }
         }
-        (popupMenu.menu as MenuBuilder).showForcedWithIcons(anchorView)
-    }
-    /**
-     *
-     */
-    private fun createPopupWindow(anchorView: View, contentViewId: Int): PopupWindow {
-        val popupView = layoutInflater.inflate(contentViewId, null).apply {
-            measure(
-                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-            )
-        }
-        val popupWindow = PopupWindow(
-            popupView,
-            RelativeLayout.LayoutParams.WRAP_CONTENT, WindowManager.LayoutParams.WRAP_CONTENT
-        )
-        popupWindow.isFocusable = false // если true - не будет кликабельно все вокруг popup
-        popupWindow.isOutsideTouchable = true // true - клик за пределами popup закрывает его
-        // (в Android 4.4 не работает)
-        popupWindow.setBackgroundDrawable(ColorDrawable()) // чтобы заработал setOutsideTouchable()
-        popupWindow.animationStyle = -1 // -1 - генерация анимации, 0 - отключить анимацию
-        val xOffset = 0
-        val yOffset = 36
-        if (Build.VERSION.SDK_INT < 24) {
-            popupWindow.showAsDropDown(
-                anchorView,
-                xOffset,
-                -anchorView.measuredHeight - popupView.measuredHeight + yOffset
-            )
-        } else {
-            val location = IntArray(2)
-            anchorView.getLocationInWindow(location)
-            popupWindow.showAtLocation(
-                window.decorView,
-                Gravity.NO_GRAVITY,
-                location[0] + xOffset,
-                location[1] - anchorView.measuredHeight + yOffset
-            )
-        }
-        return popupWindow
+        (popupMenu.menu as MenuBuilder).showForcedWithIcons(view)
     }
 
     // endregion Context menu
@@ -1407,7 +1498,7 @@ override fun onCreateContextMenu(menu: ContextMenu, view: View, menuInfo: Contex
                 )
             }
         ).apply {
-            showIfPossible(supportFragmentManager)
+            showIfPossibleAndNeeded(supportFragmentManager)
         }
     }
 
@@ -1450,10 +1541,10 @@ override fun onCreateContextMenu(menu: ContextMenu, view: View, menuInfo: Contex
      */
     private fun setRecordFieldsVisibility(isVisible: Boolean) {
         if (isVisible) {
-            mFieldsExpanderLayout.visibility = View.VISIBLE
+            mFieldsExpanderLayout.isVisible = true
             mButtonToggleFields.show()
         } else {
-            mFieldsExpanderLayout.visibility = View.GONE
+            mFieldsExpanderLayout.isVisible = false
             mButtonToggleFields.hide()
         }
     }
@@ -1559,7 +1650,7 @@ override fun onCreateContextMenu(menu: ContextMenu, view: View, menuInfo: Contex
                 stopVoiceInput()
             }
         ).also {
-            it.showIfPossible(supportFragmentManager)
+            it.showIfPossibleAndNeeded(supportFragmentManager)
         }
     }
 
@@ -1671,6 +1762,13 @@ override fun onCreateContextMenu(menu: ContextMenu, view: View, menuInfo: Contex
                 "utf-8",
                 file.openInputStream(this)
             )
+        }
+    }
+
+    private fun openRecordFolder(uri: Uri) {
+        if (!interactionManager.openFolder(activity = this, uri = uri)) {
+            Utils.writeToClipboard(this, resourcesProvider.getString(R.string.title_record_folder_uri), uri.toString())
+            showMessage(R.string.log_missing_file_manager)
         }
     }
 

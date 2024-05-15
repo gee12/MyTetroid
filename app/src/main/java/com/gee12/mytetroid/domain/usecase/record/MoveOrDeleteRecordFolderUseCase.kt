@@ -9,6 +9,7 @@ import com.gee12.mytetroid.domain.usecase.file.MoveFileOrFolderUseCase
 import com.gee12.mytetroid.domain.provider.IDataNameProvider
 import com.gee12.mytetroid.domain.provider.IStoragePathProvider
 import com.gee12.mytetroid.domain.provider.IStorageProvider
+import com.gee12.mytetroid.domain.usecase.storage.GetStorageTrashFolderUseCase
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
@@ -22,6 +23,7 @@ class MoveOrDeleteRecordFolderUseCase(
     private val storagePathProvider: IStoragePathProvider,
     private val moveFileUseCase: MoveFileOrFolderUseCase,
     private val dataNameProvider: IDataNameProvider,
+    private val getStorageTrashFolderUseCase: GetStorageTrashFolderUseCase,
 ) : UseCase<UseCase.None, MoveOrDeleteRecordFolderUseCase.Params>() {
 
     data class Params(
@@ -60,7 +62,14 @@ class MoveOrDeleteRecordFolderUseCase(
         val trashFolderPath = storagePathProvider.getPathToStorageTrashFolder()
 
         val trashFolder = storageProvider.trashFolder
-            ?: return Failure.Folder.Get(trashFolderPath).toLeft()
+            ?: storageProvider.storage?.let { storage ->
+                getStorageTrashFolderUseCase.run(
+                    GetStorageTrashFolderUseCase.Params(
+                        storage = storage,
+                        isCreateIfNotExist = true,
+                    )
+                ).getOrElse(null)
+            } ?: return Failure.Folder.Get(trashFolderPath).toLeft()
 
         return moveFileUseCase.run(
             MoveFileOrFolderUseCase.Params(

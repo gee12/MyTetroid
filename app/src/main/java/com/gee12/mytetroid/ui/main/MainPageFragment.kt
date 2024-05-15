@@ -7,12 +7,10 @@ import android.widget.*
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.isVisible
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.manager.ClipboardManager
-import com.gee12.mytetroid.model.FoundType
-import com.gee12.mytetroid.model.TetroidFile
-import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.ui.attach.FilesListAdapter
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
 import com.gee12.mytetroid.ui.dialogs.attach.AttachFieldsDialog
@@ -22,6 +20,7 @@ import com.gee12.mytetroid.ui.dialogs.record.RecordFieldsDialog
 import com.gee12.mytetroid.ui.dialogs.record.RecordInfoDialog
 import com.gee12.mytetroid.ui.base.TetroidFragment
 import com.gee12.mytetroid.ui.main.records.RecordsListAdapter
+import com.gee12.mytetroid.ui.scripts.ScriptsActivity
 import com.github.clans.fab.FloatingActionMenu
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
@@ -109,7 +108,7 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
         registerForContextMenu(lvAttaches)
         fabAddRecord = view.findViewById(R.id.button_add_record)
         fabAddRecord.setOnClickListener {
-            createRecord()
+            showCreateRecordDialog()
         }
         fabAddAttach = view.findViewById(R.id.fab_add_attach)
         fabAddAttach.setClosedOnTouchOutside(true)
@@ -125,7 +124,7 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
                 onApply = { url: String ->
                     viewModel.downloadAndAttachFile(url)
                 }
-            ).showIfPossible(parentFragmentManager)
+            ).showIfPossibleAndNeeded(parentFragmentManager)
         }
 
         initListAdapters()
@@ -290,7 +289,7 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
     /**
      * Создание новой записи.
      */
-    fun createRecord() {
+    private fun showCreateRecordDialog() {
         RecordFieldsDialog(
             record = null,
             chooseNode = true,
@@ -306,14 +305,14 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
                     isFavorite = isFavorite
                 )
             },
-        ).showIfPossible(parentFragmentManager)
+        ).showIfPossibleAndNeeded(parentFragmentManager)
     }
 
     /**
      * Удаление записи.
      * @param record
      */
-    private fun deleteRecord(record: TetroidRecord) {
+    private fun showDeleteRecordDialog(record: TetroidRecord) {
         AskDialogs.showYesDialog(
             context = requireContext(),
             message = getString(R.string.ask_record_delete_mask, record.name),
@@ -347,7 +346,7 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
      * Редактирование свойств записи.
      * @param record
      */
-    private fun editRecordFields(record: TetroidRecord) {
+    private fun showEditRecordFieldsDialog(record: TetroidRecord) {
         RecordFieldsDialog(
             record = record,
             chooseNode = true,
@@ -363,14 +362,14 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
                 node = node,
                 isFavor = isFavor
             )
-        }.showIfPossible(parentFragmentManager)
+        }.showIfPossibleAndNeeded(parentFragmentManager)
     }
 
     private fun showRecordInfoDialog(record: TetroidRecord) {
         RecordInfoDialog(
             record = record,
             storageId = viewModel.getStorageId()
-        ).showIfPossible(parentFragmentManager)
+        ).showIfPossibleAndNeeded(parentFragmentManager)
     }
 
     // endregion Record
@@ -393,7 +392,7 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
      */
     private fun openAttach(position: Int) {
         viewModel.curRecord?.attachedFiles?.getOrNull(position)?.also { attach ->
-            viewModel.checkPermissionIfNeedAndOpenAttach(activity = requireActivity(), attach)
+            viewModel.checkPermissionIfNeedAndOpenAttach(attach)
         }
     }
 
@@ -441,14 +440,14 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
         ) { name: String ->
             viewModel.renameAttach(attach, name)
         }
-            .showIfPossible(parentFragmentManager)
+            .showIfPossibleAndNeeded(parentFragmentManager)
     }
 
-    fun showAttachInfoDialog(attach: TetroidFile) {
+    private fun showAttachInfoDialog(attach: TetroidFile) {
         AttachInfoDialog(
             attach = attach,
             storageId = viewModel.getStorageId()
-        ).showIfPossible(parentFragmentManager)
+        ).showIfPossibleAndNeeded(parentFragmentManager)
     }
 
     fun updateAttachesList() {
@@ -496,13 +495,14 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
         val record = listAdapterRecords.getItem(menuInfo.position) as? TetroidRecord
         if (record != null) {
             isNonCrypted = record.isNonCryptedOrDecrypted
-            if (!isNonCrypted) {
-                activateMenuItem(menu.findItem(R.id.action_copy), false)
-                activateMenuItem(menu.findItem(R.id.action_cut), false)
-                activateMenuItem(menu.findItem(R.id.action_attached_files), false)
-                activateMenuItem(menu.findItem(R.id.action_open_record_folder), false)
-                activateMenuItem(menu.findItem(R.id.action_copy_link), false)
-                activateMenuItem(menu.findItem(R.id.action_info), false)
+            activateMenuItem(menu.findItem(R.id.action_copy), isNonCrypted)
+            activateMenuItem(menu.findItem(R.id.action_cut), isNonCrypted)
+            activateMenuItem(menu.findItem(R.id.action_attached_files), isNonCrypted)
+            activateMenuItem(menu.findItem(R.id.action_open_record_folder), isNonCrypted)
+            activateMenuItem(menu.findItem(R.id.action_copy_link), isNonCrypted)
+            activateMenuItem(menu.findItem(R.id.action_info), isNonCrypted)
+            menu.findItem(R.id.action_scripts)?.apply {
+                isVisible = isPro && isNonCrypted
             }
             val isFavorite = record.isFavorite
             activateMenuItem(menu.findItem(R.id.action_add_favorite), isPro && !isFavoritesView && !isFavorite)
@@ -573,7 +573,7 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
                 true
             }
             R.id.action_record_edit_fields -> {
-                editRecordFields(record)
+                showEditRecordFieldsDialog(record)
                 true
             }
             R.id.action_record_node -> {
@@ -597,7 +597,7 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
                 true
             }
             R.id.action_open_record_folder -> {
-                viewModel.openRecordFolder(activity = requireActivity(), record)
+                viewModel.openRecordFolder(record)
                 true
             }
             R.id.action_copy_link -> {
@@ -620,12 +620,16 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
                 viewModel.removeFromFavorite(record)
                 true
             }
+            R.id.action_scripts -> {
+                showScriptsActivity(obj = record)
+                true
+            }
             R.id.action_info -> {
                 showRecordInfoDialog(record)
                 true
             }
             R.id.action_delete -> {
-                deleteRecord(record)
+                showDeleteRecordDialog(record)
                 true
             }
             else -> false
@@ -698,6 +702,14 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
         if (found.isEmpty()) {
             tvFilesEmpty.text = getString(R.string.search_files_not_found_mask, query)
         }
+    }
+
+    private fun showScriptsActivity(obj: TetroidObject) {
+        ScriptsActivity.start(
+            activity = requireActivity(),
+            obj = obj,
+            requestCode = Constants.REQUEST_CODE_SCRIPTS_ACTIVITY,
+        )
     }
 
 }

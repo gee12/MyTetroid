@@ -11,7 +11,7 @@ import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.domain.usecase.node.icon.LoadNodeIconUseCase
 import com.gee12.mytetroid.domain.usecase.record.CloneRecordToNodeUseCase
-import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
+import com.gee12.mytetroid.domain.usecase.storage.SaveStorageTreeUseCase
 import java.util.ArrayList
 
 /**
@@ -23,7 +23,7 @@ class InsertNodeUseCase(
     private val dataNameProvider: IDataNameProvider,
     private val loadNodeIconUseCase: LoadNodeIconUseCase,
     private val cryptManager: IStorageCryptManager,
-    private val saveStorageUseCase: SaveStorageUseCase,
+    private val saveStorageTreeUseCase: SaveStorageTreeUseCase,
     private val cloneRecordToNodeUseCase: CloneRecordToNodeUseCase,
 ) : UseCase<TetroidNode, InsertNodeUseCase.Params>() {
 
@@ -47,7 +47,7 @@ class InsertNodeUseCase(
             breakOnFSErrors = false,
         ).flatMap { newNode ->
             // перезаписываем структуру хранилища в файл
-            saveStorageUseCase.run().foldResult(
+            saveStorageTreeUseCase.run().foldResult(
                 onLeft = {
                     logger.logOperCancel(LogObj.NODE, LogOper.INSERT)
                     // удаляем запись из дерева

@@ -26,7 +26,9 @@ class RecordActivityComponent(
                 putInt(Constants.EXTRA_RESULT_ACTION_TYPE, it)
             }
             with(viewModel.recordState) {
-                putString(Constants.EXTRA_RECORD_ID, recordId)
+                if (!containsKey(Constants.EXTRA_RECORD_ID)) {
+                    putString(Constants.EXTRA_RECORD_ID, recordId)
+                }
                 putBoolean(Constants.EXTRA_IS_SAVED_IN_TREE, isSavedFromTemporary)
                 putBoolean(Constants.EXTRA_IS_FIELDS_EDITED, isFieldsEdited)
                 putBoolean(Constants.EXTRA_IS_TEXT_EDITED, isTextEdited)

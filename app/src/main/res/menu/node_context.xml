@@ -84,6 +84,11 @@
         android:title="@string/title_decrypt_node"
         android:icon="@drawable/ic_encrypt_drop" />
     <item
+        android:id="@+id/action_scripts"
+        android:orderInCategory="145"
+        android:title="@string/title_scripts"
+        android:icon="@drawable/ic_script" />
+    <item
         android:id="@+id/action_info"
         android:orderInCategory="150"
         android:title="@string/title_node_info"

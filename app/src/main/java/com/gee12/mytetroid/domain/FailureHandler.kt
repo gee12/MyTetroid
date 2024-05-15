@@ -15,17 +15,13 @@ class FailureHandler(
     private val resourcesProvider: IResourcesProvider,
 ) : IFailureHandler {
 
-    companion object {
-        private const val CALLER_STACK_INDEX = 5
-    }
-
     override fun getFailureMessage(failure: Failure): NotificationData {
         return when (failure) {
             is Failure.RequiredApiVersion -> {
                 NotificationData.Error(title = getString(R.string.error_required_api_version_mask, failure.minApiVersion))
             }
             is Failure.UnknownError -> {
-                NotificationData.Error(title = "Unknown error")
+                NotificationData.Error(title = getString(R.string.error_unknown))
             }
             is Failure.ArgumentIsEmpty -> {
                 NotificationData.Error(
@@ -37,6 +33,9 @@ class FailureHandler(
                         append("is null !")
                     }
                 )
+            }
+            is Failure.Database -> {
+                getDatabaseFailureMessage(failure)
             }
             is Failure.Storage -> {
                 getStorageFailureMessage(failure)
@@ -55,6 +54,9 @@ class FailureHandler(
             }
             is Failure.Favorites -> {
                 getFavoritesFailureMessage(failure)
+            }
+            is Failure.Script -> {
+                getScriptFailureMessage(failure)
             }
             is Failure.Image -> {
                 getImageFailureMessage(failure)
@@ -87,6 +89,41 @@ class FailureHandler(
                 NotificationData.Error(
                     title = getString(R.string.log_error_download_file_mask, failure.ex?.message.orEmpty()),
                     message = failure.ex?.getInfo()
+                )
+            }
+        }
+    }
+
+    private fun getDatabaseFailureMessage(failure: Failure.Database): NotificationData {
+        return when (failure) {
+            Failure.Database.Insert -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_db_insert)
+                )
+            }
+            Failure.Database.Update -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_db_update)
+                )
+            }
+            Failure.Database.Delete -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_db_delete)
+                )
+            }
+            Failure.Database.ItemNotFound -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_db_item_not_found)
+                )
+            }
+            is Failure.Database.SqlError -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_db_sql)
+                )
+            }
+            is Failure.Database.Unknown -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_db_unknown)
                 )
             }
         }
@@ -255,8 +292,18 @@ class FailureHandler(
         return when (failure) {
             is Failure.Favorites.UnknownError -> {
                 NotificationData.Error(
-                    title = "Unknown error",
+                    title = getString(R.string.error_unknown),
                     message = failure.ex?.getInfo(),
+                )
+            }
+        }
+    }
+
+    private fun getScriptFailureMessage(failure: Failure.Script): NotificationData {
+        return when (failure) {
+            is Failure.Script.FileIsNotExist -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_script_file_is_not_exist),
                 )
             }
         }
@@ -380,6 +427,18 @@ class FailureHandler(
                     message = failure.ex?.getInfo()
                 )
             }
+            is Failure.File.UnknownExtension -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_get_file_extension_mask, failure.path.fullPath),
+                    message = failure.ex?.getInfo()
+                )
+            }
+            is Failure.File.UnknownMimeType -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_file_unknown_mime_type_mask, failure.path.fullPath),
+                    message = failure.ex?.getInfo()
+                )
+            }
             is Failure.File.Unknown -> {
                 NotificationData.Error(
                     title = getString(R.string.error_file_unknown_mask, failure.path.fullPath),
@@ -394,6 +453,21 @@ class FailureHandler(
             is Failure.Folder.NotExist -> {
                 NotificationData.Error(
                     title = getString(R.string.error_folder_is_missing_mask, failure.path.fullPath)
+                )
+            }
+            is Failure.Folder.NotFolder -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_file_is_not_a_folder_mask, failure.path.fullPath)
+                )
+            }
+            is Failure.Folder.Write -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_folder_is_not_writable_mask, failure.path.fullPath)
+                )
+            }
+            is Failure.Folder.NotEmpty -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_folder_is_not_empty_mask, failure.path.fullPath)
                 )
             }
             is Failure.Folder.Get -> {

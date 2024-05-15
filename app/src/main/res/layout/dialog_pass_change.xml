@@ -22,10 +22,10 @@
             style="@style/Text"/>
 
         <TextView
-            android:text="@string/label_cur_pass"
+            android:text="@string/label_current_password_colon"
             style="@style/AppLabelInLayout"/>
 
-        <EditText
+        <com.gee12.htmlwysiwygeditor.EditTextWithClear
             android:id="@+id/edit_text_cur_pass"
             android:inputType="text|textPassword"
             style="@style/AppEditTextInLayout"
@@ -33,23 +33,23 @@
 
             <requestFocus/>
 
-        </EditText>
+        </com.gee12.htmlwysiwygeditor.EditTextWithClear>
 
         <TextView
-            android:text="@string/label_new_pass"
+            android:text="@string/label_new_password_colon"
             style="@style/AppLabelInLayout"/>
 
-        <EditText
+        <com.gee12.htmlwysiwygeditor.EditTextWithClear
             android:id="@+id/edit_text_new_pass"
             android:inputType="text|textPassword"
             style="@style/AppEditTextInLayout"
             tools:text="12345"/>
 
         <TextView
-            android:text="@string/label_confirm_pass"
+            android:text="@string/label_confirm_pass_colon"
             style="@style/AppLabelInLayout"/>
 
-        <EditText
+        <com.gee12.htmlwysiwygeditor.EditTextWithClear
             android:id="@+id/edit_text_confirm_pass"
             android:inputType="text|textPassword"
             style="@style/AppEditTextInLayout"

@@ -14,7 +14,6 @@
         android:background="@drawable/side_nav_bar"
         android:theme="@style/AppToolbar"
         app:popupTheme="@style/AppPopupMenu">
-<!--    android:background="?attr/colorPrimary"-->
 
         <RelativeLayout
             android:layout_width="match_parent"

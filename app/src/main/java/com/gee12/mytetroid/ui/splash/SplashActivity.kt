@@ -127,7 +127,7 @@ class SplashActivity : TetroidActivity<SplashViewModel>() {
                     onCancel = {
                         finishAffinity()
                     }
-                ).showIfPossible(supportFragmentManager)
+                ).showIfPossibleAndNeeded(supportFragmentManager)
             },
         )
     }

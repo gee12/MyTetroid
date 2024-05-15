@@ -7,7 +7,6 @@ import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
-import com.gee12.mytetroid.domain.interactor.*
 import com.gee12.mytetroid.domain.manager.*
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -15,7 +14,6 @@ import com.gee12.mytetroid.domain.repo.StoragesRepo
 import com.gee12.mytetroid.ui.storage.StorageEvent
 import com.gee12.mytetroid.domain.usecase.file.GetFileModifiedDateInStorageUseCase
 import com.gee12.mytetroid.domain.usecase.file.GetFolderSizeInStorageUseCase
-import com.gee12.mytetroid.domain.usecase.InitAppUseCase
 import com.gee12.mytetroid.domain.usecase.crypt.*
 import com.gee12.mytetroid.domain.usecase.node.GetNodeByIdUseCase
 import com.gee12.mytetroid.domain.usecase.record.GetRecordByIdUseCase
@@ -47,14 +45,14 @@ class StorageInfoViewModel(
 
     favoritesManager: FavoritesManager,
     interactionManager: InteractionManager,
-    syncInteractor: SyncInteractor,
+    syncManager: SyncManager,
 
     getFolderSizeUseCase: GetFolderSizeInStorageUseCase,
     getFileModifiedDateUseCase: GetFileModifiedDateInStorageUseCase,
 
     initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
-    readStorageUseCase: ReadStorageUseCase,
-    saveStorageUseCase: SaveStorageUseCase,
+    readStorageTreeUseCase: ReadStorageTreeUseCase,
+    saveStorageTreeUseCase: SaveStorageTreeUseCase,
     decryptStorageUseCase: DecryptStorageUseCase,
     checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
     clearStorageTrashFolderUseCase : ClearStorageTrashFolderUseCase,
@@ -89,14 +87,14 @@ class StorageInfoViewModel(
 
     favoritesManager = favoritesManager,
     interactionManager = interactionManager,
-    syncInteractor = syncInteractor,
+    syncManager = syncManager,
 
     getFileModifiedDateUseCase = getFileModifiedDateUseCase,
     getFolderSizeUseCase = getFolderSizeUseCase,
 
     initOrCreateStorageUseCase = initOrCreateStorageUseCase,
-    readStorageUseCase = readStorageUseCase,
-    saveStorageUseCase = saveStorageUseCase,
+    readStorageTreeUseCase = readStorageTreeUseCase,
+    saveStorageTreeUseCase = saveStorageTreeUseCase,
     decryptStorageUseCase = decryptStorageUseCase,
     checkStorageFilesExistingUseCase = checkStorageFilesExistingUseCase,
     clearStorageTrashFolderUseCase = clearStorageTrashFolderUseCase,
@@ -173,7 +171,7 @@ class StorageInfoViewModel(
                     )
                 ).onFailure {
                     sendEvent(StorageInfoEvent.GetStorageFolderSize.Failed(it))
-                    val message = failureHandler.getFailureMessage(it).getFullMassage()
+                    val message = failureHandler.getFailureMessage(it).getFullMessage()
                     logError(getString(R.string.error_get_storage_folder_size_mask, message))
                 }.onSuccess { size ->
                     sendEvent(StorageInfoEvent.GetStorageFolderSize.Success(size))
@@ -193,7 +191,7 @@ class StorageInfoViewModel(
                 Utils.dateToString(date, getString(R.string.full_date_format_string))
             }.onFailure {
                 sendEvent(StorageInfoEvent.GetMyTetraXmlLastModifiedDate.Failed(it))
-                val message = failureHandler.getFailureMessage(it).getFullMassage()
+                val message = failureHandler.getFailureMessage(it).getFullMessage()
                 logError(getString(R.string.error_get_mytetra_xml_modified_date_mask, message))
             }.onSuccess { dateString ->
                 sendEvent(StorageInfoEvent.GetMyTetraXmlLastModifiedDate.Success(dateString))

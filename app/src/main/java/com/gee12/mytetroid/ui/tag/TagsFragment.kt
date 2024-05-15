@@ -181,7 +181,7 @@ class TagsFragment : TetroidFragment<MainViewModel>() {
             onApply = { name ->
                 viewModel.renameTag(tag, name)
             }
-        ).showIfPossible(parentFragmentManager)
+        ).showIfPossibleAndNeeded(parentFragmentManager)
     }
 
     /**

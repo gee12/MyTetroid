@@ -1,7 +1,6 @@
 package com.gee12.mytetroid.domain.provider
 
 import android.content.Context
-import android.net.Uri
 import com.anggrayudi.storage.file.getAbsolutePath
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.extensions.makePath
@@ -13,11 +12,11 @@ interface IStoragePathProvider {
     fun getPathToRootFolder(): FilePath
     fun getPathToMyTetraXml(): String
     fun getPathToBaseFolder(): FilePath
-    fun getRelativePathToBaseFolder(): String
     fun getPathToDatabaseIniConfig(): String
     fun getPathToIconsFolder(): String
+    fun getPathToScriptsFolder(): String
+    fun getRelativePathToScript(scriptFileName: String): String
     fun getRelativePathToIconsFolder(): String
-    fun getPathToFileInIconsFolder(fileName: String): String
     fun getPathToStorageTrashFolder(): FilePath
 }
 
@@ -43,10 +42,6 @@ class StoragePathProvider(
         return FilePath.Folder(getPathToRootFolder().fullPath, Constants.BASE_DIR_NAME)
     }
 
-    override fun getRelativePathToBaseFolder(): String {
-        return Constants.BASE_DIR_NAME
-    }
-
     override fun getPathToDatabaseIniConfig(): String {
         return makePath(getPathToRootFolder().fullPath, Constants.DATABASE_INI_FILE_NAME)
     }
@@ -55,12 +50,16 @@ class StoragePathProvider(
         return makePath(getPathToRootFolder().fullPath, Constants.ICONS_DIR_NAME)
     }
 
-    override fun getRelativePathToIconsFolder(): String {
-        return Constants.ICONS_DIR_NAME
+    override fun getPathToScriptsFolder(): String {
+        return makePath(getPathToRootFolder().fullPath, Constants.SCRIPTS_DIR_NAME)
     }
 
-    override fun getPathToFileInIconsFolder(fileName: String): String {
-        return makePath(getPathToIconsFolder(), fileName)
+    override fun getRelativePathToScript(scriptFileName: String): String {
+        return makePath(Constants.SCRIPTS_DIR_NAME, scriptFileName)
+    }
+
+    override fun getRelativePathToIconsFolder(): String {
+        return Constants.ICONS_DIR_NAME
     }
 
     override fun getPathToStorageTrashFolder(): FilePath {

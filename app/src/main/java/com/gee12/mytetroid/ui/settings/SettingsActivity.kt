@@ -1,5 +1,7 @@
 package com.gee12.mytetroid.ui.settings
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.ui.base.TetroidSettingsActivity
@@ -32,6 +34,14 @@ class SettingsActivity : TetroidSettingsActivity<CommonSettingsViewModel>() {
             setTitle(R.string.action_common_settings)
         }
         super.onBackPressed()
+    }
+
+    companion object {
+
+        fun start(activity: Activity, requestCode: Int) {
+            val intent = Intent(activity, SettingsActivity::class.java)
+            activity.startActivityForResult(intent, requestCode)
+        }
     }
 
 }

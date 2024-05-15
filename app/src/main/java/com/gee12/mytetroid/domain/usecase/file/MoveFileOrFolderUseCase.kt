@@ -51,7 +51,7 @@ class MoveFileOrFolderUseCase(
         newFileName: String?,
     ): Either<Failure, None> {
         val srcFilePath = FilePath.FileFull(srcFile.getAbsolutePath(context))
-        val destFolderPath = FilePath.Folder(destFolder.getAbsolutePath(context), newFileName.orEmpty())
+        val destFilePath = FilePath.File(destFolder.getAbsolutePath(context), newFileName.orEmpty())
         var isMoved = false
 
         coroutineScope {
@@ -71,31 +71,31 @@ class MoveFileOrFolderUseCase(
         }
 
         return if (isMoved) {
-            val to = resourcesProvider.getString(R.string.log_to_mask, destFolderPath.fullPath)
+            val to = resourcesProvider.getString(R.string.log_to_mask, destFilePath.fullPath)
             logger.logOperRes(LogObj.FILE, LogOper.MOVE, to, show = false)
             None.toRight()
         } else {
-            val fromTo = resourcesProvider.getStringFromTo(srcFilePath.fullPath, destFolderPath.fullPath)
+            val fromTo = resourcesProvider.getStringFromTo(srcFilePath.fullPath, destFilePath.fullPath)
             logger.logOperError(LogObj.FILE, LogOper.MOVE, fromTo, false, show = false)
-            Failure.File.Move(from = srcFilePath, to = destFolderPath).toLeft()
+            Failure.File.Move(from = srcFilePath, to = destFilePath).toLeft()
         }
     }
 
     private suspend fun moveFolder(
-        srcFile: DocumentFile,
+        srcFolder: DocumentFile,
         destFolder: DocumentFile,
-        newFileName: String?,
+        newFolderName: String?,
     ): Either<Failure, None> {
-        val srcFilePath = FilePath.FileFull(srcFile.getAbsolutePath(context))
-        val destFolderPath = FilePath.Folder(destFolder.getAbsolutePath(context), newFileName.orEmpty())
+        val srcFolderPath = FilePath.FileFull(srcFolder.getAbsolutePath(context))
+        val destFolderPath = FilePath.Folder(destFolder.getAbsolutePath(context), newFolderName.orEmpty())
         var isMoved = false
 
         coroutineScope {
-            srcFile.moveFolderTo(
+            srcFolder.moveFolderTo(
                 context = context,
                 targetParentFolder = destFolder,
                 skipEmptyFiles = false,
-                newFolderNameInTargetPath = newFileName,
+                newFolderNameInTargetPath = newFolderName,
                 callback = object : FolderCallback(uiScope = this) {
                     override fun onCompleted(result: Result) {
                         isMoved = result.success
@@ -112,9 +112,9 @@ class MoveFileOrFolderUseCase(
             logger.logOperRes(LogObj.FOLDER, LogOper.MOVE, to, show = false)
             None.toRight()
         } else {
-            val fromTo = resourcesProvider.getStringFromTo(srcFilePath.fullPath, destFolderPath.fullPath)
+            val fromTo = resourcesProvider.getStringFromTo(srcFolderPath.fullPath, destFolderPath.fullPath)
             logger.logOperError(LogObj.FOLDER, LogOper.MOVE, fromTo, false, show = false)
-            Failure.Folder.Move(from = srcFilePath, to = destFolderPath).toLeft()
+            Failure.Folder.Move(from = srcFolderPath, to = destFolderPath).toLeft()
         }
     }
 

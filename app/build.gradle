@@ -5,20 +5,34 @@ apply plugin: 'kotlin-parcelize'
 
 android {
     final sdk = rootProject.ext.sdk
+    compileSdk sdk.compileSdk
+    flavorDimensions = ['default']
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+        freeCompilerArgs = ["-Xcontext-receivers"]
+    }
+
     signingConfigs {
         debug {
             storeFile file("external/debug.keystore")
         }
     }
-    compileSdkVersion sdk.compileSdk
+
     defaultConfig {
         applicationId "com.gee12.mytetroid"
         minSdkVersion sdk.minSdk
         targetSdkVersion sdk.targetSdk
-        versionCode 68
-        versionName "5.5"
+        versionCode 78
+        versionName "5.8"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
+
+        kapt {
+            arguments {
+                arg("room.schemaLocation", "$projectDir/schemas")
+            }
+        }
     }
 
     buildTypes {
@@ -32,7 +46,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    flavorDimensions 'default'
+
     productFlavors {
         free {
             dimension = 'default'
@@ -53,12 +67,14 @@ android {
             buildConfigField "String", "DEF_APPLICATION_ID", '"'+android.defaultConfig.applicationId+'"'
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    applicationVariants.all { variant ->
-        variant.outputs.all {
+
+    applicationVariants.configureEach { variant ->
+        variant.outputs.configureEach {
             def flavor = variant.getFlavorName()
             def flavorName = ""
             if (flavor == "pro" || flavor == "googlePlayPro") {
@@ -73,13 +89,12 @@ android {
     }
 }
 
-
 dependencies {
     def lifecycle_version = "2.5.1"
 
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:multidex:1.0.3'
-    implementation 'com.google.android.material:material:1.9.0-alpha01'
+    implementation 'com.google.android.material:material:1.11.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.preference:preference-ktx:1.2.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
@@ -115,7 +130,4 @@ dependencies {
     implementation "androidx.room:room-ktx:$room_version"
 
     implementation "io.insert-koin:koin-android:3.2.0"
-}
-repositories {
-    mavenCentral()
 }

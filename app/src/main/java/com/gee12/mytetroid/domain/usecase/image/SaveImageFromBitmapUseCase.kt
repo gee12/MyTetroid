@@ -31,6 +31,8 @@ class SaveImageFromBitmapUseCase(
     data class Params(
         val record: TetroidRecord,
         val bitmap: Bitmap,
+        val format: Bitmap.CompressFormat = Bitmap.CompressFormat.PNG,
+        val quality: Int = 100,
     )
 
     override suspend fun run(params: Params): Either<Failure, TetroidImage> {
@@ -71,19 +73,19 @@ class SaveImageFromBitmapUseCase(
             bitmap = bitmap,
             file = imageFile,
             filePath = filePath,
-            format = Bitmap.CompressFormat.PNG,
-            quality = 100,
+            format = params.format,
+            quality = params.quality,
         ).flatMap {
             if (!imageFile.exists()) {
                 return Failure.Image.SaveToFile(filePath).toLeft()
             } else {
                 None.toRight()
             }
-        }.flatMap {
-            setImageDimensions(
-                image = image,
-                bitmap = bitmap,
-            )
+        }.map {
+            image.apply {
+                width = bitmap.width
+                height = bitmap.height
+            }
         }
     }
 
@@ -105,25 +107,6 @@ class SaveImageFromBitmapUseCase(
         } catch (ex: Exception) {
             return Failure.Image.SaveToFile(filePath, ex).toLeft()
         }
-    }
-
-    private suspend fun setImageDimensions(
-        image: TetroidImage,
-        bitmap: Bitmap,
-//        file: DocumentFile,
-    ): Either<Failure, TetroidImage> {
-//        return file.openInputStream(context)?.use { inputStream ->
-//            setImageDimensionsUseCase.run(
-//                SetImageDimensionsUseCase.Params(
-//                    image = image,
-//                    inputStream = inputStream,
-//                )
-//            ).map { image }
-//        } ?: Failure.File.Read(filePath).toLeft()
-        return image.apply {
-            width = bitmap.width
-            height = bitmap.height
-        }.toRight()
     }
 
 }

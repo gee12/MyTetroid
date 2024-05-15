@@ -52,6 +52,7 @@
     <string name="title_filter_records">Records filter</string>
     <string name="title_open_tag_records">Open tag records</string>
     <string name="title_edit_record_fields">Edit properties</string>
+    <string name="title_reload_record_text">Reload text</string>
     <string name="title_edit_mode">Editing</string>
     <string name="title_view_mode">Viewing</string>
     <string name="title_expand_node_subnodes">Expand all subnodes</string>
@@ -82,6 +83,7 @@
     <string name="title_show">Show</string>
     <string name="title_log_file_content">Logs</string>
     <string name="title_storages">Storages</string>
+    <string name="title_scripts">Scripts</string>
     <string name="title_storage_info">Storage info</string>
     <string name="title_node_icon_choice">Select icon</string>
     <string name="title_move_back">Move to back</string>
@@ -113,6 +115,7 @@
     <string name="title_select_the_node">Select the node…</string>
     <string name="title_need_load_storage_to_view_info">To view data you need to load the storage…</string>
     <string name="title_storages_empty_label">Add storage…</string>
+    <string name="title_scripts_empty_label">Add script…</string>
     <string name="title_files_is_missing">Attach is missing</string>
     <string name="title_license_gnu_gpl_v3_0">License GNU GPL v3.0</string>
     <string name="title_rate_app">Rate app</string>
@@ -147,6 +150,7 @@
     <string name="title_use_global_search">Use global search</string>
     <string name="title_reload_storage">Reload storage</string>
     <string name="title_load_all_nodes">Load all nodes</string>
+    <string name="title_load_all_nodes_for_scripts">Load all nodes to display all objects in the list</string>
     <string name="title_more_in_logs">More in logs</string>
     <string name="title_author">Author</string>
     <string name="title_tags">Tags</string>
@@ -161,6 +165,11 @@
     <string name="title_new_record">New record</string>
     <string name="title_add_record">Add record</string>
     <string name="title_add_storage">Add storage</string>
+    <string name="title_add_script">Add script</string>
+    <string name="title_script_create_new">Create new</string>
+    <string name="title_script_pick_file">Choose from file</string>
+    <string name="title_default_scripts">Default scripts</string>
+    <string name="title_script_pick_default">Choose from defaults</string>
     <string name="title_edit_storage">Edit storage</string>
     <string name="title_select_folder"><![CDATA[<Select folder>]]></string>
     <string name="title_select_node"><![CDATA[<Select the node>]]></string>
@@ -209,11 +218,43 @@
     <string name="title_mytetroid_slogan">Personal knowledge base</string>
     <string name="title_settings_app_theme">App theme</string>
     <string name="title_settings_editor_theme">Text editor theme</string>
+    <string name="title_multiple_choice">Multiple choice</string>
+    <string name="title_filter">Filter</string>
+    <string name="title_script">Script</string>
+    <string name="title_create_script">Create script</string>
+    <string name="title_edit_script">Edit script</string>
+
+    <string name="title_pick_folder">Select folder</string>
+    <string name="title_pick_file">Select file</string>
+    <string name="title_enter_folder_name">Enter folder name</string>
+    <string name="title_enter_path">Edit path</string>
+    <string name="error_select_file">You have to select a file</string>
+    <string name="error_select_empty_folder">Select an empty folder</string>
+    <string name="error_folder_is_not_empty">Folder is not empty</string>
+    <string name="error_folder_is_not_writable">Directory is not writable</string>
+    <string name="error_no_access_to_storage">Storage access permission not given</string>
+    <string name="location_mask">Location: %s</string>
+    <string name="dir_is_not_exist">Directory does not exist</string>
+    <string name="title_script_for_record_masked">For record «%s»</string>
+    <string name="title_script_for_node_masked">For node «%s»</string>
+    <string name="title_script_for_tag_masked">For tag «%s»</string>
+    <string name="title_script_for_all_storage">For all storage</string>
+    <string name="title_decrypt_storage_object_name"><![CDATA[<Decrypt storage>]]></string>
+    <string name="title_load_all_nodes_object_name"><![CDATA[<Load all nodes>]]></string>
+
+    <string name="title_def_script_title_table_sort">Sort tables</string>
+    <string name="title_def_script_description_table_sort">The table rows will be sorted after clicking on the column header</string>
+    <string name="title_def_script_title_table_totals">Tables totals</string>
+    <string name="title_def_script_description_table_totals">The total amount of the table column will be displayed in a pop-up window when you long-click on its header</string>
+    <string name="title_def_script_title_link_url">Show link address</string>
+    <string name="title_def_script_description_link_url">If you click on the link header for a long time, its URL will be displayed in a pop-up window</string>
 
     <string name="subtitle_main_page_node_records">NODE</string>
     <string name="subtitle_main_page_record_files">FILES</string>
     <string name="subtitle_main_page_tag_records">TAG</string>
     <string name="subtitle_main_page_multiple_tags_records">TAGS</string>
+    <string name="subtitle_scripts_for_object_masked">For %s «%s»</string>
+    <string name="subtitle_scripts_for_all_storage_masked">For all storage «%s»</string>
 
     <string name="title_settings_app_theme_system">System default</string>
     <string name="title_settings_app_theme_light">Light</string>
@@ -540,35 +581,44 @@
     <string name="global_search_by_node_result">Search results by node \"%s\"</string>
     <string name="global_searching">Global searching…</string>
 
-    <string name="label_name">Name:</string>
-    <string name="label_tags">Tags:</string>
-    <string name="label_author">Author:</string>
-    <string name="label_url">Url:</string>
-    <string name="label_created">Created:</string>
-    <string name="label_edited">Edited:</string>
-    <string name="label_text_edited">Text edited:</string>
-    <string name="label_pass">Password:</string>
-    <string name="label_cur_pass">Current password:</string>
-    <string name="label_new_pass">New password:</string>
-    <string name="label_confirm_pass">Confirm:</string>
-    <string name="label_crypted">Crypted:</string>
-    <string name="label_attach_crypted">Crypted:</string>
+    <string name="label_name">Name</string>
+    <string name="label_description">Description</string>
+    <string name="label_text">Text</string>
+    <string name="label_js_code">Javascript code</string>
+    <string name="label_file_name">File name</string>
+    <string name="label_tags">Tags</string>
+    <string name="label_tags_colon">Tags:</string>
+    <string name="label_author">Author</string>
+    <string name="label_author_colon">Author:</string>
+    <string name="label_url">Url</string>
+    <string name="label_url_colon">Url:</string>
+    <string name="label_created_colon">Created:</string>
+    <string name="label_edited_colon">Edited:</string>
+    <string name="label_text_edited_colon">Text edited:</string>
+    <string name="label_password_colon">Password:</string>
+    <string name="label_current_password_colon">Current password:</string>
+    <string name="label_new_password_colon">New password:</string>
+    <string name="label_confirm_pass_colon">Confirm:</string>
+    <string name="label_crypted_colon">Crypted:</string>
+    <string name="label_attach_crypted_colon">Crypted:</string>
     <string name="label_id" translatable="false">Id:</string>
-    <string name="label_path">Path:</string>
+    <string name="label_path">Path</string>
+    <string name="label_path_colon">Path:</string>
     <string name="label_read_only">Read only (not implemented yet)</string>
-    <string name="label_file_size">File size:</string>
-    <string name="label_folder_size">Folder size:</string>
-    <string name="label_icons_section">Section:</string>
-    <string name="label_storage_name">Name:</string>
-    <string name="label_storage_path">Path:</string>
-    <string name="label_storage_uri">Uri:</string>
-    <string name="label_storage_size">Size on disk:</string>
-    <string name="label_storage_last_edit">Last modified tree:</string>
-    <string name="label_node">Node:</string>
-    <string name="label_record">Record:</string>
-    <string name="label_parent_node">Parent node:</string>
+    <string name="label_file_size_colon">File size:</string>
+    <string name="label_folder_size_colon">Folder size:</string>
+    <string name="label_icons_section_colon">Section:</string>
+    <string name="label_storage_name_colon">Name:</string>
+    <string name="label_storage_path_colon">Path:</string>
+    <string name="label_storage_uri_colon">Uri:</string>
+    <string name="label_storage_size_colon">Size on disk:</string>
+    <string name="label_storage_last_edit_colon">Last modified tree:</string>
+    <string name="label_node">Node</string>
+    <string name="label_node_colon">Node:</string>
+    <string name="label_record_colon">Record:</string>
+    <string name="label_parent_node_colon">Parent node:</string>
     <string name="label_favorite">Favorite</string>
-    <string name="label_pin_code_size_mask">Value %d–%d:</string>
+    <string name="hint_pin_code_size_mask">Value %d–%d</string>
     <string name="label_default_storage">Default storage</string>
     <string name="label_delete_storage_with_files">Delete with files</string>
 
@@ -607,6 +657,13 @@
     <string name="action_enter_password">Enter password</string>
     <string name="action_settings">Settings</string>
     <string name="action_load">Load</string>
+    <string name="action_create_folder">New</string>
+    <string name="action_home">Home</string>
+    <string name="action_duplicate">Duplicate</string>
+    <string name="action_activate_for_storage">Activate for storage</string>
+    <string name="action_deactivate_for_storage">Deactivate for storage</string>
+    <string name="action_activate_all_for_storage">Activate all for storage</string>
+    <string name="action_deactivate_all_for_storage">Deactivate all for storage</string>
 
     <string name="ask_oper_without_record_dir_mask">Record directory is missing. %s anyway ?</string>
     <string name="ask_attach_delete_without_file">File is missing on the disk. Delete anyway ?</string>
@@ -622,6 +679,8 @@
     <string name="ask_quickly_node_delete_mask">Node «%s» is used for quick insertion. Delete anyway?</string>
     <string name="ask_record_delete_mask">Delete record «%s» ?</string>
     <string name="ask_file_delete_mask">Delete file «%s» ?</string>
+    <string name="ask_script_delete_mask">Delete script «%s» ?</string>
+    <string name="ask_script_add_default">Scripts are Javascript scripts that allow you to add additional functionality to the note text editor.\n\nThe script list is empty, should I choose from the standard ones?</string>
     <string name="ask_request_read_ext_storage">Permission to read to external memory is required to work with storage files. Provide ?</string>
     <string name="ask_request_write_ext_storage">Permission to write to external memory is required to work with storage files. Provide ?</string>
     <string name="ask_request_camera">Permission required to turn on the camera to capture an image. Provide ?</string>
@@ -653,12 +712,13 @@
     <string name="ask_open_storage_settings">Open storage settings?</string>
     <string name="ask_decrypt_attached_files_in_trash_title">Opening an encrypted file</string>
     <string name="ask_decrypt_attached_files_in_trash_message">The \"Decrypt files to directory\" option is disabled.\nEnable the option and open the file?</string>
+    <string name="ask_script_was_changed_request">The script code has been changed. Get out anyway?</string>
 
     <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
     <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
     <string name="full_date_format_string" translatable="false">dd.MM.yyyy HH:mm:ss</string>
     <string name="def_date_format_string" translatable="false">dd MMM yyyy HH:mm</string>
-    <string name="hint_date_format_string">e.g. \"dd MMM yyyy HH:mm\"</string>
+    <string name="hint_date_format_string">dd MMM yyyy HH:mm</string>
 
     <string name="error_log_file_path_is_null">Path to the log file is not specified</string>
     <string name="error_get_storage_folder_size_mask">Error getting storage size: %s</string>
@@ -669,6 +729,7 @@
     <string name="error_storage_set_is_default_mask">Error setting storage «%s» is default</string>
     <string name="error_storage_folder_is_not_exists">Storage folder is not found</string>
     <string name="error_storage_folder_is_empty">Storage folder is empty</string>
+    <string name="error_script_file_is_not_exist">File is not exist</string>
 
     <string name="debug_not_implemented_yet">Not implemented yet..</string>
 <!--    <string name="details_in_logs">Details in the logs</string>-->
@@ -728,6 +789,9 @@
     <string name="error_clear_folder_mask">Error to clear folder:\n%s</string>
     <string name="error_file_is_missing_mask">File is missing: %s</string>
     <string name="error_folder_is_missing_mask">Folder is missing: %s</string>
+    <string name="error_file_is_not_a_folder_mask">File is not a folder: %s</string>
+    <string name="error_folder_is_not_writable_mask">Folder is not writable: %s</string>
+    <string name="error_folder_is_not_empty_mask">Folder is not empty: %s</string>
     <string name="log_open_node">Open node:&#160;</string>
     <string name="log_sync_successful">Sync successful</string>
     <string name="log_sync_failed">Failed to sync</string>
@@ -743,6 +807,8 @@
     <string name="error_get_folder_size_mask">Error getting folder size: %s</string>
     <string name="error_denied_read_file_access_mask">Denied read access to the file: %s</string>
     <string name="log_file_sharing_error_mask">File sharing error: %s</string>
+    <string name="error_get_file_extension_mask">Error getting file extension: %s</string>
+    <string name="error_file_unknown_mime_type_mask">Image file has unknown MIME type: %s</string>
     <string name="log_record_file_reading">Record file reading: id=</string>
     <string name="log_error_record_reading">Record reading error</string>
     <string name="log_not_found_child_in_viewflipper">Not found child in ViewFliper</string>
@@ -790,7 +856,6 @@
     <string name="start_record_file_reading_mask">Start reading a file of record id=%s</string>
     <string name="log_start_record_file_saving_mask">Start saving a file of record id=%s</string>
     <string name="log_start_attach_file_opening_mask">Start opening an attach file id=%s</string>
-    <string name="log_start_record_folder_opening_mask">Start opening a record folder id=%s</string>
     <string name="log_dir_creating_error">Unable to create directory to save log:&#160;</string>
     <string name="log_created_log_dir">The log directory was created:&#160;</string>
     <string name="log_file_read_error">Log file read error:&#160;</string>
@@ -920,6 +985,7 @@
     <string name="log_field_changed_mask">Changed storage option \"%1$s\" from \"%2$s\" to \"%3$s\"</string>
     <string name="log_storage_tree_changed_outside" translatable="false">The mytetra.xml file with the record tree has been modified by a third party program</string>
     <string name="log_storage_tree_deleted_outside" translatable="false">The mytetra.xml file with the record tree has been removed by a third party program</string>
+    <string name="log_loading_script_to_record_masked">Loading JS-script: %s</string>
 
     <string name="error_record_create_mask">Record creation error:\n%s</string>
     <string name="error_record_name_is_empty">Record name is empty</string>
@@ -933,6 +999,14 @@
     <string name="error_save_pass_check_data">Failed to save crypt_check data for password</string>
     <string name="error_clone_record_to_node">Failed clone record to node</string>
     <string name="error_app_is_not_inited_restart">App is not initialized, restart</string>
+    <string name="error_unknown">Unknown error</string>
+    <string name="error_db_sql">Db query error</string>
+    <string name="error_db_unknown">Unknown db error</string>
+    <string name="error_db_insert">Failed to add record to db</string>
+    <string name="error_db_update">Failed to update record in db</string>
+    <string name="error_db_delete">Failed to delete record from db</string>
+    <string name="error_db_item_not_found">Nothing was found in the database</string>
+    <string name="error_script_file_name_is_not_unique">Имя файла не уникально</string>
 
     <string name="folder_name_mask">folder %s</string>
     <string name="file_name_mask">file %s</string>

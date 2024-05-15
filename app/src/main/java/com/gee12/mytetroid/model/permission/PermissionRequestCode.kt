@@ -13,7 +13,8 @@ enum class PermissionRequestCode(val code: Int) {
     TERMUX(109),
     EXPORT_PDF(110),
     PICK_ATTACH_FILE(111),
-    PICK_FOLDER_FOR_ATTACH_FILE(112);
+    PICK_FOLDER_FOR_ATTACH_FILE(112),
+    PICK_SCRIPT_FILE(113);
 
     fun toPermission(): TetroidPermission? {
         return when (this) {
@@ -26,7 +27,8 @@ enum class PermissionRequestCode(val code: Int) {
             OPEN_ATTACH_FILE,
             EXPORT_PDF,
             PICK_ATTACH_FILE,
-            PICK_FOLDER_FOR_ATTACH_FILE -> null // для данных разрешений permission известен сразу
+            PICK_FOLDER_FOR_ATTACH_FILE,
+            PICK_SCRIPT_FILE -> null // для данных разрешений permission известен сразу
             OPEN_CAMERA -> TetroidPermission.Camera
             RECORD_AUDIO -> TetroidPermission.RecordAudio
             TERMUX -> TetroidPermission.Termux

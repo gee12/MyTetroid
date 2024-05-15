@@ -26,14 +26,14 @@ import kotlinx.coroutines.*
  * (kotlin coroutine) and will post the result in the UI thread.
  */
 
-interface IUseCase<out Type, in Params> where Type : Any {
+interface IUseCase<out Type, in Params> where Type : Any? {
 
     suspend fun run(params: Params): Either<Failure, Type>
 
     fun execute(params: Params): Either<Failure, Type>
 }
 
-abstract class UseCase<out Type, in Params> : IUseCase<Type, Params> where Type : Any {
+abstract class UseCase<out Type, in Params> : IUseCase<Type, Params> where Type : Any? {
 
     override fun execute(params: Params): Either<Failure, Type> {
         return runBlocking { run(params) }

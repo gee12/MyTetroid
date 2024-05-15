@@ -46,23 +46,20 @@ import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.TetroidStorageActivity
 import com.gee12.mytetroid.ui.base.views.SearchViewXListener
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
-import com.gee12.mytetroid.ui.dialogs.IntentDialog
+import com.gee12.mytetroid.ui.dialogs.intent.IntentsDialog
 import com.gee12.mytetroid.ui.dialogs.node.NodeFieldsDialog
 import com.gee12.mytetroid.ui.dialogs.node.NodeInfoDialog
 import com.gee12.mytetroid.ui.dialogs.pass.PassDialogs.IPassInputResult
 import com.gee12.mytetroid.ui.dialogs.pass.PassDialogs.showPasswordEnterDialog
-import com.gee12.mytetroid.ui.dialogs.pin.PinCodeDialog.Companion.showDialog
-import com.gee12.mytetroid.ui.dialogs.pin.PinCodeDialog.IPinInputResult
+import com.gee12.mytetroid.ui.dialogs.pin.PinCodeDialog
 import com.gee12.mytetroid.ui.dialogs.storage.StorageDialogs
 import com.gee12.mytetroid.ui.main.found.FoundPageFragment
 import com.gee12.mytetroid.ui.node.NodesListAdapter
 import com.gee12.mytetroid.ui.node.icon.IconsActivity
 import com.gee12.mytetroid.ui.record.RecordActivity
-import com.gee12.mytetroid.ui.search.SearchActivity.Companion.start
-import com.gee12.mytetroid.ui.settings.SettingsActivity
+import com.gee12.mytetroid.ui.search.SearchActivity
 import com.gee12.mytetroid.ui.splash.SplashActivity
 import com.gee12.mytetroid.ui.storage.StorageEvent
-import com.gee12.mytetroid.ui.storage.info.StorageInfoActivity.Companion.start
 import com.gee12.mytetroid.ui.tag.TagsFragment
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
@@ -492,6 +489,9 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             is MainEvent.PickFolderForAttach -> {
                 openFolderPickerForAttach()
             }
+            is MainEvent.OpenRecordFolder -> {
+                openRecordFolder(uri = event.uri)
+            }
             MainEvent.Exit -> {
                 finish()
             }
@@ -616,7 +616,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                     titleResId = R.string.ask_decrypt_attached_files_in_trash_title,
                     messageResId = R.string.ask_decrypt_attached_files_in_trash_message,
                     onApply = {
-                        viewModel.enableDecryptAttachesToTempFolderAndOpen(activity = this, attach = event.attach)
+                        viewModel.enableDecryptAttachesToTempFolderAndOpen(attach = event.attach)
                     },
                     onCancel = {},
                 )
@@ -624,9 +624,12 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             is MainEvent.Attach.Open.InProcess -> {
                 showProgress(R.string.state_attach_opening)
             }
-            is MainEvent.Attach.Open.Failed,
+            is MainEvent.Attach.Open.Failed -> {
+                hideProgress()
+            }
             is MainEvent.Attach.Open.Success -> {
                 hideProgress()
+                interactionManager.openFile(this, uri = event.uri)
             }
             is MainEvent.Attach.Delete.InProcess -> {
                 showProgress(R.string.state_attach_deleting)
@@ -690,7 +693,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 }
             }
             PermissionRequestCode.OPEN_ATTACH_FILE -> {
-                viewModel.openTempAttachAfterCheckPermission(activity = this)
+                viewModel.openTempAttachAfterCheckPermission()
             }
             PermissionRequestCode.TERMUX -> {
                 viewModel.syncAndInitStorage(this)
@@ -1195,16 +1198,12 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     }
 
     private fun showPinCodeDialog(callbackEvent: BaseEvent) {
-        showDialog(
+        PinCodeDialog.showDialog(
             length = CommonSettings.getPinCodeLength(this),
             isSetup = !viewModel.isStorageEncrypted(),
             fragmentManager = supportFragmentManager,
-            callback = object : IPinInputResult {
-                override fun onApply(pin: String): Boolean {
-                    return viewModel.startCheckPinCode(pin, callbackEvent)
-                }
-
-                override fun onCancel() {}
+            onApply = { pin ->
+                viewModel.startCheckPinCode(pin, callbackEvent)
             }
         )
     }
@@ -1307,7 +1306,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 val trueParentNode = if (isSubNode) parentNode else parentNode.parentNode
                 viewModel.createNode(name, trueParentNode)
             }
-        ).showIfPossible(supportFragmentManager)
+        ).showIfPossibleAndNeeded(supportFragmentManager)
     }
 
     /**
@@ -1321,7 +1320,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             onApply = { name: String, parentNode: TetroidNode ->
                 viewModel.createNode(name, parentNode)
             }
-        ).showIfPossible(supportFragmentManager)
+        ).showIfPossibleAndNeeded(supportFragmentManager)
     }
 
     private fun onNodeCreated(node: TetroidNode) {
@@ -1336,7 +1335,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     private fun showNodeInfoDialog(node: TetroidNode) {
         NodeInfoDialog(
             node = node,
-        ).showIfPossible(supportFragmentManager)
+        ).showIfPossibleAndNeeded(supportFragmentManager)
     }
 
     /**
@@ -1363,7 +1362,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             onApply = { name: String, _: TetroidNode ->
                 viewModel.renameNode(node, name)
             }
-        ).showIfPossible(supportFragmentManager)
+        ).showIfPossibleAndNeeded(supportFragmentManager)
     }
 
     private fun onNodeRenamed(node: TetroidNode) {
@@ -1581,6 +1580,13 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         mainPage?.onRecordOpened(recordId)
     }
 
+    private fun openRecordFolder(uri: Uri) {
+        if (!interactionManager.openFolder(activity = this, uri = uri)) {
+            Utils.writeToClipboard(this, resourcesProvider.getString(R.string.title_record_folder_uri), uri.toString())
+            showMessage(R.string.log_missing_file_manager)
+        }
+    }
+
     // endregion Record
 
     // region Attach
@@ -1600,6 +1606,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     private fun openFolderPickerForAttach() {
         openFolderPicker(
             requestCode = PermissionRequestCode.PICK_FOLDER_FOR_ATTACH_FILE,
+            isNeedCheckFolderWritePermission = true,
         )
     }
 
@@ -1640,6 +1647,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         popupMenu.inflate(R.menu.node_context)
         val menu = popupMenu.menu
         val parentNode = node.parentNode
+
         val isNonCrypted = node.isNonCryptedOrDecrypted
         menu.findItem(R.id.action_expand_node)?.setVisible(node.isExpandable && isNonCrypted)
 //        menu.findItem(R.id.action_create_node), isNonCrypted);
@@ -1660,7 +1668,11 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         menu.findItem(R.id.action_encrypt_node)?.setVisible(!node.isCrypted)
         val canNoCrypt = node.isCrypted && (parentNode == null || !parentNode.isCrypted)
         menu.findItem(R.id.action_drop_encrypt_node)?.setVisible(canNoCrypt)
+        menu.findItem(R.id.action_scripts)?.apply {
+            isVisible = buildInfoProvider.isFullVersion() && isNonCrypted
+        }
         menu.findItem(R.id.action_info)?.setVisible(isNonCrypted)
+
         popupMenu.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
                 R.id.action_open_node -> {
@@ -1721,6 +1733,10 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 }
                 R.id.action_insert_subnode -> {
                     viewModel.insertNode(node, isSubNode = true)
+                    true
+                }
+                R.id.action_scripts -> {
+                    showScriptsActivity(obj = node)
                     true
                 }
                 R.id.action_info -> {
@@ -1996,7 +2012,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             }
             Constants.ACTION_MAIN_ACTIVITY -> {
                 if (intent.hasExtra(Constants.EXTRA_SHOW_STORAGE_INFO)) {
-                    showStorageInfoActivity()
+                    showStorageInfoActivity(storageId = viewModel.getStorageId())
                 }
             }
             Constants.ACTION_STORAGE_SETTINGS -> {
@@ -2072,7 +2088,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 onCancel = {},
             )
         } else {
-            IntentDialog(
+            IntentsDialog(
                 resourcesProvider = resourcesProvider,
                 isText = isText,
                 onItemClick = { receivedData: ReceivedData ->
@@ -2088,7 +2104,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                         // TODO: реализовать выбор имеющихся записей
                     }
                 }
-            ).showIfPossible(supportFragmentManager)
+            ).showIfPossibleAndNeeded(supportFragmentManager)
         }
     }
 
@@ -2209,15 +2225,18 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             // через стиль не получилось, т.к. внутри AppCompatAutoCompleteTextView
             it.setTextColor(Color.WHITE)
         }
+        val ivIcon = tagsHeader.findViewById<ImageView>(R.id.image_view)
         val tvHeader = tagsHeader.findViewById<TextView>(R.id.text_view_tags_header)
         object : SearchViewXListener(searchView) {
             override fun onClose() {
                 searchInTags(null, isSearch = false)
-                tvHeader.visibility = View.VISIBLE
+                ivIcon.isVisible = true
+                tvHeader.isVisible = true
             }
 
             override fun onSearchClick() {
-                tvHeader.visibility = View.GONE
+                ivIcon.isVisible = false
+                tvHeader.isVisible = false
             }
 
             override fun onQuerySubmit(query: String) {
@@ -2309,6 +2328,10 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         menu.findItem(R.id.action_storage_sync)?.setEnabled(isStorageLoaded)
         val isStorageNotNull = viewModel.storage != null
         menu.findItem(R.id.action_storage_info)?.setEnabled(isStorageNotNull)
+        menu.findItem(R.id.action_scripts)?.apply {
+            isVisible = buildInfoProvider.isFullVersion()
+            isEnabled = isStorageLoaded
+        }
         menu.findItem(R.id.action_storage_settings)?.setEnabled(isStorageNotNull)
         menu.findItem(R.id.action_storage_reload)?.setEnabled(isStorageNotNull)
 
@@ -2347,7 +2370,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 true
             }
             R.id.action_storage_info -> {
-                showStorageInfoActivity()
+                showStorageInfoActivity(storageId = viewModel.getStorageId())
                 true
             }
             R.id.action_storage_reload -> {
@@ -2358,12 +2381,18 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 showStoragesActivity()
                 true
             }
+            R.id.action_scripts -> {
+                showScriptsActivity(obj = null)
+                true
+            }
             R.id.action_storage_settings -> {
-                showStorageSettingsActivity(viewModel.storage)
+                viewModel.storage?.also {
+                    showStorageSettingsActivity(storage = it)
+                }
                 true
             }
             R.id.action_settings -> {
-                showActivityForResult(SettingsActivity::class.java, Constants.REQUEST_CODE_COMMON_SETTINGS_ACTIVITY)
+                showSettingsActivity()
                 true
             }
             else -> if (onMainOptionsItemSelected(id)) {
@@ -2387,9 +2416,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 true
             }
             R.id.action_cur_record_folder -> {
-                viewModel.openCurrentRecordFolder(
-                    activity = this,
-                )
+                viewModel.openCurrentRecordFolder()
                 true
             }
             else -> {
@@ -2481,17 +2508,17 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
     // region StartActivity
 
-    private fun showStorageInfoActivity() {
-        start(this, viewModel.getStorageId())
-    }
-
     private fun showGlobalSearchActivity(query: String?) {
         if (viewModel.isLoadedFavoritesOnly()) {
             viewModel.showMessage(getString(R.string.mes_all_nodes_must_be_loaded), LogType.WARNING)
         } else {
-            val curNode = viewModel.curNode
-            val curNodeId = if (curNode != null && curNode !== FAVORITES_NODE) curNode.id else null
-            start(this, query, curNodeId, viewModel.getStorageId())
+            val curNodeId = viewModel.curNode?.takeIf { it !== FAVORITES_NODE }?.id
+            SearchActivity.start(
+                activity = this,
+                query = query,
+                currentNodeId = curNodeId,
+                storageId = viewModel.getStorageId(),
+            )
         }
     }
 

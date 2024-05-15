@@ -18,7 +18,7 @@
         android:paddingTop="0dp"
         android:paddingBottom="0dp"
         style="@style/RecordLabel"
-        android:text="@string/label_tags"/>
+        android:text="@string/label_tags_colon"/>
 
     <TextView
         android:id="@+id/text_view_record_tags"
@@ -42,7 +42,7 @@
         android:layout_height="wrap_content"
         android:padding="2dp"
         style="@style/RecordLabel"
-        android:text="@string/label_author"
+        android:text="@string/label_author_colon"
         android:layout_alignParentStart="true" />
 
     <TextView
@@ -64,7 +64,7 @@
         android:layout_height="wrap_content"
         android:padding="2dp"
         style="@style/RecordLabel"
-        android:text="@string/label_url"
+        android:text="@string/label_url_colon"
         android:layout_alignParentStart="true" />
 
     <TextView
@@ -90,7 +90,7 @@
         android:layout_height="wrap_content"
         android:padding="2dp"
         style="@style/RecordLabel"
-        android:text="@string/label_created"/>
+        android:text="@string/label_created_colon"/>
 
     <TextView
         android:id="@+id/text_view_record_created"
@@ -115,7 +115,7 @@
         android:layout_height="wrap_content"
         android:padding="2dp"
         style="@style/RecordLabel"
-        android:text="@string/label_text_edited"
+        android:text="@string/label_text_edited_colon"
         android:visibility="gone"
         tools:visibility="visible" />
 

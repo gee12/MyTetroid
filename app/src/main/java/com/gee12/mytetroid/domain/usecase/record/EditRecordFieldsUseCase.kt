@@ -13,7 +13,7 @@ import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.domain.usecase.crypt.CryptRecordFilesIfNeedUseCase
 import com.gee12.mytetroid.domain.usecase.file.MoveFileOrFolderUseCase
-import com.gee12.mytetroid.domain.usecase.storage.SaveStorageUseCase
+import com.gee12.mytetroid.domain.usecase.storage.SaveStorageTreeUseCase
 import com.gee12.mytetroid.domain.usecase.tag.DeleteRecordTagsUseCase
 import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
 
@@ -33,7 +33,7 @@ class EditRecordFieldsUseCase(
     private val deleteRecordTagsUseCase: DeleteRecordTagsUseCase,
     private val parseRecordTagsUseCase: ParseRecordTagsUseCase,
     private val cryptRecordFilesIfNeedUseCase: CryptRecordFilesIfNeedUseCase,
-    private val saveStorageUseCase: SaveStorageUseCase,
+    private val saveStorageTreeUseCase: SaveStorageTreeUseCase,
 ) : UseCase<UseCase.None, EditRecordFieldsUseCase.Params>() {
 
     data class Params(
@@ -127,7 +127,7 @@ class EditRecordFieldsUseCase(
         }
 
         // перезаписываем структуру хранилища в файл
-        return saveStorageUseCase.run()
+        return saveStorageTreeUseCase.run()
             .flatMap {
                 ifEitherOrNoneSuspend(
                     oldTagsString == null && tagsString.isNotEmpty()

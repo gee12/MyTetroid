@@ -7,7 +7,7 @@
     android:padding="10dp"
     style="@style/RootLayout">
 
-    <EditText
+    <com.gee12.htmlwysiwygeditor.EditTextWithClear
         android:id="@+id/edit_text_pass"
         android:inputType="text|textPassword"
         style="@style/AppEditTextInLayout"
@@ -15,6 +15,6 @@
 
         <requestFocus/>
 
-    </EditText>
+    </com.gee12.htmlwysiwygeditor.EditTextWithClear>
 
 </LinearLayout>

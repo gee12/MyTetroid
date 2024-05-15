@@ -2,10 +2,12 @@ package com.gee12.mytetroid.di.modules
 
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.ui.about.AboutAppViewModel
+import com.gee12.mytetroid.ui.file.FolderPickerViewModel
 import com.gee12.mytetroid.ui.logs.LogsViewModel
 import com.gee12.mytetroid.ui.main.MainViewModel
 import com.gee12.mytetroid.ui.node.icon.IconsViewModel
 import com.gee12.mytetroid.ui.record.RecordViewModel
+import com.gee12.mytetroid.ui.scripts.ScriptsViewModel
 import com.gee12.mytetroid.ui.settings.CommonSettingsViewModel
 import com.gee12.mytetroid.ui.settings.storage.StorageSettingsViewModel
 import com.gee12.mytetroid.ui.splash.SplashViewModel
@@ -31,7 +33,7 @@ object ViewModelsModule {
                     failureHandler = get(),
                     settingsManager = get(),
                     appPathProvider = get(),
-                    migrationInteractor = get(),
+                    migrationManager = get(),
                     initAppUseCase = get(),
                 )
             }
@@ -58,11 +60,11 @@ object ViewModelsModule {
 
                     favoritesManager = get(),
                     interactionManager = get(),
-                    syncInteractor = get(),
+                    syncManager = get(),
 
                     initOrCreateStorageUseCase = get(),
-                    readStorageUseCase = get(),
-                    saveStorageUseCase = get(),
+                    readStorageTreeUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                     decryptStorageUseCase = get(),
                     checkStorageFilesExistingUseCase = get(),
                     clearStorageTrashFolderUseCase = get(),
@@ -102,12 +104,12 @@ object ViewModelsModule {
 
                     favoritesManager = get(),
                     interactionManager = get(),
-                    syncInteractor = get(),
-                    storageTreeInteractor = get(),
+                    syncManager = get(),
+                    storageTreeObserver = get(),
 
                     initOrCreateStorageUseCase = get(),
-                    readStorageUseCase = get(),
-                    saveStorageUseCase = get(),
+                    readStorageTreeUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                     decryptStorageUseCase = get(),
                     checkStorageFilesExistingUseCase = get(),
                     clearStorageTrashFolderUseCase = get(),
@@ -178,11 +180,11 @@ object ViewModelsModule {
 
                     favoritesManager = get(),
                     interactionManager = get(),
-                    syncInteractor = get(),
+                    syncManager = get(),
 
                     initOrCreateStorageUseCase = get(),
-                    readStorageUseCase = get(),
-                    saveStorageUseCase = get(),
+                    readStorageTreeUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                     decryptStorageUseCase = get(),
                     checkStorageFilesExistingUseCase = get(),
                     clearStorageTrashFolderUseCase = get(),
@@ -212,6 +214,9 @@ object ViewModelsModule {
                     downloadImageFromWebUseCase = get(),
                     downloadFileFromWebUseCase = get(),
                     getImageDimensionsUseCase = get(),
+                    prepareFileForOpenUseCase = get(),
+                    getActiveScriptsForRecordUseCase = get(),
+                    getScriptTextUseCase = get(),
                 )
             }
 
@@ -238,11 +243,11 @@ object ViewModelsModule {
 
                     favoritesManager = get(),
                     interactionManager = get(),
-                    syncInteractor = get(),
+                    syncManager = get(),
 
                     initOrCreateStorageUseCase = get(),
-                    readStorageUseCase = get(),
-                    saveStorageUseCase = get(),
+                    readStorageTreeUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                     decryptStorageUseCase = get(),
                     checkStorageFilesExistingUseCase = get(),
                     clearStorageTrashFolderUseCase = get(),
@@ -284,11 +289,11 @@ object ViewModelsModule {
 
                     favoritesManager = get(),
                     interactionManager = get(),
-                    syncInteractor = get(),
+                    syncManager = get(),
 
                     initOrCreateStorageUseCase = get(),
-                    readStorageUseCase = get(),
-                    saveStorageUseCase = get(),
+                    readStorageTreeUseCase = get(),
+                    saveStorageTreeUseCase = get(),
                     decryptStorageUseCase = get(),
                     checkStorageFilesExistingUseCase = get(),
                     clearStorageTrashFolderUseCase = get(),
@@ -345,6 +350,34 @@ object ViewModelsModule {
                 )
             }
 
+            viewModel {
+                ScriptsViewModel(
+                    app = androidApplication(),
+                    buildInfoProvider = get(),
+                    resourcesProvider = get(),
+                    logger = get(),
+                    notificator = get(),
+                    failureHandler = get(),
+                    settingsManager = get(),
+                    appPathProvider = get(),
+                    storageProvider = get(),
+                    storagePathProvider = get(),
+                    getScriptsUseCase = get(),
+                    getObjectByTypeAndIdUseCase = get(),
+                    readTextFileUseCase = get(),
+                    getScriptTextUseCase = get(),
+                    saveScriptUseCase = get(),
+                    addDefaultScriptUseCase = get(),
+                    editScriptUseCase = get(),
+                    setScriptIsActivatedUseCase = get(),
+                    setScriptsIsActivatedUseCase = get(),
+                    setScriptToObjectIsActivatedUseCase = get(),
+                    duplicateScriptUseCase = get(),
+                    deleteScriptFileUseCase = get(),
+                    prepareFileForOpenUseCase = get(),
+                )
+            }
+
         }
 
         viewModel {
@@ -378,6 +411,19 @@ object ViewModelsModule {
 
         viewModel {
             AboutAppViewModel(
+                app = androidApplication(),
+                buildInfoProvider = get(),
+                resourcesProvider = get(),
+                logger = get(),
+                notificator = get(),
+                failureHandler = get(),
+                settingsManager = get(),
+                appPathProvider = get(),
+            )
+        }
+
+        viewModel {
+            FolderPickerViewModel(
                 app = androidApplication(),
                 buildInfoProvider = get(),
                 resourcesProvider = get(),

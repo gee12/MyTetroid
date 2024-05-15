@@ -7,7 +7,6 @@ import com.gee12.mytetroid.*
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.domain.*
-import com.gee12.mytetroid.domain.interactor.*
 import com.gee12.mytetroid.domain.manager.*
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.domain.usecase.InitAppUseCase
@@ -25,7 +24,7 @@ class SplashViewModel(
     settingsManager: CommonSettingsManager,
     appPathProvider: IAppPathProvider,
 
-    private val migrationInteractor: MigrationInteractor,
+    private val migrationManager: MigrationManager,
 
     private val initAppUseCase: InitAppUseCase,
 ): BaseViewModel(
@@ -107,8 +106,8 @@ class SplashViewModel(
         logger.log(getString(R.string.log_start_migrate_to_version_mask, "5.3"), false)
 
         // параметры хранилища из SharedPreferences в бд
-        if (migrationInteractor.isNeedMigrateStorageFromPrefs()) {
-            if (migrationInteractor.addDefaultStorageFromPrefs()) {
+        if (migrationManager.isNeedMigrateStorageFromPrefs()) {
+            if (migrationManager.addDefaultStorageFromPrefs()) {
                 logger.log(R.string.log_migration_finished_successfully)
             } else {
                 return false

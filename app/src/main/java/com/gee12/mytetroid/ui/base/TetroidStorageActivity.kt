@@ -6,14 +6,18 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.provider.IStorageProvider
+import com.gee12.mytetroid.model.TetroidObject
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.model.permission.TetroidPermission
-import com.gee12.mytetroid.ui.settings.storage.StorageSettingsActivity.Companion.newIntent
-import com.gee12.mytetroid.ui.storages.StoragesActivity.Companion.start
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
 import com.gee12.mytetroid.ui.dialogs.FullFileStoragePermissionDialog
+import com.gee12.mytetroid.ui.scripts.ScriptsActivity
+import com.gee12.mytetroid.ui.settings.SettingsActivity
+import com.gee12.mytetroid.ui.settings.storage.StorageSettingsActivity
 import com.gee12.mytetroid.ui.storage.StorageEvent
+import com.gee12.mytetroid.ui.storage.info.StorageInfoActivity
+import com.gee12.mytetroid.ui.storages.StoragesActivity
 
 abstract class TetroidStorageActivity<VM : BaseStorageViewModel> : TetroidActivity<VM>() {
 
@@ -139,7 +143,7 @@ abstract class TetroidStorageActivity<VM : BaseStorageViewModel> : TetroidActivi
                             callback()
                         },
                         onCancel = {}
-                    ).showIfPossible(supportFragmentManager)
+                    ).showIfPossibleAndNeeded(supportFragmentManager)
                 },
             )
         } else {
@@ -161,13 +165,45 @@ abstract class TetroidStorageActivity<VM : BaseStorageViewModel> : TetroidActivi
 
     // endregion File
 
-    protected fun showStoragesActivity() {
-        start(this, Constants.REQUEST_CODE_STORAGES_ACTIVITY)
+    // region Start Activity
+
+    protected fun showStorageInfoActivity(storageId: Int) {
+        StorageInfoActivity.start(
+            context = this,
+            storageId = storageId,
+        )
     }
 
-    protected fun showStorageSettingsActivity(storage: TetroidStorage?) {
-        if (storage == null) return
-        startActivityForResult(newIntent(this, storage), Constants.REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY)
+    protected fun showStoragesActivity() {
+        StoragesActivity.start(
+            activity = this,
+            requestCode = Constants.REQUEST_CODE_STORAGES_ACTIVITY,
+        )
     }
+
+    protected fun showScriptsActivity(obj: TetroidObject?) {
+        ScriptsActivity.start(
+            activity = this,
+            obj = obj,
+            requestCode = Constants.REQUEST_CODE_SCRIPTS_ACTIVITY,
+        )
+    }
+
+    protected fun showStorageSettingsActivity(storage: TetroidStorage) {
+        StorageSettingsActivity.start(
+            activity = this,
+            storage = storage,
+            requestCode = Constants.REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY,
+        )
+    }
+
+    protected fun showSettingsActivity() {
+        SettingsActivity.start(
+            activity = this,
+            requestCode = Constants.REQUEST_CODE_COMMON_SETTINGS_ACTIVITY,
+        )
+    }
+
+    // endregion Start Activity
 
 }

@@ -17,7 +17,6 @@ import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.*
-import com.gee12.mytetroid.domain.interactor.*
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.domain.manager.*
@@ -59,15 +58,15 @@ open class StorageViewModel(
     val cryptManager: IStorageCryptManager,
 
     val interactionManager: InteractionManager,
-    val syncInteractor: SyncInteractor,
+    val syncManager: SyncManager,
     val favoritesManager: FavoritesManager,
 
     protected val getFileModifiedDateUseCase: GetFileModifiedDateInStorageUseCase,
     protected val getFolderSizeUseCase: GetFolderSizeInStorageUseCase,
 
     protected val initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
-    protected val readStorageUseCase: ReadStorageUseCase,
-    protected val saveStorageUseCase: SaveStorageUseCase,
+    protected val readStorageTreeUseCase: ReadStorageTreeUseCase,
+    protected val saveStorageTreeUseCase: SaveStorageTreeUseCase,
     protected val decryptStorageUseCase: DecryptStorageUseCase,
     protected val checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
     protected val clearStorageTrashFolderUseCase: ClearStorageTrashFolderUseCase,
@@ -331,7 +330,7 @@ open class StorageViewModel(
         }
     }
 
-    fun initStorage(storage: TetroidStorage, isLoadFavoritesOnly: Boolean? = null, isLoadAfter: Boolean = false) {
+    private fun initStorage(storage: TetroidStorage, isLoadFavoritesOnly: Boolean? = null, isLoadAfter: Boolean = false) {
         launchOnMain {
             isAlreadyTryDecrypt = false
             withIo {
@@ -479,8 +478,8 @@ open class StorageViewModel(
             ))
 
             val result = withIo {
-                readStorageUseCase.run(
-                    ReadStorageUseCase.Params(
+                readStorageTreeUseCase.run(
+                    ReadStorageTreeUseCase.Params(
                         isDecrypt = isDecrypt,
                         isFavoritesOnly = isFavoritesOnly,
                         isOpenLastNode = isOpenLastNode,
@@ -768,7 +767,7 @@ open class StorageViewModel(
                 return
             }
         }
-        val result = syncInteractor.startStorageSync(
+        val result = syncManager.startStorageSync(
             activity = activity,
             storagePath = getStorageFolderPath().fullPath,
             command = storage?.syncProfile?.command.orEmpty(),
@@ -779,7 +778,7 @@ open class StorageViewModel(
             // запускаем обработчик сразу после синхронизации, не дожидаясь ответа, если:
             //  1) синхронизацию не удалось запустить
             //  2) выбрана синхронизация с помощью приложения, не предусматривающего ответ
-            val waitSyncResult = syncInteractor.isWaitSyncResult(
+            val waitSyncResult = syncManager.isWaitSyncResult(
                 appName = storage?.syncProfile?.appName.orEmpty()
             )
             if (!result || !waitSyncResult) {
@@ -895,7 +894,7 @@ open class StorageViewModel(
      * @param node
      * @return
      */
-    fun createNodesHierarchy(node: TetroidNode): Stack<TetroidNode>? {
+    fun createNodesHierarchy(node: TetroidNode): Stack<TetroidNode> {
         val hierarchy = Stack<TetroidNode>()
         createNodesHierarchy(hierarchy, node)
         return hierarchy
@@ -979,7 +978,7 @@ open class StorageViewModel(
             CheckStorageFilesExistingUseCase.Params(storage!!)
         ).foldResult(
             onLeft = {
-                failureHandler.getFailureMessage(it).getFullMassage()
+                failureHandler.getFailureMessage(it).getFullMessage()
             },
             onRight = { result ->
                 when (result) {
@@ -1311,7 +1310,7 @@ open class StorageViewModel(
 
     suspend fun saveStorage(): Boolean {
         return withIo {
-            saveStorageUseCase.run()
+            saveStorageTreeUseCase.run()
         }.foldResult(
             onLeft = {
                 logFailure(it)

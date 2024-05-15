@@ -15,6 +15,7 @@ import com.gee12.htmlwysiwygeditor.WysiwygEditor
 import com.gee12.htmlwysiwygeditor.model.ImageParams
 import com.gee12.mytetroid.domain.AppThemeHelper.setNightMode
 import com.gee12.mytetroid.domain.provider.BuildInfoProvider
+import com.gee12.mytetroid.model.ImageDimension
 
 class TetroidEditor @JvmOverloads constructor(
     context: Context,
@@ -28,6 +29,7 @@ class TetroidEditor @JvmOverloads constructor(
     interface IEditorListener {
         fun onIsEditedChanged(isEdited: Boolean)
         fun onEditImage(params: ImageParams)
+        fun onShowMessage(message: String)
     }
 
     var isCalledHtmlRequest = false
@@ -119,15 +121,6 @@ class TetroidEditor @JvmOverloads constructor(
         )
         val notAvailableYetActions = arrayOf(
             ActionType.INSERT_FORMULA,
-            // table
-            ActionType.INSERT_TABLE,
-            ActionType.EDIT_TABLE,
-            ActionType.INSERT_TABLE_ROWS,
-            ActionType.DELETE_TABLE_ROW,
-            ActionType.INSERT_TABLE_COLS,
-            ActionType.DELETE_TABLE_COL,
-            ActionType.MERGE_TABLE_CELLS,
-            ActionType.SPLIT_TABLE_CELLS,
         )
         if ((buildInfoProvider.isFreeVersion() && actionType in proActions)
             || actionType in notAvailableYetActions
@@ -141,17 +134,6 @@ class TetroidEditor @JvmOverloads constructor(
             when (button.type) {
                 ActionType.INSERT_FORMULA -> showToastNotAvailableYet()
                 ActionType.VOICE_INPUT -> showToastNotAvailableInFree()
-                // table
-                ActionType.INSERT_TABLE,
-                ActionType.EDIT_TABLE,
-                ActionType.INSERT_TABLE_ROWS,
-                ActionType.DELETE_TABLE_ROW,
-                ActionType.INSERT_TABLE_COLS,
-                ActionType.DELETE_TABLE_COL,
-                ActionType.MERGE_TABLE_CELLS,
-                ActionType.SPLIT_TABLE_CELLS -> {
-                    showToastNotAvailableYet()
-                }
                 else -> Unit
             }
         } else {
@@ -162,10 +144,11 @@ class TetroidEditor @JvmOverloads constructor(
         /**
      * Вызывается перед сохранением текста записи в файл.
      */
-    fun beforeSaveAsync(deleteStyleEmpty: Boolean) {
-        if (deleteStyleEmpty) {
+    fun beforeSaveAsync(isDeleteStyleEmpty: Boolean) {
+        if (isDeleteStyleEmpty) {
             deleteStyleEmpty()
         }
+        webView.onBeforeSaveHtmlContent()
         isCalledHtmlRequest = true
         webView.makeEditableHtmlRequest()
     }
@@ -191,7 +174,7 @@ class TetroidEditor @JvmOverloads constructor(
             |    }
             |}
             """.trimMargin()
-        webView.execJavascript(script, true)
+        webView.execJavascript(script, callStateChange = true)
     }
 
     fun insertImage(image: TetroidImage) {
@@ -245,15 +228,26 @@ class TetroidEditor @JvmOverloads constructor(
             srcHeight = image.height,
             isUseSourceSize = true,
             isSeveral = isSeveral,
-            onApply = { width, height, similar ->
+            onApply = { width, height, useSourceSize, setSimilar ->
                 webView.insertImage(url = image.name, width, height)
-                if (!similar) {
+                if (!setSimilar) {
                     // вновь выводим диалог установки размера
                     showInsertImageDialog(images, pos = pos + 1)
                 } else {
-                    // устанавливаем "сохраненный" размер
                     for (i in pos + 1 until images.size) {
-                        webView.insertImage(url = images[i].name, width, height)
+                        val image = images[i]
+                        val dimen = if (useSourceSize) {
+                            // вставляем изображения с оригинальным размером
+                            ImageDimension(width = image.width, height = image.height)
+                        } else {
+                            // вставляем изображения с указанным размером
+                            ImageDimension(width = width, height = height)
+                        }
+                        webView.insertImage(
+                            url = image.name,
+                            width = dimen.width,
+                            height = dimen.height,
+                        )
                     }
                 }
             }
@@ -281,6 +275,10 @@ class TetroidEditor @JvmOverloads constructor(
 
     fun setEditorListener(listener: IEditorListener) {
         editorListener = listener
+    }
+
+    override fun showMessage(message: String) {
+        editorListener?.onShowMessage(message)
     }
 
     companion object {

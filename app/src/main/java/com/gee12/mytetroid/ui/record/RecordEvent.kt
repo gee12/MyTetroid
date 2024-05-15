@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.ui.record
 
+import android.net.Uri
 import android.os.Bundle
 import androidx.documentfile.provider.DocumentFile
 import com.gee12.htmlwysiwygeditor.model.ImageParams
@@ -38,6 +39,12 @@ sealed class RecordEvent : StorageEvent() {
         val recordText: String,
     ) : RecordEvent()
     object LoadRecordTextFromHtml : RecordEvent()
+
+    sealed class UserJSScript : RecordEvent() {
+        data class Loaded(val scriptText: String) : RecordEvent()
+        object LoadedAll : RecordEvent()
+    }
+
     data class AskForLoadAllNodes(
         val resultObj: ResultObject,
     ) : RecordEvent()
@@ -57,6 +64,14 @@ sealed class RecordEvent : StorageEvent() {
     data class EditedDateChanged(
         val dateString: String,
     ) : RecordEvent()
+
+    data class OpenImageFile(
+        val uri: Uri,
+        val mimeType: String,
+    ) : RecordEvent()
+
+    data class OpenRecordFolder(val uri: Uri) : RecordEvent()
+
     object StartLoadImages : RecordEvent()
     object StartCaptureCamera : RecordEvent()
     data class InsertImages(
@@ -93,5 +108,4 @@ sealed class RecordEvent : StorageEvent() {
     data class OpenTag(val tagName: String) : RecordEvent()
     data class OpenRecordAttaches(val recordId: String) : RecordEvent()
     data class DeleteRecord(val recordId: String) : RecordEvent()
-
 }

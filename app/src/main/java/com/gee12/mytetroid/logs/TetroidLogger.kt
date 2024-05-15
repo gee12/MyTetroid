@@ -10,6 +10,7 @@ import com.gee12.mytetroid.logs.TaskStage.Stages
 import com.gee12.mytetroid.model.TetroidObject
 import com.gee12.mytetroid.domain.provider.ILocaleProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
+import com.gee12.mytetroid.model.enums.Tense
 
 
 class TetroidLogger(
@@ -20,12 +21,6 @@ class TetroidLogger(
 ) : FileTetroidLogger(
     failureHandler,
 ) {
-    
-    companion object {
-        const val PRESENT_SIMPLE = 0
-        const val PAST_PERFECT = 1
-        const val PRESENT_CONTINUOUS = 2
-    }
 
     //region
 
@@ -73,8 +68,16 @@ class TetroidLogger(
 
     override fun logOperStart(obj: LogObj, oper: LogOper, add: String): String {
         // меняем местами существительное и глагол в зависимости от языка
-        val first = if (localeProvider.isRusLanguage()) oper.getString(PRESENT_CONTINUOUS, ::getStringArray) else obj.getString(PRESENT_CONTINUOUS, ::getStringArray)
-        val second = if (localeProvider.isRusLanguage()) obj.getString(PRESENT_CONTINUOUS, ::getStringArray) else oper.getString(PRESENT_CONTINUOUS, ::getStringArray)
+        val first = if (localeProvider.isRusLanguage()) {
+            oper.getString(Tense.PRESENT_CONTINUOUS, resourcesProvider)
+        } else {
+            obj.getString(Tense.PRESENT_CONTINUOUS, resourcesProvider)
+        }
+        val second = if (localeProvider.isRusLanguage()) {
+            obj.getString(Tense.PRESENT_CONTINUOUS, resourcesProvider)
+        } else {
+            oper.getString(Tense.PRESENT_CONTINUOUS, resourcesProvider)
+        }
         val mes = getString(R.string.log_oper_start_mask, first, second) + add
         log(mes, LogType.INFO)
         return mes
@@ -87,8 +90,8 @@ class TetroidLogger(
     override fun logOperCancel(obj: LogObj, oper: LogOper): String {
         val mes = getString(
             R.string.log_oper_cancel_mask,
-            obj.getString(PRESENT_CONTINUOUS, ::getStringArray),
-            oper.getString(PRESENT_CONTINUOUS, ::getStringArray)
+            obj.getString(Tense.PRESENT_CONTINUOUS, resourcesProvider),
+            oper.getString(Tense.PRESENT_CONTINUOUS, resourcesProvider)
         )
         log(mes, LogType.DEBUG)
         return mes
@@ -108,14 +111,14 @@ class TetroidLogger(
 
 //    override fun logOperRes(obj: LogObj, oper: LogOper, add: String = "", show: Boolean = true): String {
     override fun logOperRes(obj: LogObj, oper: LogOper, add: String, show: Boolean): String {
-        val mes = obj.getString(PAST_PERFECT, ::getStringArray) + oper.getString(PAST_PERFECT, ::getStringArray) + add
+        val mes = obj.getString(Tense.PAST_PERFECT, resourcesProvider) + oper.getString(Tense.PAST_PERFECT, resourcesProvider) + add
         log(mes, LogType.INFO, show)
         return mes
     }
 
     fun logOperRes(obj: LogObj, oper: LogOper, add: String, show: Boolean, showAdd: Boolean): String {
         var isShow = show
-        var mes = obj.getString(PAST_PERFECT, ::getStringArray) + oper.getString(PAST_PERFECT, ::getStringArray)
+        var mes = obj.getString(Tense.PAST_PERFECT, resourcesProvider) + oper.getString(Tense.PAST_PERFECT, resourcesProvider)
         if (!showAdd) {
             showMessage(mes, LogType.INFO)
             isShow = false
@@ -144,8 +147,8 @@ class TetroidLogger(
     override fun logOperError(obj: LogObj, oper: LogOper, add: String?, more: Boolean, show: Boolean): String {
         val mes = getString(
             R.string.log_oper_error_mask,
-            oper.getString(PRESENT_SIMPLE, ::getStringArray),
-            obj.getString(PRESENT_SIMPLE, ::getStringArray),
+            oper.getString(Tense.PRESENT_SIMPLE, resourcesProvider),
+            obj.getString(Tense.PRESENT_SIMPLE, resourcesProvider),
             add.orEmpty()
         )
 //                (more) ? context.getString(R.string.log_more_in_logs) : "");
@@ -159,8 +162,8 @@ class TetroidLogger(
     override fun logDuringOperErrors(obj: LogObj, oper: LogOper, show: Boolean): String {
         val mes = getStringFormat(
             R.string.log_during_oper_errors_mask,
-            oper.getString(PRESENT_CONTINUOUS, ::getStringArray),
-            obj.getString(PRESENT_CONTINUOUS, ::getStringArray)
+            oper.getString(Tense.PRESENT_CONTINUOUS, resourcesProvider),
+            obj.getString(Tense.PRESENT_CONTINUOUS, resourcesProvider)
         )
         log(mes, LogType.ERROR, show)
         showSnackMoreInLogs()

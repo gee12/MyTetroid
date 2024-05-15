@@ -4,7 +4,6 @@
     <string name="app_summ_html"><![CDATA[Android-клиент полнофункционального PIM-менеджера <a style=\'color:#303F9F\' href=\'https://webhamster.ru/site/page/index/articles/projectcode/105\'>MyTetra</a>]]></string>
     <string name="project_url_html"><![CDATA[Страница проекта: <a href=\'https://gee12.space/mytetroid\'>www.gee12.space/mytetroid</a>]]></string>
     <string name="policy_link_html"><![CDATA[<a href=\'https://gee12.space/mytetroid/policy\'>Политика конфиденциальности</a>]]></string>
-    <string name="hint_date_format_string">Н-р: \"dd MMM yyyy HH:mm\"</string>
 
     <string name="hint_node_is_not_set"><![CDATA[<ветка не указана>]]></string>
     <string name="hint_need_load_storage"><![CDATA[<загрузите хранилище>]]></string>
@@ -12,6 +11,7 @@
     <string name="hint_node_not_found"><![CDATA[<ветка не найдена>]]></string>
     <string name="hint_node_not_decrypted"><![CDATA[<ветка не расшифрована>]]></string>
     <string name="hint_error"><![CDATA[<ошибка>]]></string>
+    <string name="hint_date_format_string">dd MMM yyyy HH:mm</string>
 
     <string name="title_app_updated">Обновление</string>
     <string name="mes_migration_53_mask">Приложение обновилось на версию %s\n\nВ этой версии добавилась поддержка нескольких хранилищ (пока одновременно загружать можно только одно)\nПараметры вашего хранилища были автоматически перенесены в \"Основное хранилище\"</string>
@@ -61,6 +61,7 @@
     <string name="title_attached_files">Прикрепленные файлы</string>
     <string name="title_cur_record">Текст записи</string>
     <string name="title_storages">Список хранилищ</string>
+    <string name="title_scripts">Скрипты</string>
     <string name="title_storage_info">Инфо о хранилище</string>
     <string name="title_node_icon_choice">Выбор иконки</string>
     <string name="title_expand_node_subnodes">Развернуть все подветки</string>
@@ -78,6 +79,7 @@
     <string name="title_record_html">html-код</string>
     <string name="title_filter_records">Фильтр записей</string>
     <string name="title_edit_record_fields">Редактировать свойства</string>
+    <string name="title_reload_record_text">Перезагрузить текст</string>
     <string name="title_edit_mode">Редактирование</string>
     <string name="title_view_mode">Просмотр</string>
     <string name="title_open_tag_records">Открыть записи метки</string>
@@ -116,6 +118,7 @@
     <string name="title_select_the_node">Выберите ветку…</string>
     <string name="title_need_load_storage_to_view_info">Для просмотра данных нужно загрузить хранилище…</string>
     <string name="title_storages_empty_label">Добавьте хранилище…</string>
+    <string name="title_scripts_empty_label">Добавьте скрипт…</string>
     <string name="title_files_is_missing">Прикрепленных файлов нет</string>
     <string name="title_file_is_missing">Файл отсутствует</string>
     <string name="title_fullscreen">Полноэкранный режим</string>
@@ -146,6 +149,7 @@
     <string name="title_use_global_search">Использовать глобальный поиск</string>
     <string name="title_reload_storage">Перезагрузить хранилище</string>
     <string name="title_load_all_nodes">Загрузите все ветки</string>
+    <string name="title_load_all_nodes_for_scripts">Загрузите все ветки, чтобы отобразились все объекты в списке</string>
     <string name="title_more_in_logs">Подробнее в логах</string>
     <string name="title_author">Автор</string>
     <string name="title_tags">Метки</string>
@@ -159,6 +163,11 @@
     <string name="title_new_record">Новая запись</string>
     <string name="title_add_record">Добавить запись</string>
     <string name="title_add_storage">Добавить хранилище</string>
+    <string name="title_add_script">Добавить скрипт</string>
+    <string name="title_script_create_new">Создать новый</string>
+    <string name="title_script_pick_file">Выбрать из файла</string>
+    <string name="title_default_scripts">Стандартные скрипты</string>
+    <string name="title_script_pick_default">Выбрать из стандартных</string>
     <string name="title_edit_storage">Изменить хранилище</string>
     <string name="title_select_folder"><![CDATA[<Выберите каталог>]]></string>
     <string name="title_select_node"><![CDATA[<Выберите ветку>]]></string>
@@ -205,11 +214,45 @@
     <string name="title_mytetroid_slogan">Персональная база знаний</string>
     <string name="title_settings_app_theme">Тема приложения</string>
     <string name="title_settings_editor_theme">Тема редактора текста</string>
+    <string name="title_script">Скрипт</string>
+    <string name="title_create_script">Создание скрипта</string>
+    <string name="title_edit_script">Изменение скрипта</string>
+    <string name="title_multiple_choice">Множественный выбор</string>
+    <string name="title_filter">Фильтр</string>
+    <string name="title_script_for_record_masked">Для записи «%s»</string>
+    <string name="title_script_for_node_masked">Для ветки «%s»</string>
+    <string name="title_script_for_tag_masked">Для метки «%s»</string>
+    <string name="title_script_for_all_storage">Для всего хранилища</string>
+    <string name="title_decrypt_storage_object_name"><![CDATA[<Расшифруйте хранилище>]]></string>
+    <string name="title_load_all_nodes_object_name"><![CDATA[<Загрузите все ветки>]]></string>
+    <string name="action_activate_all_for_storage">Включить все для хранилища</string>
+    <string name="action_deactivate_all_for_storage">Отключить все для хранилища</string>
+
+    <string name="title_def_script_title_table_sort">Сортировка таблиц</string>
+    <string name="title_def_script_description_table_sort">Строки таблицы будут отсортированы при клике на заголовке колонки</string>
+    <string name="title_def_script_title_table_totals">Итоги таблиц</string>
+    <string name="title_def_script_description_table_totals">Будет отображена итоговая сумма по колонке таблицы во всплывающем окне при долгом клике на ее заголовке</string>
+    <string name="title_def_script_title_link_url">Адрес ссылки</string>
+    <string name="title_def_script_description_link_url">При долгом клике по заголовку ссылки будет отображен ее URL-адрес во всплывающем окне</string>
+
+    <string name="title_pick_folder">Выберите каталог</string>
+    <string name="title_pick_file">Выберите файл</string>
+    <string name="title_enter_folder_name">Введите имя каталога</string>
+    <string name="title_enter_path">Введите путь</string>
+    <string name="location_mask">Путь: %s</string>
+    <string name="dir_is_not_exist">Каталог не существует</string>
+    <string name="error_select_file">Выберите файл</string>
+    <string name="error_select_empty_folder">Выберите пустой каталог</string>
+    <string name="error_folder_is_not_empty">Каталог не пустой</string>
+    <string name="error_folder_is_not_writable">Каталог недоступен для записи</string>
+    <string name="error_no_access_to_storage">Нет доступа к хранилищу</string>
 
     <string name="subtitle_main_page_node_records">ВЕТКА</string>
     <string name="subtitle_main_page_record_files">ФАЙЛЫ</string>
     <string name="subtitle_main_page_tag_records">МЕТКА</string>
     <string name="subtitle_main_page_multiple_tags_records">МЕТКИ</string>
+    <string name="subtitle_scripts_for_object_masked">Для %s «%s»</string>
+    <string name="subtitle_scripts_for_all_storage_masked">Для всего хранилища «%s»</string>
 
     <string name="title_settings_app_theme_system">Как в системе</string>
     <string name="title_settings_app_theme_light">Светлая</string>
@@ -415,34 +458,43 @@
     <string name="state_voice_input_recognition">Распознавание текста…</string>
     <string name="state_export_to_pdf">Экспорт в pdf…</string>
 
-    <string name="label_name">Название:</string>
-    <string name="label_tags">Метки:</string>
-    <string name="label_author">Автор:</string>
-    <string name="label_url">Url:</string>
-    <string name="label_created">Создано:</string>
-    <string name="label_edited">Изменен:</string>
-    <string name="label_text_edited">Текст изменен:</string>
-    <string name="label_pass">Пароль:</string>
-    <string name="label_cur_pass">Текущий пароль:</string>
-    <string name="label_new_pass">Новый пароль:</string>
-    <string name="label_confirm_pass">Пароль повторно:</string>
-    <string name="label_crypted">Зашифрована:</string>
-    <string name="label_attach_crypted">Зашифрован:</string>
-    <string name="label_path">Путь к каталогу:</string>
+    <string name="label_name">Название</string>
+    <string name="label_description">Описание</string>
+    <string name="label_text">Текст</string>
+    <string name="label_js_code">Javascript код</string>
+    <string name="label_file_name">Имя файла</string>
+    <string name="label_tags">Метки</string>
+    <string name="label_tags_colon">Метки:</string>
+    <string name="label_author">Автор</string>
+    <string name="label_author_colon">Автор:</string>
+    <string name="label_url">Url</string>
+    <string name="label_url_colon">Url:</string>
+    <string name="label_created_colon">Создано:</string>
+    <string name="label_edited_colon">Изменен:</string>
+    <string name="label_text_edited_colon">Текст изменен:</string>
+    <string name="label_password_colon">Пароль:</string>
+    <string name="label_current_password_colon">Текущий пароль:</string>
+    <string name="label_new_password_colon">Новый пароль:</string>
+    <string name="label_confirm_pass_colon">Пароль повторно:</string>
+    <string name="label_crypted_colon">Зашифрована:</string>
+    <string name="label_attach_crypted_colon">Зашифрован:</string>
+    <string name="label_path">Путь к каталогу</string>
+    <string name="label_path_colon">Путь к каталогу:</string>
     <string name="label_read_only">Только просмотр (еще не реализовано)</string>
-    <string name="label_file_size">Размер файла:</string>
-    <string name="label_folder_size">Размер каталога:</string>
-    <string name="label_icons_section">Раздел:</string>
-    <string name="label_pin_code_size_mask">Значение %d–%d:</string>
-    <string name="label_node">Ветка:</string>
-    <string name="label_record">Запись:</string>
-    <string name="label_parent_node">Родительская ветка:</string>
+    <string name="label_file_size_colon">Размер файла:</string>
+    <string name="label_folder_size_colon">Размер каталога:</string>
+    <string name="label_icons_section_colon">Раздел:</string>
+    <string name="hint_pin_code_size_mask">Значение %d–%d</string>
+    <string name="label_node">Ветка</string>
+    <string name="label_node_colon">Ветка:</string>
+    <string name="label_record_colon">Запись:</string>
+    <string name="label_parent_node_colon">Родительская ветка:</string>
     <string name="label_favorite">В избранное</string>
-    <string name="label_storage_name">Название:</string>
-    <string name="label_storage_path">Путь:</string>
-    <string name="label_storage_uri">Uri:</string>
-    <string name="label_storage_size">Размер на диске:</string>
-    <string name="label_storage_last_edit">Последнее изменение дерева:</string>
+    <string name="label_storage_name_colon">Название:</string>
+    <string name="label_storage_path_colon">Путь:</string>
+    <string name="label_storage_uri_colon">Uri:</string>
+    <string name="label_storage_size_colon">Размер на диске:</string>
+    <string name="label_storage_last_edit_colon">Последнее изменение дерева:</string>
     <string name="label_default_storage">Основное хранилище</string>
     <string name="label_delete_storage_with_files">Удалить вместе с каталогом</string>
 
@@ -508,12 +560,19 @@
     <string name="action_enter_password">Ввести пароль</string>
     <string name="action_settings">Настройки</string>
     <string name="action_load">Загрузить</string>
+    <string name="action_create_folder">Создать</string>
+    <string name="action_home">Домой</string>
+    <string name="action_duplicate">Дублировать</string>
+    <string name="action_activate_for_storage">Включить для хранилища</string>
+    <string name="action_deactivate_for_storage">Отключить для хранилища</string>
 
     <string name="ask_exit_from_app">Выйти из приложения?</string>
     <string name="ask_node_delete_mask">Удалить ветку «%s» ?</string>
     <string name="ask_quickly_node_delete_mask">Ветка «%s» используется для быстрой вставки. Удалить все равно?</string>
     <string name="ask_record_delete_mask">Удалить запись «%s» ?</string>
     <string name="ask_file_delete_mask">Удалить файл «%s» ?</string>
+    <string name="ask_script_delete_mask">Удалить скрипт «%s» ?</string>
+    <string name="ask_script_add_default">Скрипты - это Javascript-сценарии, позволяющие добавить дополнительный функционал в редактор текста заметок.\n\nСписок скриптов пуст, выбрать из стандартных?</string>
     <string name="ask_oper_without_record_dir_mask">Каталог записи отсутствует. %s все равно ?</string>
     <string name="ask_attach_delete_without_file">Файл отсутствует на диске. Удалить все равно ?</string>
     <string name="ask_delete_attach_without_file">Файл отсутствует на диске. Удалить файл из хранилища ?</string>
@@ -554,6 +613,7 @@
     <string name="ask_open_storage_settings">Открыть настройки хранилища ?</string>
     <string name="ask_decrypt_attached_files_in_trash_title">Открытие зашифрованного файла</string>
     <string name="ask_decrypt_attached_files_in_trash_message">Отключена опция \"Расшифровывать файлы в каталог\".\nВключить опцию и открыть файл?</string>
+    <string name="ask_script_was_changed_request">Код скрипта был изменен. Все равно выйти?</string>
 
     <string name="subtitle_record_view">ПРОСМОТР</string>
     <string name="subtitle_record_edit">РЕДАКТОР</string>
@@ -631,6 +691,9 @@
     <string name="error_clear_folder_mask">Ошибка очистки каталога:\n%s</string>
     <string name="error_file_is_missing_mask">Файл не существует: %s</string>
     <string name="error_folder_is_missing_mask">Каталог не существует: %s</string>
+    <string name="error_file_is_not_a_folder_mask">Файл не является каталогом: %s</string>
+    <string name="error_folder_is_not_writable_mask">Каталог недоступен для записи: %s</string>
+    <string name="error_folder_is_not_empty_mask">Каталог не пуст</string>
     <string name="log_error_add_record">Ошибка добавления записи в mytetra.xml</string>
     <string name="log_open_node">Открытие ветки:&#160;</string>
     <string name="log_sync_successful">Синхронизация успешно выполнена</string>
@@ -647,6 +710,8 @@
     <string name="error_get_folder_size_mask">Ошибка получения размера каталога: %s</string>
     <string name="error_denied_read_file_access_mask">Отказано в доступе к файлу на чтение: %s</string>
     <string name="log_file_sharing_error_mask">Ошибка предоставления доступа к файлу: %s</string>
+    <string name="error_get_file_extension_mask">Ошибка получения расширения файла: %s</string>
+    <string name="error_file_unknown_mime_type_mask">Неизвестный MIME тип изображения: %s</string>
     <string name="log_record_file_reading">Чтение файла записи: id=</string>
     <string name="log_error_record_reading">Ошибка чтения записи</string>
     <string name="log_not_found_child_in_viewflipper">Не найден дочерний элемент во ViewFliper</string>
@@ -693,7 +758,6 @@
     <string name="start_record_file_reading_mask">Начало чтения файла записи id=%s</string>
     <string name="log_start_record_file_saving_mask">Начало сохранения файла записи id=%s</string>
     <string name="log_start_attach_file_opening_mask">Начало открытия прикрепленного файла id=%s</string>
-    <string name="log_start_record_folder_opening_mask">Начало открытия каталога записи id=%s</string>
     <string name="log_dir_creating_error">Не удается создать каталог для сохранения лога:&#160;</string>
     <string name="log_created_log_dir">Создан каталог для лог-файла:&#160;</string>
     <string name="log_file_read_error">Ошибка чтения лог-файла:&#160;</string>
@@ -816,6 +880,7 @@
     <string name="log_start_migrate_to_version_mask">Запуск миграции на версию %s</string>
     <string name="log_migration_finished_successfully">Миграция прошла успешно</string>
     <string name="log_field_changed_mask">Изменен параметр хранилища \"%1$s\" с \"%2$s\" на \"%3$s\"</string>
+    <string name="log_loading_script_to_record_masked">Загрузка JS-скрипта: %s</string>
 
     <string name="error_record_create_mask">Ошибка создания записи:\n%s</string>
     <string name="error_record_name_is_empty">Пустое имя записи</string>
@@ -829,6 +894,16 @@
     <string name="error_save_pass_check_data">Ошибка сохранения данных пароля: crypt_check</string>
     <string name="error_clone_record_to_node">Не удалось скопировать запись в ветку</string>
     <string name="error_app_is_not_inited_restart">Приложение не проинициализировано, перезапускаем</string>
+    <string name="error_unknown">Неизвестная ошибка</string>
+    <string name="error_db_sql">Ошибка запроса к бд</string>
+    <string name="error_db_unknown">Неизвестная ошибка бд</string>
+    <string name="error_db_insert">Не удалось добавить запись в бд</string>
+    <string name="error_db_update">Не удалось обновить запись в бд</string>
+    <string name="error_db_delete">Не удалось удалить запись из бд</string>
+    <string name="error_db_item_not_found">Не найдено ни одной записи в бд</string>
+
+    <string name="error_script_file_is_not_exist">Файл отсутствует</string>
+    <string name="error_script_file_name_is_not_unique">Имя файла не уникально</string>
 
     <string name="folder_name_mask">каталог %s</string>
     <string name="file_name_mask">файл %s</string>

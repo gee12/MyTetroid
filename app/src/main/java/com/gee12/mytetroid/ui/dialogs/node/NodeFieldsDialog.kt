@@ -1,13 +1,12 @@
 package com.gee12.mytetroid.ui.dialogs.node
 
-import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.text.InputType
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.RelativeLayout
 import androidx.appcompat.app.AlertDialog
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.gee12.mytetroid.BuildConfig
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.extensions.addAfterTextChangedListener
@@ -42,11 +41,10 @@ class NodeFieldsDialog(
 
     override fun onDialogCreated(dialog: AlertDialog, view: View) {
         etName = view.findViewById(R.id.edit_text_name)
-        val nodeLayout = view.findViewById<RelativeLayout>(R.id.layout_node)
+        val nodeLayout = view.findViewById<ConstraintLayout>(R.id.layout_node)
         val etNode = view.findViewById<EditText>(R.id.edit_text_node)
         val bNode = view.findViewById<ImageButton>(R.id.button_node)
 
-        @SuppressLint("SetTextI18n")
         if (BuildConfig.DEBUG && node == null) {
             val rand = Random()
             val num = abs(rand.nextInt())
@@ -97,7 +95,7 @@ class NodeFieldsDialog(
                             }
                         }
                     },
-                ).showIfPossible(parentFragmentManager)
+                ).showIfPossibleAndNeeded(parentFragmentManager)
             }
             etNode.setOnClickListener(clickListener)
             bNode.setOnClickListener(clickListener)

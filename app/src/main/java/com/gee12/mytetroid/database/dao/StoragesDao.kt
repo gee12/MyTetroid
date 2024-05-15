@@ -1,39 +1,39 @@
 package com.gee12.mytetroid.database.dao
 
 import androidx.room.*
-import com.gee12.mytetroid.database.entity.StorageEntity
+import com.gee12.mytetroid.database.entity.StorageDbEntity
 
 @Dao
 interface StoragesDao {
     @Query("SELECT * FROM storages")
-    fun getAll(): List<StorageEntity>
+    fun getAll(): List<StorageDbEntity>
 
     @Query("SELECT COUNT(1) FROM storages")
     fun getCount(): Int
 
     @Query("SELECT * FROM storages WHERE isDefault = 1 LIMIT 1")
-    fun getDefaultStorage(): List<StorageEntity>
+    fun getDefaultStorage(): List<StorageDbEntity>
 
     @Query("SELECT id FROM storages WHERE isDefault = 1 LIMIT 1")
     fun getDefaultStorageId(): Int
 
     @Query("SELECT * FROM storages WHERE id = :id")
-    fun getById(id: Int): StorageEntity?
+    fun getById(id: Int): StorageDbEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(entity: StorageEntity): Long
+    fun insert(entity: StorageDbEntity): Long
 
     @Transaction
-    fun insertDefault(entity: StorageEntity): Long {
+    fun insertDefault(entity: StorageDbEntity): Long {
         dropIsDefault()
         return insert(entity)
     }
 
     @Update
-    fun update(entity: StorageEntity): Int
+    fun update(entity: StorageDbEntity): Int
 
     @Transaction
-    fun updateDefault(entity: StorageEntity): Int {
+    fun updateDefault(entity: StorageDbEntity): Int {
         dropIsDefault()
         return update(entity)
     }
@@ -51,7 +51,7 @@ interface StoragesDao {
     fun dropIsDefault(): Int
 
     @Delete
-    fun delete(entity: StorageEntity): Int
+    fun delete(entity: StorageDbEntity): Int
 
     @Query("DELETE FROM storages WHERE id = :id")
     fun deleteById(id: Int): Int

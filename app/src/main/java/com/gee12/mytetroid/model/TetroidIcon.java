@@ -1,6 +1,6 @@
 package com.gee12.mytetroid.model;
 
-import static com.gee12.mytetroid.common.extensions.FileExtensionsKt.makePath;
+import static com.gee12.mytetroid.common.extensions.FileExtKt.makePath;
 
 import android.graphics.drawable.Drawable;
 

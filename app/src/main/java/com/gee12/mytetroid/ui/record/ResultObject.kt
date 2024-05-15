@@ -6,6 +6,7 @@ sealed class ResultObject {
     var needReloadText = false
 
     object None : ResultObject()
+    object Reload : ResultObject()
     data class Finish(val isOpenMainActivity: Boolean) : ResultObject()
     data class OpenRecord(val recordId: String) : ResultObject()
     data class OpenNode(val nodeId: String) : ResultObject()

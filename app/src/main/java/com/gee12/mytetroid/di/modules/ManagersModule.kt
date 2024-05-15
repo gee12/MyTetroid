@@ -4,11 +4,13 @@ import com.gee12.mytetroid.domain.FailureHandler
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.domain.Notificator
-import com.gee12.mytetroid.domain.manager.CommonSettingsManager
-import com.gee12.mytetroid.domain.manager.FileStorageManager
+import com.gee12.mytetroid.domain.StorageTreeObserver
+import com.gee12.mytetroid.domain.manager.SyncManager
+import com.gee12.mytetroid.domain.manager.*
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.TetroidLogger
+import org.koin.android.ext.koin.androidApplication
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -75,6 +77,45 @@ object ManagersModule {
             FileStorageManager(
                 context = androidContext(),
                 buildInfoProvider = get(),
+            )
+        }
+
+        single {
+            MigrationManager(
+                buildInfoProvider = get(),
+                settingsManager = get(),
+                storagesRepo = get(),
+                favoritesRepo = get(),
+                fillStorageFieldsFromDefaultSettingsUseCase = get(),
+            )
+        }
+
+        single {
+            InteractionManager(
+                resourcesProvider = get(),
+                logger = get(),
+            )
+        }
+
+        single {
+            PermissionManager(
+                buildInfoProvider = get(),
+                logger = get(),
+                resourcesProvider = get(),
+            )
+        }
+
+        single {
+            SyncManager(
+                resourcesProvider = get(),
+                logger = get(),
+            )
+        }
+
+        single {
+            StorageTreeObserver(
+                app = androidApplication(),
+                logger = get(),
             )
         }
 

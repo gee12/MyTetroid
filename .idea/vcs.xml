@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="VcsDirectoryMappings">
-    <mapping directory="$PROJECT_DIR$/../../Android-Folder-Picker" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/../../Android-HTML-WYSIWYG-Editor" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/../../Android-PinLockView" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../FolderPicker" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../HtmlEditor" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../ImagePicker" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../MultiLevelListview" vcs="Git" />
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/../../android-image-picker" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/../../android-multi-level-listview" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/../../jdom" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../PinLockView" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../SimpleStorage" vcs="Git" />
   </component>
 </project>

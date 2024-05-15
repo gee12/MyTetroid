@@ -1,7 +1,6 @@
 package com.gee12.mytetroid.domain.usecase.storage
 
 import android.content.Context
-import android.net.Uri
 import com.anggrayudi.storage.file.DocumentFileCompat
 import com.anggrayudi.storage.file.DocumentFileType
 import com.anggrayudi.storage.file.deleteRecursively
@@ -9,6 +8,7 @@ import com.anggrayudi.storage.file.getAbsolutePath
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.parseUri
+import com.gee12.mytetroid.domain.manager.ScriptsManager
 import com.gee12.mytetroid.domain.provider.IAppPathProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.domain.repo.StoragesRepo
@@ -21,6 +21,7 @@ class DeleteStorageUseCase(
     private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
     private val appPathProvider: IAppPathProvider,
+    private val scriptsManager: ScriptsManager,
     private val storagesRepo: StoragesRepo,
 ) : UseCase<UseCase.None, DeleteStorageUseCase.Params>() {
 
@@ -32,19 +33,21 @@ class DeleteStorageUseCase(
     override suspend fun run(params: Params): Either<Failure, None> {
         val storage = params.storage
 
-        return deleteFromDb(storage).flatMap {
-            deleteTemporaryFolder(storage)
-        }.flatMap {
-            if (params.withFiles) {
-                deleteStorageFolder(storage)
-            } else {
-                None.toRight()
+        return deleteFromDb(storage)
+            .flatMap {
+                deleteTemporaryFolder(storage)
+            }.flatMap {
+                if (params.withFiles) {
+                    deleteStorageFolder(storage)
+                } else {
+                    None.toRight()
+                }
             }
-        }
     }
 
     private suspend fun deleteFromDb(storage: TetroidStorage): Either<Failure, None> {
         return if (storagesRepo.deleteStorage(storage)) {
+            scriptsManager.deleteScriptByStorageId(storageId = storage.id)
             None.toRight()
         } else {
             Failure.Storage.Delete.FromDb.toLeft()

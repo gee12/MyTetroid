@@ -6,12 +6,12 @@
     android:layout_height="wrap_content"
     android:padding="12dp">
 
-<EditText
-    android:id="@+id/edit_text_value"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent"
-    android:hint="@string/hint_date_format_string" />
+    <com.gee12.htmlwysiwygeditor.EditTextWithClear
+        android:id="@+id/edit_text_value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:hint="@string/hint_date_format_string" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
