@@ -148,11 +148,9 @@ class NodesListAdapter(
     }
 
     override fun setDataItems(dataItems: List<*>?) {
-        if (dataItems != null) {
-            super.setDataItems(dataItems)
-        } else {
-            super.setDataItems(ArrayList<Any?>())
-        }
+        super.setDataItems(dataItems ?: ArrayList<Any?>())
+
+        //TODO: раскрыть ветки вглубь до curNode, если она установлена
     }
 
 }

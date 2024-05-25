@@ -40,7 +40,7 @@ class NodeChooserDialog(
 
     override fun isPossibleToShow() = true
 
-    fun isStorageLoaded(): Boolean {
+    private fun isStorageLoaded(): Boolean {
         // проверяем загружено ли хранилище
         if (!viewModel.isStorageLoaded()) {
             onProblem(ProblemType.LOAD_STORAGE)
@@ -130,7 +130,7 @@ class NodeChooserDialog(
     }
 
     override fun onStorageInited(storage: TetroidStorage) {
-        // проверяем уже после загрузки хранилища
+        // проверяем уже после инициализации хранилища
         if (!isStorageLoaded()) {
             dismiss()
             return
@@ -139,7 +139,11 @@ class NodeChooserDialog(
         adapter.curNode = node
         adapter.setDataItems(viewModel.getRootNodes())
 
-        showKeyboard(searchView)
+        node?.also {
+            onSelectNode(node = it)
+        }
+
+        //showKeyboard(searchView)
     }
 
     private fun onSelectNode(node: TetroidNode) {
@@ -149,15 +153,15 @@ class NodeChooserDialog(
         val isNotRootWarning = rootOnly && node.level > 0
 
         if (isCryptedWarning || isDecryptedWarning || isNotRootWarning) {
-            var mes = when {
+            var message = when {
                 isCryptedWarning -> getString(R.string.mes_select_non_encrypted_node)
                 isDecryptedWarning -> getString(R.string.mes_select_decrypted_node)
                 else -> null
             }
             if (isNotRootWarning) {
-                mes = (mes?.plus("\n").orEmpty()) + getString(R.string.mes_select_first_level_node)
+                message = (message?.plus("\n").orEmpty()) + getString(R.string.mes_select_first_level_node)
             }
-            tvNoticeBottom.text = mes
+            tvNoticeBottom.text = message
             tvNoticeBottom.visibility = View.VISIBLE
             okButton?.isEnabled = false
         } else {
