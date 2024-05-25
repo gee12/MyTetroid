@@ -301,7 +301,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                 onPermissionEvent(event)
             }
             is BaseEvent.TaskStarted -> {
-                taskPreExecute(event.titleResId ?: R.string.task_wait)
+                taskPreExecute(event.title ?: resourcesProvider.getString(R.string.task_wait))
             }
             BaseEvent.TaskFinished -> {
                 taskPostExecute()

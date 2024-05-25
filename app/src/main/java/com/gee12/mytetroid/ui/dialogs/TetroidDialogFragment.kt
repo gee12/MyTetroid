@@ -62,7 +62,7 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : BaseDialogFragment() 
             is BaseEvent.HideProgress -> componentListener?.setProgressVisibility(false)
             is BaseEvent.ShowProgressWithText -> componentListener?.showProgress(event.message)
             is BaseEvent.TaskStarted -> {
-                componentListener?.setProgressVisibility(true, event.titleResId?.let { getString(it) })
+                componentListener?.setProgressVisibility(true, event.title)
             }
             BaseEvent.TaskFinished -> componentListener?.setProgressVisibility(false)
             BaseEvent.ShowMoreInLogs -> componentListener?.showSnackMoreInLogs()

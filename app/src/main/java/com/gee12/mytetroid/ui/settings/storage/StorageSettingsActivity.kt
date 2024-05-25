@@ -1,7 +1,6 @@
 package com.gee12.mytetroid.ui.settings.storage
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -82,7 +81,7 @@ class StorageSettingsActivity : TetroidSettingsActivity<StorageSettingsViewModel
             is BaseEvent.HideProgress -> setProgressVisibility(false)
             is BaseEvent.ShowProgressWithText -> showProgress(event.message)
             is BaseEvent.TaskStarted -> {
-                setProgressVisibility(true, event.titleResId?.let { getString(it) })
+                setProgressVisibility(true, event.title)
             }
             BaseEvent.TaskFinished -> setProgressVisibility(false)
             BaseEvent.ShowMoreInLogs -> showSnackMoreInLogs()

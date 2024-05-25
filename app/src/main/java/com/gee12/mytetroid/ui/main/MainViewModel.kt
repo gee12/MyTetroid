@@ -1242,11 +1242,11 @@ class MainViewModel(
      */
     private fun startEncryptDecryptNode(node: TetroidNode, isEncrypt: Boolean) {
         launchOnMain {
-            sendEvent(
-                BaseEvent.TaskStarted(
+            sendEvent(BaseEvent.TaskStarted(
+                resourcesProvider.getString(
                     if (isEncrypt) R.string.task_node_encrypting else R.string.task_node_drop_crypting
                 )
-            )
+            ))
 
             logOperStart(LogObj.NODE, if (isEncrypt) LogOper.ENCRYPT else LogOper.DROPCRYPT, node)
 
@@ -1676,7 +1676,7 @@ class MainViewModel(
 
     private fun attachFile(uri: Uri, record: TetroidRecord, deleteSrcFile: Boolean) {
         launchOnMain {
-            sendEvent(BaseEvent.TaskStarted(R.string.task_attach_file))
+            sendEvent(BaseEvent.TaskStarted(resourcesProvider.getString(R.string.task_attach_file)))
             withIo {
                 createAttachToRecordUseCase.run(
                     AttachFileToRecordUseCase.Params(
@@ -1873,7 +1873,7 @@ class MainViewModel(
     fun saveAttachToFolder(folder: DocumentFile) {
         curAttach?.let {
             launchOnMain {
-                sendEvent(BaseEvent.TaskStarted(R.string.task_file_saving))
+                sendEvent(BaseEvent.TaskStarted(resourcesProvider.getString(R.string.task_file_saving)))
                 withIo {
                     saveAttachToFileUseCase.run(
                         SaveAttachToFileUseCase.Params(
@@ -2010,7 +2010,8 @@ class MainViewModel(
         this.lastSearchProfile = profile
         launchOnMain {
             log(getString(R.string.global_search_start, profile.query))
-            sendEvent(BaseEvent.TaskStarted(R.string.global_searching))
+            val title = getString(R.string.state_global_searching_mask, profile.query)
+            sendEvent(BaseEvent.TaskStarted(title))
             withIo {
                 globalSearchUseCase.run(
                     GlobalSearchUseCase.Params(profile)

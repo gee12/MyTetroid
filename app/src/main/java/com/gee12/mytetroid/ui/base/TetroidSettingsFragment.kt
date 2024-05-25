@@ -64,7 +64,7 @@ open class TetroidSettingsFragment :
             is BaseEvent.HideProgress -> settingsActivity?.setProgressVisibility(false)
             is BaseEvent.ShowProgressWithText -> settingsActivity?.showProgress(event.message)
             is BaseEvent.TaskStarted -> {
-                settingsActivity?.setProgressVisibility(true, event.titleResId?.let { getString(it) })
+                settingsActivity?.setProgressVisibility(true, event.title)
             }
             BaseEvent.TaskFinished -> settingsActivity?.setProgressVisibility(false)
             BaseEvent.ShowMoreInLogs -> settingsActivity?.showSnackMoreInLogs()

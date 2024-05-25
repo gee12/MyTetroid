@@ -920,7 +920,7 @@ class RecordViewModel(
 
     private fun attachFile(uri: Uri, record: TetroidRecord, deleteSrcFile: Boolean) {
         launchOnMain {
-            sendEvent(BaseEvent.TaskStarted(R.string.task_attach_file))
+            sendEvent(BaseEvent.TaskStarted(resourcesProvider.getString(R.string.task_attach_file)))
             withIo {
                 attachFileToRecordUseCase.run(
                     AttachFileToRecordUseCase.Params(

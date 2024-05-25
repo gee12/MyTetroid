@@ -1,7 +1,5 @@
 package com.gee12.mytetroid.ui.base
 
-import android.content.Intent
-import android.os.Bundle
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.model.permission.TetroidPermission
 
@@ -37,7 +35,7 @@ abstract class BaseEvent : VMEvent() {
 
     // long-term tasks
     data class TaskStarted(
-        val titleResId: Int? = null,
+        val title: String? = null,
     ) : BaseEvent()
     object TaskFinished : BaseEvent()
     object ShowProgress : BaseEvent()

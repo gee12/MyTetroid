@@ -278,7 +278,8 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 onPermissionEvent(event)
             }
             is BaseEvent.TaskStarted -> {
-                drawerStateBeforeLock = taskMainPreExecute(event.titleResId ?: R.string.task_wait)
+                val title = event.title ?: resourcesProvider.getString(R.string.task_wait)
+                drawerStateBeforeLock = taskMainPreExecute(title)
             }
             BaseEvent.TaskFinished -> {
                 taskMainPostExecute()
@@ -2550,8 +2551,8 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
     // region Tasks
 
-    fun taskMainPreExecute(progressTextResId: Int): Int {
-        super.taskPreExecute(progressTextResId)
+    private fun taskMainPreExecute(progressText: String): Int {
+        super.taskPreExecute(progressText)
         val openedDrawer = getDrawerState()
         drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         return openedDrawer

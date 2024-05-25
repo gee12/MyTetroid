@@ -474,7 +474,9 @@ open class StorageViewModel(
         launchOnMain {
             sendEvent(StorageEvent.StartLoadingOrDecrypting)
             sendEvent(BaseEvent.TaskStarted(
-                if (isDecrypt) R.string.task_storage_decrypting else R.string.task_storage_loading
+                resourcesProvider.getString(
+                    if (isDecrypt) R.string.task_storage_decrypting else R.string.task_storage_loading
+                )
             ))
 
             val result = withIo {
@@ -545,7 +547,7 @@ open class StorageViewModel(
 
         launchOnMain {
             // перед расшифровкой
-            sendEvent(BaseEvent.TaskStarted(R.string.task_storage_decrypting))
+            sendEvent(BaseEvent.TaskStarted(resourcesProvider.getString(R.string.task_storage_decrypting)))
 
             // непосредственная расшифровка
             withIo {
@@ -1046,7 +1048,7 @@ open class StorageViewModel(
 
     suspend fun setupPassword(password: String, callbackEvent: BaseEvent? = null) {
         log(R.string.log_start_pass_setup)
-        sendEvent(BaseEvent.TaskStarted(R.string.task_pass_setting))
+        sendEvent(BaseEvent.TaskStarted(resourcesProvider.getString(R.string.task_pass_setting)))
         isBusy = true
 
         withIo {
@@ -1072,7 +1074,7 @@ open class StorageViewModel(
 
     fun startChangePassword(curPass: String, newPass: String) {
         launchOnMain {
-            sendEvent(BaseEvent.TaskStarted(R.string.task_pass_changing))
+            sendEvent(BaseEvent.TaskStarted(resourcesProvider.getString(R.string.task_pass_changing)))
             isBusy = true
             withIo {
                 changePasswordUseCase.run(

@@ -579,7 +579,7 @@
     <string name="global_search_start">Global search started by query \"%s\"</string>
     <string name="global_search_end">Global search end. Found \"%d\" objects</string>
     <string name="global_search_by_node_result">Search results by node \"%s\"</string>
-    <string name="global_searching">Global searching…</string>
+    <string name="state_global_searching_mask">Global search by query «%s»…</string>
 
     <string name="label_name">Name</string>
     <string name="label_description">Description</string>

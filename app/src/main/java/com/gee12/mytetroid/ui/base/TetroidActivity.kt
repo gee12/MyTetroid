@@ -210,7 +210,7 @@ abstract class TetroidActivity<VM : BaseViewModel>
             is BaseEvent.HideProgress -> setProgressVisibility(false)
             is BaseEvent.ShowProgressWithText -> showProgress(event.message)
             is BaseEvent.TaskStarted -> {
-                taskPreExecute(event.titleResId ?: R.string.state_loading)
+                taskPreExecute(event.title ?: resourcesProvider.getString(R.string.state_loading))
             }
             BaseEvent.TaskFinished -> taskPostExecute()
             BaseEvent.ShowMoreInLogs -> showSnackMoreInLogs()
@@ -588,9 +588,9 @@ abstract class TetroidActivity<VM : BaseViewModel>
         }
     }
 
-    fun taskPreExecute(progressTextResId: Int) {
+    fun taskPreExecute(progressText: String) {
         blockInterface()
-        showProgress(progressTextResId)
+        showProgress(progressText)
         window.decorView.hideKeyboard()
     }
 

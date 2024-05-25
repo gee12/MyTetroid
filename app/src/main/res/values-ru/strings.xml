@@ -457,6 +457,7 @@
     <string name="state_voice_input_start">Запуск голосового ввода…</string>
     <string name="state_voice_input_recognition">Распознавание текста…</string>
     <string name="state_export_to_pdf">Экспорт в pdf…</string>
+    <string name="state_global_searching_mask">Глобальный поиск по запросу «%s»…</string>
 
     <string name="label_name">Название</string>
     <string name="label_description">Описание</string>
@@ -533,7 +534,6 @@
     <string name="global_search_end">Глобальный поиск закончен. Найдено \"%d\" объектов</string>
     <string name="global_search_by_node_result">Результаты поиска по ветке \"%s\"</string>
     <string name="global_search_results">Результаты поиска</string>
-    <string name="global_searching">Глобальный поиск…</string>
 
     <string name="stats_nodes_count">Веток:</string>
     <string name="stats_crypt_nodes_count">Из них зашифровано:</string>
