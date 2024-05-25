@@ -15,12 +15,12 @@ import com.gee12.mytetroid.model.FoundType
 import com.gee12.mytetroid.model.ITetroidObject
 import com.gee12.mytetroid.model.SearchProfile
 import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.enums.SearchInNodeMode
 import com.gee12.mytetroid.ui.main.MainViewModel
 import com.gee12.mytetroid.ui.base.TetroidFragment
 import com.gee12.mytetroid.ui.main.MainActivity
 import com.gee12.mytetroid.ui.main.MainPage
 import com.gee12.mytetroid.ui.main.PageType
-import kotlinx.coroutines.runBlocking
 
 class FoundPageFragment : TetroidFragment<MainViewModel>, MainPage {
     
@@ -124,7 +124,7 @@ class FoundPageFragment : TetroidFragment<MainViewModel>, MainPage {
         lvFound.adapter = listAdapterFound
         listAdapterFound.setDataItems(foundItems)
         if (foundItems.isEmpty()) {
-            if (profile.isSearchInNode && profile.node != null) {
+            if (profile.searchInNodeMode != SearchInNodeMode.NONE && profile.node != null) {
                 tvEmpty.text = getString(R.string.global_search_not_found_in_node,
                     profile.query,
                     profile.node?.name

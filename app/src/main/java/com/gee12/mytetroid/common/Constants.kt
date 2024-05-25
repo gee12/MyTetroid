@@ -62,11 +62,9 @@ object Constants {
 
     const val EXTRA_RECORD_ID = "RECORD_ID"
     const val EXTRA_RECORD_NAME = "RECORD_NAME"
-    const val EXTRA_CUR_NODE_ID = "CUR_NODE_ID"
     const val EXTRA_NODE_ID = "NODE_ID"
     const val EXTRA_STORAGE_ID = "STORAGE_ID"
 
-    const val EXTRA_QUERY = "QUERY"
     const val EXTRA_SHOW_STORAGE_INFO = "SHOW_STORAGE_INFO"
 
     const val EXTRA_RESULT_ACTION_TYPE = "RESULT_ACTION_TYPE"

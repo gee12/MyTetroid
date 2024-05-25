@@ -1,9 +1,12 @@
 package com.gee12.mytetroid.model
 
 import android.os.Parcelable
+import com.gee12.mytetroid.model.enums.SearchInNodeMode
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 
+//FIXME: по-хорошему, профили поиска нужно хранить для каждого хранилища отдельно.
+// Как минимум т.к. сейчас nodeId подойдет только от 1 хранилища..
 @Parcelize
 data class SearchProfile(
     /**
@@ -42,12 +45,14 @@ data class SearchProfile(
     /**
      * Искать только в ветке (текущей или указанной).
      */
-    val isSearchInNode: Boolean = false,
+    val searchInNodeMode: SearchInNodeMode = SearchInNodeMode.NONE,
 
     /**
      * Id ветки дл поиска.
+
+     * FIXME: Параметр зависит от хранилища
      */
-    val nodeId: String? = null,
+    var nodeId: String? = null,
 
 ) : Parcelable {
 

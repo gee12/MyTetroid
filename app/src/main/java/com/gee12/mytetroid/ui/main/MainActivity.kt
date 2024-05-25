@@ -40,6 +40,7 @@ import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.model.*
+ import com.gee12.mytetroid.model.enums.SearchInNodeMode
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.model.permission.TetroidPermission
 import com.gee12.mytetroid.ui.base.BaseEvent
@@ -1968,7 +1969,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         showFoundPage()
         foundPage?.showFoundsIfFragmentCreated()
 
-        if (profile.isSearchInNode) {
+        if (profile.searchInNodeMode != SearchInNodeMode.NONE) {
             profile.node?.let { node ->
                 showMessage(getString(R.string.global_search_by_node_result, node.name))
             }
@@ -2518,7 +2519,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 activity = this,
                 query = query,
                 currentNodeId = curNodeId,
-                storageId = viewModel.getStorageId(),
             )
         }
     }

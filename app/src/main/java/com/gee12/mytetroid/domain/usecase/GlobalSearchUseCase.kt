@@ -9,6 +9,7 @@ import com.gee12.mytetroid.domain.usecase.record.GetRecordParsedTextUseCase
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.domain.provider.IStorageProvider
+import com.gee12.mytetroid.model.enums.SearchInNodeMode
 import java.util.regex.Pattern
 
 class GlobalSearchUseCase(
@@ -91,7 +92,7 @@ class GlobalSearchUseCase(
         val srcNodes: List<TetroidNode>
         val profile = params.profile
 
-        if (profile.isSearchInNode) {
+        if (profile.searchInNodeMode != SearchInNodeMode.NONE) {
             if (node != null) {
                 srcNodes = ArrayList()
                 srcNodes.add(node)

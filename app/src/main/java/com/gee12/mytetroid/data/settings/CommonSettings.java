@@ -8,6 +8,7 @@ import com.gee12.mytetroid.data.StringList;
 import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.common.utils.Utils;
 import com.gee12.mytetroid.model.TetroidNode;
+import com.gee12.mytetroid.model.enums.SearchInNodeMode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +31,7 @@ public class CommonSettings {
     public static final boolean DEF_SEARCH_IN_IDS = true;
     public static final boolean DEF_SEARCH_SPLIT_TO_WORDS = false;
     public static final boolean DEF_SEARCH_IN_WHOLE_WORDS = false;
-    public static final boolean DEF_SEARCH_IN_CUR_NODE = false;
+    public static final SearchInNodeMode DEF_SEARCH_IN_NODE_MODE = SearchInNodeMode.NONE;
 
     public static SharedPreferences settings;
 
@@ -709,24 +710,21 @@ public class CommonSettings {
      * Поиск только в текущей ветке ?
      */
     @Deprecated
-    public static boolean isSearchInCurNode(Context context) {
-        return getBoolean(context, R.string.pref_key_search_in_cur_node, DEF_SEARCH_IN_CUR_NODE);
-    }
-
-    @Deprecated
-    public static void setSearchInCurNode(Context context, boolean value) {
-        setBoolean(context, R.string.pref_key_search_in_cur_node, value);
+    private static boolean isSearchInCurNode(Context context) {
+        return getBoolean(context, R.string.pref_key_search_in_cur_node, DEF_SEARCH_IN_NODE_MODE == SearchInNodeMode.IN_CURRENT_NODE);
     }
 
     /**
      * Варианты поиска: по всей базе, в текущей ветке или в указанной ветке.
      */
-    public static int getSearchInNodeMode(Context context) {
-        return getInt(context, R.string.pref_key_search_in_node_mode, isSearchInCurNode(context) ? 1 : 0);
+    public static SearchInNodeMode getSearchInNodeMode(Context context) {
+        SearchInNodeMode defValue = isSearchInCurNode(context) ? SearchInNodeMode.IN_CURRENT_NODE : SearchInNodeMode.NONE;
+        int value = getInt(context, R.string.pref_key_search_in_node_mode, defValue.getId());
+        return SearchInNodeMode.Companion.getById(value);
     }
 
-    public static void setSearchInNodeMode(Context context, int mode) {
-        setInt(context, R.string.pref_key_search_in_node_mode, mode);
+    public static void setSearchInNodeMode(Context context, SearchInNodeMode mode) {
+        setInt(context, R.string.pref_key_search_in_node_mode, mode.getId());
     }
 
     /**
@@ -754,7 +752,7 @@ public class CommonSettings {
         setSearchInFiles(context, DEF_SEARCH_IN_FILES);
         setSearchSplitToWords(context, DEF_SEARCH_SPLIT_TO_WORDS);
         setSearchInWholeWords(context, DEF_SEARCH_IN_WHOLE_WORDS);
-        setSearchInCurNode(context, DEF_SEARCH_IN_CUR_NODE);
+        setSearchInNodeMode(context, DEF_SEARCH_IN_NODE_MODE);
     }
 
     //endregion Глобальный поиск
