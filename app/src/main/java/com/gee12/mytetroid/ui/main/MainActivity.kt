@@ -921,6 +921,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
      * Установка подзаголовка активности, указывающим на тип отображаемого объекта.
      */
     private fun setSubtitle(page: PageType, viewType: MainViewType) {
+        val lastSearchProfile = viewModel.lastSearchProfile
         when {
             page == PageType.MAIN -> {
                 val subtitle = viewType.getSubtitle(resourcesProvider, isMultiTagsMode = viewModel.isMultiTagsMode)
@@ -937,8 +938,8 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                     tvSubtitle?.visibility = View.GONE
                 }
             }
-            viewModel.lastSearchProfile != null -> {
-                setSubtitle("\"${viewModel.lastSearchProfile!!.query}\"")
+            lastSearchProfile != null -> {
+                setSubtitle("\"${lastSearchProfile.query}\"")
             }
             else -> {
                 tvSubtitle?.visibility = View.GONE
@@ -989,9 +990,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     }
 
     private fun setCurrentPage(page: PageType) {
-        if (currentPage == page) {
-            return
-        }
         val fragment = when (page) {
             PageType.MAIN -> {
                 mainPage ?: MainPageFragment(gestureDetector).also {
