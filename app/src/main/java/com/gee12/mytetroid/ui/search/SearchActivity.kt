@@ -166,14 +166,14 @@ class SearchActivity : TetroidStorageActivity<SearchViewModel>() {
 
     private fun initUiFromSearchProfile(searchProfile: SearchProfile) {
         etQuery.setText(searchProfile.query)
-        cbText.isChecked = searchProfile.inText
-        cbRecordsNames.isChecked = searchProfile.inRecordsNames
-        cbAuthor.isChecked = searchProfile.inAuthor
-        cbUrl.isChecked = searchProfile.inUrl
-        cbTags.isChecked = searchProfile.inTags
-        cbNodes.isChecked = searchProfile.inNodes
-        cbFiles.isChecked = searchProfile.inFiles
-        cbIds.isChecked = searchProfile.inIds
+        cbText.isChecked = searchProfile.inRecordText
+        cbRecordsNames.isChecked = searchProfile.inRecordName
+        cbAuthor.isChecked = searchProfile.inRecordAuthor
+        cbUrl.isChecked = searchProfile.inRecordUrl
+        cbTags.isChecked = searchProfile.inRecordTags
+        cbNodes.isChecked = searchProfile.inNodeName
+        cbFiles.isChecked = searchProfile.inAttachName
+        cbIds.isChecked = searchProfile.inObjectsId
         spSplitToWords.setSelection(if (searchProfile.isSplitToWords) 0 else 1)
         spInWholeWords.setSelection(if (searchProfile.isOnlyWholeWords) 0 else 1)
         spInNodeMode.setSelection(searchProfile.searchInNodeMode.id)
@@ -186,14 +186,14 @@ class SearchActivity : TetroidStorageActivity<SearchViewModel>() {
 
     private fun buildSearchProfileFromUi() = SearchProfile(
         query = etQuery.text?.toString().orEmpty(),
-        inText = cbText.isChecked,
-        inRecordsNames = cbRecordsNames.isChecked,
-        inAuthor = cbAuthor.isChecked,
-        inUrl = cbUrl.isChecked,
-        inTags = cbTags.isChecked,
-        inNodes = cbNodes.isChecked,
-        inFiles = cbFiles.isChecked,
-        inIds = cbIds.isChecked,
+        inRecordText = cbText.isChecked,
+        inRecordName = cbRecordsNames.isChecked,
+        inRecordAuthor = cbAuthor.isChecked,
+        inRecordUrl = cbUrl.isChecked,
+        inRecordTags = cbTags.isChecked,
+        inNodeName = cbNodes.isChecked,
+        inAttachName = cbFiles.isChecked,
+        inObjectsId = cbIds.isChecked,
         isSplitToWords = spSplitToWords.selectedItemPosition == 0,
         isOnlyWholeWords = spInWholeWords.selectedItemPosition == 0,
         searchInNodeMode = SearchInNodeMode.getById(spInNodeMode.selectedItemPosition) ?: SearchInNodeMode.NONE,

@@ -17,20 +17,20 @@ data class SearchProfile(
     /**
      * Источники поиска.
      */
-    val inText: Boolean = false,
-    val inRecordsNames: Boolean = false,
-    val inAuthor: Boolean = false,
-    val inUrl: Boolean = false,
+    val inRecordText: Boolean = false,
+    val inRecordName: Boolean = false,
+    val inRecordAuthor: Boolean = false,
+    val inRecordUrl: Boolean = false,
 
     /**
      * Поиск по меткам.
      * Тип поиска 1 - добавление в результат самих меток.
      * Тип поиска 2 - добавление в результат записей меток.
      */
-    val inTags: Boolean = false,
-    val inNodes: Boolean = false,
-    val inFiles: Boolean = false,
-    val inIds: Boolean = false,
+    val inRecordTags: Boolean = false,
+    val inNodeName: Boolean = false,
+    val inAttachName: Boolean = false,
+    val inObjectsId: Boolean = false,
 
     /**
      * Разбивать ли запрос на слова.
@@ -63,14 +63,14 @@ data class SearchProfile(
     var node: TetroidNode? = null
 
     // поиск по веткам, записям, реквизитам записей, файлам
-    fun isInRecords() =
-        inRecordsNames
-                || inText
-                || inAuthor
-                || inUrl
-                || inFiles
-                || inIds
+    fun isSearchInRecords() =
+        inRecordName
+                || inRecordText
+                || inRecordAuthor
+                || inRecordUrl
+                || inAttachName
+                || inObjectsId
                 // 2 - если при поиске по меткам добавляем в результат сами записи, а не метки
-                || inTags
+                || inRecordTags
 
 }

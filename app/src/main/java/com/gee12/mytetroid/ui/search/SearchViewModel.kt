@@ -128,14 +128,14 @@ class SearchViewModel(
         val context = getContext()
         return SearchProfile(
             query = CommonSettings.getSearchQuery(context).orEmpty(),
-            inText = CommonSettings.isSearchInText(context),
-            inRecordsNames = CommonSettings.isSearchInRecordsNames(context),
-            inAuthor = CommonSettings.isSearchInAuthor(context),
-            inUrl = CommonSettings.isSearchInUrl(context),
-            inTags = CommonSettings.isSearchInTags(context),
-            inNodes = CommonSettings.isSearchInNodes(context),
-            inFiles = CommonSettings.isSearchInFiles(context),
-            inIds = CommonSettings.isSearchInIds(context),
+            inRecordText = CommonSettings.isSearchInText(context),
+            inRecordName = CommonSettings.isSearchInRecordsNames(context),
+            inRecordAuthor = CommonSettings.isSearchInAuthor(context),
+            inRecordUrl = CommonSettings.isSearchInUrl(context),
+            inRecordTags = CommonSettings.isSearchInTags(context),
+            inNodeName = CommonSettings.isSearchInNodes(context),
+            inAttachName = CommonSettings.isSearchInFiles(context),
+             inObjectsId = CommonSettings.isSearchInIds(context),
             isSplitToWords = CommonSettings.isSearchSplitToWords(context),
             isOnlyWholeWords = CommonSettings.isSearchInWholeWords(context),
             searchInNodeMode = CommonSettings.getSearchInNodeMode(context),
@@ -146,14 +146,14 @@ class SearchViewModel(
     private fun savePrefsFromSearchProfile(searchProfile: SearchProfile) {
         val context = getContext()
         CommonSettings.setSearchQuery(context, searchProfile.query)
-        CommonSettings.setSearchInText(context, searchProfile.inText)
-        CommonSettings.setSearchInRecordsNames(context, searchProfile.inRecordsNames)
-        CommonSettings.setSearchInAuthor(context, searchProfile.inAuthor)
-        CommonSettings.setSearchInUrl(context, searchProfile.inUrl)
-        CommonSettings.setSearchInTags(context, searchProfile.inTags)
-        CommonSettings.setSearchInNodes(context, searchProfile.inNodes)
-        CommonSettings.setSearchInFiles(context, searchProfile.inFiles)
-        CommonSettings.setSearchInIds(context, searchProfile.inIds)
+        CommonSettings.setSearchInText(context, searchProfile.inRecordText)
+        CommonSettings.setSearchInRecordsNames(context, searchProfile.inRecordName)
+        CommonSettings.setSearchInAuthor(context, searchProfile.inRecordAuthor)
+        CommonSettings.setSearchInUrl(context, searchProfile.inRecordUrl)
+        CommonSettings.setSearchInTags(context, searchProfile.inRecordTags)
+        CommonSettings.setSearchInNodes(context, searchProfile.inNodeName)
+        CommonSettings.setSearchInFiles(context, searchProfile.inAttachName)
+        CommonSettings.setSearchInIds(context, searchProfile.inObjectsId)
         CommonSettings.setSearchSplitToWords(context, searchProfile.isSplitToWords)
         CommonSettings.setSearchInWholeWords(context, searchProfile.isOnlyWholeWords)
         CommonSettings.setSearchInNodeMode(context, searchProfile.searchInNodeMode)

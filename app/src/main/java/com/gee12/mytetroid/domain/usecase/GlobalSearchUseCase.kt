@@ -107,8 +107,8 @@ class GlobalSearchUseCase(
 //        boolean inRecords = inRecordsNames || inText || inAuthor || inUrl || inFiles || inIds
 //                // 2 - если при поиске по меткам добавляем в результат сами записи, а не метки
 //                || inTags;
-        val inRecords = profile.isInRecords()
-        if (profile.inNodes || inRecords) {
+        val inRecords = profile.isSearchInRecords()
+        if (profile.inNodeName || inRecords) {
             globalSearchInNodes(params, foundObjects, srcNodes, regex, inRecords)
         }
         // поиск по всем меткам в базе, если не указана ветка для поиска
@@ -138,11 +138,11 @@ class GlobalSearchUseCase(
                 continue
             }
             // поиск по именам веток
-            if (profile.inNodes && node.name.matches(regex)) {
+            if (profile.inNodeName && node.name.matches(regex)) {
                 addFoundObject(foundObjects, node, FoundType.TYPE_NODE)
             }
             // поиск по id веток
-            if (profile.inIds && node.id.matches(regex)) {
+            if (profile.inObjectsId && node.id.matches(regex)) {
                 addFoundObject(foundObjects, node, FoundType.TYPE_NODE_ID)
             }
             if (inRecords && node.recordsCount > 0) {
@@ -167,27 +167,27 @@ class GlobalSearchUseCase(
 
         for (record in srcRecords) {
             // поиск по именам записей
-            if (profile.inRecordsNames && record.name.matches(regex)) {
+            if (profile.inRecordName && record.name.matches(regex)) {
                 addFoundObject(foundObjects, record, FoundType.TYPE_RECORD)
             }
             // поиск по авторам
-            if (profile.inAuthor && record.author.matches(regex)) {
+            if (profile.inRecordAuthor && record.author.matches(regex)) {
                 addFoundObject(foundObjects, record, FoundType.TYPE_AUTHOR)
             }
             // поиск по ссылкам
-            if (profile.inUrl && record.author.matches(regex)) {
+            if (profile.inRecordUrl && record.author.matches(regex)) {
                 addFoundObject(foundObjects, record, FoundType.TYPE_URL)
             }
             // поиск по файлам записи
-            if (profile.inFiles && record.attachedFilesCount > 0) {
+            if (profile.inAttachName && record.attachedFilesCount > 0) {
                 globalSearchInFiles(foundObjects, record.attachedFiles, regex)
             }
             // поиск по id записей
-            if (profile.inIds && record.id.matches(regex)) {
+            if (profile.inObjectsId && record.id.matches(regex)) {
                 addFoundObject(foundObjects, record, FoundType.TYPE_RECORD_ID)
             }
             // поиск по тексту записи (читаем текст html файла)
-            if (profile.inText) {
+            if (profile.inRecordText) {
                 val text = getRecordParsedTextUseCase.run(
                     GetRecordParsedTextUseCase.Params(
                         record = record,
@@ -206,7 +206,7 @@ class GlobalSearchUseCase(
             }
             // поиск по меткам (только если указана ветка для поиска)
             // 2 - комментируем isSearchInNode, если используем тип (2)
-            if (profile.inTags /*&& isSearchInNode*/) {
+            if (profile.inRecordTags /*&& isSearchInNode*/) {
                 // 1 - добавляем саму метку в результат
 //                globalSearchInTags(record.getTags(), query, isOnlyWholeWords);
                 // 2 - добавляем запись, содержащую метку
