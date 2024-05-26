@@ -28,6 +28,7 @@ data class SearchProfile(
      * Тип поиска 2 - добавление в результат записей меток.
      */
     val inRecordTags: Boolean = false,
+    val inRecordFolderName: Boolean = false,
     val inNodeName: Boolean = false,
     val inAttachName: Boolean = false,
     val inObjectsId: Boolean = false,
@@ -72,5 +73,6 @@ data class SearchProfile(
                 || inObjectsId
                 // 2 - если при поиске по меткам добавляем в результат сами записи, а не метки
                 || inRecordTags
+                || inRecordFolderName
 
 }

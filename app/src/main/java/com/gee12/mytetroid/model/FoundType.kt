@@ -8,8 +8,6 @@ import com.gee12.mytetroid.logs.LogObj
 class FoundType : StringsIntMask {
 
     companion object {
-        const val TYPES_COUNT = 11
-
         const val TYPE_NONE = 0
         const val TYPE_RECORD = 1
         const val TYPE_RECORD_TEXT = 2
@@ -21,9 +19,10 @@ class FoundType : StringsIntMask {
         const val TYPE_NODE_ID = 8
         const val TYPE_RECORD_ID = 9
         const val TYPE_FILE_ID = 10
+        const val TYPE_RECORD_FOLDER_NAME = 11
 
         // не хранятся в mytetra.xml
-        const val TYPE_IMAGE = 11
+        const val TYPE_IMAGE = 12
     }
 
     constructor() : super()

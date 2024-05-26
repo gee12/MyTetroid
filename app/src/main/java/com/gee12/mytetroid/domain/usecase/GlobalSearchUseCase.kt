@@ -178,6 +178,10 @@ class GlobalSearchUseCase(
             if (profile.inRecordUrl && record.author.matches(regex)) {
                 addFoundObject(foundObjects, record, FoundType.TYPE_URL)
             }
+            // поиск по имени каталога
+            if (profile.inRecordFolderName && record.dirName.matches(regex)) {
+                addFoundObject(foundObjects, record, FoundType.TYPE_RECORD_FOLDER_NAME)
+            }
             // поиск по файлам записи
             if (profile.inAttachName && record.attachedFilesCount > 0) {
                 globalSearchInFiles(foundObjects, record.attachedFiles, regex)

@@ -81,6 +81,7 @@
         <item>node id</item>
         <item>record id</item>
         <item>file id</item>
+        <item>record folder name</item>
     </string-array>
     <string-array name="clipboard_simple_url">
         <item>@string/title_insert_hyperlink</item>

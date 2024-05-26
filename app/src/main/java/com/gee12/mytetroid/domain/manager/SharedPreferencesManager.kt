@@ -106,6 +106,10 @@ open class SharedPreferencesManager(
 
     //region Getters
 
+    protected fun getBoolean(id: String, default: Boolean): Boolean {
+        return settings?.getBoolean(id, default) ?: default
+    }
+
     @Deprecated("")
     protected fun getInt(id: Int, default: Int = 0): Int {
         return settings?.getInt(resourcesProvider.getString(id), default) ?: default
@@ -127,6 +131,13 @@ open class SharedPreferencesManager(
     //endregion Getters
 
     //region Setters
+
+    protected fun setBoolean(id: String, value: Boolean) {
+        settings?.edit()?.apply {
+           putBoolean(id, value)
+           apply()
+        }
+    }
 
     @Deprecated("")
     protected fun setInt(id: Int, value: Int) {

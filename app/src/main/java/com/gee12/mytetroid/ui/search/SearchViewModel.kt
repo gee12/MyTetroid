@@ -25,6 +25,7 @@ class SearchViewModel(
     appPathProvider: IAppPathProvider,
     storageProvider: IStorageProvider,
     storagePathProvider: IStoragePathProvider,
+    private val commonSettingsManager: CommonSettingsManager,
     private val getNodeByIdUseCase: GetNodeByIdUseCase,
 ) : BaseStorageViewModel(
     app = app,
@@ -133,9 +134,10 @@ class SearchViewModel(
             inRecordAuthor = CommonSettings.isSearchInAuthor(context),
             inRecordUrl = CommonSettings.isSearchInUrl(context),
             inRecordTags = CommonSettings.isSearchInTags(context),
+            inRecordFolderName = commonSettingsManager.isSearchInRecordFolderName(),
             inNodeName = CommonSettings.isSearchInNodes(context),
             inAttachName = CommonSettings.isSearchInFiles(context),
-             inObjectsId = CommonSettings.isSearchInIds(context),
+            inObjectsId = CommonSettings.isSearchInIds(context),
             isSplitToWords = CommonSettings.isSearchSplitToWords(context),
             isOnlyWholeWords = CommonSettings.isSearchInWholeWords(context),
             searchInNodeMode = CommonSettings.getSearchInNodeMode(context),
@@ -151,6 +153,7 @@ class SearchViewModel(
         CommonSettings.setSearchInAuthor(context, searchProfile.inRecordAuthor)
         CommonSettings.setSearchInUrl(context, searchProfile.inRecordUrl)
         CommonSettings.setSearchInTags(context, searchProfile.inRecordTags)
+        commonSettingsManager.setSearchInRecordFolderName(searchProfile.inRecordFolderName)
         CommonSettings.setSearchInNodes(context, searchProfile.inNodeName)
         CommonSettings.setSearchInFiles(context, searchProfile.inAttachName)
         CommonSettings.setSearchInIds(context, searchProfile.inObjectsId)

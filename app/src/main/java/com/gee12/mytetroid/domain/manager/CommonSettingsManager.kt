@@ -184,4 +184,18 @@ class CommonSettingsManager(
         return ActionButtonSize.getById(stringValue?.toInt() ?: ActionButtonSize.MEDIUM.id)
     }
 
+    fun isSearchInRecordFolderName(): Boolean {
+        return getBoolean(
+            id = resourcesProvider.getString(R.string.pref_key_search_in_record_folder_name),
+            default = true,
+        )
+    }
+
+    fun setSearchInRecordFolderName(value: Boolean) {
+        setBoolean(
+            id = resourcesProvider.getString(R.string.pref_key_search_in_record_folder_name),
+            value = value,
+        )
+    }
+
 }

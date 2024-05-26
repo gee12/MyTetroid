@@ -131,9 +131,20 @@
                 style="@style/AppCheckbox"
                 android:text="@string/search_in_ids" />
 
+            <CheckBox
+                android:id="@+id/check_box_record_folder_names"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/check_box_ids"
+                android:checked="true"
+                android:paddingTop="@dimen/checkbox_vert_padding"
+                android:paddingBottom="@dimen/checkbox_vert_padding"
+                style="@style/AppCheckbox"
+                android:text="@string/search_in_record_folder_names" />
+
             <TextView
                 android:id="@+id/text_view_other_options"
-                android:layout_below="@id/check_box_ids"
+                android:layout_below="@id/check_box_record_folder_names"
                 android:paddingTop="15dp"
                 android:paddingBottom="8dp"
                 style="@style/AppLabelInLayout"

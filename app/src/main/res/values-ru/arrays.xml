@@ -25,6 +25,7 @@
         <item>id ветки</item>
         <item>id записи</item>
         <item>id файла</item>
+        <item>имя каталога записи</item>
     </string-array>
 
     <string-array name="obj_storage">

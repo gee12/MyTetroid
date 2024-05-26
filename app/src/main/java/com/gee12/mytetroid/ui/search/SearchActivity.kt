@@ -32,6 +32,7 @@ class SearchActivity : TetroidStorageActivity<SearchViewModel>() {
     private lateinit var cbAuthor: CheckBox
     private lateinit var cbUrl: CheckBox
     private lateinit var cbTags: CheckBox
+    private lateinit var cbRecordFolderNames: CheckBox
     private lateinit var cbNodes: CheckBox
     private lateinit var cbFiles: CheckBox
     private lateinit var cbIds: CheckBox
@@ -59,6 +60,7 @@ class SearchActivity : TetroidStorageActivity<SearchViewModel>() {
         cbAuthor = findViewById(R.id.check_box_author)
         cbUrl = findViewById(R.id.check_box_url)
         cbTags = findViewById(R.id.check_box_tags)
+        cbRecordFolderNames = findViewById(R.id.check_box_record_folder_names)
         cbNodes = findViewById(R.id.check_box_nodes)
         cbFiles = findViewById(R.id.check_box_files)
         cbIds = findViewById(R.id.check_box_ids)
@@ -171,6 +173,7 @@ class SearchActivity : TetroidStorageActivity<SearchViewModel>() {
         cbAuthor.isChecked = searchProfile.inRecordAuthor
         cbUrl.isChecked = searchProfile.inRecordUrl
         cbTags.isChecked = searchProfile.inRecordTags
+        cbRecordFolderNames.isChecked = searchProfile.inRecordFolderName
         cbNodes.isChecked = searchProfile.inNodeName
         cbFiles.isChecked = searchProfile.inAttachName
         cbIds.isChecked = searchProfile.inObjectsId
@@ -191,6 +194,7 @@ class SearchActivity : TetroidStorageActivity<SearchViewModel>() {
         inRecordAuthor = cbAuthor.isChecked,
         inRecordUrl = cbUrl.isChecked,
         inRecordTags = cbTags.isChecked,
+        inRecordFolderName = cbRecordFolderNames.isChecked,
         inNodeName = cbNodes.isChecked,
         inAttachName = cbFiles.isChecked,
         inObjectsId = cbIds.isChecked,

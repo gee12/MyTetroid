@@ -363,6 +363,7 @@ object ViewModelsModule {
                     appPathProvider = get(),
                     storageProvider = get(),
                     storagePathProvider = get(),
+                    commonSettingsManager = get(),
                     getNodeByIdUseCase = get(),
                 )
             }
