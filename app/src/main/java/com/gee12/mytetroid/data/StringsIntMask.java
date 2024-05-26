@@ -50,7 +50,7 @@ public class StringsIntMask {
     public String joinToString(String[] fullArray, int skip) {
         StringBuilder sb = new StringBuilder();
         boolean isFirst = true;
-        for (int i = 0; i < fullArray.length; i++)
+        for (int i = 0; i < fullArray.length + skip; i++)
             if (checkValue(i)) {
                 int arIndex = i - skip;
                 if (arIndex >= 0 && arIndex < fullArray.length) {
