@@ -2,26 +2,22 @@ package com.gee12.mytetroid.database
 
 import android.content.Context
 import androidx.room.*
-import com.gee12.mytetroid.database.dao.FavoritesDao
-import com.gee12.mytetroid.database.dao.ScriptsDao
-import com.gee12.mytetroid.database.dao.ScriptsToObjectsDao
-import com.gee12.mytetroid.database.dao.StoragesDao
-import com.gee12.mytetroid.database.entity.FavoriteDbEntity
-import com.gee12.mytetroid.database.entity.ScriptDbEntity
-import com.gee12.mytetroid.database.entity.ScriptToObjectDbEntity
-import com.gee12.mytetroid.database.entity.StorageDbEntity
+import com.gee12.mytetroid.database.dao.*
+import com.gee12.mytetroid.database.entity.*
 
 @Database(
-    version = 22,
+    version = 23,
     entities = [
         StorageDbEntity::class,
         FavoriteDbEntity::class,
         ScriptDbEntity::class,
         ScriptToObjectDbEntity::class,
+        HistoryDbEntity::class,
     ],
     exportSchema = true,
     autoMigrations = [
-        AutoMigration(from = 21, to = 22)
+        AutoMigration(from = 21, to = 22),
+        AutoMigration(from = 22, to = 23),
     ],
 )
 @TypeConverters(DataConverter::class)
@@ -34,6 +30,8 @@ abstract class TetroidDatabase : RoomDatabase() {
     abstract val scriptsDao: ScriptsDao
 
     abstract val scriptsToObjectsDao: ScriptsToObjectsDao
+
+    abstract val historyDao: HistoryDao
 
     companion object {
         private const val DATABASE_NAME = "mytetroid.db"

@@ -37,5 +37,11 @@ object RepositoriesModule {
             )
         }
 
+        single {
+            HistoryDbRepo(
+                context = androidContext()
+            )
+        }
+
     }
 }
