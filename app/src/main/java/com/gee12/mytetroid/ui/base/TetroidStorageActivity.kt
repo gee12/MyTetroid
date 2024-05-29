@@ -12,6 +12,7 @@ import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.model.permission.TetroidPermission
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
 import com.gee12.mytetroid.ui.dialogs.FullFileStoragePermissionDialog
+import com.gee12.mytetroid.ui.history.HistoryActivity
 import com.gee12.mytetroid.ui.scripts.ScriptsActivity
 import com.gee12.mytetroid.ui.settings.SettingsActivity
 import com.gee12.mytetroid.ui.settings.storage.StorageSettingsActivity
@@ -201,6 +202,13 @@ abstract class TetroidStorageActivity<VM : BaseStorageViewModel> : TetroidActivi
         SettingsActivity.start(
             activity = this,
             requestCode = Constants.REQUEST_CODE_COMMON_SETTINGS_ACTIVITY,
+        )
+    }
+
+    protected fun showHistoryActivity() {
+        HistoryActivity.start(
+            activity = this,
+            requestCode = Constants.REQUEST_CODE_HISTORY_ACTIVITY,
         )
     }
 

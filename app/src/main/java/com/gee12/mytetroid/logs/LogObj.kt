@@ -21,7 +21,8 @@ enum class LogObj(private val tensesResArray: Int? = null) {
     FILE_FIELDS(R.array.obj_file_fields),
     CUR_PASS,
     NEW_PASS,
-    SCRIPT(R.array.obj_script);
+    SCRIPT(R.array.obj_script),
+    HISTORY_ITEM(R.array.history_item);
 
     fun getString(tense: Tense, resourcesProvider: IResourcesProvider): String {
         return tensesResArray?.takeIf { tense.id in 0..2 }?.let {

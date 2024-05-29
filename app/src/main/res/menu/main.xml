@@ -44,6 +44,13 @@
         android:enabled="false"
         app:showAsAction="never|collapseActionView" />
     <item
+        android:id="@+id/action_history"
+        android:orderInCategory="205"
+        android:title="@string/title_history"
+        android:icon="@drawable/ic_history"
+        android:enabled="false"
+        app:showAsAction="never|collapseActionView" />
+    <item
         android:id="@+id/action_storage_sync"
         android:orderInCategory="210"
         android:title="@string/title_storage_sync"

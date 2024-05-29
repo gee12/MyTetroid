@@ -69,6 +69,7 @@ sealed class Failure(val ex: Throwable? = null) {
 
     sealed class Attach(ex: Throwable? = null) : Failure(ex) {
         object NameIsEmpty : Attach()
+        class NotFound(val attachId: String) : Attach()
         class NotFoundInRecord(val attachId: String) : Attach()
     }
 

@@ -194,6 +194,11 @@
         <item>Script was&#160;</item>
         <item>script</item>
     </string-array>
+    <string-array name="history_item">
+        <item>history item</item>
+        <item>History item was&#160;</item>
+        <item>history item</item>
+    </string-array>
 
     <string-array name="oper_set">
         <item>set</item>

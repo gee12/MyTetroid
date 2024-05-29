@@ -58,6 +58,8 @@
     <string name="title_record_folder">Каталог записи</string>
     <string name="title_about_app">О приложении</string>
     <string name="title_global_search">Глобальный поиск</string>
+    <string name="title_history">История</string>
+    <string name="title_storage_history">История хранилища</string>
     <string name="title_attached_files">Прикрепленные файлы</string>
     <string name="title_cur_record">Текст записи</string>
     <string name="title_storages">Список хранилищ</string>
@@ -119,6 +121,7 @@
     <string name="title_need_load_storage_to_view_info">Для просмотра данных нужно загрузить хранилище…</string>
     <string name="title_storages_empty_label">Добавьте хранилище…</string>
     <string name="title_scripts_empty_label">Добавьте скрипт…</string>
+    <string name="title_empty_history">История хранилиша пока пуста…</string>
     <string name="title_files_is_missing">Прикрепленных файлов нет</string>
     <string name="title_file_is_missing">Файл отсутствует</string>
     <string name="title_fullscreen">Полноэкранный режим</string>
@@ -227,6 +230,7 @@
     <string name="title_load_all_nodes_object_name"><![CDATA[<Загрузите все ветки>]]></string>
     <string name="action_activate_all_for_storage">Включить все для хранилища</string>
     <string name="action_deactivate_all_for_storage">Отключить все для хранилища</string>
+    <string name="action_clear_history">Очистить историю</string>
 
     <string name="title_def_script_title_table_sort">Сортировка таблиц</string>
     <string name="title_def_script_description_table_sort">Строки таблицы будут отсортированы при клике на заголовке колонки</string>
@@ -261,6 +265,18 @@
     <string name="title_settings_editor_theme_as_app_theme">Как в теме приложения</string>
     <string name="title_settings_editor_theme_light">Светлая</string>
     <string name="title_settings_editor_theme_dark">Темная</string>
+
+    <string name="enum_tetroid_object_type_none">Неизвестный объект</string>
+    <string name="enum_tetroid_object_type_record">Запись</string>
+    <string name="enum_tetroid_object_type_node">Ветка</string>
+    <string name="enum_tetroid_object_type_attach">Прикрепленный файл</string>
+    <string name="enum_tetroid_object_type_tag">Метка</string>
+
+    <string name="enum_tetroid_object_action_none">неизвестный объект</string>
+    <string name="enum_tetroid_object_action_record">запись</string>
+    <string name="enum_tetroid_object_action_node">ветку</string>
+    <string name="enum_tetroid_object_action_attach">прикрепленный файл</string>
+    <string name="enum_tetroid_object_action_tag">метку</string>
 
     <string name="text_intent_create_text">Вставить в новую запись;Создать новую запись и добавить переданный текст</string>
     <string name="text_intent_create_image">Вставить в новую запись;Создать новую запись и добавить переданное(ые) изображение(я) в ее текст</string>
@@ -615,6 +631,8 @@
     <string name="ask_decrypt_attached_files_in_trash_title">Открытие зашифрованного файла</string>
     <string name="ask_decrypt_attached_files_in_trash_message">Отключена опция \"Расшифровывать файлы в каталог\".\nВключить опцию и открыть файл?</string>
     <string name="ask_script_was_changed_request">Код скрипта был изменен. Все равно выйти?</string>
+    <string name="ask_open_object_from_history_mask">Открыть %s «%s»?</string>
+    <string name="ask_delete_object_from_history_mask">Удалить %s «%s» из истории?</string>
 
     <string name="subtitle_record_view">ПРОСМОТР</string>
     <string name="subtitle_record_edit">РЕДАКТОР</string>
@@ -755,6 +773,7 @@
     <string name="log_file_was_attached">Файл прикреплен</string>
     <string name="log_record_not_have_attached_files">У записи не указаны файлы</string>
     <string name="error_attach_not_found_in_record">Прикрепленный файл не найден в списке файлов записи</string>
+    <string name="error_attach_not_found_in_storage_mask">Прикрепленный файл не найден в хранилище по id=%s</string>
     <string name="log_record_file_is_missing">Файл записи отсутствует, будет создан при сохранении</string>
     <string name="start_record_file_reading_mask">Начало чтения файла записи id=%s</string>
     <string name="log_start_record_file_saving_mask">Начало сохранения файла записи id=%s</string>
@@ -882,6 +901,7 @@
     <string name="log_migration_finished_successfully">Миграция прошла успешно</string>
     <string name="log_field_changed_mask">Изменен параметр хранилища \"%1$s\" с \"%2$s\" на \"%3$s\"</string>
     <string name="log_loading_script_to_record_masked">Загрузка JS-скрипта: %s</string>
+    <string name="log_storage_history_was_cleared">История хранилища была очищена</string>
 
     <string name="error_record_create_mask">Ошибка создания записи:\n%s</string>
     <string name="error_record_name_is_empty">Пустое имя записи</string>
@@ -902,6 +922,7 @@
     <string name="error_db_update">Не удалось обновить запись в бд</string>
     <string name="error_db_delete">Не удалось удалить запись из бд</string>
     <string name="error_db_item_not_found">Не найдено ни одной записи в бд</string>
+    <string name="error_object_type_is_none">Неизвестный тип объекта</string>
 
     <string name="error_script_file_is_not_exist">Файл отсутствует</string>
     <string name="error_script_file_name_is_not_unique">Имя файла не уникально</string>

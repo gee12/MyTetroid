@@ -623,6 +623,12 @@ object UseCasesModule {
             //region Attach
 
             scoped {
+                GetAttachByIdUseCase(
+                    storageProvider = get(),
+                )
+            }
+
+            scoped {
                 AttachFileToRecordUseCase(
                     context = androidContext(),
                     resourcesProvider = get(),

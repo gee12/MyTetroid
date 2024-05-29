@@ -118,7 +118,7 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
     override fun onBaseEvent(event: BaseEvent) {
         when (event) {
             is ScriptsEvent -> {
-                onStoragesEvent(event)
+                onScriptsEvent(event)
             }
             is BaseEvent.Permission.Granted -> {
             }
@@ -126,7 +126,7 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
         }
     }
 
-    private fun onStoragesEvent(event: ScriptsEvent) {
+    private fun onScriptsEvent(event: ScriptsEvent) {
         when (event) {
             is ScriptsEvent.LoadScripts -> {
                 setData(
@@ -328,7 +328,7 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
             }
             R.id.action_choice_mode -> {
                 // TODO: включаем режим множественного выбора (ActionMode) для RecyclerView
-//                ActionModeController(R.menu.storage_actions, ActionMode.TYPE_PRIMARY, a).startActionMode(this)
+                //ActionModeController(R.menu.storage_actions, ActionMode.TYPE_PRIMARY, a).startActionMode(this)
                 return true
             }
         }

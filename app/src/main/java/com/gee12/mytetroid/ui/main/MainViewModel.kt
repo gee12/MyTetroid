@@ -45,6 +45,7 @@ import com.gee12.mytetroid.domain.usecase.tag.GetTagByNameUseCase
 import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
 import com.gee12.mytetroid.domain.usecase.tag.RenameTagInRecordsUseCase
 import com.gee12.mytetroid.model.enums.TagsSearchMode
+import com.gee12.mytetroid.model.enums.TetroidObjectType
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.ui.storage.StorageViewModel
 import kotlinx.coroutines.*
@@ -121,6 +122,7 @@ class MainViewModel(
     private val getTagByNameUseCase: GetTagByNameUseCase,
     private val renameTagInRecordsUseCase: RenameTagInRecordsUseCase,
     private val downloadFileFromWebUseCase: DownloadFileFromWebUseCase,
+    private val getAttachByIdUseCase: GetAttachByIdUseCase,
 
     cryptRecordFilesIfNeedUseCase: CryptRecordFilesIfNeedUseCase,
     parseRecordTagsUseCase: ParseRecordTagsUseCase,
@@ -1610,6 +1612,20 @@ class MainViewModel(
 
     // region Attaches
 
+    fun openAttach(attachId: String) {
+        launchOnMain {
+            withIo {
+                getAttachByIdUseCase.run(
+                    GetAttachByIdUseCase.Params(attachId)
+                )
+            }.onFailure {
+                logFailure(it)
+            }.onSuccess { attach ->
+                checkPermissionIfNeedAndOpenAttach(attach)
+            }
+        }
+    }
+
     fun setCurrentAttaches(attaches: List<TetroidFile>) {
         curAttaches.clear()
         curAttaches.addAll(attaches)
@@ -2082,6 +2098,30 @@ class MainViewModel(
     }
 
     // endregion Global search
+
+    // region History
+
+    fun openStorageObjectFromHistory(objectType: TetroidObjectType, objectId: String) {
+        when (objectType) {
+            TetroidObjectType.NONE -> {
+                showError(resourcesProvider.getString(R.string.error_object_type_is_none))
+            }
+            TetroidObjectType.RECORD -> {
+                openRecord(recordId = objectId)
+            }
+            TetroidObjectType.NODE -> {
+                showNode(nodeId = objectId)
+            }
+            TetroidObjectType.ATTACH -> {
+                openAttach(attachId = objectId)
+            }
+            TetroidObjectType.TAG -> {
+                showTagRecords(tagName = objectId)
+            }
+        }
+    }
+
+    // endregion History
 
     // region Filter
 

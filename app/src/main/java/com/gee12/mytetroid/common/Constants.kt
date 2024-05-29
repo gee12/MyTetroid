@@ -49,6 +49,7 @@ object Constants {
     const val REQUEST_CODE_SCRIPTS_ACTIVITY = 106           // скрипты
     const val REQUEST_CODE_NODE_ICON = 107                  // иконка ветки
     const val REQUEST_CODE_SYNC_STORAGE = 108               // синхронизация хранилища
+    const val REQUEST_CODE_HISTORY_ACTIVITY = 109           // история
 
     const val RESULT_REINIT_STORAGE = 1
     const val RESULT_PASS_CHANGED = 2

@@ -157,6 +157,7 @@ object ViewModelsModule {
                     getTagByNameUseCase = get(),
                     renameTagInRecordsUseCase = get(),
                     downloadFileFromWebUseCase = get(),
+                    getAttachByIdUseCase = get(),
                 )
             }
 
@@ -399,6 +400,21 @@ object ViewModelsModule {
                 )
             }
 
+            viewModel {
+                HistoryViewModel(
+                    app = androidApplication(),
+                    buildInfoProvider = get(),
+                    resourcesProvider = get(),
+                    logger = get(),
+                    notificator = get(),
+                    failureHandler = get(),
+                    settingsManager = get(),
+                    appPathProvider = get(),
+                    storageProvider = get(),
+                    storagePathProvider = get(),
+                    historyManager = get(),
+                )
+            }
         }
 
         viewModel {

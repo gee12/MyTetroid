@@ -41,6 +41,7 @@ import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.model.*
  import com.gee12.mytetroid.model.enums.SearchInNodeMode
+import com.gee12.mytetroid.model.enums.TetroidObjectType
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.model.permission.TetroidPermission
 import com.gee12.mytetroid.ui.base.BaseEvent
@@ -54,6 +55,7 @@ import com.gee12.mytetroid.ui.dialogs.pass.PassDialogs.IPassInputResult
 import com.gee12.mytetroid.ui.dialogs.pass.PassDialogs.showPasswordEnterDialog
 import com.gee12.mytetroid.ui.dialogs.pin.PinCodeDialog
 import com.gee12.mytetroid.ui.dialogs.storage.StorageDialogs
+import com.gee12.mytetroid.ui.history.HistoryActivity
 import com.gee12.mytetroid.ui.main.found.FoundPageFragment
 import com.gee12.mytetroid.ui.node.NodesListAdapter
 import com.gee12.mytetroid.ui.node.icon.IconsActivity
@@ -1772,6 +1774,9 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             Constants.REQUEST_CODE_COMMON_SETTINGS_ACTIVITY -> {
                 data?.let { onCommonSettingsActivityResult(data) }
             }
+            Constants.REQUEST_CODE_HISTORY_ACTIVITY -> {
+                data?.let { onHistoryActivityResult(data) }
+            }
             Constants.REQUEST_CODE_RECORD_ACTIVITY -> {
                 data?.getIntExtra(Constants.EXTRA_RESULT_ACTION_TYPE, 0)?.also {
                     onRecordActivityResult(resultActionType = it, data = data)
@@ -1835,6 +1840,15 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         // обновляем списки, могли измениться настройки отображения
         viewModel.updateRecordsList()
         updateNodes()
+    }
+
+    private fun onHistoryActivityResult(data: Intent) {
+        val objectTypeId = data.extras?.getInt(HistoryActivity.EXTRA_OBJECT_TYPE_ID, TetroidObjectType.NONE.id)
+        val objectType = objectTypeId?.let { TetroidObjectType.getById(it) }
+        val objectId = data.extras?.getString(HistoryActivity.EXTRA_OBJECT_ID, null)
+        if (objectType != null && objectId != null) {
+            viewModel.openStorageObjectFromHistory(objectType, objectId)
+        }
     }
 
     private fun onStorageChangedIntent(data: Intent?) {
@@ -2325,6 +2339,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         val isStorageLoaded = viewModel.isStorageLoaded()
         menu.findItem(R.id.action_search_records)?.setEnabled(isStorageLoaded)
         menu.findItem(R.id.action_global_search)?.setEnabled(isStorageLoaded)
+        menu.findItem(R.id.action_history)?.setEnabled(isStorageLoaded)
         menu.findItem(R.id.action_storage_sync)?.setEnabled(isStorageLoaded)
         val isStorageNotNull = viewModel.storage != null
         menu.findItem(R.id.action_storage_info)?.setEnabled(isStorageNotNull)
@@ -2363,6 +2378,10 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             }
             R.id.action_global_search -> {
                 showGlobalSearchActivity(null)
+                true
+            }
+            R.id.action_history -> {
+                showHistoryActivity()
                 true
             }
             R.id.action_storage_sync -> {

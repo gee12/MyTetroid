@@ -265,6 +265,11 @@ class FailureHandler(
                     title = getString(R.string.error_attach_name_is_empty),
                 )
             }
+            is Failure.Attach.NotFound -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_attach_not_found_in_storage_mask, failure.attachId),
+                )
+            }
             is Failure.Attach.NotFoundInRecord -> {
                 NotificationData.Error(
                     title = getString(R.string.error_attach_not_found_in_record),
