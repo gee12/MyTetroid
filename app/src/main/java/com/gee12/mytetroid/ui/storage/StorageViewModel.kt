@@ -639,7 +639,7 @@ open class StorageViewModel(
         }
     }
 
-    fun checkAndDecryptNode(node: TetroidNode): Boolean {
+    protected fun checkAndDecryptNode(node: TetroidNode): Boolean {
         if (!node.isNonCryptedOrDecrypted) {
             val params = StorageParams(
                 node = node,
@@ -651,9 +651,9 @@ open class StorageViewModel(
 
             checkPassAndDecryptStorage(params)
             // выходим,запрос пароля будет в асинхронном режиме
-            return true
+            return false
         }
-        return false
+        return true
     }
 
     fun checkAndDecryptRecord(record: TetroidRecord): Boolean {

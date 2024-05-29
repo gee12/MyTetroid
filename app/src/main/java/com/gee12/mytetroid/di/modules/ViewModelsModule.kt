@@ -3,6 +3,7 @@ package com.gee12.mytetroid.di.modules
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.ui.about.AboutAppViewModel
 import com.gee12.mytetroid.ui.file.FolderPickerViewModel
+import com.gee12.mytetroid.ui.history.HistoryViewModel
 import com.gee12.mytetroid.ui.logs.LogsViewModel
 import com.gee12.mytetroid.ui.main.MainViewModel
 import com.gee12.mytetroid.ui.node.icon.IconsViewModel
@@ -107,6 +108,7 @@ object ViewModelsModule {
                     interactionManager = get(),
                     syncManager = get(),
                     storageTreeObserver = get(),
+                    historyManager = get(),
 
                     initOrCreateStorageUseCase = get(),
                     readStorageTreeUseCase = get(),
@@ -182,6 +184,7 @@ object ViewModelsModule {
                     favoritesManager = get(),
                     interactionManager = get(),
                     syncManager = get(),
+                    historyManager = get(),
 
                     initOrCreateStorageUseCase = get(),
                     readStorageTreeUseCase = get(),

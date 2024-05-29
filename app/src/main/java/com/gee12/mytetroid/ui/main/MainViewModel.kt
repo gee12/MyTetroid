@@ -75,6 +75,7 @@ class MainViewModel(
     interactionManager: InteractionManager,
     syncManager: SyncManager,
     private val storageTreeObserver: StorageTreeObserver,
+    private val historyManager: HistoryManager,
 
     private val globalSearchUseCase: GlobalSearchUseCase,
     getFileModifiedDateUseCase: GetFileModifiedDateInStorageUseCase,
@@ -405,19 +406,19 @@ class MainViewModel(
 
     // region Records
 
-    fun setCurrentRecords(records: List<TetroidRecord>) {
+    private fun setCurrentRecords(records: List<TetroidRecord>) {
         curRecords.clear()
         curRecords.addAll(records)
     }
 
-    fun showRecords(
+    private fun showRecords(
         records: List<TetroidRecord>,
         viewType: MainViewType,
         dropSearch: Boolean = true,
         scrollToRecord: TetroidRecord? = null,
     ) {
+        setCurrentRecords(records)
         launchOnMain {
-            setCurrentRecords(records)
             sendEvent(MainEvent.ShowRecords(records, viewType, dropSearch, scrollToRecord))
         }
     }
@@ -974,12 +975,31 @@ class MainViewModel(
      * Открытие записей ветки.
      * @param node
      */
-    fun showNode(node: TetroidNode, scrollToRecord: TetroidRecord? = null) {
+    fun showNode(
+        node: TetroidNode,
+        scrollToRecord: TetroidRecord? = null,
+        writeToHistory: Boolean = true,
+    ) {
         // проверка нужно ли расшифровать ветку перед отображением
-        if (checkAndDecryptNode(node)) return
+        if (!checkAndDecryptNode(node)) {
+            return
+        }
 
-        launchOnMain {
+        launchOnIo {
             log(getString(R.string.log_open_node) + node.getIdString(resourcesProvider))
+
+            if (writeToHistory) {
+                // принудительно в новой корутине
+                launchOnIo {
+                    historyManager.addToHistory(node)
+                        .onFailure {
+                            logFailure(it, show = true)
+                        }.onSuccess {
+                            logOperRes(LogObj.HISTORY_ITEM, LogOper.ADD, node, show = false)
+                        }
+                }
+            }
+
             setCurrentNode(node)
             showRecords(
                 records = node.records,
@@ -996,7 +1016,7 @@ class MainViewModel(
      * Открытие ветки записи.
      * Если активен режим "Только избранное", то открытие списка избранных записей.
      */
-    fun showRecordNode() {
+    private fun showRecordNode() {
         when {
             isLoadedFavoritesOnly() -> showFavorites()
             curRecord != null -> showNode(curRecord!!.node)
@@ -1007,11 +1027,9 @@ class MainViewModel(
     /**
      * Сохранение последней выбранной ветки.
      */
-    private fun saveLastSelectedNode(nodeId: String) {
+    private suspend fun saveLastSelectedNode(nodeId: String) {
         if (isKeepLastNode()) {
-            launchOnIo {
-                setLastNodeIdAndSaveStorageInDb(nodeId)
-            }
+            setLastNodeIdAndSaveStorageInDb(nodeId)
         }
     }
 
@@ -1489,8 +1507,20 @@ class MainViewModel(
     /**
      * Отображение записей по метке.
      */
-    fun showTagRecords(tag: TetroidTag) {
+    fun showTagRecords(tag: TetroidTag, writeToHistory: Boolean = true) {
         launchOnMain {
+            if (writeToHistory) {
+                // принудительно в новой корутине
+                launchOnIo {
+                    historyManager.addToHistory(tag)
+                        .onFailure {
+                            logFailure(it, show = true)
+                        }.onSuccess {
+                            logOperRes(LogObj.HISTORY_ITEM, LogOper.ADD, tag, show = false)
+                        }
+                }
+            }
+
             isMultiTagsMode = false
             selectedTags.clear()
             selectedTags.add(tag)
@@ -1618,7 +1648,7 @@ class MainViewModel(
         }
     }
 
-    private fun openAttach(attach: TetroidFile) {
+    private fun openAttach(attach: TetroidFile, writeToHistory: Boolean = true) {
         launchOnMain {
             sendEvent(MainEvent.Attach.Open.InProcess(attach))
 
@@ -1632,6 +1662,17 @@ class MainViewModel(
                 logFailure(failure)
                 sendEvent(MainEvent.Attach.Open.Failed(attach, failure))
             }.onSuccess { fileUri ->
+                if (writeToHistory) {
+                    // принудительно в новой корутине
+                    launchOnIo {
+                        historyManager.addToHistory(attach)
+                            .onFailure {
+                                logFailure(it, show = true)
+                            }.onSuccess {
+                                logOperRes(LogObj.HISTORY_ITEM, LogOper.ADD, attach, show = false)
+                            }
+                    }
+                }
                 sendEvent(MainEvent.Attach.Open.Success(attach, fileUri))
             }
         }
@@ -1923,7 +1964,7 @@ class MainViewModel(
      * Отображение списка избранных записей.
      */
     fun showFavorites() {
-        launchOnMain {
+        launchOnIo {
             val node = FavoritesManager.FAVORITES_NODE
             // выделяем ветку Избранное, только если загружено не одно Избранное
             if (!isLoadedFavoritesOnly()) {
@@ -1967,7 +2008,7 @@ class MainViewModel(
         }
     }
 
-    fun updateFavoritesNodeTitleAndListIfNeed(record: TetroidRecord?) {
+    private fun updateFavoritesNodeTitleAndListIfNeed(record: TetroidRecord?) {
         if (record?.isFavorite == true) {
             updateFavoritesNodeTitle()
         }

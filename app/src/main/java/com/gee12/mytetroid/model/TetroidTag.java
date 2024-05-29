@@ -11,7 +11,7 @@ public class TetroidTag extends TetroidObject {
     private Boolean isEmpty;
 
     public TetroidTag(String name, List<TetroidRecord> records, Boolean isEmpty) {
-        super(FoundType.TYPE_TAG, false, "", name);
+        super(FoundType.TYPE_TAG, false, name, name);
         this.records = records;
         this.isEmpty = isEmpty;
     }

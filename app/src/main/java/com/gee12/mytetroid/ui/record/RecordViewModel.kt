@@ -51,6 +51,8 @@ import com.gee12.mytetroid.domain.usecase.script.GetActiveScriptsForRecordUseCas
 import com.gee12.mytetroid.domain.usecase.script.GetScriptTextUseCase
 import com.gee12.mytetroid.domain.usecase.storage.*
 import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
+import com.gee12.mytetroid.logs.LogObj
+import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.model.permission.TetroidPermission
 import com.gee12.mytetroid.ui.storage.StorageEvent
@@ -81,6 +83,7 @@ class RecordViewModel(
     favoritesManager: FavoritesManager,
     interactionManager: InteractionManager,
     syncManager: SyncManager,
+    private val historyManager: HistoryManager,
 
     getFileModifiedDateUseCase : GetFileModifiedDateInStorageUseCase,
     getFolderSizeUseCase: GetFolderSizeInStorageUseCase,
@@ -1493,7 +1496,22 @@ class RecordViewModel(
         }
     }
 
-    private suspend fun initRecord(record: TetroidRecord) {
+    private suspend fun initRecord(
+        record: TetroidRecord,
+        writeToHistory: Boolean = true,
+    ) {
+        if (writeToHistory) {
+            // принудительно в новой корутине
+            launchOnIo {
+                historyManager.addToHistory(record)
+                    .onFailure {
+                        logFailure(it, show = true)
+                    }.onSuccess {
+                        logOperRes(LogObj.HISTORY_ITEM, LogOper.ADD, record, show = false)
+                    }
+            }
+        }
+
         initRecordFolder(record)
 
         curRecord.postValue(record)
