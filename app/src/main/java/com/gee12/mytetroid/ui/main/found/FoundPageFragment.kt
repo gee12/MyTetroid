@@ -104,15 +104,14 @@ class FoundPageFragment : TetroidFragment<MainViewModel>, MainPage {
     }
 
     private fun showFounds(foundItems: Map<ITetroidObject, FoundType>, profile: SearchProfile) {
-        val settingsProvider = viewModel.settingsManager
         listAdapterFound = FoundListAdapter(
             context = requireContext(),
-            resourcesProvider = viewModel.resourcesProvider,
+            resourcesProvider = resourcesProvider,
             buildInfoProvider = buildInfoProvider,
-            dateTimeFormat = settingsProvider.checkDateFormatString(),
-            isHighlightAttach = settingsProvider.isHighlightRecordWithAttach(),
-            highlightAttachColor = settingsProvider.highlightAttachColor(),
-            fieldsSelector = settingsProvider.getRecordFieldsSelector(),
+            dateTimeFormat = settingsManager.checkDateFormatString(),
+            isHighlightAttach = settingsManager.isHighlightRecordWithAttach(),
+            highlightAttachColor = settingsManager.highlightAttachColor(),
+            fieldsSelector = settingsManager.getRecordFieldsSelector(),
             getEditedDateCallback = { record ->
                 viewModel.getEditedDate(record)
             },

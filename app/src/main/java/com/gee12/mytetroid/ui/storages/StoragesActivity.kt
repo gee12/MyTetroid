@@ -247,7 +247,7 @@ class StoragesActivity : TetroidActivity<StoragesViewModel>() {
         requestCode: PermissionRequestCode,
         storage: TetroidStorage,
     ) {
-        if (viewModel.buildInfoProvider.hasAllFilesAccessVersion()) {
+        if (buildInfoProvider.hasAllFilesAccessVersion()) {
             viewModel.permissionManager.requestWriteExtStoragePermissions(
                 activity = this,
                 requestCode = requestCode,

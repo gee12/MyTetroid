@@ -30,10 +30,10 @@ class SettingsDisplayFragment : TetroidSettingsFragment() {
 
         setHighlightPrefAvailability()
 
-        if (baseViewModel.buildInfoProvider.isFullVersion()) {
+        if (buildInfoProvider.isFullVersion()) {
             // добавляем поле "Дата изменения"
             (findPreference<Preference>(getString(R.string.pref_key_record_fields_in_list)) as MultiSelectListPreference?)?.also {
-                val arrayId = if (baseViewModel.buildInfoProvider.isFullVersion()) {
+                val arrayId = if (buildInfoProvider.isFullVersion()) {
                     R.array.record_fields_in_list_entries_pro
                 } else {
                     R.array.record_fields_in_list_entries
@@ -127,8 +127,8 @@ class SettingsDisplayFragment : TetroidSettingsFragment() {
     }
 
     private fun getRecordFieldsValuesString(): String {
-        val arrayId = if (baseViewModel.buildInfoProvider.isFullVersion()) R.array.record_fields_in_list_entries_pro else R.array.record_fields_in_list_entries
-        val recordFieldsInList = baseViewModel.settingsManager.getRecordFieldsSelector()
+        val arrayId = if (buildInfoProvider.isFullVersion()) R.array.record_fields_in_list_entries_pro else R.array.record_fields_in_list_entries
+        val recordFieldsInList = settingsManager.getRecordFieldsSelector()
         return recordFieldsInList.joinToString(resources.getStringArray(arrayId), 0)
     }
 

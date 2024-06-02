@@ -14,7 +14,6 @@ import com.gee12.mytetroid.ui.storage.StorageViewModel
  * Диалог со списком вариантов обработки переданного объекта.
  */
 class IntentsDialog(
-    private val resourcesProvider: IResourcesProvider,
     private val isText: Boolean,
     private val onItemClick: (item: ReceivedData) -> Unit,
 ) : TetroidStorageDialogFragment<StorageViewModel>() {

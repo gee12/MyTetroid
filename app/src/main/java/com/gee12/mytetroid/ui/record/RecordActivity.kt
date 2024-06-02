@@ -684,7 +684,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         val tvCreated = findViewById<TextView>(R.id.text_view_record_created)
         val created = record.created
         tvCreated.text = if (created != null) Utils.dateToString(created, dateFormat) else ""
-        if (viewModel.buildInfoProvider.isFullVersion()) {
+        if (buildInfoProvider.isFullVersion()) {
             findViewById<View>(R.id.label_record_edited).isVisible = true
             val tvEdited = findViewById<TextView>(R.id.text_view_record_edited)
             tvEdited.isVisible = true

@@ -59,7 +59,7 @@ class RecordInfoDialog(
         dialogView.findViewById<TextView>(R.id.text_view_created).text =
             if (created != null) Utils.dateToString(created, dateFormat) else "-"
 
-        if (viewModel.buildInfoProvider.isFullVersion()) {
+        if (buildInfoProvider.isFullVersion()) {
             dialogView.findViewById<View>(R.id.table_row_edited).visibility = View.VISIBLE
 
             //TODO: использовать события вместо корутины

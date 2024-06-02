@@ -5,12 +5,16 @@ import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.di.ScopeSource
+import com.gee12.mytetroid.domain.manager.CommonSettingsManager
+import com.gee12.mytetroid.domain.provider.BuildInfoProvider
+import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.Message
 import com.gee12.mytetroid.ui.TetroidMessage
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.BaseViewModel
 import com.gee12.mytetroid.ui.base.ITetroidComponent
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 import org.koin.core.scope.Scope
 import org.koin.core.scope.get
 
@@ -22,6 +26,10 @@ abstract class TetroidDialogFragment<VM : BaseViewModel> : BaseDialogFragment() 
         get() = scopeSource.scope
 
     protected lateinit var viewModel: VM
+
+    protected open val resourcesProvider: IResourcesProvider by inject()
+    protected open val buildInfoProvider: BuildInfoProvider by inject()
+    protected open val settingsManager: CommonSettingsManager by inject()
 
     private val componentListener: ITetroidComponent?
         get() = requireActivity() as? ITetroidComponent

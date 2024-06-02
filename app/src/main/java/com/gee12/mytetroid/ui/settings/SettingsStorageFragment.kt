@@ -43,7 +43,7 @@ class SettingsStorageFragment : TetroidSettingsFragment() {
                 }
                 true
             }
-            if (baseViewModel.buildInfoProvider.isFullVersion()) {
+            if (buildInfoProvider.isFullVersion()) {
                 it.dependency = getString(R.string.pref_key_is_load_favorites)
             }
         }

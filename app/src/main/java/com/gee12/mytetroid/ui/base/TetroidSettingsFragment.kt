@@ -12,6 +12,7 @@ import androidx.preference.PreferenceFragmentCompat
 import com.anggrayudi.storage.SimpleStorageHelper
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
+import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.ui.settings.CommonSettingsViewModel
 import kotlinx.coroutines.launch
@@ -83,17 +84,17 @@ open class TetroidSettingsFragment :
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {}
 
     fun onSharedPreferenceChanged(key: String) {
-        onSharedPreferenceChanged(baseViewModel.settingsManager.settings, key)
+        onSharedPreferenceChanged(settingsManager.settings, key)
     }
 
     override fun onResume() {
         super.onResume()
-        baseViewModel.settingsManager.settings?.registerOnSharedPreferenceChangeListener(this)
+        settingsManager.settings?.registerOnSharedPreferenceChangeListener(this)
     }
 
     override fun onPause() {
         super.onPause()
-        baseViewModel.settingsManager.settings?.unregisterOnSharedPreferenceChangeListener(this)
+        settingsManager.settings?.unregisterOnSharedPreferenceChangeListener(this)
     }
 
     /**
@@ -101,7 +102,7 @@ open class TetroidSettingsFragment :
      * @param pref
      */
     protected fun Preference.disableIfFree() {
-        if (baseViewModel.buildInfoProvider.isFullVersion()) {
+        if (buildInfoProvider.isFullVersion()) {
             isEnabled = true
         } else {
             isEnabled = false
@@ -133,7 +134,7 @@ open class TetroidSettingsFragment :
     }
 
     protected fun updateSummaryIfContains(@StringRes keyStringRes: Int, value: String?) {
-        if (baseViewModel.settingsManager.isContains(keyStringRes)) {
+        if (settingsManager.isContains(keyStringRes)) {
             updateSummary(keyStringRes, value)
         }
     }

@@ -204,7 +204,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         btnLoadStorageNodes = findViewById(R.id.button_load)
         favoritesNode.visibility = View.GONE
         btnLoadStorageNodes.visibility = View.GONE
-        if (viewModel.buildInfoProvider.isFullVersion()) {
+        if (buildInfoProvider.isFullVersion()) {
             favoritesNode.setOnClickListener { 
                 viewModel.showFavorites() 
             }
@@ -728,9 +728,9 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         fragmentTags.setVisibleLoadStorageTags(isVisibleLoadButtons)
         ViewUtils.setFabVisibility(fabCreateNode, isLoaded && !isOnlyFavorites)
         lvNodes.isVisible = !isOnlyFavorites
-        favoritesNode.isVisible = isLoaded && viewModel.buildInfoProvider.isFullVersion()
+        favoritesNode.isVisible = isLoaded && buildInfoProvider.isFullVersion()
         tvNodesEmpty.isVisible = false
-        if (isLoaded && viewModel.buildInfoProvider.isFullVersion()) {
+        if (isLoaded && buildInfoProvider.isFullVersion()) {
             updateFavoritesNodeTitle()
         }
 
@@ -829,8 +829,8 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         // список веток
         listAdapterNodes = NodesListAdapter(
             context = this,
-            isHighlightCryptedNodes = viewModel.settingsManager.isHighlightCryptedNodes(),
-            highlightColor = viewModel.settingsManager.highlightAttachColor(),
+            isHighlightCryptedNodes = settingsManager.isHighlightCryptedNodes(),
+            highlightColor = settingsManager.highlightAttachColor(),
             onClick = { node, pos ->
                 if (node.isExpandable && CommonSettings.isExpandEmptyNode(this@MainActivity)) {
                     // если у ветки есть подветки и установлена опция
@@ -1220,7 +1220,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     private fun setCurrentNode(node: TetroidNode?) {
         listAdapterNodes.curNode = node
         listAdapterNodes.notifyDataSetChanged()
-        if (viewModel.buildInfoProvider.isFullVersion()) {
+        if (buildInfoProvider.isFullVersion()) {
             setFavorIsCurNode(node === FAVORITES_NODE)
         }
     }
@@ -2103,7 +2103,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             )
         } else {
             IntentsDialog(
-                resourcesProvider = resourcesProvider,
                 isText = isText,
                 onItemClick = { receivedData: ReceivedData ->
                     if (receivedData.isCreateRecord) {

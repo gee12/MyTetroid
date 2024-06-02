@@ -48,7 +48,7 @@ class AttachInfoDialog(
         )
         val dateFormat = getString(R.string.full_date_format_string)
 
-        if (viewModel.buildInfoProvider.isFullVersion()) {
+        if (buildInfoProvider.isFullVersion()) {
             dialogView.findViewById<View>(R.id.table_row_edited)?.visibility = View.VISIBLE
             val edited = viewModel.getAttachEditedDate(requireContext(), attach)
             (dialogView.findViewById<View>(R.id.text_view_edited) as TextView).text =

@@ -37,8 +37,6 @@ class RecordFieldsDialog(
     private val onApply: (name: String, tags: String, author: String, url: String, node: TetroidNode, isFavor: Boolean) -> Unit,
 ) : TetroidStorageDialogFragment<StorageViewModel>() {
 
-    val resourcesProvider: IResourcesProvider by inject()
-
     private lateinit var layoutProgress: LinearLayout
     private lateinit var tvProgress: TextView
 
@@ -100,7 +98,7 @@ class RecordFieldsDialog(
             etTags.setText(tagsString)
         }
         updateNodeView()
-        if (viewModel.buildInfoProvider.isFullVersion()) {
+        if (buildInfoProvider.isFullVersion()) {
             ctvFavor.visibility = View.VISIBLE
             ctvFavor.isChecked = record != null && record.isFavorite
             ctvFavor.setOnClickListener { ctvFavor.isChecked = !ctvFavor.isChecked }

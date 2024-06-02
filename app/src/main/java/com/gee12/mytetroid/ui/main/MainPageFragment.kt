@@ -146,15 +146,14 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
 
     private fun initListAdapters() {
         // список записей
-        val settingsProvider = viewModel.settingsManager
         listAdapterRecords = RecordsListAdapter(
             requireContext(),
-            resourcesProvider = viewModel.resourcesProvider,
+            resourcesProvider = resourcesProvider,
             buildInfoProvider = buildInfoProvider,
-            dateTimeFormat = settingsProvider.checkDateFormatString(),
-            isHighlightAttach = settingsProvider.isHighlightRecordWithAttach(),
-            highlightAttachColor = settingsProvider.highlightAttachColor(),
-            fieldsSelector = settingsProvider.getRecordFieldsSelector(),
+            dateTimeFormat = settingsManager.checkDateFormatString(),
+            isHighlightAttach = settingsManager.isHighlightRecordWithAttach(),
+            highlightAttachColor = settingsManager.highlightAttachColor(),
+            fieldsSelector = settingsManager.getRecordFieldsSelector(),
             getEditedDateCallback = { record ->
                 viewModel.getEditedDate(record)
             },
@@ -488,7 +487,7 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
      */
     private fun prepareRecordsContextMenu(menu: Menu, menuInfo: AdapterView.AdapterContextMenuInfo?) {
         if (menuInfo == null) return
-        val isPro = viewModel.buildInfoProvider.isFullVersion()
+        val isPro = buildInfoProvider.isFullVersion()
         val isLoadedFavoritesOnly = viewModel.isLoadedFavoritesOnly()
         val isFavoritesView = viewModel.currentMainViewType == MainViewType.FAVORITES
         var isNonCrypted = false

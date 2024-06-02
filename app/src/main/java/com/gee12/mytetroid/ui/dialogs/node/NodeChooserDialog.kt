@@ -63,8 +63,8 @@ class NodeChooserDialog(
 
         adapter = NodesListAdapter(
             context = requireContext(),
-            isHighlightCryptedNodes = viewModel.settingsManager.isHighlightCryptedNodes(),
-            highlightColor = viewModel.settingsManager.highlightAttachColor(),
+            isHighlightCryptedNodes = settingsManager.isHighlightCryptedNodes(),
+            highlightColor = settingsManager.highlightAttachColor(),
             onClick = { node, _ ->
                 onSelectNode(node)
             },

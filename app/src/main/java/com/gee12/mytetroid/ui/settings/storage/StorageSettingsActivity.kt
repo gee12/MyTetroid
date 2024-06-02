@@ -184,7 +184,7 @@ class StorageSettingsActivity : TetroidSettingsActivity<StorageSettingsViewModel
         permission: TetroidPermission.FileStorage,
         requestCode: PermissionRequestCode,
     ) {
-        if (viewModel.buildInfoProvider.hasAllFilesAccessVersion()) {
+        if (buildInfoProvider.hasAllFilesAccessVersion()) {
             viewModel.permissionManager.requestWriteExtStoragePermissions(
                 activity = this,
                 requestCode = requestCode,

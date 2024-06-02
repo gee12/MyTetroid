@@ -66,7 +66,7 @@ class TagsFragment : TetroidFragment<MainViewModel>() {
 
         btnLoadStorageTags = view.findViewById(R.id.button_load_2)
         btnLoadStorageTags.visibility = View.GONE
-        if (viewModel.buildInfoProvider.isFullVersion()) {
+        if (buildInfoProvider.isFullVersion()) {
             val listener = View.OnClickListener {
                 viewModel.loadAllNodes(false)
             }
@@ -227,7 +227,7 @@ class TagsFragment : TetroidFragment<MainViewModel>() {
         val popupMenu = PopupMenu(requireContext(), v)
         popupMenu.inflate(R.menu.tag_context)
         val menu = popupMenu.menu
-        val isFullVersion = viewModel.buildInfoProvider.isFullVersion()
+        val isFullVersion = buildInfoProvider.isFullVersion()
         menu.findItem(R.id.action_rename)?.isVisible = isFullVersion
         menu.findItem(R.id.action_select)?.isVisible = isFullVersion
         popupMenu.setOnMenuItemClickListener { item: MenuItem ->
