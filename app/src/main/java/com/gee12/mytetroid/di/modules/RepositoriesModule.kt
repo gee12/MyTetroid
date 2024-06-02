@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.di.modules
 
+import com.gee12.mytetroid.database.repo.HistoryDbRepo
 import com.gee12.mytetroid.domain.repo.*
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module

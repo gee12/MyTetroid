@@ -1,11 +1,15 @@
-package com.gee12.mytetroid.domain.repo
+package com.gee12.mytetroid.database.repo
 
 import android.content.Context
+import androidx.sqlite.db.SimpleSQLiteQuery
 import com.gee12.mytetroid.common.Either
 import com.gee12.mytetroid.common.Failure
 import com.gee12.mytetroid.database.TetroidDatabase
 import com.gee12.mytetroid.database.dao.HistoryDao
 import com.gee12.mytetroid.database.entity.HistoryDbEntity
+import com.gee12.mytetroid.database.query.history.GetAllHistoryItemsQuery
+import com.gee12.mytetroid.domain.repo.DbRepo
+import com.gee12.mytetroid.model.enums.HistorySortMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -25,11 +29,10 @@ class HistoryDbRepo(context: Context) : DbRepo() {
         }
     }
 
-    suspend fun getAll(storageId: Int): Either<Failure, List<HistoryDbEntity>> = withContext(Dispatchers.IO) {
+    suspend fun getAll(storageId: Int, sortMode: HistorySortMode): Either<Failure, List<HistoryDbEntity>> = withContext(Dispatchers.IO) {
         handleRequest {
-            dao.getAll(
-                storageId = storageId,
-            )
+            val query = GetAllHistoryItemsQuery(storageId, sortMode).getQuery()
+            dao.getAll(SimpleSQLiteQuery(query))
         }
     }
 

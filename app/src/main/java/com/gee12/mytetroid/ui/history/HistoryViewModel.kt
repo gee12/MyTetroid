@@ -14,6 +14,7 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.HistoryEntity
+import com.gee12.mytetroid.model.enums.HistorySortMode
 import com.gee12.mytetroid.ui.base.BaseStorageViewModel
 
 class HistoryViewModel(
@@ -41,16 +42,23 @@ class HistoryViewModel(
     storagePathProvider = storagePathProvider,
 ) {
 
+    var currentSortMode: HistorySortMode = HistorySortMode.DATE_DESC
+
     fun loadData() {
         launchOnMain {
             loadStorageHistory()
         }
     }
 
+    fun sortData(sortMode: HistorySortMode) {
+        currentSortMode = sortMode
+        loadData()
+    }
+
     private suspend fun loadStorageHistory() {
         showProgressWithText(R.string.state_loading)
         withIo {
-            historyManager.getAll(getStorageId())
+            historyManager.getAll(storageId = getStorageId(), sortMode = currentSortMode)
         }.onComplete {
             hideProgress()
         }.onFailure {

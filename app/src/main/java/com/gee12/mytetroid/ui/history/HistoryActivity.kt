@@ -2,13 +2,19 @@ package com.gee12.mytetroid.ui.history
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.graphics.Typeface
 import android.os.Bundle
+import android.os.Handler
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,6 +25,7 @@ import com.gee12.mytetroid.common.extensions.buildIntent
 import com.gee12.mytetroid.common.extensions.showForcedWithIcons
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.model.HistoryEntity
+import com.gee12.mytetroid.model.enums.HistorySortMode
 import com.gee12.mytetroid.model.enums.TetroidObjectType
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.TetroidStorageActivity
@@ -131,6 +138,14 @@ class HistoryActivity : TetroidStorageActivity<HistoryViewModel>() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.history, menu)
+        // только так получилось получить view пункта меню для отображения PopupMenu
+        Handler().post {
+            findViewById<View>(R.id.action_sort)?.also { view ->
+                view.setOnClickListener {
+                    showTagsSortPopupMenu(view)
+                }
+            }
+        }
         return true
     }
 
@@ -151,6 +166,60 @@ class HistoryActivity : TetroidStorageActivity<HistoryViewModel>() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    @SuppressLint("NonConstantResourceId")
+    fun showTagsSortPopupMenu(view: View) {
+        val popupMenu = PopupMenu(this, view)
+        popupMenu.inflate(R.menu.history_sort)
+
+        // выделяем текущую сортировку
+        val menuItemId = when (viewModel.currentSortMode) {
+            HistorySortMode.DATE_ASC -> R.id.action_sort_history_date_asc
+            HistorySortMode.DATE_DESC -> R.id.action_sort_history_date_desc
+            HistorySortMode.NAME_ASC -> R.id.action_sort_history_name_asc
+            HistorySortMode.NAME_DESC -> R.id.action_sort_history_name_desc
+            HistorySortMode.TYPE_ASC -> R.id.action_sort_history_type_asc
+            HistorySortMode.TYPE_DESC -> R.id.action_sort_history_type_desc
+        }
+        popupMenu.menu.findItem(menuItemId)?.also { menuItem ->
+            val title = SpannableString(menuItem.title)
+            val textColor = ContextCompat.getColor(this, R.color.text_1)
+            title.setSpan(ForegroundColorSpan(textColor), 0, title.length, 0)
+            title.setSpan(StyleSpan(Typeface.BOLD), 0, title.length, 0)
+            menuItem.setTitle(title)
+        }
+
+        popupMenu.setOnMenuItemClickListener { item: MenuItem ->
+            when (item.itemId) {
+                R.id.action_sort_history_date_asc -> {
+                    viewModel.sortData(HistorySortMode.DATE_ASC)
+                    true
+                }
+                R.id.action_sort_history_date_desc -> {
+                    viewModel.sortData(HistorySortMode.DATE_DESC)
+                    true
+                }
+                R.id.action_sort_history_name_asc -> {
+                    viewModel.sortData(HistorySortMode.NAME_ASC)
+                    true
+                }
+                R.id.action_sort_history_name_desc -> {
+                    viewModel.sortData(HistorySortMode.NAME_DESC)
+                    true
+                }
+                R.id.action_sort_history_type_asc -> {
+                    viewModel.sortData(HistorySortMode.TYPE_ASC)
+                    true
+                }
+                R.id.action_sort_history_type_desc -> {
+                    viewModel.sortData(HistorySortMode.TYPE_DESC)
+                    true
+                }
+                else -> false
+            }
+        }
+        (popupMenu.menu as MenuBuilder).showForcedWithIcons(view)
     }
 
     @SuppressLint("RestrictedApi")

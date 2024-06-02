@@ -1,9 +1,11 @@
 package com.gee12.mytetroid.ui.tag
 
 import android.annotation.SuppressLint
+import android.graphics.Typeface
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -281,8 +283,9 @@ class TagsFragment : TetroidFragment<MainViewModel>() {
         }
         menuItem?.let {
             val title = SpannableString(it.title)
-            val textColor = ContextCompat.getColor(context, R.color.text_3)
+            val textColor = ContextCompat.getColor(context, R.color.text_1)
             title.setSpan(ForegroundColorSpan(textColor), 0, title.length, 0)
+            title.setSpan(StyleSpan(Typeface.BOLD), 0, title.length, 0)
             it.setTitle(title)
         }
 

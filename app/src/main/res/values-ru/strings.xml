@@ -177,6 +177,9 @@
     <string name="title_founded_in_mask">Найдено в: %s</string>
     <string name="title_by_records_num">Количество записей</string>
     <string name="title_by_tag_name">Имя метки</string>
+    <string name="title_by_date">Дата</string>
+    <string name="title_by_object_name">Имя</string>
+    <string name="title_by_object_type">Тип</string>
     <string name="title_root_node"><![CDATA[<Корневая ветка>]]></string>
     <string name="title_drop_icon">Сбросить иконку</string>
     <string name="title_done">Готово</string>
@@ -589,6 +592,7 @@
     <string name="action_duplicate">Дублировать</string>
     <string name="action_activate_for_storage">Включить для хранилища</string>
     <string name="action_deactivate_for_storage">Отключить для хранилища</string>
+    <string name="action_sort">Сортировка</string>
 
     <string name="ask_exit_from_app">Выйти из приложения?</string>
     <string name="ask_node_delete_mask">Удалить ветку «%s» ?</string>

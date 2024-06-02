@@ -179,7 +179,10 @@
     <string name="title_choose_node">Select node</string>
     <string name="title_founded_in_mask">Founded in: %s</string>
     <string name="title_by_records_num">By records num</string>
-    <string name="title_by_tag_name">By name desc</string>
+    <string name="title_by_tag_name">By name</string>
+    <string name="title_by_date">By date</string>
+    <string name="title_by_object_name">By name</string>
+    <string name="title_by_object_type">By type</string>
     <string name="title_root_node"><![CDATA[<Root node>]]></string>
     <string name="title_drop_icon">Drop icon</string>
     <string name="title_done">Done</string>
@@ -697,6 +700,7 @@
     <string name="action_activate_all_for_storage">Activate all for storage</string>
     <string name="action_deactivate_all_for_storage">Deactivate all for storage</string>
     <string name="action_clear_history">Clear history</string>
+    <string name="action_sort">Sort</string>
 
     <string name="ask_oper_without_record_dir_mask">Record directory is missing. %s anyway ?</string>
     <string name="ask_attach_delete_without_file">File is missing on the disk. Delete anyway ?</string>

@@ -1,20 +1,14 @@
 package com.gee12.mytetroid.database.dao
 
 import androidx.room.*
+import androidx.sqlite.db.SupportSQLiteQuery
 import com.gee12.mytetroid.database.entity.HistoryDbEntity
 
 @Dao
 interface HistoryDao {
 
-    @Query(
-        """
-        SELECT *
-        FROM history 
-        WHERE storageId = :storageId 
-        ORDER BY id DESC
-        """
-    )
-    fun getAll(storageId: Int): List<HistoryDbEntity>
+    @RawQuery
+    fun getAll(query: SupportSQLiteQuery): List<HistoryDbEntity>
 
     @Query("SELECT COUNT(1) FROM history WHERE storageId = :storageId")
     fun getCount(storageId: Int): Int

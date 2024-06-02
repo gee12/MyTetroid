@@ -5,12 +5,13 @@ import com.gee12.mytetroid.database.map.history.toDbEntity
 import com.gee12.mytetroid.database.map.history.toEntity
 import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 import com.gee12.mytetroid.domain.provider.IStorageProvider
-import com.gee12.mytetroid.domain.repo.HistoryDbRepo
+import com.gee12.mytetroid.database.repo.HistoryDbRepo
 import com.gee12.mytetroid.model.HistoryEntity
 import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.model.TetroidTag
+import com.gee12.mytetroid.model.enums.HistorySortMode
 import com.gee12.mytetroid.model.enums.HistoryWriteMode
 import com.gee12.mytetroid.model.enums.TetroidObjectType
 import java.util.Date
@@ -34,8 +35,8 @@ class HistoryManager(
     private val lastIndex: Int
         get() = chain.size - 1
 
-    suspend fun getAll(storageId: Int): Either<Failure, List<HistoryEntity>> {
-        return historyDbRepo.getAll(storageId)
+    suspend fun getAll(storageId: Int, sortMode: HistorySortMode): Either<Failure, List<HistoryEntity>> {
+        return historyDbRepo.getAll(storageId, sortMode)
             .map { dbEntities ->
                 dbEntities.map { it.toEntity() }
             }.map { items ->
