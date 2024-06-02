@@ -24,6 +24,7 @@ open class TetroidSettingsFragment :
     // TODO: заюзать VM из TetroidSettingsActivity
     protected open val baseViewModel: CommonSettingsViewModel by inject()
     protected open val resourcesProvider: IResourcesProvider by inject()
+    protected open val buildInfoProvider: BuildInfoProvider by inject()
     protected open val settingsManager: CommonSettingsManager by inject()
 
     protected val application: Application

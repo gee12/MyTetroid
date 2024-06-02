@@ -6,14 +6,31 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.domain.provider.TetroidSuggestionProvider
 import com.gee12.mytetroid.ui.base.TetroidSettingsFragment
+import com.gee12.mytetroid.ui.base.views.prefs.DisabledCheckBoxPreference
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
+import com.gee12.mytetroid.ui.dialogs.history.SelectHistoryWriteModeDialog
 
 class SettingsOtherFragment : TetroidSettingsFragment() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         super.onCreatePreferences(savedInstanceState, rootKey)
         setPreferencesFromResource(R.xml.prefs_other, rootKey)
-        requireActivity().setTitle(R.string.pref_category_other)
+        requireActivity().setTitle(R.string.pref_category_history_and_logs)
+
+        findPreference<DisabledCheckBoxPreference>(getString(R.string.pref_key_is_write_history))?.also {
+            it.disableIfFree()
+            it.isChecked = settingsManager.isWriteHistory() && buildInfoProvider.isFullVersion()
+        }
+
+        findPreference<Preference>(getString(R.string.pref_key_history_write_mode))?.also {
+            it.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+                SelectHistoryWriteModeDialog(
+                    settingsManager = settingsManager,
+                    resourcesProvider = resourcesProvider,
+                ).showIfPossible(parentFragmentManager)
+                true
+            }
+        }
 
         findPreference<Preference>(getString(R.string.pref_key_clear_search_history))?.also {
             it.onPreferenceClickListener = Preference.OnPreferenceClickListener {

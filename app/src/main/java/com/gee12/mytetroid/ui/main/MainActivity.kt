@@ -2339,7 +2339,10 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         val isStorageLoaded = viewModel.isStorageLoaded()
         menu.findItem(R.id.action_search_records)?.setEnabled(isStorageLoaded)
         menu.findItem(R.id.action_global_search)?.setEnabled(isStorageLoaded)
-        menu.findItem(R.id.action_history)?.setEnabled(isStorageLoaded)
+        menu.findItem(R.id.action_history)?.apply {
+            isVisible = buildInfoProvider.isFullVersion() && settingsManager.isWriteHistory()
+            isEnabled = isStorageLoaded
+        }
         menu.findItem(R.id.action_storage_sync)?.setEnabled(isStorageLoaded)
         val isStorageNotNull = viewModel.storage != null
         menu.findItem(R.id.action_storage_info)?.setEnabled(isStorageNotNull)

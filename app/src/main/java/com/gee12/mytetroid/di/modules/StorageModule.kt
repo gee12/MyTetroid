@@ -81,6 +81,8 @@ object StorageModule {
 
             scoped {
                 HistoryManager(
+                    settingsManager = get(),
+                    buildInfoProvider = get(),
                     storageProvider = get(),
                     historyDbRepo = get(),
                 )

@@ -3,6 +3,7 @@ package com.gee12.mytetroid.domain.manager
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.database.map.history.toDbEntity
 import com.gee12.mytetroid.database.map.history.toEntity
+import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.domain.repo.HistoryDbRepo
 import com.gee12.mytetroid.model.HistoryEntity
@@ -10,6 +11,7 @@ import com.gee12.mytetroid.model.TetroidFile
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.model.TetroidRecord
 import com.gee12.mytetroid.model.TetroidTag
+import com.gee12.mytetroid.model.enums.HistoryWriteMode
 import com.gee12.mytetroid.model.enums.TetroidObjectType
 import java.util.Date
 
@@ -17,13 +19,11 @@ import java.util.Date
  * Класс для работы с историей открытия объектов хранилища.
  */
 class HistoryManager(
+    private val settingsManager: CommonSettingsManager,
+    private val buildInfoProvider: BuildInfoProvider,
     private val storageProvider: IStorageProvider,
     private val historyDbRepo: HistoryDbRepo,
 ) {
-
-    companion object {
-        private const val HISTORY_MAX_SIZE = 100
-    }
 
     private val storageId: Int
         get() = storageProvider.storage?.id ?: 0
@@ -74,7 +74,7 @@ class HistoryManager(
     }
 
     suspend fun addToHistory(record: TetroidRecord): Either<Failure, Unit> {
-        return addItem(
+        return addItemIfNeed(
             HistoryEntity(
                 storageId = storageId,
                 obj = record,
@@ -85,7 +85,7 @@ class HistoryManager(
     }
 
     suspend fun addToHistory(node: TetroidNode): Either<Failure, Unit> {
-        return addItem(
+        return addItemIfNeed(
             HistoryEntity(
                 storageId = storageId,
                 obj = node,
@@ -96,7 +96,7 @@ class HistoryManager(
     }
 
     suspend fun addToHistory(attach: TetroidFile): Either<Failure, Unit> {
-        return addItem(
+        return addItemIfNeed(
             HistoryEntity(
                 storageId = storageId,
                 obj = attach,
@@ -107,7 +107,7 @@ class HistoryManager(
     }
 
     suspend fun addToHistory(tag: TetroidTag): Either<Failure, Unit> {
-        return addItem(
+        return addItemIfNeed(
             HistoryEntity(
                 storageId = storageId,
                 obj = tag,
@@ -115,6 +115,14 @@ class HistoryManager(
                 createdDate = Date(),
             )
         )
+    }
+
+    private suspend fun addItemIfNeed(historyEntity: HistoryEntity): Either<Failure, Unit> {
+        return if (buildInfoProvider.isFullVersion() && settingsManager.isWriteHistory()) {
+            addItem(historyEntity)
+        } else {
+            Unit.toRight()
+        }
     }
 
     private suspend fun addItem(historyEntity: HistoryEntity): Either<Failure, Unit> {
@@ -131,19 +139,22 @@ class HistoryManager(
                     }
             }
         }
-        // удаляем оставшиеся звенья по этому объекту и добавляем новое звено сверху
-        for (i in lastIndex downTo 0) {
-            val entity = chain[i]
-            if (entity.type == historyEntity.type && entity.obj.id == historyEntity.obj.id) {
-                historyDbRepo.delete(entity = entity.toDbEntity())
-                    .onFailure {
-                        return it.toLeft()
-                    }.onSuccess {
-                        chain.removeAt(i)
-                        currentIndex--
-                    }
+        if (settingsManager.getHistoryWriteMode() == HistoryWriteMode.LAST) {
+            // удаляем существующие записи по этому объекту
+            for (i in lastIndex downTo 0) {
+                val entity = chain[i]
+                if (entity.type == historyEntity.type && entity.obj.id == historyEntity.obj.id) {
+                    historyDbRepo.delete(entity = entity.toDbEntity())
+                        .onFailure {
+                            return it.toLeft()
+                        }.onSuccess {
+                            chain.removeAt(i)
+                            currentIndex--
+                        }
+                }
             }
         }
+        // добавляем новую запись сверху
         return historyDbRepo.insert(entity = historyEntity.toDbEntity())
             .map {
                 chain.add(historyEntity)
@@ -151,7 +162,7 @@ class HistoryManager(
             }.flatMap {
                 historyDbRepo.getCount(storageId = storageId)
                     .flatMap { count ->
-                        if (count > HISTORY_MAX_SIZE) {
+                        if (count > settingsManager.getHistoryMaxSize()) {
                             historyDbRepo.deleteOldestItem(storageId = storageId)
                                 .map { Unit }
                         } else {

@@ -44,13 +44,6 @@
         android:enabled="false"
         app:showAsAction="never|collapseActionView" />
     <item
-        android:id="@+id/action_history"
-        android:orderInCategory="205"
-        android:title="@string/title_history"
-        android:icon="@drawable/ic_history"
-        android:enabled="false"
-        app:showAsAction="never|collapseActionView" />
-    <item
         android:id="@+id/action_storage_sync"
         android:orderInCategory="210"
         android:title="@string/title_storage_sync"
@@ -85,6 +78,12 @@
         android:title="@string/title_scripts"
         android:enabled="true"
         android:icon="@drawable/ic_script"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_history"
+        android:orderInCategory="248"
+        android:title="@string/title_history"
+        android:icon="@drawable/ic_history"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_fullscreen"

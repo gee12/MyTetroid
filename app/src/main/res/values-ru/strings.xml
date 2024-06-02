@@ -262,6 +262,11 @@
     <string name="title_settings_app_theme_light">Светлая</string>
     <string name="title_settings_app_theme_dark">Темная</string>
 
+    <string name="title_settings_history_write_mode_all">Полный</string>
+    <string name="title_settings_history_write_mode_all_summ">Сохранять все события открытия объектов, в т.ч. повторные</string>
+    <string name="title_settings_history_write_mode_last">Только последние</string>
+    <string name="title_settings_history_write_mode_last_summ">Сохранять только последние события, более ранние (повторные) события одного и того же объекта удалять из истории</string>
+
     <string name="title_settings_editor_theme_as_app_theme">Как в теме приложения</string>
     <string name="title_settings_editor_theme_light">Светлая</string>
     <string name="title_settings_editor_theme_dark">Темная</string>
@@ -300,7 +305,10 @@
     <string name="pref_category_main">Основное</string>
     <string name="pref_category_storage">Хранилище</string>
     <string name="pref_category_handling">Управление</string>
-    <string name="pref_category_other">Остальное</string>
+    <string name="pref_sub_category_history">История</string>
+    <string name="pref_sub_category_logs">Логи</string>
+    <string name="pref_sub_category_search">Поиск</string>
+    <string name="pref_category_history_and_logs">История и логи</string>
     <string name="pref_storage_path">Каталог хранилища</string>
     <string name="pref_storage_path_summ">Путь к каталогу, содержащий database.ini, mytetra.xml и base/</string>
     <string name="pref_is_load_last_storage_path">Загружать предыдущее</string>
@@ -317,15 +325,10 @@
     <string name="pref_is_highlight_attach_summ">Включить подсветку записей с прикрепленными файлами</string>
     <string name="pref_is_highlight_crypted_nodes">Подсвечивать зашифрованные ветки</string>
     <string name="pref_is_highlight_crypted_nodes_summ">Включить подсветку зашифрованных веток</string>
-<!--    <string name="pref_is_show_author_in_records">Отображать автора</string>-->
-<!--    <string name="pref_is_show_author_in_records_summ">Отображать автора в списке записей</string>-->
-<!--    <string name="pref_is_show_tags_in_records">Отображать метки</string>-->
-<!--    <string name="pref_is_show_tags_in_records_summ">Отображать метки в списке записей</string>-->
     <string name="pref_highlight_attach_color">Цвет подсветки</string>
     <string name="pref_when_ask_password">Запрос пароля</string>
     <string name="pref_when_ask_password_summ_mask">%s (используется, если для хранилища не сохранен хэш пароля)</string>
     <string name="pref_when_ask_password_summ">Когда спрашивать пароль? (используется, если для хранилища не сохранен хэш пароля)</string>
-<!--    <string name="pref_when_ask_password_summ_storage">Когда спрашивать пароль?</string>-->
     <string name="pref_when_ask_password_on_select">При выборе зашифрованной ветки</string>
     <string name="pref_when_ask_password_on_start">При загрузке хранилища</string>
     <string name="pref_trash_path">Общий каталог корзины</string>
@@ -355,9 +358,13 @@
     <string name="pref_sync_command_mgit_summ_storage">Команда синхронизации для MGit, например: \"git pull\"</string>
     <string name="pref_sync_command_termux_summ_storage">Команда или скрипт для Termux, например: \"git pull\" или \"~/sync.sh\". Макрос %a - каталог хранилища</string>
     <string name="pref_sync_command_autosync_summ_storage">Параметры extras для Autosync, например: \"{secret: ue43ka9x}, {folderPairs: Test folder, Screenshots, DCIM}\"</string>
-<!--    <string name="pref_is_not_remember_sync_app">Не запоминать приложение</string>-->
-<!--    <string name="pref_is_not_remember_sync_app_summ">Не использовать стандартный механизм запоминания используемого в последний раз приложения для синхронизации</string>-->
     <string name="pref_keep_screen_on">Не гасить экран</string>
+    <string name="pref_title_is_write_history">Записывать историю</string>
+    <string name="pref_title_is_write_history_summ">Сохранять историю открытия объектов хранилища: записей, веток, меток, прикрепленных файлов</string>
+    <string name="pref_title_history_max_size">Количество объектов</string>
+    <string name="pref_title_history_max_size_summ">Максимальное количество объектов, хранимое в истории для каждого хранилища</string>
+    <string name="pref_title_history_write_mode">Режим записи</string>
+    <string name="pref_title_history_write_mode_summ">Каким образом объекты будут записываться в историю</string>
     <string name="pref_keep_screen_on_summ">Не гасить экран, когда запись открыта</string>
     <string name="pref_show_logs">Показать логи</string>
     <string name="pref_show_logs_summ">Логи текущего сеанса запуска или содержимое лог-файла</string>

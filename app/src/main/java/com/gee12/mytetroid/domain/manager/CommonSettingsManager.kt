@@ -15,6 +15,7 @@ import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.enums.AppTheme
 import com.gee12.mytetroid.model.enums.EditorTheme
+import com.gee12.mytetroid.model.enums.HistoryWriteMode
 import com.gee12.mytetroid.model.enums.TagsSearchMode
 
 class CommonSettingsManager(
@@ -27,6 +28,12 @@ class CommonSettingsManager(
     resourcesProvider = resourcesProvider,
     buildInfoProvider = buildInfoProvider,
 ) {
+
+    companion object {
+        const val DEF_IS_WRITE_HISTORY = true
+        const val DEF_HISTORY_MAX_SIZE = 100
+        val DEF_HISTORY_WRITE_MODE = HistoryWriteMode.ALL
+    }
 
     fun init() {
         CommonSettings.settings = getPrefs()
@@ -195,6 +202,35 @@ class CommonSettingsManager(
         setBoolean(
             id = resourcesProvider.getString(R.string.pref_key_search_in_record_folder_name),
             value = value,
+        )
+    }
+
+    fun isWriteHistory(): Boolean {
+        return getBoolean(
+            id = resourcesProvider.getString(R.string.pref_key_is_write_history),
+            default = DEF_IS_WRITE_HISTORY && buildInfoProvider.isFullVersion(),
+        )
+    }
+
+    fun getHistoryMaxSize(): Int {
+        return getInt(
+            id = resourcesProvider.getString(R.string.pref_key_history_max_size),
+            default = DEF_HISTORY_MAX_SIZE,
+        )
+    }
+
+    fun getHistoryWriteMode(): HistoryWriteMode {
+        val value = getInt(
+            id = resourcesProvider.getString(R.string.pref_key_history_write_mode),
+            default = DEF_HISTORY_WRITE_MODE.id,
+        )
+        return HistoryWriteMode.getById(value) ?: HistoryWriteMode.ALL
+    }
+
+    fun setHistoryWriteMode(value: HistoryWriteMode) {
+        setInt(
+            resourcesProvider.getString(R.string.pref_key_history_write_mode),
+            value = value.id,
         )
     }
 
