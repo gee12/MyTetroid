@@ -10,28 +10,22 @@ import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.model.ReceivedData
+import com.gee12.mytetroid.ui.dialogs.BaseDialogListAdapter
 
 class IntentsAdapter(
     private val context: Context,
     private val resourcesProvider: IResourcesProvider,
     private val dataSet: List<ReceivedData>,
-) : BaseAdapter() {
+) : BaseDialogListAdapter<ReceivedData>(
+    data = dataSet
+) {
 
     private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-
-    override fun getCount(): Int {
-        return dataSet.size
-    }
-
-    override fun getItem(position: Int): ReceivedData {
-        return dataSet[position]
-    }
 
     override fun getItemId(position: Int): Long {
         return dataSet[position].stringResId.toLong()

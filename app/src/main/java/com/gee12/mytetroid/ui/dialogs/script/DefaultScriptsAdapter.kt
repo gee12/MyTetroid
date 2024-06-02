@@ -4,30 +4,24 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
 import android.widget.TextView
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.model.enums.DefaultScript
+import com.gee12.mytetroid.ui.dialogs.BaseDialogListAdapter
 
 class DefaultScriptsAdapter(
     context: Context,
     private val resourcesProvider: IResourcesProvider,
     private val data: List<DefaultScript>,
-) : BaseAdapter() {
+) : BaseDialogListAdapter<DefaultScript>(
+    data = data,
+) {
 
     private val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
 
-    override fun getCount(): Int {
-        return data.size
-    }
-
-    override fun getItem(position: Int): DefaultScript {
-        return data[position]
-    }
-
     override fun getItemId(position: Int): Long {
-        return data[position].fileName.hashCode().toLong()
+        return data[position].hashCode().toLong()
     }
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
