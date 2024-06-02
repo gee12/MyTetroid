@@ -69,9 +69,9 @@
         <item>метки записи</item>
     </string-array>
     <string-array name="obj_file">
-        <item>файл</item>
-        <item>Файл&#160;</item>
-        <item>файла</item>
+        <item>прикрепленный файл</item>
+        <item>Прикрепленный файл&#160;</item>
+        <item>прикрепленного файла</item>
     </string-array>
     <string-array name="obj_folder">
         <item>каталог</item>

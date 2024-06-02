@@ -46,7 +46,7 @@
     <color name="background_last_opened_record">@color/background_selected</color>
     <color name="background_selected_tag">@color/background_selected</color>
     <color name="text_empty_list">#888</color>
-    <color name="list_separator">#34343C</color>
+    <color name="list_separator">#44444C</color>
 
     <color name="icon_tint_toolbar">#EEE</color>
     <color name="icon_tint">#AAC</color>

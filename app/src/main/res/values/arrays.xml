@@ -170,9 +170,9 @@
         <item>record tag</item>
     </string-array>
     <string-array name="obj_file">
-        <item>file</item>
-        <item>File was&#160;</item>
-        <item>file</item>
+        <item>attached file</item>
+        <item>Attached file was&#160;</item>
+        <item>attached file</item>
     </string-array>
     <string-array name="obj_folder">
         <item>folder</item>
