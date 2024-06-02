@@ -14,3 +14,15 @@ fun String.trimStartSubstring(start: String): String {
         this
     }
 }
+
+fun String?.appendTo(sb: StringBuilder) {
+    if (this != null) {
+        sb.appendLine(this.trimMargin())
+    }
+}
+
+fun String.appendToIf(sb: StringBuilder, condition: Boolean) {
+    if (condition) {
+        sb.appendLine(this.trimMargin())
+    }
+}
