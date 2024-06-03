@@ -265,7 +265,7 @@
     <string name="title_settings_app_theme_light">Светлая</string>
     <string name="title_settings_app_theme_dark">Темная</string>
 
-    <string name="title_settings_history_write_mode_all">Полный</string>
+    <string name="title_settings_history_write_mode_all">Все события</string>
     <string name="title_settings_history_write_mode_all_summ">Сохранять все события открытия объектов, в т.ч. повторные</string>
     <string name="title_settings_history_write_mode_last">Только последние</string>
     <string name="title_settings_history_write_mode_last_summ">Сохранять только последние события, более ранние (повторные) события одного и того же объекта удалять из истории</string>
@@ -365,9 +365,9 @@
     <string name="pref_title_is_write_history">Записывать историю</string>
     <string name="pref_title_is_write_history_summ">Сохранять историю открытия объектов хранилища: записей, веток, меток, прикрепленных файлов</string>
     <string name="pref_title_history_max_size">Количество объектов</string>
-    <string name="pref_title_history_max_size_summ">Максимальное количество объектов, хранимое в истории для каждого хранилища</string>
+    <string name="pref_title_history_max_size_summ_mask">Максимальное количество объектов, хранимое в истории для каждого хранилища: %d</string>
     <string name="pref_title_history_write_mode">Режим записи</string>
-    <string name="pref_title_history_write_mode_summ">Каким образом объекты будут записываться в историю</string>
+    <string name="pref_title_history_write_mode_summ_mask">В каком режиме объекты будут записываться в историю: %s</string>
     <string name="pref_keep_screen_on_summ">Не гасить экран, когда запись открыта</string>
     <string name="pref_show_logs">Показать логи</string>
     <string name="pref_show_logs_summ">Логи текущего сеанса запуска или содержимое лог-файла</string>

@@ -14,13 +14,12 @@
             android:dependency="@string/pref_key_is_write_history"
             android:dialogTitle="@string/pref_title_history_max_size"
             android:key="@string/pref_key_history_max_size"
-            android:summary="@string/pref_title_history_max_size_summ"
             android:title="@string/pref_title_history_max_size" />
 
         <Preference
             android:dependency="@string/pref_key_is_write_history"
             android:key="@string/pref_key_history_write_mode"
-            android:summary="@string/pref_title_history_write_mode_summ"
+            android:summary="@string/pref_title_history_write_mode_summ_mask"
             android:title="@string/pref_title_history_write_mode" />
 
     </PreferenceCategory>

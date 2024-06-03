@@ -1,5 +1,6 @@
 package com.gee12.mytetroid.ui.settings
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.preference.Preference
 import com.gee12.mytetroid.R
@@ -47,7 +48,36 @@ class SettingsOtherFragment : TetroidSettingsFragment() {
             it.isCopyingEnabled = true
         }
 
+        updateHistoryMaxSizeSummary()
+        updateHistoryWriteModeSummary()
         updateSummary(R.string.pref_key_log_path, appPathProvider.getPathToLogsFolder().fullPath)
+    }
+
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        when (key) {
+            getString(R.string.pref_key_history_max_size) -> {
+                updateHistoryMaxSizeSummary()
+            }
+            getString(R.string.pref_key_history_write_mode) -> {
+                updateHistoryWriteModeSummary()
+            }
+        }
+    }
+
+    private fun updateHistoryMaxSizeSummary() {
+        settingsManager.getHistoryMaxSize().also { maxSize ->
+            resourcesProvider.getString(R.string.pref_title_history_max_size_summ_mask, maxSize).also {
+                updateSummary(R.string.pref_key_history_max_size, it)
+            }
+        }
+    }
+
+    private fun updateHistoryWriteModeSummary() {
+        settingsManager.getHistoryWriteMode().getTitle(resourcesProvider).also { modeTitle ->
+            resourcesProvider.getString(R.string.pref_title_history_write_mode_summ_mask, modeTitle).also {
+                updateSummary(R.string.pref_key_history_write_mode, it)
+            }
+        }
     }
 
 }

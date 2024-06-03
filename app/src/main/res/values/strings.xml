@@ -266,7 +266,7 @@
     <string name="title_settings_app_theme_light">Light</string>
     <string name="title_settings_app_theme_dark">Dark</string>
 
-    <string name="title_settings_history_write_mode_all">All</string>
+    <string name="title_settings_history_write_mode_all">All events</string>
     <string name="title_settings_history_write_mode_all_summ">Save all object opening events, including repeated ones</string>
     <string name="title_settings_history_write_mode_last">Last</string>
     <string name="title_settings_history_write_mode_last_summ">Save only the latest events, delete earlier (repeated) events of the same object from the history</string>
@@ -420,9 +420,9 @@
     <string name="pref_title_is_write_history">Write history</string>
     <string name="pref_title_is_write_history_summ">Write history for opening storage objects: records, nodes, tags, attached files</string>
     <string name="pref_title_history_max_size">History size</string>
-    <string name="pref_title_history_max_size_summ">Max count of saved objects for storage</string>
+    <string name="pref_title_history_max_size_summ_mask">Max count of saved objects in history for storage: %d</string>
     <string name="pref_title_history_write_mode">Write mode</string>
-    <string name="pref_title_history_write_mode_summ">How will objects be recorded to history</string>
+    <string name="pref_title_history_write_mode_summ_mask">In which mode will objects be recorded to history: %s</string>
     <string name="pref_key_is_keep_screen_on" translatable="false">pref_key_keep_screen_on</string>
     <string name="pref_key_is_write_history" translatable="false">pref_key_is_write_history</string>
     <string name="pref_key_history_max_size" translatable="false">pref_key_history_max_size</string>
