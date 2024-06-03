@@ -35,8 +35,12 @@ class HistoryManager(
     private val lastIndex: Int
         get() = chain.size - 1
 
-    suspend fun getAll(storageId: Int, sortMode: HistorySortMode): Either<Failure, List<HistoryEntity>> {
-        return historyDbRepo.getAll(storageId, sortMode)
+    suspend fun getAll(
+        storageId: Int,
+        sortMode: HistorySortMode,
+        filterBy: String?,
+    ): Either<Failure, List<HistoryEntity>> {
+        return historyDbRepo.getAll(storageId, sortMode, filterBy)
             .map { dbEntities ->
                 dbEntities.map { it.toEntity() }
             }.map { items ->

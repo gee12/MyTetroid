@@ -29,9 +29,13 @@ class HistoryDbRepo(context: Context) : DbRepo() {
         }
     }
 
-    suspend fun getAll(storageId: Int, sortMode: HistorySortMode): Either<Failure, List<HistoryDbEntity>> = withContext(Dispatchers.IO) {
+    suspend fun getAll(
+        storageId: Int,
+        sortMode: HistorySortMode,
+        filterBy: String?,
+    ): Either<Failure, List<HistoryDbEntity>> = withContext(Dispatchers.IO) {
         handleRequest {
-            val query = GetAllHistoryItemsQuery(storageId, sortMode).getQuery()
+            val query = GetAllHistoryItemsQuery(storageId, sortMode, filterBy).getQuery()
             dao.getAll(SimpleSQLiteQuery(query))
         }
     }

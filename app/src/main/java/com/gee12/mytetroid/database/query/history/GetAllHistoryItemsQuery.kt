@@ -1,12 +1,16 @@
 package com.gee12.mytetroid.database.query.history
 
+import com.gee12.mytetroid.common.extensions.appendTo
+import com.gee12.mytetroid.common.extensions.appendToIf
 import com.gee12.mytetroid.common.extensions.toSql
+import com.gee12.mytetroid.common.extensions.toSqlLike
 import com.gee12.mytetroid.database.query.DbQuery
 import com.gee12.mytetroid.model.enums.HistorySortMode
 
 class GetAllHistoryItemsQuery(
     private val storageId: Int,
-    private val sortMode: HistorySortMode
+    private val sortMode: HistorySortMode,
+    private val filterBy: String?,
 ) : DbQuery {
 
     override fun getQuery(): String {
@@ -19,12 +23,15 @@ class GetAllHistoryItemsQuery(
             HistorySortMode.TYPE_DESC -> "type_id DESC"
         }
 
-        return """
-            SELECT *
-            FROM history
-            WHERE storageId = ${storageId.toSql()}
-            ORDER BY $orderBy
-        """
+        return buildString {
+         """|SELECT *
+            |FROM history
+            |WHERE storageId = ${storageId.toSql()}""".appendTo(this)
+         """|   AND (name LIKE ${filterBy.toSqlLike()}
+            |       OR object_id LIKE ${filterBy.toSqlLike()})
+         """.appendToIf(this, !filterBy.isNullOrEmpty())
+         """|ORDER BY $orderBy""".appendTo(this)
+        }
     }
 
 }

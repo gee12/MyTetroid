@@ -28,6 +28,7 @@ class HistoryViewModel(
     appPathProvider: IAppPathProvider,
     storageProvider: IStorageProvider,
     storagePathProvider: IStoragePathProvider,
+    private val suggestionsManager: SuggestionsManager,
     private val historyManager: HistoryManager,
 ) : BaseStorageViewModel(
     app = app,
@@ -43,6 +44,7 @@ class HistoryViewModel(
 ) {
 
     var currentSortMode: HistorySortMode = HistorySortMode.DATE_DESC
+    var currentFilterQuery: String? = null
 
     fun loadData() {
         launchOnMain {
@@ -55,10 +57,22 @@ class HistoryViewModel(
         loadData()
     }
 
+    fun filterByQuery(query: String?, isSaveQuery: Boolean) {
+        currentFilterQuery = query
+        if (isSaveQuery && !query.isNullOrEmpty()) {
+            suggestionsManager.saveRecentQuery(query)
+        }
+        loadData()
+    }
+
     private suspend fun loadStorageHistory() {
         showProgressWithText(R.string.state_loading)
         withIo {
-            historyManager.getAll(storageId = getStorageId(), sortMode = currentSortMode)
+            historyManager.getAll(
+                storageId = getStorageId(),
+                sortMode = currentSortMode,
+                filterBy = currentFilterQuery,
+            )
         }.onComplete {
             hideProgress()
         }.onFailure {

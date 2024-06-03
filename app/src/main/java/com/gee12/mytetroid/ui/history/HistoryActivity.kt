@@ -2,6 +2,8 @@ package com.gee12.mytetroid.ui.history
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.SearchManager
+import android.content.Intent
 import android.graphics.Typeface
 import android.os.Bundle
 import android.os.Handler
@@ -14,6 +16,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.widget.PopupMenu
+import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DividerItemDecoration
@@ -22,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.extensions.addOnSwipeRefreshListener
 import com.gee12.mytetroid.common.extensions.buildIntent
+import com.gee12.mytetroid.common.extensions.hideKeyboard
 import com.gee12.mytetroid.common.extensions.showForcedWithIcons
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.model.HistoryEntity
@@ -29,12 +33,14 @@ import com.gee12.mytetroid.model.enums.HistorySortMode
 import com.gee12.mytetroid.model.enums.TetroidObjectType
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.TetroidStorageActivity
+import com.gee12.mytetroid.ui.base.views.SearchViewXListener
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
 
 class HistoryActivity : TetroidStorageActivity<HistoryViewModel>() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: HistoryAdapter
+    private var searchView: SearchView? = null
 
 
     // region Create
@@ -105,6 +111,17 @@ class HistoryActivity : TetroidStorageActivity<HistoryViewModel>() {
         }
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        when (intent.action) {
+            Intent.ACTION_SEARCH -> {
+                // обработка результата голосового поиска
+                val query = intent.getStringExtra(SearchManager.QUERY)
+                searchView?.setQuery(query, true)
+            }
+        }
+    }
+
     // endregion Create
 
     private fun loadData(items: List<HistoryEntity>) {
@@ -138,6 +155,7 @@ class HistoryActivity : TetroidStorageActivity<HistoryViewModel>() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.history, menu)
+        initSearchView(menu)
         // только так получилось получить view пункта меню для отображения PopupMenu
         Handler().post {
             findViewById<View>(R.id.action_sort)?.also { view ->
@@ -220,6 +238,33 @@ class HistoryActivity : TetroidStorageActivity<HistoryViewModel>() {
             }
         }
         (popupMenu.menu as MenuBuilder).showForcedWithIcons(view)
+    }
+
+    private fun initSearchView(menu: Menu) {
+        val searchManager = getSystemService(SEARCH_SERVICE) as SearchManager
+        searchView = menu.findItem(R.id.action_search).actionView as? SearchView
+        searchView?.setSearchableInfo(searchManager.getSearchableInfo(componentName))
+        searchView?.setIconifiedByDefault(true)
+        // добавлять кнопки справа в выпадающем списке предложений (suggestions), чтобы вставить выбранное
+        // предложение в строку запроса для дальнейшего уточнения (изменения), а не для поиска по нему
+        searchView?.isQueryRefinementEnabled = true
+        object : SearchViewXListener(searchView) {
+            override fun onSearchClick() {}
+            override fun onQuerySubmit(query: String) {
+                viewModel.filterByQuery(query, isSaveQuery = true)
+                searchView?.hideKeyboard()
+            }
+            override fun onQueryChange(query: String) {
+                viewModel.filterByQuery(query, isSaveQuery = false)
+            }
+            override fun onSuggestionSelectOrClick(query: String) {
+                searchView?.setQuery(query, true)
+                searchView?.hideKeyboard()
+            }
+            override fun onClose() {
+                viewModel.filterByQuery(null, isSaveQuery = false)
+            }
+        }
     }
 
     @SuppressLint("RestrictedApi")
