@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.domain.usecase.attach
 
 import com.gee12.mytetroid.common.*
+import com.gee12.mytetroid.domain.manager.FavoritesManager
 import com.gee12.mytetroid.model.TetroidNode
 import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.model.TetroidFile
@@ -16,8 +17,14 @@ class GetAttachByIdUseCase(
     override suspend fun run(params: Params): Either<Failure, TetroidFile> {
         val attachId = params.attachId
 
+        val nodes = if (storageProvider.isLoadedFavoritesOnly()) {
+            listOf(FavoritesManager.FAVORITES_NODE)
+        } else {
+            storageProvider.getRootNodes()
+        }
+
         return getNodeInHierarchy(
-            nodes = storageProvider.getRootNodes(),
+            nodes = nodes,
             attachId = attachId,
         )?.toRight()
             ?: Failure.Attach.NotFound(attachId).toLeft()

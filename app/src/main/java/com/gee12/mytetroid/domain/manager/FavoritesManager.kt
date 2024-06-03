@@ -89,6 +89,7 @@ class FavoritesManager(
             ?.also {
                 it.obj = record
                 record.setIsFavorite(true)
+                FAVORITES_NODE.addRecord(record)
             } != null
     }
 
