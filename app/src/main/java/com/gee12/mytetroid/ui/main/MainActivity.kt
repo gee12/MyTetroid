@@ -2167,11 +2167,11 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         object : SearchViewXListener(searchViewRecords) {
             override fun onSearchClick() {}
             override fun onQuerySubmit(query: String) {
-                viewModel.filterListInMainPage(query, true)
+                viewModel.filterListInMainPage(query, isSaveQuery = true)
             }
 
             override fun onQueryChange(query: String) {
-                viewModel.filterListInMainPage(query, false)
+                viewModel.filterListInMainPage(query, isSaveQuery = false)
             }
 
             override fun onSuggestionSelectOrClick(query: String) {

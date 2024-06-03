@@ -3,8 +3,6 @@ package com.gee12.mytetroid.ui.settings
 import android.os.Bundle
 import androidx.preference.Preference
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.data.settings.CommonSettings
-import com.gee12.mytetroid.domain.provider.TetroidSuggestionProvider
 import com.gee12.mytetroid.ui.base.TetroidSettingsFragment
 import com.gee12.mytetroid.ui.base.views.prefs.DisabledCheckBoxPreference
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
@@ -38,9 +36,7 @@ class SettingsOtherFragment : TetroidSettingsFragment() {
                     context = requireContext(),
                     messageResId = R.string.ask_clear_search_history,
                     onApply = {
-                        TetroidSuggestionProvider.clearHistory(context)
-                        CommonSettings.clearSearchOptions(context)
-                        baseViewModel.log(R.string.title_search_history_cleared, true)
+                        baseViewModel.clearHistory()
                     },
                 )
                 true

@@ -99,6 +99,7 @@ object ViewModelsModule {
                     recordPathProvider = get(),
                     dataNameProvider = get(),
                     storageSettingsProvider = get(),
+                    suggestionsManager = get(),
 
                     storagesRepo = get(),
                     cryptManager = get(),
@@ -186,6 +187,7 @@ object ViewModelsModule {
                     interactionManager = get(),
                     syncManager = get(),
                     historyManager = get(),
+                    suggestionsManager = get(),
 
                     initOrCreateStorageUseCase = get(),
                     readStorageTreeUseCase = get(),
@@ -412,6 +414,7 @@ object ViewModelsModule {
                     appPathProvider = get(),
                     storageProvider = get(),
                     storagePathProvider = get(),
+                    suggestionsManager = get(),
                     historyManager = get(),
                 )
             }
@@ -427,6 +430,7 @@ object ViewModelsModule {
                 appPathProvider = get(),
                 buildInfoProvider = get(),
                 failureHandler = get(),
+                suggestionsManager = get(),
                 clearAllStoragesTrashFolderUseCase = get(),
             )
         }

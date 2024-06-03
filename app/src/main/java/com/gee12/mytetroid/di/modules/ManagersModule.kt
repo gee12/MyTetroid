@@ -119,5 +119,11 @@ object ManagersModule {
             )
         }
 
+        single {
+            SuggestionsManager(
+                context = androidContext(),
+            )
+        }
+
     }
 }

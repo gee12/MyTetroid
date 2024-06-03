@@ -51,7 +51,7 @@
                 android:resource="@xml/provider_paths" />
         </provider>
         <provider
-            android:name=".domain.provider.TetroidSuggestionProvider"
+            android:name=".domain.provider.SuggestionsProvider"
             android:authorities="${applicationId}.TetroidSuggestionProvider"
             tools:replace="android:authorities" />
 

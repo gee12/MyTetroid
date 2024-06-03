@@ -13,6 +13,7 @@ import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.provider.IAppPathProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
+import com.gee12.mytetroid.domain.provider.SuggestionsManager
 import com.gee12.mytetroid.domain.usecase.storage.ClearAllStoragesTrashFolderUseCase
 import com.gee12.mytetroid.ui.base.BaseViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -29,6 +30,7 @@ class CommonSettingsViewModel(
     failureHandler: IFailureHandler,
     settingsManager: CommonSettingsManager,
     appPathProvider: IAppPathProvider,
+    private val suggestionsManager: SuggestionsManager,
     private val clearAllStoragesTrashFolderUseCase: ClearAllStoragesTrashFolderUseCase,
 ) : BaseViewModel(
     app = app,
@@ -102,5 +104,11 @@ class CommonSettingsViewModel(
     }
 
     //endregion Pin
+
+    fun clearHistory() {
+        suggestionsManager.clearHistory()
+        CommonSettings.clearSearchOptions(getContext())
+        log(R.string.title_search_history_cleared, show = true)
+    }
 
 }

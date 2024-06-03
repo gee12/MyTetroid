@@ -84,6 +84,7 @@ class RecordViewModel(
     interactionManager: InteractionManager,
     syncManager: SyncManager,
     private val historyManager: HistoryManager,
+    private val suggestionsManager: SuggestionsManager,
 
     getFileModifiedDateUseCase : GetFileModifiedDateInStorageUseCase,
     getFolderSizeUseCase: GetFolderSizeInStorageUseCase,
@@ -1329,6 +1330,10 @@ class RecordViewModel(
     }
 
     //endregion Voice input
+
+    fun saveSearchQuery(query: String) {
+        suggestionsManager.saveRecentQuery(query)
+    }
 
     /**
      * Сохранение записи при любом скрытии активности.

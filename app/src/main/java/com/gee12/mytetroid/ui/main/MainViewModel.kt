@@ -68,6 +68,7 @@ class MainViewModel(
     recordPathProvider: IRecordPathProvider,
     dataNameProvider: IDataNameProvider,
     private val storageSettingsProvider: IStorageSettingsProvider,
+    private val suggestionsManager: SuggestionsManager,
 
     storagesRepo: StoragesRepo,
     cryptManager: IStorageCryptManager,
@@ -2132,7 +2133,7 @@ class MainViewModel(
     fun filterListInMainPage(query: String, isSaveQuery: Boolean) {
         isSearchViewIconified = false
         if (isSaveQuery) {
-            TetroidSuggestionProvider.saveRecentQuery(getContext(), query)
+            suggestionsManager.saveRecentQuery(query)
         }
         filterListInMainPage(query, currentMainViewType)
     }

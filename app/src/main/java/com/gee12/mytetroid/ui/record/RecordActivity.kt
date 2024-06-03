@@ -46,7 +46,6 @@ import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.TetroidClipboardListener
-import com.gee12.mytetroid.domain.provider.TetroidSuggestionProvider
 import com.gee12.mytetroid.domain.usecase.html.CreateTagsHtmlStringUseCase
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.logs.Message
@@ -1137,7 +1136,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
      * Поиск по тексту записи.
      */
     private fun searchInRecordText(query: String) {
-        TetroidSuggestionProvider.saveRecentQuery(this, query)
+        viewModel.saveSearchQuery(query)
         if (viewModel.isHtmlMode()) {
             val matches = mEditTextHtml.searcher.findAll(query)
             if (matches >= 0) {
@@ -1304,7 +1303,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     /**
      * Инициализация элементов для поиска.
      */
-    fun initSearchView(menu: Menu) {
+    private fun initSearchView(menu: Menu) {
         val searchManager = getSystemService(SEARCH_SERVICE) as SearchManager
         mSearchView = menu.findItem(R.id.action_search_text).actionView as SearchView
         mSearchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
@@ -1317,11 +1316,13 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
             override fun onQuerySubmit(query: String) {
                 searchInRecordText(query)
                 setFindButtonsVisibility(true)
+                mSearchView.hideKeyboard()
             }
 
             override fun onQueryChange(query: String) {}
             override fun onSuggestionSelectOrClick(query: String) {
                 mSearchView.setQuery(query, true)
+                mSearchView.hideKeyboard()
             }
 
             override fun onClose() {
