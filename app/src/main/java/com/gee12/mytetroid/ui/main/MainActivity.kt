@@ -2000,19 +2000,12 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     // endregion GlobalSearch
 
     // region OnNewIntent
-    
-    /**
-     * Обработка входящего Intent.
-     */
-    @SuppressLint("MissingSuperCall")
+
     override fun onNewIntent(intent: Intent) {
         checkReceivedIntent(intent)
         super.onNewIntent(intent)
     }
 
-    /**
-     * Проверка входящего Intent.
-     */
     private fun checkReceivedIntent(intent: Intent?) {
         when (intent?.action) {
             Intent.ACTION_SEARCH -> {

@@ -13,6 +13,7 @@ import com.anggrayudi.storage.SimpleStorageHelper
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.provider.BuildInfoProvider
+import com.gee12.mytetroid.domain.provider.IAppPathProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.ui.settings.CommonSettingsViewModel
 import kotlinx.coroutines.launch
@@ -27,6 +28,8 @@ open class TetroidSettingsFragment :
     protected open val resourcesProvider: IResourcesProvider by inject()
     protected open val buildInfoProvider: BuildInfoProvider by inject()
     protected open val settingsManager: CommonSettingsManager by inject()
+    protected open val appPathProvider: IAppPathProvider by inject()
+
 
     protected val application: Application
         get() = requireContext().applicationContext as Application

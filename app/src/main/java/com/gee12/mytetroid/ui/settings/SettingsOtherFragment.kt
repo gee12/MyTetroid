@@ -47,7 +47,7 @@ class SettingsOtherFragment : TetroidSettingsFragment() {
             it.isCopyingEnabled = true
         }
 
-        updateSummary(R.string.pref_key_log_path, baseViewModel.appPathProvider.getPathToLogsFolder().fullPath)
+        updateSummary(R.string.pref_key_log_path, appPathProvider.getPathToLogsFolder().fullPath)
     }
 
 }
