@@ -7,7 +7,7 @@ import com.gee12.mytetroid.R;
 import com.gee12.mytetroid.data.StringList;
 import com.gee12.mytetroid.common.Constants;
 import com.gee12.mytetroid.common.utils.Utils;
-import com.gee12.mytetroid.model.TetroidNode;
+import com.gee12.mytetroid.model.obj.TetroidNode;
 import com.gee12.mytetroid.model.enums.SearchInNodeMode;
 
 import java.util.ArrayList;

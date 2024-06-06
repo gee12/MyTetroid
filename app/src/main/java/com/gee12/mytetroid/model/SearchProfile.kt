@@ -2,6 +2,7 @@ package com.gee12.mytetroid.model
 
 import android.os.Parcelable
 import com.gee12.mytetroid.model.enums.SearchInNodeMode
+import com.gee12.mytetroid.model.obj.TetroidNode
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 

@@ -15,7 +15,7 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.model.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidNode
 import pl.openrnd.multilevellistview.ItemInfo
 import pl.openrnd.multilevellistview.MultiLevelListAdapter
 import java.util.*
@@ -52,7 +52,7 @@ class NodesListAdapter(
         return (obj as TetroidNode).subNodes
     }
 
-    override fun getParent(obj: Any): Any {
+    override fun getParent(obj: Any): Any? {
         return (obj as TetroidNode).parentNode
     }
 
@@ -73,10 +73,10 @@ class NodesListAdapter(
         }
         val node = obj as TetroidNode
         // иконка
-        if (node.icon != null || node.isCrypted) {
+        if (node.icon != null || node.isEncrypted) {
             viewHolder.iconView.visibility = View.VISIBLE
             viewHolder.iconView.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
-            if (!node.isNonCryptedOrDecrypted) {
+            if (!node.isNonEncryptedOrDecrypted) {
                 viewHolder.iconView.setImageResource(R.drawable.ic_node_encrypted)
             } else if (node.icon != null) {
                 viewHolder.iconView.setImageDrawable(node.icon)
@@ -88,10 +88,10 @@ class NodesListAdapter(
         }
         // название
         val nameWhenEncrypted = context.getString(R.string.title_crypted_node_name)
-        val name = node.getCryptedName(nameWhenEncrypted)
+        val name = if (node.isNonEncryptedOrDecrypted) node.name else nameWhenEncrypted
 
         // количество записей в ветке
-        if (node.recordsCount > 0 && node.isNonCryptedOrDecrypted) {
+        if (node.recordsCount > 0 && node.isNonEncryptedOrDecrypted) {
             val recordsCount = "[%d]".format(node.recordsCount)
             val nameCount = SpannableString("$name $recordsCount")
             nameCount.setSpan(
@@ -115,7 +115,7 @@ class NodesListAdapter(
         viewHolder.headerView.setOnClickListener { onClick(node, pos) }
         viewHolder.headerView.setOnLongClickListener { onLongClick(view, node, pos) }
         // стрелка раскрытия/закрытия ветки
-        if (itemInfo.isExpandable && node.isNonCryptedOrDecrypted) {
+        if (itemInfo.isExpandable && node.isNonEncryptedOrDecrypted) {
             viewHolder.arrowView.visibility = View.VISIBLE
             viewHolder.arrowView.setBackgroundColor(ContextCompat.getColor(context, R.color.background_drop_down_button))
             viewHolder.arrowView.setImageResource(if (itemInfo.isExpanded) R.drawable.ic_arrow_collapse else R.drawable.ic_arrow_expand)
@@ -135,7 +135,7 @@ class NodesListAdapter(
         if (curNode == node) {
             view.setBackgroundColor(ContextCompat.getColor(context, R.color.background_current_node))
             viewHolder.arrowView.setBackgroundColor(ContextCompat.getColor(context, R.color.background_current_node))
-        } else if (node.isCrypted && isHighlightCryptedNodes) {
+        } else if (node.isEncrypted && isHighlightCryptedNodes) {
             view.setBackgroundColor(highlightColor)
         } else {
             view.setBackgroundColor(Color.TRANSPARENT)

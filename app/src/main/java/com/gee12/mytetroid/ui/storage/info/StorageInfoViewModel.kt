@@ -3,7 +3,7 @@ package com.gee12.mytetroid.ui.storage.info
 import android.app.Application
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.common.utils.Utils
+import com.gee12.mytetroid.common.extensions.format
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
@@ -188,7 +188,7 @@ class StorageInfoViewModel(
                     fileRelativePath = Constants.MYTETRA_XML_FILE_NAME,
                 )
             ).map { date ->
-                Utils.dateToString(date, getString(R.string.full_date_format_string))
+                date.format(getString(R.string.full_date_format_string))
             }.onFailure {
                 sendEvent(StorageInfoEvent.GetMyTetraXmlLastModifiedDate.Failed(it))
                 val message = failureHandler.getFailureMessage(it).getFullMessage()

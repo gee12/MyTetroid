@@ -3,7 +3,7 @@ package com.gee12.mytetroid.domain.usecase.script
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.orZero
 import com.gee12.mytetroid.domain.manager.ScriptsManager
-import com.gee12.mytetroid.model.TetroidObject
+import com.gee12.mytetroid.model.obj.TetroidObject
 import com.gee12.mytetroid.model.TetroidScript
 import com.gee12.mytetroid.model.TetroidScriptToObject
 import com.gee12.mytetroid.model.enums.TetroidObjectType
@@ -51,7 +51,7 @@ class SetScriptIsActivatedUseCase(
             ?: TetroidScriptToObject(
                 scriptId = script.id.orZero(),
                 objectId = obj?.id,
-                objectType = obj?.type?.let { TetroidObjectType.getById(it) },
+                objectType = obj?.type,
                 isActive = isActive,
             ).also {
                 it.script = script

@@ -14,7 +14,7 @@ import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.extensions.buildIntent
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.logs.LogType
-import com.gee12.mytetroid.model.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidNode
 import com.gee12.mytetroid.ui.dialogs.node.NodeChooserDialog
 import com.gee12.mytetroid.model.SearchProfile
 import com.gee12.mytetroid.model.enums.SearchInNodeMode

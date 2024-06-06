@@ -13,8 +13,7 @@ import com.gee12.mytetroid.common.extensions.readText
 import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
-import com.gee12.mytetroid.model.TetroidRecord
-import com.gee12.mytetroid.domain.provider.IRecordPathProvider
+import com.gee12.mytetroid.model.obj.TetroidRecord
 import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.model.FilePath
 import java.io.InputStream
@@ -27,7 +26,6 @@ class GetRecordHtmlTextUseCase(
     private val resourcesProvider: IResourcesProvider,
     private val logger: ITetroidLogger,
     private val storageProvider: IStorageProvider,
-    private val recordPathProvider: IRecordPathProvider,
     private val cryptManager: IStorageCryptManager,
     private val getRecordFolderUseCase: GetRecordFolderUseCase,
 ) : UseCase<String, GetRecordHtmlTextUseCase.Params>() {
@@ -49,7 +47,7 @@ class GetRecordHtmlTextUseCase(
             GetRecordFolderUseCase.Params(
                 record = record,
                 createIfNeed = true,
-                inTrash = record.isTemp,
+                inTrash = record.isTemporary,
                 showMessage = showMessage,
             )
         ).foldResult(
@@ -72,7 +70,7 @@ class GetRecordHtmlTextUseCase(
         }
 
         return file.openInputStream(context)?.use { inputStream ->
-            if (record.isCrypted) {
+            if (record.isEncrypted) {
                 if (record.isDecrypted) {
                     readAndDecryptRecordFile(inputStream, filePath)
                 } else {

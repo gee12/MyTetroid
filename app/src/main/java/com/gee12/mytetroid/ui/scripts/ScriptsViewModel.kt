@@ -17,7 +17,7 @@ import com.gee12.mytetroid.domain.usecase.script.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
-import com.gee12.mytetroid.model.TetroidObject
+import com.gee12.mytetroid.model.obj.TetroidObject
 import com.gee12.mytetroid.model.TetroidScript
 import com.gee12.mytetroid.model.TetroidScriptToObject
 import com.gee12.mytetroid.model.enums.DefaultScript

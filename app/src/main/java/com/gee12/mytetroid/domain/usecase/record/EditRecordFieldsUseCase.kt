@@ -9,8 +9,8 @@ import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
-import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidRecord
 import com.gee12.mytetroid.domain.usecase.crypt.CryptRecordFilesIfNeedUseCase
 import com.gee12.mytetroid.domain.usecase.file.MoveFileOrFolderUseCase
 import com.gee12.mytetroid.domain.usecase.storage.SaveStorageTreeUseCase
@@ -58,35 +58,38 @@ class EditRecordFieldsUseCase(
         if (name.isEmpty()) {
             return Failure.Record.NameIsEmpty.toLeft()
         }
-        val isTemporary = record.isTemp
+        val isTemporary = record.isTemporary
         if (isTemporary) {
             logger.logOperStart(LogObj.TEMP_RECORD, LogOper.SAVE, record)
         } else {
             logger.logOperStart(LogObj.RECORD_FIELDS, LogOper.CHANGE, record)
         }
-        val oldIsEncrypted = record.isCrypted
-        val oldName = record.getName(true)
-        val oldAuthor = record.getAuthor(true)
-        val oldTagsString = record.getTagsString(true)
-        val oldUrl = record.getUrl(true)
+        val oldIsEncrypted = record.isEncrypted
+        val oldSourceName = record.sourceName
+        val oldSourceAuthor = record.sourceAuthor
+        val oldSourceTagsString = record.sourceTagsString
+        val oldSourceUrl = record.sourceUrl
         val oldNode = record.node
-        val oldFolderName = record.dirName
+        val oldFolderName = record.folderName
         val oldIsFavor = record.isFavorite
+
         // обновляем поля
-        val isEncrypted = node.isCrypted
-        record.name = encryptFieldIfNeed(name, isEncrypted)
-        record.tagsString = encryptFieldIfNeed(tagsString, isEncrypted)
-        record.author = encryptFieldIfNeed(author, isEncrypted)
-        record.url = encryptFieldIfNeed(url, isEncrypted)
-        record.setIsCrypted(isEncrypted)
-        if (isEncrypted) {
-            record.setDecryptedValues(name, tagsString, author, url)
-            record.setIsDecrypted(true)
+        val isEncrypted = node.isEncrypted
+        record.also {
+            it.sourceName = encryptFieldIfNeed(name, isEncrypted) ?: name
+            it.tagsString = encryptFieldIfNeed(tagsString, isEncrypted)
+            it.author = encryptFieldIfNeed(author, isEncrypted)
+            it.url = encryptFieldIfNeed(url, isEncrypted)
+            it.isEncrypted = isEncrypted
+            if (isEncrypted) {
+                it.setDecryptedValues(name, tagsString, author, url)
+                it.isDecrypted = true
+            }
+            it.isFavorite = isFavor
         }
-        record.setIsFavorite(isFavor)
         // обновляем ветку
         if (oldNode !== node) {
-            oldNode?.deleteRecord(record)
+            oldNode.deleteRecord(record)
             node.addRecord(record)
         }
         // удаляем пометку временной записи
@@ -119,19 +122,19 @@ class EditRecordFieldsUseCase(
                 )
             ).map {
                 // обновляем имя каталога для дальнейшей вставки
-                record.dirName = folderNameWithoutPrefix
+                record.folderName = folderNameWithoutPrefix
             }.onFailure {
                 return it.toLeft()
             }
-            record.setIsTemp(false)
+            record.isTemporary = false
         }
 
         // перезаписываем структуру хранилища в файл
         return saveStorageTreeUseCase.run()
             .flatMap {
                 ifEitherOrNoneSuspend(
-                    oldTagsString == null && tagsString.isNotEmpty()
-                            || oldTagsString != null && oldTagsString != tagsString
+                    oldSourceTagsString == null && tagsString.isNotEmpty()
+                            || oldSourceTagsString != null && oldSourceTagsString != tagsString
                 ) {
                     // удаляем старые метки
                     deleteRecordTagsUseCase.run(
@@ -169,15 +172,15 @@ class EditRecordFieldsUseCase(
                         logger.logOperCancel(LogObj.RECORD_FIELDS, LogOper.CHANGE)
                     }
                     // возвращаем изменения
-                    record.name = oldName
-                    record.tagsString = oldTagsString
-                    record.author = oldAuthor
-                    record.url = oldUrl
+                    record.sourceName = oldSourceName
+                    record.tagsString = oldSourceTagsString
+                    record.author = oldSourceAuthor
+                    record.url = oldSourceUrl
                     if (isEncrypted) {
                         record.setDecryptedValues(
-                            cryptManager.decryptTextBase64(oldName),
-                            cryptManager.decryptTextBase64(oldTagsString),
-                            cryptManager.decryptTextBase64(oldAuthor),
+                            cryptManager.decryptTextBase64(oldSourceName),
+                            oldSourceTagsString?.let { cryptManager.decryptTextBase64(it) },
+                            oldSourceAuthor?.let { cryptManager.decryptTextBase64(it) },
                             cryptManager.decryptTextBase64(url)
                         )
                     }
@@ -187,20 +190,20 @@ class EditRecordFieldsUseCase(
                         favoritesManager.addOrRemoveIfNeed(record, oldIsFavor)
                     }
                     if (isTemporary) {
-                        record.setIsTemp(true)
+                        record.isTemporary = true
 
                         moveFolderBackToTrash(params, oldFolderName)
                             .map {
                                 // обновляем имя каталога для дальнейшей вставки
-                                record.dirName = oldFolderName
+                                record.folderName = oldFolderName
                             }
                     }
                 }
             }
     }
 
-    private fun encryptFieldIfNeed(fieldValue: String, isEncrypt: Boolean): String? {
-        return if (isEncrypt) cryptManager.encryptTextBase64(fieldValue) else fieldValue
+    private fun encryptFieldIfNeed(value: String?, isEncrypt: Boolean): String? {
+        return if (isEncrypt) value?.let { cryptManager.encryptTextBase64(value) } else value
     }
 
     private suspend fun moveFolderBackToTrash(

@@ -1,6 +1,6 @@
 package com.gee12.mytetroid.domain.provider
 
-import com.gee12.mytetroid.model.ImageFileType
+import com.gee12.mytetroid.model.enums.ImageFileType
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.abs

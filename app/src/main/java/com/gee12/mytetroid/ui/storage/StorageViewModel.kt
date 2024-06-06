@@ -33,6 +33,9 @@ import com.gee12.mytetroid.domain.usecase.node.GetNodeByIdUseCase
 import com.gee12.mytetroid.domain.usecase.record.GetRecordByIdUseCase
 import com.gee12.mytetroid.domain.usecase.storage.*
 import com.gee12.mytetroid.model.QuicklyNode
+import com.gee12.mytetroid.model.obj.TetroidFile
+import com.gee12.mytetroid.model.obj.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidRecord
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.model.permission.TetroidPermission
 import kotlinx.coroutines.runBlocking
@@ -442,7 +445,7 @@ open class StorageViewModel(
         isDecrypt = (isDecrypt
                 && (!isRequestPinCode()
                     || isRequestPinCode() && node != null
-                        && (node.isCrypted || node == FavoritesManager.FAVORITES_NODE)))
+                        && (node.isEncrypted || node == FavoritesManager.FAVORITES_NODE)))
         if (isStorageLoaded() && isDecrypt && isNodesExist()) {
             // расшифровываем уже загруженное хранилище
             startDecryptStorage(node)
@@ -640,7 +643,7 @@ open class StorageViewModel(
     }
 
     protected fun checkAndDecryptNode(node: TetroidNode): Boolean {
-        if (!node.isNonCryptedOrDecrypted) {
+        if (!node.isNonEncryptedOrDecrypted) {
             val params = StorageParams(
                 node = node,
                 isDecrypt = true,
@@ -657,7 +660,7 @@ open class StorageViewModel(
     }
 
     fun checkAndDecryptRecord(record: TetroidRecord): Boolean {
-        if (record.isFavorite && !record.isNonCryptedOrDecrypted) {
+        if (record.isFavorite && !record.isNonEncryptedOrDecrypted) {
             // запрос на расшифровку записи может поступить только из списка Избранных записей,
             //  поэтому отправляем FAVORITES_NODE
             val params = StorageParams(
@@ -893,9 +896,8 @@ open class StorageViewModel(
 
     /**
      * Получение иерархии веток. В корне стека - исходная ветка, на верхушке - ее самый дальний предок.
-     * @param node
-     * @return
      */
+    //TODO: CreateNodesHierarchyUseCase
     fun createNodesHierarchy(node: TetroidNode): Stack<TetroidNode> {
         val hierarchy = Stack<TetroidNode>()
         createNodesHierarchy(hierarchy, node)
@@ -904,8 +906,9 @@ open class StorageViewModel(
 
     private fun createNodesHierarchy(hierarchy: Stack<TetroidNode>, node: TetroidNode) {
         hierarchy.push(node)
-        if (node.level > 0) {
-            createNodesHierarchy(hierarchy, node.parentNode)
+        val parentNode = node.parentNode
+        if (node.level > 0 && parentNode != null) {
+            createNodesHierarchy(hierarchy, parentNode)
         }
     }
 
@@ -1015,17 +1018,17 @@ open class StorageViewModel(
     // TODO: CheckIsExistEncryptedNodesUseCase
     // TODO: можно перенести в BaseStorageViewModel
     private fun isExistCryptedNodes(recheck: Boolean): Boolean {
-        var isExistCryptedNodes = storageProvider.isExistCryptedNodes()
+        var isExistCryptedNodes = storageProvider.isExistEncryptedNodes()
         if (recheck) {
-            storageProvider.setIsExistCryptedNodes(isExistCryptedNodes(storageProvider.getRootNodes()))
-            isExistCryptedNodes = storageProvider.isExistCryptedNodes()
+            storageProvider.setIsExistEncryptedNodes(isExistCryptedNodes(storageProvider.getRootNodes()))
+            isExistCryptedNodes = storageProvider.isExistEncryptedNodes()
         }
         return isExistCryptedNodes
     }
 
     private fun isExistCryptedNodes(nodes: List<TetroidNode>): Boolean {
         for (node in nodes) {
-            if (node.isCrypted) return true
+            if (node.isEncrypted) return true
             if (node.subNodesCount > 0) {
                 if (isExistCryptedNodes(node.subNodes)) return true
             }

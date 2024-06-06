@@ -7,7 +7,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import com.gee12.htmlwysiwygeditor.dialog.AskDialogBuilder
-import com.gee12.mytetroid.model.TetroidObject
+import com.gee12.mytetroid.model.obj.TetroidObject
 import com.gee12.mytetroid.model.FoundType
 import com.gee12.mytetroid.R
 
@@ -146,10 +146,20 @@ object ClipboardDialogs {
         context: Context, uri: Uri?, obj: TetroidObject,
         callback: IDialogTetroidObjectURLResult
     ) {
-        val dataSet = context.resources.getStringArray(
-            if (obj.type == FoundType.TYPE_RECORD) R.array.clipboard_tetroid_record else if (obj.type == FoundType.TYPE_FILE) R.array.clipboard_tetroid_file else R.array.clipboard_simple_url
+        val dataset = context.resources.getStringArray(
+            when (obj.type.id) {
+                FoundType.TYPE_RECORD -> {
+                    R.array.clipboard_tetroid_record
+                }
+                FoundType.TYPE_FILE -> {
+                    R.array.clipboard_tetroid_file
+                }
+                else -> {
+                    R.array.clipboard_simple_url
+                }
+            }
         )
-        createListDialog(context, dataSet, object : IDialogListResult {
+        createListDialog(context, dataset, object : IDialogListResult {
             override fun itemSelected(item: String?) {
                 when (item) {
                     context.getString(R.string.title_insert_hyperlink) -> {

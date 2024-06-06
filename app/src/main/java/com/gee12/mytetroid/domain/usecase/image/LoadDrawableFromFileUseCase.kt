@@ -12,7 +12,7 @@ import com.gee12.mytetroid.domain.provider.IStoragePathProvider
 import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.FilePath
-import com.gee12.mytetroid.model.ImageFileType
+import com.gee12.mytetroid.model.enums.ImageFileType
 import com.larvalabs.svgandroid.SVGParser
 import java.io.InputStream
 import java.lang.Exception

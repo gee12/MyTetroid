@@ -3,7 +3,7 @@ package com.gee12.mytetroid.common.extensions
 import com.gee12.htmlwysiwygeditor.enums.ActionButtonSize
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
-import com.gee12.mytetroid.model.TetroidObject
+import com.gee12.mytetroid.model.obj.TetroidObject
 
 
 fun TetroidObject.getIdString(resourcesProvider: IResourcesProvider): String {

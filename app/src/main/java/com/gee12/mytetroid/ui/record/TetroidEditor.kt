@@ -9,7 +9,7 @@ import com.gee12.htmlwysiwygeditor.dialog.ImageDimensDialog
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.domain.HtmlHelper
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
-import com.gee12.mytetroid.model.TetroidImage
+import com.gee12.mytetroid.model.obj.TetroidImage
 import com.gee12.mytetroid.ui.dialogs.AskDialogs.showYesNoDialog
 import com.gee12.htmlwysiwygeditor.WysiwygEditor
 import com.gee12.htmlwysiwygeditor.model.ImageParams

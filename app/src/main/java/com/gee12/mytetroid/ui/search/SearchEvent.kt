@@ -1,7 +1,7 @@
 package com.gee12.mytetroid.ui.search
 
 import com.gee12.mytetroid.model.SearchProfile
-import com.gee12.mytetroid.model.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidNode
 import com.gee12.mytetroid.model.enums.SearchInNodeMode
 import com.gee12.mytetroid.ui.base.BaseEvent
 

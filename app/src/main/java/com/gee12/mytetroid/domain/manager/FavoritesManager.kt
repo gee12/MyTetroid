@@ -4,8 +4,8 @@ import com.gee12.mytetroid.common.Either
 import com.gee12.mytetroid.common.Failure
 import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.model.TetroidFavorite
-import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidRecord
 import com.gee12.mytetroid.domain.repo.FavoritesRepo
 import com.gee12.mytetroid.domain.usecase.SwapFavoriteRecordsUseCase
 
@@ -19,7 +19,11 @@ class FavoritesManager(
 ) {
 
     companion object {
-        val FAVORITES_NODE = TetroidNode("FAVORITES_NODE", "", 0)
+        val FAVORITES_NODE = TetroidNode(
+            id = "FAVORITES_NODE",
+            sourceName = "",
+            level = 0,
+        )
     }
 
     private val storageId: Int
@@ -49,8 +53,8 @@ class FavoritesManager(
 
     private suspend fun addFavorite(favorite: TetroidFavorite): Boolean {
         return favoritesRepo.addFavorite(favorite, updateOrder = true)
-            .also {
-                if (it) {
+            .also { result ->
+                if (result) {
                     favorites.add(favorite)
                 }
             }
@@ -67,8 +71,8 @@ class FavoritesManager(
 
     private suspend fun deleteFavorite(record: TetroidRecord): Boolean {
         return favoritesRepo.deleteFavorite(storageId, record.id)
-            .also {
-                if (it) {
+            .also { result ->
+                if (result) {
                     favorites.removeAll { it.objectId == record.id }
                 }
             }
@@ -88,7 +92,7 @@ class FavoritesManager(
         return favorites.firstOrNull { it.objectId == record.id }
             ?.also {
                 it.obj = record
-                record.setIsFavorite(true)
+                record.isFavorite = true
                 FAVORITES_NODE.addRecord(record)
             } != null
     }
@@ -98,8 +102,8 @@ class FavoritesManager(
      */
     suspend fun add(record: TetroidRecord): Boolean {
         return addFavorite(record)
-            .also {
-                if (it) record.setIsFavorite(true)
+            .also { result ->
+                if (result) record.isFavorite = true
             }
     }
 
@@ -109,9 +113,9 @@ class FavoritesManager(
      */
     suspend fun remove(record: TetroidRecord, resetFlag: Boolean): Boolean {
         return deleteFavorite(record)
-            .also {
-                if (it && resetFlag) {
-                    record.setIsFavorite(false)
+            .also { result ->
+                if (result && resetFlag) {
+                    record.isFavorite = false
                 }
             }
     }

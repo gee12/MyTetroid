@@ -1,10 +1,9 @@
 package com.gee12.mytetroid.domain.usecase.tag
 
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.data.xml.StorageDataXmlProcessor
 import com.gee12.mytetroid.domain.provider.IStorageProvider
-import com.gee12.mytetroid.model.TetroidRecord
-import com.gee12.mytetroid.model.TetroidTag
+import com.gee12.mytetroid.model.obj.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidTag
 import java.util.*
 
 /**

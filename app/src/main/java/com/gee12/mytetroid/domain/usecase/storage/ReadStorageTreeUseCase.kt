@@ -32,7 +32,9 @@ class ReadStorageTreeUseCase(
 
         return readStorage(params)
             .flatMap {
-                storageProvider.getRootNode().name = resourcesProvider.getString(R.string.title_root_node)
+                resourcesProvider.getString(R.string.title_root_node).also {
+                    storageProvider.getRootNode().sourceName = it
+                }
 
                 None.toRight()
             }

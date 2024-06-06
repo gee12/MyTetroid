@@ -12,9 +12,9 @@ import androidx.core.view.GestureDetectorCompat
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.model.FoundType
-import com.gee12.mytetroid.model.ITetroidObject
+import com.gee12.mytetroid.model.obj.ITetroidObject
 import com.gee12.mytetroid.model.SearchProfile
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidRecord
 import com.gee12.mytetroid.model.enums.SearchInNodeMode
 import com.gee12.mytetroid.ui.main.MainViewModel
 import com.gee12.mytetroid.ui.base.TetroidFragment

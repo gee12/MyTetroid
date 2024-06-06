@@ -11,6 +11,10 @@ import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.manager.ClipboardManager
 import com.gee12.mytetroid.model.*
+import com.gee12.mytetroid.model.obj.TetroidFile
+import com.gee12.mytetroid.model.obj.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidObject
+import com.gee12.mytetroid.model.obj.TetroidRecord
 import com.gee12.mytetroid.ui.attach.FilesListAdapter
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
 import com.gee12.mytetroid.ui.dialogs.attach.AttachFieldsDialog
@@ -493,7 +497,7 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
         var isNonCrypted = false
         val record = listAdapterRecords.getItem(menuInfo.position) as? TetroidRecord
         if (record != null) {
-            isNonCrypted = record.isNonCryptedOrDecrypted
+            isNonCrypted = record.isNonEncryptedOrDecrypted
             activateMenuItem(menu.findItem(R.id.action_copy), isNonCrypted)
             activateMenuItem(menu.findItem(R.id.action_cut), isNonCrypted)
             activateMenuItem(menu.findItem(R.id.action_attached_files), isNonCrypted)
@@ -600,7 +604,7 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
                 true
             }
             R.id.action_copy_link -> {
-                viewModel.copyRecordLink(record)
+                viewModel.copyObjectLinkToClipboard(record)
                 true
             }
             R.id.action_move_up -> {

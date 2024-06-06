@@ -7,7 +7,7 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.domain.RecordFieldsSelector
 import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidRecord
 import com.gee12.mytetroid.ui.main.MainViewType
 import java.util.*
 

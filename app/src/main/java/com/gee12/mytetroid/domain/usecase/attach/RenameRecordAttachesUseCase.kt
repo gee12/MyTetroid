@@ -9,7 +9,6 @@ import com.gee12.mytetroid.common.extensions.getExtensionWithoutComma
 import com.gee12.mytetroid.common.extensions.getStringFromTo
 import com.gee12.mytetroid.common.extensions.getStringTo
 import com.gee12.mytetroid.common.extensions.withExtension
-import com.gee12.mytetroid.common.utils.FileUtils
 import com.gee12.mytetroid.domain.provider.IRecordPathProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.domain.provider.IStorageProvider
@@ -17,7 +16,7 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.FilePath
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidRecord
 
 /**
  * Переименование скопированных прикрепленных файлов в каталоге записи.

@@ -5,7 +5,7 @@ import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
-import com.gee12.mytetroid.model.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidNode
 import com.gee12.mytetroid.domain.usecase.storage.SaveStorageTreeUseCase
 
 class SetNodeIconUseCase(
@@ -25,16 +25,16 @@ class SetNodeIconUseCase(
         val iconFileName = params.iconFileName
 
         logger.logOperStart(LogObj.NODE_FIELDS, LogOper.CHANGE, node)
-        val oldIconName = node.getIconName(true)
+        val oldIconName = node.sourceIconName
         // обновляем поля
-        val isCrypted = node.isCrypted
-        node.iconName = if (isCrypted && iconFileName != null) {
+        val isEncrypted = node.isEncrypted
+        node.sourceIconName = if (isEncrypted && iconFileName != null) {
             cryptManager.encryptTextBase64(iconFileName)
         } else {
             iconFileName
         }
-        if (isCrypted) {
-            node.setDecryptedIconName(iconFileName)
+        if (isEncrypted) {
+            node.decryptedIconName = iconFileName
         }
         // перезаписываем структуру хранилища в файл
         return saveStorageTreeUseCase.run()
@@ -45,9 +45,9 @@ class SetNodeIconUseCase(
             }.onFailure {
                 logger.logOperCancel(LogObj.NODE_FIELDS, LogOper.CHANGE)
                 // возвращаем изменения
-                node.iconName = oldIconName
-                if (isCrypted) {
-                    node.setDecryptedIconName(cryptManager.decryptTextBase64(oldIconName))
+                node.sourceIconName = oldIconName
+                if (isEncrypted) {
+                    node.decryptedIconName = oldIconName?.let { cryptManager.decryptTextBase64(it) }
                 }
             }
     }

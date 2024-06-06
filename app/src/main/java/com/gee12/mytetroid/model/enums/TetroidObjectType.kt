@@ -9,9 +9,20 @@ enum class TetroidObjectType(val id: Int) {
     RECORD(FoundType.TYPE_RECORD),
     NODE(FoundType.TYPE_NODE),
     ATTACH(FoundType.TYPE_FILE),
-    TAG(FoundType.TYPE_TAG);
+    TAG(FoundType.TYPE_TAG),
+    IMAGE(FoundType.TYPE_IMAGE);
 
-    fun getString(resourcesProvider: IResourcesProvider): String {
+    fun getPrefix(): String? {
+        return when (this) {
+            RECORD -> "note"
+            NODE -> "branch"
+            ATTACH -> "file"
+            TAG -> "tag"
+            else -> null
+        }
+    }
+
+    fun getTypeName(resourcesProvider: IResourcesProvider): String {
         return resourcesProvider.getString(
             when (this) {
                 NONE -> R.string.enum_tetroid_object_type_none
@@ -19,6 +30,20 @@ enum class TetroidObjectType(val id: Int) {
                 NODE -> R.string.enum_tetroid_object_type_node
                 ATTACH -> R.string.enum_tetroid_object_type_attach
                 TAG -> R.string.enum_tetroid_object_type_tag
+                IMAGE -> R.string.enum_tetroid_object_type_image
+            }
+        )
+    }
+
+    fun getTypeNameForAction(resourcesProvider: IResourcesProvider): String {
+        return resourcesProvider.getString(
+            when (this) {
+                NONE -> R.string.enum_tetroid_object_action_none
+                RECORD -> R.string.enum_tetroid_object_action_record
+                NODE -> R.string.enum_tetroid_object_action_node
+                ATTACH -> R.string.enum_tetroid_object_action_attach
+                TAG -> R.string.enum_tetroid_object_action_tag
+                IMAGE -> R.string.enum_tetroid_object_action_image
             }
         )
     }

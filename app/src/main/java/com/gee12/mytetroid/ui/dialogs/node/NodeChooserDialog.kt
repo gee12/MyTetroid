@@ -6,7 +6,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.domain.manager.ScanManager
-import com.gee12.mytetroid.model.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidNode
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.ui.storage.StorageViewModel
 import com.gee12.mytetroid.ui.node.NodesListAdapter
@@ -148,13 +148,13 @@ class NodeChooserDialog(
 
     private fun onSelectNode(node: TetroidNode) {
         val okButton = getPositiveButton()
-        val isCryptedWarning = !canCrypted && node.isCrypted && !node.isDecrypted
-        val isDecryptedWarning = !canDecrypted && node.isCrypted && node.isDecrypted
+        val isEncryptedWarning = !canCrypted && node.isEncrypted && !node.isDecrypted
+        val isDecryptedWarning = !canDecrypted && node.isEncrypted && node.isDecrypted
         val isNotRootWarning = rootOnly && node.level > 0
 
-        if (isCryptedWarning || isDecryptedWarning || isNotRootWarning) {
+        if (isEncryptedWarning || isDecryptedWarning || isNotRootWarning) {
             var message = when {
-                isCryptedWarning -> getString(R.string.mes_select_non_encrypted_node)
+                isEncryptedWarning -> getString(R.string.mes_select_non_encrypted_node)
                 isDecryptedWarning -> getString(R.string.mes_select_decrypted_node)
                 else -> null
             }

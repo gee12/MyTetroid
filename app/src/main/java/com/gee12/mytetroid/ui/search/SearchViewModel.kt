@@ -10,7 +10,7 @@ import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.domain.usecase.node.GetNodeByIdUseCase
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.SearchProfile
-import com.gee12.mytetroid.model.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidNode
 import com.gee12.mytetroid.model.enums.SearchInNodeMode
 import com.gee12.mytetroid.ui.base.BaseStorageViewModel
 

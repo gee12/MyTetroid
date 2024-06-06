@@ -22,10 +22,9 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.SortHelper
-import com.gee12.mytetroid.model.TetroidTag
+import com.gee12.mytetroid.model.obj.TetroidTag
 import com.gee12.mytetroid.model.enums.TagsSearchMode
 import com.gee12.mytetroid.ui.base.TetroidFragment
 import com.gee12.mytetroid.ui.dialogs.tag.TagFieldsDialog
@@ -186,19 +185,6 @@ class TagsFragment : TetroidFragment<MainViewModel>() {
         ).showIfPossibleAndNeeded(parentFragmentManager)
     }
 
-    /**
-     * Копирование ссылки на метку в буфер обмена.
-     */
-    private fun copyTagLink(tag: TetroidTag?) {
-        if (tag != null) {
-            val url = tag.createUrl()
-            Utils.writeToClipboard(requireContext(), getString(R.string.link_to_tag), url)
-            viewModel.log(getString(R.string.title_link_was_copied) + url, true)
-        } else {
-            viewModel.log(getString(R.string.log_get_item_is_null), true)
-        }
-    }
-
     fun setTagsEmptyText(resId: Int) {
         setTagsEmptyText(getString(resId))
     }
@@ -243,7 +229,7 @@ class TagsFragment : TetroidFragment<MainViewModel>() {
                     true
                 }
                 R.id.action_copy_link -> {
-                    copyTagLink(tag)
+                    viewModel.copyObjectLinkToClipboard(tag)
                     true
                 }
                 R.id.action_select -> {

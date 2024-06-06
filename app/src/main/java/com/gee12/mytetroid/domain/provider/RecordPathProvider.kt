@@ -6,8 +6,8 @@ import com.gee12.mytetroid.common.extensions.makeFolderPath
 import com.gee12.mytetroid.common.extensions.makePath
 import com.gee12.mytetroid.common.extensions.withExtension
 import com.gee12.mytetroid.model.FilePath
-import com.gee12.mytetroid.model.TetroidFile
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidFile
+import com.gee12.mytetroid.model.obj.TetroidRecord
 
 interface IRecordPathProvider {
     fun getPathToRecordFolder(record: TetroidRecord): FilePath.Folder
@@ -28,16 +28,16 @@ class RecordPathProvider(
      * Запись может находиться в хранилище в каталоге base/ или в каталоге корзины.
      */
     override fun getPathToRecordFolder(record: TetroidRecord): FilePath.Folder {
-        val storagePath = if (record.isTemp) {
+        val storagePath = if (record.isTemporary) {
             storagePathProvider.getPathToStorageTrashFolder().fullPath
         } else {
             storagePathProvider.getPathToBaseFolder().fullPath
         }
-        return FilePath.Folder(storagePath, record.dirName)
+        return FilePath.Folder(storagePath, record.folderName)
     }
 
     override fun getRelativePathToRecordFolder(record: TetroidRecord): String {
-        return makeFolderPath(Constants.BASE_DIR_NAME, record.dirName)
+        return makeFolderPath(Constants.BASE_DIR_NAME, record.folderName)
     }
 
     override fun getRelativePathToRecordHtml(record: TetroidRecord): String {
@@ -45,7 +45,7 @@ class RecordPathProvider(
     }
 
     override fun getPathToRecordFolderInTrash(record: TetroidRecord): FilePath {
-        return FilePath.Folder(storagePathProvider.getPathToStorageTrashFolder().fullPath, record.dirName)
+        return FilePath.Folder(storagePathProvider.getPathToStorageTrashFolder().fullPath, record.folderName)
     }
 
     override fun getPathToFileInRecordFolder(record: TetroidRecord, fileName: String): FilePath.File {
@@ -62,7 +62,7 @@ class RecordPathProvider(
     }
 
     override fun getRelativePathToFileInRecordFolder(record: TetroidRecord, fileName: String): String {
-        return makePath(Constants.BASE_DIR_NAME, record.dirName, fileName)
+        return makePath(Constants.BASE_DIR_NAME, record.folderName, fileName)
     }
 
 }

@@ -15,8 +15,8 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.FilePath
-import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidRecord
 
 /**
  * Вставка записи в указанную ветку.
@@ -58,29 +58,30 @@ class InsertRecordUseCase(
 
         // генерируем уникальные идентификаторы, если запись копируется
         val id = if (isCutting) srcRecord.id else dataNameProvider.createUniqueId()
-        val folderName = if (isCutting) srcRecord.dirName else dataNameProvider.createUniqueId()
+        val folderName = if (isCutting) srcRecord.folderName else dataNameProvider.createUniqueId()
         val name = srcRecord.name
-        val tagsString = srcRecord.tagsString.orEmpty()
+        val tagsString = srcRecord.tagsString
         val author = srcRecord.author
         val url = srcRecord.url
 
         // создаем копию записи
-        val isEncrypted = node.isCrypted
+        val isEncrypted = node.isEncrypted
         val destRecord = TetroidRecord(
-            isEncrypted,
-            id,
-            encryptFieldIfNeed(name, isEncrypted),
-            encryptFieldIfNeed(tagsString, isEncrypted),
-            encryptFieldIfNeed(author, isEncrypted),
-            encryptFieldIfNeed(url, isEncrypted),
-            srcRecord.created,
-            folderName,
-            srcRecord.fileName,
-            node,
-        )
-        if (isEncrypted) {
-            destRecord.setDecryptedValues(name, tagsString, author, url)
-            destRecord.setIsDecrypted(true)
+            id = id,
+            sourceName = encryptFieldIfNeed(name, isEncrypted) ?: name,
+            isEncrypted = isEncrypted,
+            sourceTagsString = encryptFieldIfNeed(tagsString, isEncrypted),
+            sourceAuthor = encryptFieldIfNeed(author, isEncrypted),
+            sourceUrl = encryptFieldIfNeed(url, isEncrypted),
+            created = srcRecord.created,
+            folderName = folderName,
+            fileName = srcRecord.fileName,
+            node = node,
+        ).apply {
+            if (isEncrypted) {
+                setDecryptedValues(name, tagsString, author, url)
+                isDecrypted = true
+            }
         }
         // прикрепленные файлы
         cloneAttachesToRecordUseCase.run(
@@ -92,7 +93,7 @@ class InsertRecordUseCase(
         ).onFailure {
             return it.toLeft()
         }
-        destRecord.setIsNew(false)
+        destRecord.isNew = false
 
         if (!withoutDir) {
             moveOrCopyRecordFolderUseCase.run(
@@ -119,7 +120,7 @@ class InsertRecordUseCase(
                 parseRecordTagsUseCase.run(
                     ParseRecordTagsUseCase.Params(
                         record = destRecord,
-                        tagsString = tagsString,
+                        tagsString = tagsString.orEmpty(),
                     )
                 ).flatMap {
                     if (!withoutDir) {
@@ -127,7 +128,7 @@ class InsertRecordUseCase(
                         cryptRecordFilesIfNeedUseCase.run(
                             CryptRecordFilesIfNeedUseCase.Params(
                                 record = destRecord,
-                                isEncrypted = srcRecord.isCrypted,
+                                isEncrypted = srcRecord.isEncrypted,
                                 isEncrypt = isEncrypted,
                             )
                         )
@@ -149,8 +150,8 @@ class InsertRecordUseCase(
             }
     }
 
-    private fun encryptFieldIfNeed(fieldValue: String, isEncrypt: Boolean): String? {
-        return if (isEncrypt) cryptManager.encryptTextBase64(fieldValue) else fieldValue
+    private fun encryptFieldIfNeed(value: String?, isEncrypt: Boolean): String? {
+        return if (isEncrypt) value?.let { cryptManager.encryptTextBase64(value) } else value
     }
 
     private suspend fun moveFolderBack(params: Params, destRecord: TetroidRecord): Either<Failure, None> {
@@ -174,7 +175,7 @@ class InsertRecordUseCase(
                     MoveFileOrFolderUseCase.Params(
                         srcFileOrFolder = srcFolder,
                         destFolder = trashFolder,
-                        newName = srcRecord.dirName
+                        newName = srcRecord.folderName
                     )
                 )
             }

@@ -7,7 +7,7 @@ import com.gee12.mytetroid.domain.manager.ScriptsManager
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidRecord
 import com.gee12.mytetroid.domain.usecase.storage.SaveStorageTreeUseCase
 import com.gee12.mytetroid.domain.usecase.tag.DeleteRecordTagsUseCase
 import com.gee12.mytetroid.model.enums.TetroidObjectType
@@ -59,14 +59,8 @@ class CutOrDeleteRecordUseCase(
 
         // удаляем запись из ветки (и соответственно, из дерева)
         val node = record.node
-        if (node != null) {
-            if (!node.deleteRecord(record)) {
-                return Failure.Record.NotFoundInNode(recordId = record.id).toLeft()
-            }
-        } else {
-            // FIXME: в этом отпадет смысл, когда TetroidRecord будет на Kotlin
-//            logger.logError(resourcesProvider.getString(R.string.log_record_not_have_node))
-//            return 0
+        if (!node.deleteRecord(record)) {
+            return Failure.Record.NotFoundInNode(recordId = record.id).toLeft()
         }
 
         // перезаписываем структуру хранилища в файл

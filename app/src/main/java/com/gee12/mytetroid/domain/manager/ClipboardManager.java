@@ -1,10 +1,10 @@
 package com.gee12.mytetroid.domain.manager;
 
 import com.gee12.mytetroid.model.FoundType;
-import com.gee12.mytetroid.model.TetroidFile;
-import com.gee12.mytetroid.model.TetroidNode;
-import com.gee12.mytetroid.model.TetroidObject;
-import com.gee12.mytetroid.model.TetroidRecord;
+import com.gee12.mytetroid.model.obj.TetroidFile;
+import com.gee12.mytetroid.model.obj.TetroidNode;
+import com.gee12.mytetroid.model.obj.TetroidObject;
+import com.gee12.mytetroid.model.obj.TetroidRecord;
 
 /**
  * Менеджер для работы с буфером обмена.

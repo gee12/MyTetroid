@@ -4,7 +4,7 @@ import com.gee12.mytetroid.common.Either
 import com.gee12.mytetroid.common.Failure
 import com.gee12.mytetroid.common.UseCase
 import com.gee12.mytetroid.common.map
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidRecord
 import com.gee12.mytetroid.model.TetroidScript
 
 class GetActiveScriptsForRecordUseCase(

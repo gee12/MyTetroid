@@ -1,6 +1,6 @@
 package com.gee12.mytetroid.ui.storage
 
-import com.gee12.mytetroid.model.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidNode
 
 data class StorageParams(
     var result: Boolean = false, // результат открытия/расшифровки

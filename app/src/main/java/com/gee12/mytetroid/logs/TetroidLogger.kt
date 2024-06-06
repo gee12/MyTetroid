@@ -7,7 +7,7 @@ import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.logs.TaskStage.Stages
-import com.gee12.mytetroid.model.TetroidObject
+import com.gee12.mytetroid.model.obj.TetroidObject
 import com.gee12.mytetroid.domain.provider.ILocaleProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.model.enums.Tense

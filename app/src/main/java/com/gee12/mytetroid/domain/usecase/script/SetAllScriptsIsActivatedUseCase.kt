@@ -2,7 +2,7 @@ package com.gee12.mytetroid.domain.usecase.script
 
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.domain.manager.ScriptsManager
-import com.gee12.mytetroid.model.TetroidObject
+import com.gee12.mytetroid.model.obj.TetroidObject
 
 class SetAllScriptsIsActivatedUseCase(
     private val scriptsManager: ScriptsManager,

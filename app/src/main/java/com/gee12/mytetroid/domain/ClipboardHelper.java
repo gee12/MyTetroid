@@ -6,10 +6,11 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 
-import com.gee12.mytetroid.model.TetroidObject;
+import com.gee12.mytetroid.common.Constants;
+import com.gee12.mytetroid.domain.usecase.ParseObjectFromUrlUseCase;
+import com.gee12.mytetroid.model.obj.TetroidObject;
 import com.gee12.mytetroid.common.utils.UriUtils;
 import com.gee12.htmlwysiwygeditor.utils.YoutubeHelper;
-
 import java.net.URLConnection;
 
 public class ClipboardHelper {
@@ -97,7 +98,7 @@ public class ClipboardHelper {
             if (!textOnly) {
                 // определяем тип объекта в буфере
                 if (uri != null) {
-                    readURL(uri, context, callback);
+                    readUrl(uri, callback);
                 } else {
                     // uri == null
                     String html;
@@ -112,7 +113,7 @@ public class ClipboardHelper {
                         String textString = text.toString();
                         if (UriUtils.isValidURL(textString)) {
                             uri = Uri.parse(textString);
-                            readURL(uri, context, callback);
+                            readUrl(uri, callback);
                         } else {
 //                            item.coerceToHtmlText(context);
                             callback.pasteText(textString);
@@ -141,16 +142,25 @@ public class ClipboardHelper {
         }
     }
 
-    protected static void readURL(Uri uri, Context context, IClipboardResult callback) {
+    protected static void readUrl(Uri uri, IClipboardResult callback) {
         if (uri == null) {
             return;
         }
         String url = uri.toString().toLowerCase();
 
-        if (url.startsWith(TetroidObject.MYTETRA_LINK_PREFIX)) {
+        if (url.startsWith(Constants.MYTETRA_LINK_PREFIX)) {
             // объект хранилища
-            TetroidObject obj = TetroidObject.parseUrl(url);
-            callback.pasteTetroidObject(uri, obj);
+            ParseObjectFromUrlUseCase useCase = new ParseObjectFromUrlUseCase();
+            useCase.execute(
+                new ParseObjectFromUrlUseCase.Params(url)
+            ).fold(
+                failure -> null,
+                obj -> {
+                    callback.pasteTetroidObject(uri, obj);
+                    return obj;
+                }
+            );
+
         } else {
             // это web-ссылка? http или https
             boolean isNetworkURL = UriUtils.isNetworkURL(url);

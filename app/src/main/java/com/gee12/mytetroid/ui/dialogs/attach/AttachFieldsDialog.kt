@@ -7,7 +7,7 @@ import com.gee12.mytetroid.BuildConfig
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.extensions.addAfterTextChangedListener
 import com.gee12.mytetroid.common.extensions.setSelectionAtEnd
-import com.gee12.mytetroid.model.TetroidFile
+import com.gee12.mytetroid.model.obj.TetroidFile
 import com.gee12.mytetroid.ui.storage.StorageViewModel
 import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import java.util.*

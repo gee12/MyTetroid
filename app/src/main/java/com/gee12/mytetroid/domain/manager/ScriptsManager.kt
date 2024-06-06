@@ -13,6 +13,8 @@ import com.gee12.mytetroid.domain.usecase.node.GetNodeByIdUseCase
 import com.gee12.mytetroid.domain.usecase.record.GetRecordByIdUseCase
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.model.enums.TetroidObjectType
+import com.gee12.mytetroid.model.obj.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidObject
 
 class ScriptsManager(
     private val storageProvider: IStorageProvider,
@@ -31,7 +33,7 @@ class ScriptsManager(
         )
 
         return storageScripts.map { scriptDbEntity ->
-            val objectTypeId = obj?.type
+            val objectType = obj?.type
             val objectId = obj?.id
 
             val objects = getScriptObjects(
@@ -39,7 +41,7 @@ class ScriptsManager(
             ).toMutableList()
 
             val isActive = isScriptActive(
-                objectTypeId = objectTypeId,
+                objectType = objectType,
                 objectId = objectId,
                 objects = objects,
             )
@@ -50,7 +52,7 @@ class ScriptsManager(
                 script.objects = objects.map {
                     it.toEntity(
                         script = script,
-                        obj = if (objectId == it.objectId && objectTypeId == it.objectTypeId) {
+                        obj = if (objectId == it.objectId && objectType?.id == it.objectTypeId) {
                             obj
                         } else {
                             getObject(
@@ -71,14 +73,14 @@ class ScriptsManager(
     }
 
     private suspend fun isScriptActive(
-        objectTypeId: Int?,
+        objectType: TetroidObjectType?,
         objectId: String?,
         objects: MutableList<ScriptToObjectDbEntity>,
     ): Boolean {
         var isActive = false
-        if (objectTypeId != null && objectId != null) {
-            when (objectTypeId) {
-                TetroidObjectType.RECORD.id -> {
+        if (objectType != null && objectId != null) {
+            when (objectType) {
+                TetroidObjectType.RECORD -> {
                     getRecordByIdUseCase.run(
                         GetRecordByIdUseCase.Params(recordId = objectId)
                     ).map { record ->
@@ -126,7 +128,7 @@ class ScriptsManager(
                         }
                     }
                 }
-                TetroidObjectType.NODE.id -> {
+                TetroidObjectType.NODE -> {
                     getNodeByIdUseCase.run(
                         GetNodeByIdUseCase.Params(nodeId = objectId)
                     ).map { node ->

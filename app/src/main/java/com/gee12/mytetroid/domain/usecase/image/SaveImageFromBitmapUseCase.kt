@@ -11,8 +11,8 @@ import com.gee12.mytetroid.domain.provider.IDataNameProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
-import com.gee12.mytetroid.model.TetroidImage
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidImage
+import com.gee12.mytetroid.model.obj.TetroidRecord
 import com.gee12.mytetroid.domain.usecase.record.GetRecordFolderUseCase
 import com.gee12.mytetroid.model.FilePath
 import java.lang.Exception
@@ -49,7 +49,7 @@ class SaveImageFromBitmapUseCase(
             GetRecordFolderUseCase.Params(
                 record = record,
                 createIfNeed = true,
-                inTrash = record.isTemp,
+                inTrash = record.isTemporary,
             )
         ).foldResult(
             onLeft = {

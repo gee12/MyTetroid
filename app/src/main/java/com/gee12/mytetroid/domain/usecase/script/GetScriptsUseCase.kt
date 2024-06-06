@@ -10,7 +10,7 @@ import com.gee12.mytetroid.domain.manager.ScriptsManager
 import com.gee12.mytetroid.domain.provider.IStoragePathProvider
 import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.model.FilePath
-import com.gee12.mytetroid.model.TetroidObject
+import com.gee12.mytetroid.model.obj.TetroidObject
 import com.gee12.mytetroid.model.TetroidScript
 
 class GetScriptsUseCase(

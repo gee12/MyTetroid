@@ -34,14 +34,14 @@ import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.di.ScopeSource
 import com.gee12.mytetroid.domain.manager.ClipboardManager
-import com.gee12.mytetroid.domain.manager.FavoritesManager.Companion.FAVORITES_NODE
+import com.gee12.mytetroid.domain.manager.FavoritesManager
 import com.gee12.mytetroid.domain.manager.ScanManager
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.model.*
  import com.gee12.mytetroid.model.enums.SearchInNodeMode
-import com.gee12.mytetroid.model.enums.TetroidObjectType
+import com.gee12.mytetroid.model.obj.*
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.model.permission.TetroidPermission
 import com.gee12.mytetroid.ui.base.BaseEvent
@@ -468,8 +468,11 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             is MainEvent.ReloadAttaches -> {
                 mainPage?.setAttachesList(event.attaches)
             }
-            MainEvent.UpdateFavoritesNodeTitle -> {
+            MainEvent.Favorites.UpdateFavoritesNodeTitle -> {
                 updateFavoritesNodeTitle()
+            }
+            is MainEvent.Favorites.RequestToLoadAllNodesForOpenObject -> {
+                showRequestToLoadAllNodesForOpenObject(intent = event.intent, obj = event.obj)
             }
             is MainEvent.GlobalSearchStart -> {
                 showGlobalSearchActivity(event.query)
@@ -776,8 +779,8 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 if (viewModel.isKeepLastNode() && !isEmpty && isOpenLastNode) {
                     val nodeId = viewModel.getLastNodeId()
                     if (nodeId != null) {
-                        if (nodeId == FAVORITES_NODE.id) {
-                            nodeToSelect = FAVORITES_NODE
+                        if (nodeId == FavoritesManager.FAVORITES_NODE.id) {
+                            nodeToSelect = FavoritesManager.FAVORITES_NODE
                         } else {
                             // TODO: убрать runBlocking
                             nodeToSelect = runBlocking { viewModel.getNode(nodeId) }
@@ -800,7 +803,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                     // списки записей, файлов
                     mainPage?.resetListAdapters()
                     if (nodeToSelect != null) {
-                        if (nodeToSelect === FAVORITES_NODE) {
+                        if (nodeToSelect === FavoritesManager.FAVORITES_NODE) {
                             viewModel.showFavorites()
                         } else {
                             viewModel.showNode(nodeToSelect)
@@ -965,7 +968,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 onApply = {
                     viewModel.doOperationWithoutDir(clipboardParams)
                 },
-                onCancel = {},
             )
 
         } else if (clipboardParams.obj is TetroidFile) {
@@ -1127,7 +1129,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     private fun checkIsNeedLoadAllNodes(data: Intent): Boolean {
         if (viewModel.isLoadedFavoritesOnly()) {
             receivedIntent = data
-            viewModel.loadAllNodes(true)
+            viewModel.loadAllNodes(isHandleReceivedIntent = true)
             return true
         }
         return false
@@ -1221,7 +1223,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         listAdapterNodes.curNode = node
         listAdapterNodes.notifyDataSetChanged()
         if (buildInfoProvider.isFullVersion()) {
-            setFavorIsCurNode(node === FAVORITES_NODE)
+            setFavorIsCurNode(node === FavoritesManager.FAVORITES_NODE)
         }
     }
 
@@ -1304,7 +1306,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             node = null,
             chooseParent = false,
             storageId = viewModel.getStorageId(),
-            onApply = { name: String, _: TetroidNode ->
+            onApply = { name, _ ->
                 val trueParentNode = if (isSubNode) parentNode else parentNode.parentNode
                 viewModel.createNode(name, trueParentNode)
             }
@@ -1319,7 +1321,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             node = null,
             chooseParent = true,
             storageId = viewModel.getStorageId(),
-            onApply = { name: String, parentNode: TetroidNode ->
+            onApply = { name, parentNode ->
                 viewModel.createNode(name, parentNode)
             }
         ).showIfPossibleAndNeeded(supportFragmentManager)
@@ -1341,19 +1343,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     }
 
     /**
-     * Копирование ссылки на ветку в буфер обмена.
-     */
-    private fun copyNodeLink(node: TetroidNode?) {
-        if (node != null) {
-            val url = node.createUrl()
-            Utils.writeToClipboard(this, getString(R.string.link_to_node), url)
-            viewModel.log(getString(R.string.title_link_was_copied) + url, true)
-        } else {
-            viewModel.log(getString(R.string.log_get_item_is_null), true)
-        }
-    }
-
-    /**
      * Переименование ветки.
      */
     private fun renameNode(node: TetroidNode) {
@@ -1361,7 +1350,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
             node = node,
             chooseParent = false,
             storageId = viewModel.getStorageId(),
-            onApply = { name: String, _: TetroidNode ->
+            onApply = { name, _ ->
                 viewModel.renameNode(node, name)
             }
         ).showIfPossibleAndNeeded(supportFragmentManager)
@@ -1650,7 +1639,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         val menu = popupMenu.menu
         val parentNode = node.parentNode
 
-        val isNonCrypted = node.isNonCryptedOrDecrypted
+        val isNonCrypted = node.isNonEncryptedOrDecrypted
         menu.findItem(R.id.action_expand_node)?.setVisible(node.isExpandable && isNonCrypted)
 //        menu.findItem(R.id.action_create_node), isNonCrypted);
         menu.findItem(R.id.action_create_subnode)?.setVisible(isNonCrypted)
@@ -1667,8 +1656,8 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         val canCutDel = (node.level > 0 || viewModel.getRootNodes().size > 1)
         menu.findItem(R.id.action_cut)?.setVisible(canCutDel)
         menu.findItem(R.id.action_delete)?.setVisible(canCutDel)
-        menu.findItem(R.id.action_encrypt_node)?.setVisible(!node.isCrypted)
-        val canNoCrypt = node.isCrypted && (parentNode == null || !parentNode.isCrypted)
+        menu.findItem(R.id.action_encrypt_node)?.setVisible(!node.isEncrypted)
+        val canNoCrypt = node.isEncrypted && (parentNode == null || !parentNode.isEncrypted)
         menu.findItem(R.id.action_drop_encrypt_node)?.setVisible(canNoCrypt)
         menu.findItem(R.id.action_scripts)?.apply {
             isVisible = buildInfoProvider.isFullVersion() && isNonCrypted
@@ -1698,7 +1687,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                     true
                 }
                 R.id.action_copy_link -> {
-                    copyNodeLink(node)
+                    viewModel.copyObjectLinkToClipboard(node)
                     true
                 }
                 R.id.action_encrypt_node -> {
@@ -1843,11 +1832,9 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     }
 
     private fun onHistoryActivityResult(data: Intent) {
-        val objectTypeId = data.extras?.getInt(HistoryActivity.EXTRA_OBJECT_TYPE_ID, TetroidObjectType.NONE.id)
-        val objectType = objectTypeId?.let { TetroidObjectType.getById(it) }
-        val objectId = data.extras?.getString(HistoryActivity.EXTRA_OBJECT_ID, null)
-        if (objectType != null && objectId != null) {
-            viewModel.openStorageObjectFromHistory(objectType, objectId)
+        val obj = data.getParcelableExtra<TetroidObject>(HistoryActivity.EXTRA_TETROID_OBJECT)
+        if (obj != null) {
+            viewModel.openStorageObjectFromHistory(data, obj)
         }
     }
 
@@ -1938,6 +1925,13 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                     viewModel.showRecordAttaches(recordId, fromRecordActivity = true)
                 }
             }
+            Constants.RESULT_OPEN_ATTACH -> {
+                if (!checkIsNeedLoadAllNodes(data)) {
+                    data.getStringExtra(Constants.EXTRA_ATTACHED_FILE_ID)?.let { attachedFileId ->
+                        viewModel.openAttach(attachedFileId)
+                    }
+                }
+            }
             Constants.RESULT_SHOW_TAG -> {
                 if (!checkIsNeedLoadAllNodes(data)) {
                     data.getStringExtra(Constants.EXTRA_TAG_NAME)?.let { tagName ->
@@ -1999,6 +1993,24 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
     // endregion GlobalSearch
 
+    // region History
+
+    private fun showRequestToLoadAllNodesForOpenObject(intent: Intent, obj: TetroidObject) {
+        val typeName = obj.type.getTypeNameForAction(resourcesProvider)
+        val objName = obj.name
+        AskDialogs.showYesNoDialog(
+            context = this,
+            message = getString(R.string.ask_load_nodes_before_open_history_item_mask, typeName, objName),
+            onApply = {
+                // сохраняем Intent и загружаем хранилище
+                receivedIntent = intent
+                viewModel.loadAllNodes(isHandleReceivedIntent = false)
+            },
+        )
+    }
+
+    // endregion History
+
     // region OnNewIntent
 
     override fun onNewIntent(intent: Intent) {
@@ -2013,7 +2025,10 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 val query = intent.getStringExtra(SearchManager.QUERY)
                 searchViewRecords?.setQuery(query, true)
             }
-            Constants.ACTION_RECORD -> {
+            Constants.ACTION_HISTORY_ACTIVITY -> {
+                onHistoryActivityResult(intent)
+            }
+            Constants.ACTION_RECORD_ACTIVITY -> {
                 val resultActionType = intent.getIntExtra(Constants.EXTRA_RESULT_ACTION_TYPE, 0)
                 onRecordActivityResult(resultActionType, intent)
             }
@@ -2092,7 +2107,6 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                     receivedIntent = intent
                     viewModel.loadAllNodes(isHandleReceivedIntent = false)
                 },
-                onCancel = {},
             )
         } else {
             IntentsDialog(
@@ -2526,7 +2540,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         if (viewModel.isLoadedFavoritesOnly()) {
             viewModel.showMessage(getString(R.string.mes_all_nodes_must_be_loaded), LogType.WARNING)
         } else {
-            val curNodeId = viewModel.curNode?.takeIf { it !== FAVORITES_NODE }?.id
+            val curNodeId = viewModel.curNode?.takeIf { it !== FavoritesManager.FAVORITES_NODE }?.id
             SearchActivity.start(
                 activity = this,
                 query = query,

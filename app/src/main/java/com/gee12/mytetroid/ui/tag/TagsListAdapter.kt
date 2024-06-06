@@ -15,7 +15,7 @@ import androidx.core.content.ContextCompat
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.domain.SortHelper
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
-import com.gee12.mytetroid.model.TetroidTag
+import com.gee12.mytetroid.model.obj.TetroidTag
 import java.util.*
 
 class TagsListAdapter(

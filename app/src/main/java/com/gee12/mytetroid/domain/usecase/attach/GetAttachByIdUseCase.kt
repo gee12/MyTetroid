@@ -2,9 +2,9 @@ package com.gee12.mytetroid.domain.usecase.attach
 
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.domain.manager.FavoritesManager
-import com.gee12.mytetroid.model.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidNode
 import com.gee12.mytetroid.domain.provider.IStorageProvider
-import com.gee12.mytetroid.model.TetroidFile
+import com.gee12.mytetroid.model.obj.TetroidFile
 
 class GetAttachByIdUseCase(
     private val storageProvider: IStorageProvider,

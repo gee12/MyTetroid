@@ -17,8 +17,8 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.FilePath
-import com.gee12.mytetroid.model.TetroidFile
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidFile
+import com.gee12.mytetroid.model.obj.TetroidRecord
 
 class AttachFileToRecordUseCase(
     private val context: Context,
@@ -61,17 +61,17 @@ class AttachFileToRecordUseCase(
         val fileIdName = id.withExtension(ext)
 
         // создание объекта хранилища
-        val isEncrypted = record.isCrypted
+        val isEncrypted = record.isEncrypted
         val attach = TetroidFile(
-            isEncrypted,
-            id,
-            encryptFieldIfNeed(fileDisplayName, isEncrypted),
-            TetroidFile.DEF_FILE_TYPE,
-            record
-        )
-        if (isEncrypted) {
-            attach.setDecryptedName(fileDisplayName)
-            attach.setIsDecrypted(true)
+            id = id,
+            name = encryptFieldIfNeed(fileDisplayName, isEncrypted) ?: fileDisplayName,
+            isEncrypted = isEncrypted,
+            record = record,
+        ).apply {
+            if (isEncrypted) {
+                decryptedName = fileDisplayName
+                isDecrypted = true
+            }
         }
 
         // формируем путь к файлу назначения в каталоге записи
@@ -79,7 +79,7 @@ class AttachFileToRecordUseCase(
             GetRecordFolderUseCase.Params(
                 record = record,
                 createIfNeed = true,
-                inTrash = record.isTemp,
+                inTrash = record.isTemporary,
                 showMessage = true,
             )
         ).foldResult(
@@ -102,7 +102,7 @@ class AttachFileToRecordUseCase(
             CopyFileWithCryptUseCase.Params(
                 srcFile = srcFile,
                 destFile = destFile,
-                isEncrypt = attach.isCrypted,
+                isEncrypt = attach.isEncrypted,
                 isDecrypt = false,
             )
         ).onFailure {
@@ -110,11 +110,7 @@ class AttachFileToRecordUseCase(
         }
 
         // добавляем файл к записи (и соответственно, в дерево)
-        var files = record.attachedFiles
-        if (files == null) {
-            files = ArrayList()
-            record.attachedFiles = files
-        }
+        val files = record.attachedFiles
         files.add(attach)
 
         // перезаписываем структуру хранилища в файл
@@ -136,8 +132,8 @@ class AttachFileToRecordUseCase(
             }
     }
 
-    private fun encryptFieldIfNeed(fieldValue: String, isEncrypt: Boolean): String? {
-        return if (isEncrypt) cryptManager.encryptTextBase64(fieldValue) else fieldValue
+    private fun encryptFieldIfNeed(value: String?, isEncrypt: Boolean): String? {
+        return if (isEncrypt) value?.let { cryptManager.encryptTextBase64(value) } else value
     }
 
 }

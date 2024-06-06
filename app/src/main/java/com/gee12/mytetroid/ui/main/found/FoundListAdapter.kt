@@ -10,8 +10,9 @@ import com.gee12.mytetroid.domain.RecordFieldsSelector
 import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.model.FoundType
-import com.gee12.mytetroid.model.ITetroidObject
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.enums.TetroidObjectType
+import com.gee12.mytetroid.model.obj.ITetroidObject
+import com.gee12.mytetroid.model.obj.TetroidRecord
 import com.gee12.mytetroid.ui.main.records.RecordsBaseListAdapter
 import java.util.*
 
@@ -119,13 +120,13 @@ class FoundListAdapter(
 
         fun getTetroidObjectTypeString(resourcesProvider: IResourcesProvider, obj: ITetroidObject): String {
             return when (val type = obj.type) {
-                FoundType.TYPE_RECORD -> resourcesProvider.getString(R.string.title_record)
-                FoundType.TYPE_NODE -> resourcesProvider.getString(R.string.title_node)
-                FoundType.TYPE_TAG -> resourcesProvider.getString(R.string.title_tag)
-                FoundType.TYPE_FILE -> resourcesProvider.getString(R.string.title_attached_file)
+                TetroidObjectType.RECORD -> resourcesProvider.getString(R.string.title_record)
+                TetroidObjectType.NODE -> resourcesProvider.getString(R.string.title_node)
+                TetroidObjectType.TAG -> resourcesProvider.getString(R.string.title_tag)
+                TetroidObjectType.ATTACH -> resourcesProvider.getString(R.string.title_attached_file)
                 else -> {
                     val strings = resourcesProvider.getStringArray(R.array.found_types)
-                    return strings.getOrNull(type - 1).orEmpty()
+                    return strings.getOrNull(type.id - 1).orEmpty()
                 }
             }
         }

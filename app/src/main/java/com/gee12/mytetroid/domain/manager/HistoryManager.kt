@@ -7,10 +7,10 @@ import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.database.repo.HistoryDbRepo
 import com.gee12.mytetroid.model.HistoryEntity
-import com.gee12.mytetroid.model.TetroidFile
-import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.model.TetroidRecord
-import com.gee12.mytetroid.model.TetroidTag
+import com.gee12.mytetroid.model.obj.TetroidFile
+import com.gee12.mytetroid.model.obj.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidTag
 import com.gee12.mytetroid.model.enums.HistorySortMode
 import com.gee12.mytetroid.model.enums.HistoryWriteMode
 import com.gee12.mytetroid.model.enums.TetroidObjectType

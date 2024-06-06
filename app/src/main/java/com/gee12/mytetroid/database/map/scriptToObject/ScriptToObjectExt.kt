@@ -1,7 +1,7 @@
 package com.gee12.mytetroid.database.map.scriptToObject
 
 import com.gee12.mytetroid.database.entity.ScriptToObjectDbEntity
-import com.gee12.mytetroid.model.TetroidObject
+import com.gee12.mytetroid.model.obj.TetroidObject
 import com.gee12.mytetroid.model.TetroidScript
 import com.gee12.mytetroid.model.TetroidScriptToObject
 import com.gee12.mytetroid.model.enums.TetroidObjectType

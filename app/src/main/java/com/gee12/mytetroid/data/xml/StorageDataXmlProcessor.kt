@@ -2,6 +2,8 @@ package com.gee12.mytetroid.data.xml
 
 import android.util.Xml
 import com.gee12.mytetroid.common.Constants
+import com.gee12.mytetroid.common.extensions.format
+import com.gee12.mytetroid.common.extensions.orZero
 import com.gee12.mytetroid.common.onFailure
 import kotlin.Throws
 import com.gee12.mytetroid.common.utils.Utils
@@ -13,6 +15,7 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 import org.jdom2.output.XMLOutputter
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.domain.provider.IStorageInfoProvider
+import com.gee12.mytetroid.model.obj.*
 import org.jdom2.DocType
 import org.jdom2.Document
 import org.jdom2.Element
@@ -67,7 +70,7 @@ open class StorageDataXmlProcessor(
 
     override var isExistCryptedNodes = false // а вообще можно читать из crypt_mode=1
 
-    var isNeedDecrypt = false
+    private var isNeedDecrypt = false
 
     override var formatVersion: Version? = null
     override var nodesCount: Int = 0
@@ -81,7 +84,11 @@ open class StorageDataXmlProcessor(
     override var maxSubnodesCount: Int = 0
     override var maxDepthLevel: Int = 0
 
-    private val rootNode = TetroidNode("", "<root>", -1)
+    private val rootNode = TetroidNode(
+        id = "",
+        sourceName = "<root>",
+        level = -1,
+    )
 
     /**
      * Загружено ли хранилище.
@@ -229,7 +236,7 @@ open class StorageDataXmlProcessor(
      */
     @Throws(XmlPullParserException::class, IOException::class)
     private suspend fun readContent(parser: XmlPullParser): Boolean {
-        val nodes: MutableList<TetroidNode>? = if (!isLoadFavoritesOnly) ArrayList() else null
+        val nodes: MutableList<TetroidNode>? = if (!isLoadFavoritesOnly) mutableListOf() else null
 
         parser.require(XmlPullParser.START_TAG, ns, "content")
         while (parser.next() != XmlPullParser.END_TAG) {
@@ -249,8 +256,10 @@ open class StorageDataXmlProcessor(
                 skip(parser)
             }
         }
-        rootNode.subNodes = nodes
-        rootNodes = nodes ?: ArrayList()
+        nodes?.also {
+            rootNode.subNodes = nodes
+        }
+        rootNodes = nodes ?: mutableListOf()
         return true
     }
 
@@ -269,36 +278,49 @@ open class StorageDataXmlProcessor(
         var id: String? = null
         var name: String? = null
         var iconName: String? = null // например: "/Gnome/color_gnome_2_computer.svg"
-        var node: TetroidNode? = null
 
         parser.require(XmlPullParser.START_TAG, ns, "node")
         var tagName = parser.name
-        if (!isLoadFavoritesOnly) {
-            if (tagName == "node") {
-                crypt = "1" == parser.getAttributeValue(ns, "crypt")
-                // пропуск зашифрованных веток (для отладки)
-                /*if (crypt && !AppDebug.isLoadCryptedRecords()) {
-                    while (parser.next() != XmlPullParser.END_TAG) {
-                        if (parser.getEventType() == XmlPullParser.START_TAG) {
-                            skip(parser);
-                        }
+        val node = if (isLoadFavoritesOnly) {
+            FavoritesManager.FAVORITES_NODE
+        } else if (tagName == "node") {
+            crypt = "1" == parser.getAttributeValue(ns, "crypt")
+            // пропуск зашифрованных веток (для отладки)
+            /*if (crypt && !AppDebug.isLoadCryptedRecords()) {
+                while (parser.next() != XmlPullParser.END_TAG) {
+                    if (parser.getEventType() == XmlPullParser.START_TAG) {
+                        skip(parser);
                     }
-                    return null;
-                }*/
-                // наличие зашифрованных веток
-                if (crypt && !isExistCryptedNodes) {
-                    isExistCryptedNodes = true
                 }
-                id = parser.getAttributeValue(ns, "id")
-                name = parser.getAttributeValue(ns, "name")
-                iconName = parser.getAttributeValue(ns, "icon")
+                return null;
+            }*/
+            // наличие зашифрованных веток
+            if (crypt && !isExistCryptedNodes) {
+                isExistCryptedNodes = true
             }
-            node = TetroidNode(crypt, id, name, iconName, depthLevel)
-            node.parentNode = parentNode
+            id = parser.getAttributeValue(ns, "id")
+            name = parser.getAttributeValue(ns, "name")
+            iconName = parser.getAttributeValue(ns, "icon")
+
+            if (id == null || name == null) {
+                skip(parser)
+                parser.require(XmlPullParser.END_TAG, ns, "node")
+                return null
+            }
+            TetroidNode(
+                id = id,
+                sourceName = name,
+                isEncrypted = crypt,
+                sourceIconName = iconName,
+                level = depthLevel,
+                parentNode = parentNode,
+            )
+        } else  {
+            return null
         }
 
-        val subNodes: MutableList<TetroidNode>? = if (!isLoadFavoritesOnly) ArrayList() else null
-        var records: List<TetroidRecord>? = if (!isLoadFavoritesOnly) ArrayList() else null
+        val subNodes: MutableList<TetroidNode>? = if (!isLoadFavoritesOnly) mutableListOf() else null
+        var records: List<TetroidRecord>? = if (!isLoadFavoritesOnly) mutableListOf() else null
         loop@ while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.eventType != XmlPullParser.START_TAG) {
                 continue
@@ -325,9 +347,13 @@ open class StorageDataXmlProcessor(
                 }
             }
         }
-        if (node != null && !isLoadFavoritesOnly) {
-            node.subNodes = subNodes
-            node.records = records
+        if (!isLoadFavoritesOnly) {
+            subNodes?.also {
+                node.subNodes = subNodes
+            }
+            records?.also {
+                node.records = records.toMutableList()
+            }
 
             // расшифровка
             if (crypt && isNeedDecrypt) {
@@ -353,7 +379,7 @@ open class StorageDataXmlProcessor(
      * @throws IOException
      */
     @Throws(XmlPullParserException::class, IOException::class)
-    private suspend fun readRecords(parser: XmlPullParser, node: TetroidNode?): List<TetroidRecord>? {
+    private suspend fun readRecords(parser: XmlPullParser, node: TetroidNode): List<TetroidRecord>? {
         val records: MutableList<TetroidRecord>? = if (!isLoadFavoritesOnly) ArrayList() else null
 
         parser.require(XmlPullParser.START_TAG, ns, "recordtable")
@@ -387,7 +413,7 @@ open class StorageDataXmlProcessor(
      * @throws IOException
      */
     @Throws(XmlPullParserException::class, IOException::class)
-    private suspend fun readRecord(parser: XmlPullParser, node: TetroidNode?): TetroidRecord? {
+    private suspend fun readRecord(parser: XmlPullParser, node: TetroidNode): TetroidRecord? {
         var crypt = false
         var id: String? = null
         var name: String? = null
@@ -432,24 +458,40 @@ open class StorageDataXmlProcessor(
             dirName = parser.getAttributeValue(ns, "dir")
             fileName = parser.getAttributeValue(ns, "file")
         }
-        val record = TetroidRecord(crypt, id, name, tags, author, url, created, dirName, fileName, node)
+        if (id == null || name == null || dirName == null || fileName == null) {
+            skip(parser)
+            parser.require(XmlPullParser.END_TAG, ns, "record")
+            return null
+        }
+        val record = TetroidRecord(
+            isEncrypted = crypt,
+            id = id,
+            sourceName = name,
+            sourceTagsString = tags,
+            sourceAuthor = author,
+            sourceUrl = url,
+            created = created,
+            folderName = dirName,
+            fileName = fileName,
+            node = node,
+        )
         if (!author.isNullOrBlank()) authorsCount++
 
         // файлы
-        var files: List<TetroidFile> = ArrayList()
+        var files: List<TetroidFile> = emptyList()
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.eventType != XmlPullParser.START_TAG) {
                 continue
             }
             tagName = parser.name
             if (tagName == "files") {
-                files = readFiles(parser, record)
+                files = readAttachedFiles(parser, record)
             } else {
                 skip(parser)
             }
         }
 
-        record.attachedFiles = files
+        record.attachedFiles = files.toMutableList()
         if (isFavorite) {
             // добавляем избранную запись
             favoritesManager.setObject(record)
@@ -459,7 +501,7 @@ open class StorageDataXmlProcessor(
         if (crypt && isNeedDecrypt) {
             decryptRecord(record)
         }
-        if (record.isNonCryptedOrDecrypted && !record.tagsString.isNullOrBlank()) {
+        if (record.isNonEncryptedOrDecrypted && !record.tagsString.isNullOrBlank()) {
             // парсим метки, если поле не пусто и запись не зашифрована
             parseRecordTags(record)
         }
@@ -480,7 +522,7 @@ open class StorageDataXmlProcessor(
      * @throws IOException
      */
     @Throws(XmlPullParserException::class, IOException::class)
-    private fun readFiles(parser: XmlPullParser, record: TetroidRecord): List<TetroidFile> {
+    private fun readAttachedFiles(parser: XmlPullParser, record: TetroidRecord): List<TetroidFile> {
         val files: MutableList<TetroidFile> = ArrayList()
 
         parser.require(XmlPullParser.START_TAG, ns, "files")
@@ -490,7 +532,10 @@ open class StorageDataXmlProcessor(
             }
             val tagName = parser.name
             if (tagName == "file") {
-                files.add(readFile(parser, record))
+                val attachedFile = readAttachedFile(parser, record)
+                if (attachedFile != null) {
+                    files.add(attachedFile)
+                }
             } else {
                 skip(parser)
             }
@@ -507,7 +552,7 @@ open class StorageDataXmlProcessor(
      * @throws IOException
      */
     @Throws(XmlPullParserException::class, IOException::class)
-    private fun readFile(parser: XmlPullParser, record: TetroidRecord): TetroidFile {
+    private fun readAttachedFile(parser: XmlPullParser, record: TetroidRecord): TetroidFile? {
         var crypt = false
         var id: String? = null
         var fileName: String? = null
@@ -521,11 +566,23 @@ open class StorageDataXmlProcessor(
             type = parser.getAttributeValue(ns, "type")
             crypt = "1" == parser.getAttributeValue(ns, "crypt")
         }
+        if (id == null || fileName == null) {
+            skip(parser)
+            parser.require(XmlPullParser.END_TAG, ns, "file")
+            return null
+        }
+        val attachedFile = TetroidFile(
+            id = id,
+            name = fileName,
+            isEncrypted = crypt,
+            fileType = type,
+            record = record,
+        )
         // принудительно вызываем nextTag(), чтобы найти закрытие тега "/>"
         parser.nextTag()
         parser.require(XmlPullParser.END_TAG, ns, "file")
         filesCount++
-        return TetroidFile(crypt, id, fileName, type, record)
+        return attachedFile
     }
 
     /**
@@ -572,11 +629,11 @@ open class StorageDataXmlProcessor(
     private fun saveNodes(parentElem: Element, nodes: List<TetroidNode>) {
         for (node in nodes) {
             val nodeElem = Element("node")
-            val crypted = node.isCrypted
-            addAttribute(nodeElem, "crypt", if (crypted) "1" else "")
-            addCryptAttribute(nodeElem, node, "icon", node.iconName.orEmpty(), node.getIconName(true).orEmpty())
+            val isEncrypted = node.isEncrypted
+            addAttribute(nodeElem, "crypt", if (isEncrypted) "1" else "")
+            addCryptAttribute(nodeElem, node, "icon", node.iconName, node.sourceIconName)
             addAttribute(nodeElem, "id", node.id)
-            addCryptAttribute(nodeElem, node, "name", node.name, node.getName(true))
+            addCryptAttribute(nodeElem, node, "name", node.name, node.sourceName)
             if (node.recordsCount > 0) {
                 saveRecords(nodeElem, node.records)
             }
@@ -598,16 +655,16 @@ open class StorageDataXmlProcessor(
         val recordsElem = Element("recordtable")
         for (record in records) {
             val recordElem = Element("record")
-            val crypted = record.isCrypted
+            val isEncrypted = record.isEncrypted
             addAttribute(recordElem, "id", record.id)
-            addCryptAttribute(recordElem, record, "name", record.name, record.getName(true))
-            addCryptAttribute(recordElem, record, "author", record.author, record.getAuthor(true))
-            addCryptAttribute(recordElem, record, "url", record.url, record.getUrl(true))
-            addCryptAttribute(recordElem, record, "tags", record.tagsString, record.getTagsString(true))
-            addAttribute(recordElem, "ctime", record.getCreatedString("yyyyMMddHHmmss"))
-            addAttribute(recordElem, "dir", record.dirName)
+            addCryptAttribute(recordElem, record, "name", record.name, record.sourceName)
+            addCryptAttribute(recordElem, record, "author", record.author, record.sourceAuthor)
+            addCryptAttribute(recordElem, record, "url", record.url, record.sourceUrl)
+            addCryptAttribute(recordElem, record, "tags", record.tagsString, record.sourceTagsString)
+            addAttribute(recordElem, "ctime", record.created?.format("yyyyMMddHHmmss"))
+            addAttribute(recordElem, "dir", record.folderName)
             addAttribute(recordElem, "file", record.fileName)
-            if (crypted) {
+            if (isEncrypted) {
                 addAttribute(recordElem, "crypt", "1")
             }
             if (record.attachedFilesCount > 0) {
@@ -629,11 +686,11 @@ open class StorageDataXmlProcessor(
         val filesElem = Element("files")
         for (file in files) {
             val fileElem = Element("file")
-            val crypted = file.isCrypted
+            val isEncrypted = file.isEncrypted
             addAttribute(fileElem, "id", file.id)
-            addCryptAttribute(fileElem, file, "fileName", file.name, file.getName(true))
+            addCryptAttribute(fileElem, file, "fileName", file.name, file.sourceName)
             addAttribute(fileElem, "type", file.fileType)
-            if (crypted) {
+            if (isEncrypted) {
                 addAttribute(fileElem, "crypt", "1")
             }
             filesElem.addContent(fileElem)
@@ -648,7 +705,7 @@ open class StorageDataXmlProcessor(
 
     @Throws(Exception::class)
     private fun addCryptAttribute(elem: Element, obj: TetroidObject, name: String, value: String?, cryptedValue: String?) {
-        addAttribute(elem, name, if (obj.isCrypted) cryptedValue else value)
+        addAttribute(elem, name, if (obj.isEncrypted) cryptedValue else value)
     }
 
     /**
@@ -677,15 +734,15 @@ open class StorageDataXmlProcessor(
     private fun calcCounters(node: TetroidNode?) {
         if (node == null) return
         nodesCount++
-        if (node.isCrypted) cryptedNodesCount++
+        if (node.isEncrypted) cryptedNodesCount++
         if (node.level > maxDepthLevel) maxDepthLevel = node.level
         if (node.recordsCount > 0) {
             for (record in node.records) {
                 recordsCount++
-                if (node.isCrypted) cryptedRecordsCount++
+                if (node.isEncrypted) cryptedRecordsCount++
                 if (!record.author.isNullOrBlank()) authorsCount++
                 if (!record.tagsString.isNullOrBlank()) {
-                    tagsCount += record.tagsString.split(Constants.TAGS_SEPARATOR_MASK.toRegex()).toTypedArray().size
+                    tagsCount += record.tagsString?.split(Constants.TAGS_SEPARATOR_MASK.toRegex())?.size.orZero()
                 }
                 if (record.attachedFilesCount > 0) filesCount += record.attachedFilesCount
             }

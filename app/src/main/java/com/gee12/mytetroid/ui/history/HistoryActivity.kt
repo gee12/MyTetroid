@@ -130,7 +130,7 @@ class HistoryActivity : TetroidStorageActivity<HistoryViewModel>() {
     }
 
     private fun showOpenHistoryItemDialog(historyEntity: HistoryEntity) {
-        val typeName = historyEntity.type.getObjectTypeNameForAction()
+        val typeName = historyEntity.type.getTypeNameForAction(resourcesProvider)
         val objName = historyEntity.obj.name
         AskDialogs.showYesDialog(
             context = this,
@@ -142,7 +142,7 @@ class HistoryActivity : TetroidStorageActivity<HistoryViewModel>() {
     }
 
     private fun showDeleteHistoryItemDialog(historyEntity: HistoryEntity) {
-        val typeName = historyEntity.type.getObjectTypeNameForAction()
+        val typeName = historyEntity.type.getTypeNameForAction(resourcesProvider)
         val objName = historyEntity.obj.name
         AskDialogs.showYesDialog(
             context = this,
@@ -290,27 +290,15 @@ class HistoryActivity : TetroidStorageActivity<HistoryViewModel>() {
 
     private fun finishWithResult(historyEntity: HistoryEntity) {
         val intent = buildIntent {
-            putExtra(EXTRA_OBJECT_TYPE_ID, historyEntity.type.id)
-            putExtra(EXTRA_OBJECT_ID, historyEntity.obj.id)
+            putExtra(EXTRA_TETROID_OBJECT, historyEntity.obj)
         }
         setResult(Activity.RESULT_OK, intent)
         finish()
     }
 
-    private fun TetroidObjectType.getObjectTypeNameForAction() = resourcesProvider.getString(
-        when (this) {
-            TetroidObjectType.NONE -> R.string.enum_tetroid_object_action_none
-            TetroidObjectType.RECORD -> R.string.enum_tetroid_object_action_record
-            TetroidObjectType.NODE -> R.string.enum_tetroid_object_action_node
-            TetroidObjectType.ATTACH -> R.string.enum_tetroid_object_action_attach
-            TetroidObjectType.TAG -> R.string.enum_tetroid_object_action_tag
-        }
-    )
-
     companion object {
 
-        const val EXTRA_OBJECT_TYPE_ID = "OBJECT_TYPE_ID"
-        const val EXTRA_OBJECT_ID = "OBJECT_ID"
+        const val EXTRA_TETROID_OBJECT = "TETROID_OBJECT"
 
         fun start(activity: Activity, requestCode: Int) {
             val intent = buildIntent {

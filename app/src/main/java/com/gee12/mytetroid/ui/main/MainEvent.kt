@@ -1,9 +1,11 @@
 package com.gee12.mytetroid.ui.main
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import com.gee12.mytetroid.common.Failure
 import com.gee12.mytetroid.model.*
+import com.gee12.mytetroid.model.obj.*
 import com.gee12.mytetroid.ui.storage.StorageEvent
 
 sealed class MainEvent(
@@ -208,7 +210,13 @@ sealed class MainEvent(
     data class OpenRecordFolder(val uri: Uri) : MainEvent()
 
     // favorites
-    object UpdateFavoritesNodeTitle : MainEvent()
+    sealed class Favorites : MainEvent() {
+        object UpdateFavoritesNodeTitle : Favorites()
+        data class RequestToLoadAllNodesForOpenObject(
+            val intent: Intent,
+            val obj: TetroidObject,
+        ) : Favorites()
+    }
 
     // global search
     data class GlobalSearchStart(

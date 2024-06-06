@@ -11,16 +11,14 @@ import com.gee12.mytetroid.BuildConfig
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.extensions.addAfterTextChangedListener
 import com.gee12.mytetroid.common.extensions.setSelectionAtEnd
-import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.model.QuicklyNode
-import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidRecord
 import com.gee12.mytetroid.ui.dialogs.AskDialogs
 import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import com.gee12.mytetroid.ui.dialogs.node.NodeChooserDialog
 import com.gee12.mytetroid.ui.storage.StorageViewModel
-import org.koin.android.ext.android.inject
 import java.util.*
 import kotlin.math.abs
 

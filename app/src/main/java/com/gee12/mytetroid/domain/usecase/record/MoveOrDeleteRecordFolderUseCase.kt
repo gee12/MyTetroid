@@ -14,7 +14,7 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.FilePath
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidRecord
 
 class MoveOrDeleteRecordFolderUseCase(
     private val context: Context,
@@ -58,7 +58,7 @@ class MoveOrDeleteRecordFolderUseCase(
     // с добавлением префикса в виде текущей даты и времени
     private suspend fun moveRecordFolderToTrash(params: Params): Either<Failure, None> {
         val recordFolder = params.recordFolder
-        val folderNameInTrash = "${dataNameProvider.createDateTimePrefix()}_${params.record.dirName}"
+        val folderNameInTrash = "${dataNameProvider.createDateTimePrefix()}_${params.record.folderName}"
         val trashFolderPath = storagePathProvider.getPathToStorageTrashFolder()
 
         val trashFolder = storageProvider.trashFolder
@@ -79,7 +79,7 @@ class MoveOrDeleteRecordFolderUseCase(
             )
         ).map {
             // обновляем имя каталога для дальнейшей вставки
-            params.record.dirName = folderNameInTrash
+            params.record.folderName = folderNameInTrash
             None
         }
     }

@@ -8,7 +8,7 @@ import com.gee12.mytetroid.domain.usecase.attach.RenameRecordAttachesUseCase
 import com.gee12.mytetroid.domain.usecase.file.CopyFileOrFolderUseCase
 import com.gee12.mytetroid.domain.usecase.file.MoveFileOrFolderUseCase
 import com.gee12.mytetroid.logs.ITetroidLogger
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidRecord
 
 /**
  * Перемещение или копирование файлов записи.
@@ -68,7 +68,7 @@ class MoveOrCopyRecordFolderUseCase(
             ?: return Failure.Folder.Get(storagePathProvider.getPathToBaseFolder()).toLeft()
 
         // вырезаем уникальную приставку в имени каталога
-        val folderNameWithoutPrefix = srcRecord.dirName.substring(DataNameProvider.PREFIX_DATE_TIME_FORMAT.length + 1)
+        val folderNameWithoutPrefix = srcRecord.folderName.substring(DataNameProvider.PREFIX_DATE_TIME_FORMAT.length + 1)
 
         return moveFileOrFolderUseCase.run(
             MoveFileOrFolderUseCase.Params(
@@ -78,7 +78,7 @@ class MoveOrCopyRecordFolderUseCase(
             )
         ).flatMap {
             // обновляем имя каталога для дальнейшей вставки
-            destRecord.dirName = folderNameWithoutPrefix
+            destRecord.folderName = folderNameWithoutPrefix
             None.toRight()
         }
     }
@@ -97,7 +97,7 @@ class MoveOrCopyRecordFolderUseCase(
             CopyFileOrFolderUseCase.Params(
                 srcFileOrFolder = srcFolder,
                 destFolder = baseFolder,
-                newName = destRecord.dirName,
+                newName = destRecord.folderName,
             )
         ).flatMap {
             logger.logDebug(resourcesProvider.getString(R.string.log_copy_record_folder_mask, destFolderPath.fullPath))

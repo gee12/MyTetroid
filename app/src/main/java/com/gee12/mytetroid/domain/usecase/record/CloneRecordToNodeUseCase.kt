@@ -10,8 +10,8 @@ import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
-import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidRecord
 
 /**
  * Перемещение или копирование записи в ветку.
@@ -44,39 +44,40 @@ class CloneRecordToNodeUseCase(
 
         // генерируем уникальные идентификаторы, если запись копируется
         val id = if (isCutting) srcRecord.id else dataNameProvider.createUniqueId()
-        val dirName = if (isCutting) srcRecord.dirName else dataNameProvider.createUniqueId()
+        val dirName = if (isCutting) srcRecord.folderName else dataNameProvider.createUniqueId()
         val name = srcRecord.name
         val tagsString = srcRecord.tagsString.orEmpty()
         val author = srcRecord.author
         val url = srcRecord.url
 
         // создаем копию записи
-        val isEncrypted = node.isCrypted
+        val isEncrypted = node.isEncrypted
         val destRecord = TetroidRecord(
-            isEncrypted,
-            id,
-            encryptFieldIfNeed(name, isEncrypted),
-            encryptFieldIfNeed(tagsString, isEncrypted),
-            encryptFieldIfNeed(author, isEncrypted),
-            encryptFieldIfNeed(url, isEncrypted),
-            srcRecord.created,
-            dirName,
-            srcRecord.fileName,
-            node,
-        )
-        if (isEncrypted) {
-            destRecord.setDecryptedValues(name, tagsString, author, url)
-            destRecord.setIsDecrypted(true)
-        }
-        if (isCutting) {
-            destRecord.setIsFavorite(srcRecord.isFavorite)
+            id = id,
+            sourceName = encryptFieldIfNeed(name, isEncrypted) ?: name,
+            isEncrypted = isEncrypted,
+            sourceTagsString = encryptFieldIfNeed(tagsString, isEncrypted),
+            sourceAuthor = encryptFieldIfNeed(author, isEncrypted),
+            sourceUrl = encryptFieldIfNeed(url, isEncrypted),
+            created = srcRecord.created,
+            folderName = dirName,
+            fileName = srcRecord.fileName,
+            node = node,
+        ).apply {
+            if (isEncrypted) {
+                setDecryptedValues(name, tagsString, author, url)
+                isDecrypted = true
+            }
+            if (isCutting) {
+                isFavorite = srcRecord.isFavorite
+            }
         }
         // добавляем прикрепленные файлы в запись
         cloneAttachesToRecord(srcRecord, destRecord, isCutting)
             .onFailure {
                 return it.toLeft()
             }
-        destRecord.setIsNew(false)
+        destRecord.isNew = false
         // добавляем запись в ветку (и соответственно, в дерево)
         node.addRecord(destRecord)
         // добавляем в избранное обратно
@@ -100,7 +101,7 @@ class CloneRecordToNodeUseCase(
             cryptRecordFilesIfNeedUseCase.run(
                 CryptRecordFilesIfNeedUseCase.Params(
                     record = destRecord,
-                    isEncrypted = srcRecord.isCrypted,
+                    isEncrypted = srcRecord.isEncrypted,
                     isEncrypt = isEncrypted
                 )
             )
@@ -113,8 +114,8 @@ class CloneRecordToNodeUseCase(
         }
     }
 
-    private fun encryptFieldIfNeed(fieldValue: String, isEncrypt: Boolean): String? {
-        return if (isEncrypt) cryptManager.encryptTextBase64(fieldValue) else fieldValue
+    private fun encryptFieldIfNeed(value: String?, isEncrypt: Boolean): String? {
+        return if (isEncrypt) value?.let { cryptManager.encryptTextBase64(value) } else value
     }
 
     private suspend fun cloneAttachesToRecord(

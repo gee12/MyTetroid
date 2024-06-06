@@ -130,6 +130,7 @@ object ViewModelsModule {
                     getNodeByIdUseCase = get(),
                     getRecordByIdUseCase = get(),
                     swapObjectsInListUseCase = get(),
+                    createObjectUrlUseCase = get(),
 
                     globalSearchUseCase = get(),
                     createNodeUseCase = get(),
@@ -224,6 +225,7 @@ object ViewModelsModule {
                     prepareFileForOpenUseCase = get(),
                     getActiveScriptsForRecordUseCase = get(),
                     getScriptTextUseCase = get(),
+                    parseObjectFromUrlUseCase = get(),
                 )
             }
 

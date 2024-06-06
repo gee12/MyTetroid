@@ -8,7 +8,7 @@ import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.model.TetroidFile
+import com.gee12.mytetroid.model.obj.TetroidFile
 
 class FilesListAdapter(
     context: Context,

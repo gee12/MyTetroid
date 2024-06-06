@@ -10,7 +10,7 @@ import com.gee12.mytetroid.model.TetroidIcon
 import com.gee12.mytetroid.domain.provider.IStoragePathProvider
 import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.model.FilePath
-import com.gee12.mytetroid.model.ImageFileType
+import com.gee12.mytetroid.model.enums.ImageFileType
 
 /**
  * Получение списка иконок (изображений) в конкретном подкаталоге каталога "icons/".
@@ -47,7 +47,10 @@ class GetNodesIconsFromFolderUseCase(
                     && file.name != null
                     && file.extension in ImageFileType.values().filter { it.supportedAsNodeIcon }.map { it.extension }
         }.map { file ->
-            TetroidIcon(folderName, file.name)
+            TetroidIcon(
+                folder = folderName,
+                name = file.name.orEmpty(),
+            )
         }.toRight()
     }
 

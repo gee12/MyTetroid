@@ -1,7 +1,7 @@
 package com.gee12.mytetroid.logs
 
 import com.gee12.mytetroid.common.Failure
-import com.gee12.mytetroid.model.TetroidObject
+import com.gee12.mytetroid.model.obj.TetroidObject
 
 interface ITetroidLogger {
 

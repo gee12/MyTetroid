@@ -213,6 +213,11 @@ class FailureHandler(
                     title = getString(R.string.error_node_name_is_empty),
                 )
             }
+            Failure.Node.ParentIsNull -> {
+                NotificationData.Error(
+                    title = getString(R.string.error_parent_node_is_null),
+                )
+            }
         }
     }
 

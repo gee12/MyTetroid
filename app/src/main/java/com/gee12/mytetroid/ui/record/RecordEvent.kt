@@ -4,9 +4,9 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.documentfile.provider.DocumentFile
 import com.gee12.htmlwysiwygeditor.model.ImageParams
-import com.gee12.mytetroid.model.TetroidFile
-import com.gee12.mytetroid.model.TetroidImage
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidFile
+import com.gee12.mytetroid.model.obj.TetroidImage
+import com.gee12.mytetroid.model.obj.TetroidRecord
 import com.gee12.mytetroid.ui.storage.StorageEvent
 
 sealed class RecordEvent : StorageEvent() {

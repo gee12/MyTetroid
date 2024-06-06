@@ -14,6 +14,8 @@ object Constants {
     const val TAGS_SEPARATOR = ", "
     const val TAGS_SEPARATOR_MASK = "\\s*,\\s*"
 
+    const val MYTETRA_LINK_PREFIX = "mytetra:"
+
     const val BASE_DIR_NAME = "base"
     const val TRASH_DIR_NAME = "trash"
     const val LOG_DIR_NAME = "log"
@@ -37,9 +39,10 @@ object Constants {
     const val MAX_PINCODE_LENGTH = 8
 
     const val ACTION_MAIN_ACTIVITY = "ACTION_MAIN_ACTIVITY"
-    const val ACTION_RECORD = "ACTION_RECORD"
+    const val ACTION_RECORD_ACTIVITY = "ACTION_RECORD_ACTIVITY"
     const val ACTION_ADD_RECORD = "ACTION_ADD_RECORD"
     const val ACTION_STORAGE_SETTINGS = "ACTION_STORAGE_SETTINGS"
+    const val ACTION_HISTORY_ACTIVITY = "ACTION_HISTORY_ACTIVITY"
 
     const val REQUEST_CODE_COMMON_SETTINGS_ACTIVITY = 101   // общие настройки
     const val REQUEST_CODE_STORAGE_SETTINGS_ACTIVITY = 102  // настройки хранилища
@@ -56,8 +59,9 @@ object Constants {
     const val RESULT_OPEN_RECORD = 3
     const val RESULT_OPEN_NODE = 4
     const val RESULT_SHOW_ATTACHES = 5
-    const val RESULT_SHOW_TAG = 6
-    const val RESULT_DELETE_RECORD = 7
+    const val RESULT_OPEN_ATTACH = 6
+    const val RESULT_SHOW_TAG = 7
+    const val RESULT_DELETE_RECORD = 8
 
     const val EXTRA_START_RECORD_ACTIVITY = "START_RECORD_ACTIVITY"
 
@@ -65,6 +69,7 @@ object Constants {
     const val EXTRA_RECORD_NAME = "RECORD_NAME"
     const val EXTRA_NODE_ID = "NODE_ID"
     const val EXTRA_STORAGE_ID = "STORAGE_ID"
+    const val EXTRA_ATTACHED_FILE_ID = "ATTACHED_FILE_ID"
 
     const val EXTRA_SHOW_STORAGE_INFO = "SHOW_STORAGE_INFO"
 

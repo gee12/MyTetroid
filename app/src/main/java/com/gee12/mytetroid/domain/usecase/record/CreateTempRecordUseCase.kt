@@ -7,13 +7,12 @@ import com.anggrayudi.storage.file.getAbsolutePath
 import com.anggrayudi.storage.file.makeFile
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.domain.provider.IDataNameProvider
-import com.gee12.mytetroid.domain.provider.IRecordPathProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.FilePath
-import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidRecord
 import java.io.IOException
 import java.util.*
 
@@ -52,19 +51,19 @@ class CreateTempRecordUseCase(
            "%1\$te %1\$tb %1\$tR".format(Locale.getDefault(), Date())
         }
         val record = TetroidRecord(
-            false,
-            id,
-            name,
-            null,
-            null,
-            url,
-            Date(),
-            folderNameInTrash,
-            TetroidRecord.DEF_FILE_NAME,
-            node
-        )
-        record.setIsNew(true)
-        record.setIsTemp(true)
+            id = id,
+            sourceName = name,
+            isEncrypted = false,
+            sourceTagsString = null,
+            sourceAuthor = null,
+            sourceUrl = url,
+            created = Date(),
+            folderName = folderNameInTrash,
+            node = node,
+        ).apply {
+            isNew = true
+            isTemporary = true
+        }
 
         // создаем каталог записи в корзине
         val recordFolder = getRecordFolderUseCase.run(
@@ -101,7 +100,7 @@ class CreateTempRecordUseCase(
                     html = text,
                 )
             ).map {
-                record.setIsNew(false)
+                record.isNew = false
             }
         }
         // добавляем запись в дерево

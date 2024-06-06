@@ -12,7 +12,7 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.extensions.addAfterTextChangedListener
 import com.gee12.mytetroid.common.extensions.setSelectionAtEnd
 import com.gee12.mytetroid.logs.LogType
-import com.gee12.mytetroid.model.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidNode
 import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import com.gee12.mytetroid.ui.storage.StorageViewModel
 import java.util.*
@@ -25,7 +25,7 @@ class NodeFieldsDialog(
     private val node: TetroidNode?,
     private val chooseParent: Boolean,
     override var storageId: Int?,
-    private val onApply: (name: String, parentNode: TetroidNode) -> Unit,
+    private val onApply: (name: String, parentNode: TetroidNode?) -> Unit,
 ) : TetroidStorageDialogFragment<StorageViewModel>() {
 
     private lateinit var etName: EditText
@@ -64,7 +64,7 @@ class NodeFieldsDialog(
         //: NodesManager.getQuicklyNode();
         if (chooseParent) {
             nodeLayout.visibility = View.VISIBLE
-            etNode.setText(if (parentNode != null) parentNode.name else getString(R.string.title_select_node))
+            etNode.setText(parentNode?.name ?: getString(R.string.title_select_node))
             etNode.inputType = InputType.TYPE_NULL
         } else {
             nodeLayout.visibility = View.GONE
@@ -105,7 +105,7 @@ class NodeFieldsDialog(
         setPositiveButton(R.string.answer_ok) { _: DialogInterface?, _: Int ->
             onApply(
                 etName.text.toString(),
-                if (chooseParent && selectedNode != null) selectedNode!! else parentNode
+                if (chooseParent && selectedNode != null) selectedNode else parentNode
             )
         }
         setNegativeButton(R.string.answer_cancel)

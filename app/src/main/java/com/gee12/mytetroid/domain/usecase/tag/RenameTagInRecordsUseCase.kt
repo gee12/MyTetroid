@@ -3,8 +3,8 @@ package com.gee12.mytetroid.domain.usecase.tag
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.domain.usecase.storage.SaveStorageTreeUseCase
-import com.gee12.mytetroid.model.TetroidRecord
-import com.gee12.mytetroid.model.TetroidTag
+import com.gee12.mytetroid.model.obj.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidTag
 import java.util.*
 
 /**
@@ -41,7 +41,7 @@ class RenameTagInRecordsUseCase(
             // (т.е. по сути, в глобальном списке меток это одна и та же запись),
             //  то обновляем название метки
             if (tag == existsTag) {
-                existsTag.name = newName
+                existsTag.sourceName = newName
             }
             // если есть, то сливаем 2 метки в одну уже имеющуюся в списке:
             //  1) уже имеющуюся используем вместо старой (только что переименованной)
@@ -77,7 +77,7 @@ class RenameTagInRecordsUseCase(
             tagsMap[lowerCaseNewName] = tag
 
             // обновим название метки
-            tag.name = newName
+            tag.sourceName = newName
             // сформируем заново tagsString у записей метки
             for (record in tag.records) {
                 updateTagsString(record)
@@ -89,8 +89,11 @@ class RenameTagInRecordsUseCase(
     /**
      * Сформировать заново строку со метками записи.
      */
-    fun updateTagsString(record: TetroidRecord) {
-        record.tagsString = record.tags?.joinToString(separator = Constants.TAGS_SEPARATOR) { it.name }
+    private fun updateTagsString(record: TetroidRecord) {
+        record.tagsString = record.tags
+            .joinToString(separator = Constants.TAGS_SEPARATOR) {
+                it.name
+            }
     }
 
 }

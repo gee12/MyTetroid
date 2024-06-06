@@ -11,7 +11,7 @@ import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.FilePath
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidRecord
 
 /**
  * Проверка существования каталога записи и его создание при необходимости.
@@ -49,7 +49,7 @@ class GetRecordFolderUseCase(
         return try {
             var recordFolderInTrash = trashFolder?.child(
                 context = context,
-                path = record.dirName,
+                path = record.folderName,
                 requiresWriteAccess = true,
             )
 
@@ -62,7 +62,7 @@ class GetRecordFolderUseCase(
 
                     recordFolderInTrash = trashFolder?.makeFolder(
                         context = context,
-                        name = record.dirName,
+                        name = record.folderName,
                         mode = CreateMode.REUSE,
                     ) ?: return Failure.Folder.Create(recordFolderPath).toLeft()
                 } else {
@@ -82,7 +82,7 @@ class GetRecordFolderUseCase(
         val baseFolderPath = baseFolder?.getAbsolutePath(context).orEmpty()
         val showMessage = params.showMessage
         // путь к каталогу записи в каталоге хранилища
-        val recordFolderPath = FilePath.Folder(baseFolderPath, record.dirName)
+        val recordFolderPath = FilePath.Folder(baseFolderPath, record.folderName)
 
         return try {
             var folder = baseFolder?.child(

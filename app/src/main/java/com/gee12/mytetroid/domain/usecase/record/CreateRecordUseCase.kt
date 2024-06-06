@@ -9,8 +9,8 @@ import com.gee12.mytetroid.domain.provider.IDataNameProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
-import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidRecord
 import com.gee12.mytetroid.domain.usecase.storage.SaveStorageTreeUseCase
 import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
 import com.gee12.mytetroid.model.FilePath
@@ -49,7 +49,7 @@ class CreateRecordUseCase(
         val author = params.author
         val url = params.url
         val node = params.node
-        val isFavor = params.isFavor
+        val isFavorite = params.isFavor
 
         if (name.isEmpty()) {
             return Failure.Record.NameIsEmpty.toLeft()
@@ -59,25 +59,25 @@ class CreateRecordUseCase(
         // генерируем уникальные идентификаторы
         val id = dataNameProvider.createUniqueId()
         val folderName = dataNameProvider.createUniqueId()
-        val isEncrypted = node.isCrypted
+        val isEncrypted = node.isEncrypted
         val record = TetroidRecord(
-            isEncrypted,
-            id,
-            encryptFieldIfNeed(name, isEncrypted),
-            encryptFieldIfNeed(tagsString, isEncrypted),
-            encryptFieldIfNeed(author, isEncrypted),
-            encryptFieldIfNeed(url, isEncrypted),
-            Date(),
-            folderName,
-            TetroidRecord.DEF_FILE_NAME,
-            node,
-        )
-        if (isEncrypted) {
-            record.setDecryptedValues(name, tagsString, author, url)
-            record.setIsDecrypted(true)
+            id = id,
+            sourceName = encryptFieldIfNeed(name, isEncrypted) ?: name,
+            isEncrypted = isEncrypted,
+            sourceTagsString = encryptFieldIfNeed(tagsString, isEncrypted),
+            sourceAuthor = encryptFieldIfNeed(author, isEncrypted),
+            sourceUrl = encryptFieldIfNeed(url, isEncrypted),
+            created = Date(),
+            folderName = folderName,
+            node = node,
+        ).apply {
+            if (isEncrypted) {
+                setDecryptedValues(name, tagsString, author, url)
+                isDecrypted = true
+            }
+            this.isFavorite = isFavorite
+            isNew = true
         }
-        record.setIsFavorite(isFavor)
-        record.setIsNew(true)
 
         // создаем каталог записи
         val recordFolder = getRecordFolderUseCase.run(
@@ -120,7 +120,7 @@ class CreateRecordUseCase(
                     )
                 ).flatMap {
                     // добавляем в избранное
-                    if (isFavor) {
+                    if (isFavorite) {
                         favoritesManager.add(record)
                     }
                     record.toRight()
@@ -136,8 +136,8 @@ class CreateRecordUseCase(
             }
     }
 
-    private fun encryptFieldIfNeed(fieldValue: String, isEncrypt: Boolean): String? {
-        return if (isEncrypt) cryptManager.encryptTextBase64(fieldValue) else fieldValue
+    private fun encryptFieldIfNeed(value: String?, isEncrypt: Boolean): String? {
+        return if (isEncrypt) value?.let { cryptManager.encryptTextBase64(value) } else value
     }
 
 }

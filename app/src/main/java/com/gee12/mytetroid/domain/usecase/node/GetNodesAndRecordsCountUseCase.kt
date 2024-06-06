@@ -1,7 +1,7 @@
 package com.gee12.mytetroid.domain.usecase.node
 
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.model.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidNode
 
 /**
  * Рекурсивный подсчет дочерних веток и записей в ветке.

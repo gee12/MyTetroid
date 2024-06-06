@@ -1,31 +1,31 @@
-package com.gee12.mytetroid.data;
+package com.gee12.mytetroid.data
 
-import com.gee12.mytetroid.model.TetroidNode;
+import com.gee12.mytetroid.model.obj.TetroidNode
+import java.util.Random
 
-import java.util.List;
-import java.util.Random;
+object TestData {
 
-public class TestData {
-
-
-    public static void addNodes(List<TetroidNode> srcNodes, int count, int depthLevel) {
-        if (srcNodes == null)
-            return;
-        Random rand = new Random();
-        for (int i = 0; i < count; i++) {
-            TetroidNode firstNode = createNodeRecursively(rand, i, 0, depthLevel);
-            srcNodes.add(firstNode);
+    fun addNodes(srcNodes: MutableList<TetroidNode?>?, count: Int, depthLevel: Int) {
+        if (srcNodes == null) return
+        val rand = Random()
+        for (i in 0 until count) {
+            val firstNode = createNodeRecursively(rand, i, 0, depthLevel)
+            srcNodes.add(firstNode)
         }
     }
 
-    public static TetroidNode createNodeRecursively(Random rand, int index, int curDepth, int maxDepth) {
-        String id = String.valueOf(rand.nextLong());
-        String name = String.format("testNode %d", index+1);
-        TetroidNode node = new TetroidNode(id, name, curDepth);
+    fun createNodeRecursively(rand: Random, index: Int, curDepth: Int, maxDepth: Int): TetroidNode {
+        val id = rand.nextLong().toString()
+        val name = String.format("testNode %d", index + 1)
+        val node = TetroidNode(
+            id = id,
+            sourceName = name,
+            level = curDepth,
+        )
         if (index < maxDepth) {
-            TetroidNode subNode = createNodeRecursively(rand, curDepth+1, curDepth+1, maxDepth);
-            node.addSubNode(subNode);
+            val subNode = createNodeRecursively(rand, curDepth + 1, curDepth + 1, maxDepth)
+            node.addSubNode(subNode)
         }
-        return node;
+        return node
     }
 }

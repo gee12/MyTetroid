@@ -1,7 +1,7 @@
 package com.gee12.mytetroid.ui.scripts
 
 import android.net.Uri
-import com.gee12.mytetroid.model.ITetroidObject
+import com.gee12.mytetroid.model.obj.ITetroidObject
 import com.gee12.mytetroid.model.TetroidScript
 import com.gee12.mytetroid.ui.base.BaseEvent
 

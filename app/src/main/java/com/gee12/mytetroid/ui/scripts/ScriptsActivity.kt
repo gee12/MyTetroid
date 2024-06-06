@@ -24,6 +24,8 @@ import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.model.enums.Tense
 import com.gee12.mytetroid.model.enums.TetroidObjectType
+import com.gee12.mytetroid.model.obj.ITetroidObject
+import com.gee12.mytetroid.model.obj.TetroidObject
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.TetroidActivity
@@ -168,7 +170,7 @@ class ScriptsActivity : TetroidActivity<ScriptsViewModel>() {
     ) {
         val subtitle = if (tetroidObject != null) {
             tvSubtitle?.applyTextColor(R.color.warning_2)
-            val logObj = FoundType(tetroidObject.type).toLogObj() ?: LogObj.NONE
+            val logObj = FoundType(tetroidObject.type.id).toLogObj() ?: LogObj.NONE
             val typeName = logObj.getString(Tense.PRESENT_CONTINUOUS, resourcesProvider)
             resourcesProvider.getString(R.string.subtitle_scripts_for_object_masked, typeName, tetroidObject.name )
         } else {

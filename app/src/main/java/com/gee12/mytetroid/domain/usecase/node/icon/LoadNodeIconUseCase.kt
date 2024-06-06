@@ -5,7 +5,7 @@ import com.gee12.mytetroid.common.Failure
 import com.gee12.mytetroid.common.UseCase
 import com.gee12.mytetroid.common.toRight
 import com.gee12.mytetroid.domain.usecase.image.LoadDrawableFromFileUseCase
-import com.gee12.mytetroid.model.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidNode
 
 class LoadNodeIconUseCase(
     private val loadDrawableFromFileUseCase: LoadDrawableFromFileUseCase,
@@ -22,11 +22,12 @@ class LoadNodeIconUseCase(
     override suspend fun run(params: Params): Either<Failure, None> {
         val node = params.node
 
-        if (params.node.isNonCryptedOrDecrypted) {
-            node.icon = if (!node.iconName.isNullOrEmpty()) {
+        if (params.node.isNonEncryptedOrDecrypted) {
+            val iconName = node.iconName
+            node.icon = if (!iconName.isNullOrEmpty()) {
                 loadDrawableFromFileUseCase.run(
                     LoadDrawableFromFileUseCase.Params(
-                        relativeIconPath = node.iconName
+                        relativeIconPath = iconName
                     )
                 ).foldResult(
                     onLeft = { null },

@@ -27,6 +27,7 @@ import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.storage.StorageEvent
 import com.gee12.mytetroid.domain.manager.*
 import com.gee12.mytetroid.domain.provider.*
+import com.gee12.mytetroid.domain.usecase.CreateObjectUrlUseCase
 import com.gee12.mytetroid.domain.usecase.GlobalSearchUseCase
 import com.gee12.mytetroid.domain.usecase.SwapObjectsInListUseCase
 import com.gee12.mytetroid.domain.usecase.crypt.*
@@ -46,6 +47,7 @@ import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
 import com.gee12.mytetroid.domain.usecase.tag.RenameTagInRecordsUseCase
 import com.gee12.mytetroid.model.enums.TagsSearchMode
 import com.gee12.mytetroid.model.enums.TetroidObjectType
+import com.gee12.mytetroid.model.obj.*
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.ui.storage.StorageViewModel
 import kotlinx.coroutines.*
@@ -83,6 +85,7 @@ class MainViewModel(
     getFileModifiedDateUseCase: GetFileModifiedDateInStorageUseCase,
     getFolderSizeUseCase: GetFolderSizeInStorageUseCase,
     private val swapObjectsInListUseCase: SwapObjectsInListUseCase,
+    private val createObjectUrlUseCase: CreateObjectUrlUseCase,
 
     initOrCreateStorageUseCase: InitOrCreateStorageUseCase,
     readStorageTreeUseCase: ReadStorageTreeUseCase,
@@ -756,15 +759,21 @@ class MainViewModel(
 
     /**
      * Копирование ссылки на запись в буфер обмена.
-     * @param record
      */
-    fun copyRecordLink(record: TetroidRecord?) {
-        if (record != null) {
-            val url = record.createUrl()
-            Utils.writeToClipboard(getContext(), getString(R.string.link_to_record), url)
-            log(getString(R.string.title_link_was_copied) + url, true)
-        } else {
-            logError(getString(R.string.log_get_item_is_null), true)
+    fun copyObjectLinkToClipboard(obj: TetroidObject) {
+        launchOnMain {
+            withIo {
+                createObjectUrlUseCase.run(
+                    CreateObjectUrlUseCase.Params(obj)
+                )
+            }.onFailure {
+                logFailure(failure = it)
+            }.onSuccess { url ->
+                val typeName = obj.type.getTypeNameForAction(resourcesProvider)
+                val label = getString(R.string.link_to_tetroid_object_mask, typeName)
+                Utils.writeToClipboard(getContext(), label, url)
+                showMessage(getString(R.string.title_link_was_copied) + url)
+            }
         }
     }
 
@@ -922,7 +931,7 @@ class MainViewModel(
                     GetRecordFolderUseCase.Params(
                         record = record,
                         createIfNeed = false,
-                        inTrash = record.isTemp,
+                        inTrash = record.isTemporary,
                         showMessage = true,
                     )
                 )
@@ -1121,25 +1130,29 @@ class MainViewModel(
         val isCutting = clipboard.isCutting
         val trueParentNode = if (isSubNode) parentNode else parentNode.parentNode
 
-        launchOnMain {
-            sendEvent(MainEvent.Node.Insert.InProcess(node))
+        if (trueParentNode == null) {
+            logFailure(Failure.Node.ParentIsNull, show = true)
+        } else {
+            launchOnMain {
+                sendEvent(MainEvent.Node.Insert.InProcess(node))
 
-            withIo {
-                insertNodeUseCase.run(
-                    InsertNodeUseCase.Params(
-                        srcNode = node,
-                        parentNode = trueParentNode,
-                        isCutting = isCutting,
+                withIo {
+                    insertNodeUseCase.run(
+                        InsertNodeUseCase.Params(
+                            srcNode = node,
+                            parentNode = trueParentNode,
+                            isCutting = isCutting,
+                        )
                     )
-                )
-            }.onFailure { failure ->
-                logFailure(failure, show = false)
-                sendEvent(MainEvent.Node.Insert.Failed(node, failure))
-                logOperErrorMore(LogObj.NODE, LogOper.INSERT)
-            }.onSuccess { newNode ->
-                // ищем вновь созданную ветку - копию node
-                //  (даже при вставке ВЫРЕЗАННОЙ ветки вставляется ее копия, а не оригинальная из буфера обмена)
-                sendEvent(MainEvent.Node.Insert.Success(newNode))
+                }.onFailure { failure ->
+                    logFailure(failure, show = false)
+                    sendEvent(MainEvent.Node.Insert.Failed(node, failure))
+                    logOperErrorMore(LogObj.NODE, LogOper.INSERT)
+                }.onSuccess { newNode ->
+                    // ищем вновь созданную ветку - копию node
+                    //  (даже при вставке ВЫРЕЗАННОЙ ветки вставляется ее копия, а не оригинальная из буфера обмена)
+                    sendEvent(MainEvent.Node.Insert.Success(newNode))
+                }
             }
         }
     }
@@ -1150,7 +1163,7 @@ class MainViewModel(
      */
     fun cutNode(node: TetroidNode, pos: Int) {
         // нельзя вырезать нерасшифрованную ветку
-        if (!node.isNonCryptedOrDecrypted) {
+        if (!node.isNonEncryptedOrDecrypted) {
             log(R.string.log_cannot_delete_undecrypted_node, true)
             return
         }
@@ -1172,7 +1185,7 @@ class MainViewModel(
     fun startDeleteNode(node: TetroidNode) {
         // нельзя удалить нерасшифрованную ветку
         when {
-            !node.isNonCryptedOrDecrypted -> {
+            !node.isNonEncryptedOrDecrypted -> {
                 log(R.string.log_cannot_delete_undecrypted_node, true)
             }
             // нельзя удалить последнюю ветку в корне
@@ -1215,7 +1228,7 @@ class MainViewModel(
                         sendEvent(MainEvent.ClearMainView)
                     }
                 }
-                if (node.isCrypted) {
+                if (node.isEncrypted) {
                     // проверяем существование зашифрованных веток
                     checkExistenceCryptedNodes()
                 }
@@ -1271,7 +1284,7 @@ class MainViewModel(
 
             logOperStart(LogObj.NODE, if (isEncrypt) LogOper.ENCRYPT else LogOper.DROPCRYPT, node)
 
-            val nodeWasEncrypted = node.isCrypted
+            val nodeWasEncrypted = node.isEncrypted
             val operation = if (isEncrypt) LogOper.ENCRYPT else LogOper.DROPCRYPT
 
             val result = withIo {
@@ -1371,7 +1384,7 @@ class MainViewModel(
         isUp: Boolean,
     ) {
         launchOnMain {
-            val subNodes = node.parentNode.subNodes ?: getRootNodes()
+            val subNodes = node.parentNode?.subNodes ?: getRootNodes()
 
             if (subNodes.isNotEmpty()) {
                 val positionInNode = subNodes.indexOf(node)
@@ -1418,7 +1431,7 @@ class MainViewModel(
     }
 
     fun hasNonDecryptedNodes(node: TetroidNode): Boolean {
-        if (!node.isNonCryptedOrDecrypted) return true
+        if (!node.isNonEncryptedOrDecrypted) return true
         if (node.subNodesCount > 0) {
             for (subnode in node.subNodes) {
                 if (hasNonDecryptedNodes(subnode)) return true
@@ -1633,7 +1646,7 @@ class MainViewModel(
     }
 
     fun checkPermissionIfNeedAndOpenAttach(attach: TetroidFile) {
-        if (!attach.isCrypted) {
+        if (!attach.isEncrypted) {
             openAttach(attach)
         } else {
             if (storageSettingsProvider.isDecryptAttachesToTempFolder()) {
@@ -2033,7 +2046,7 @@ class MainViewModel(
 
     private fun updateFavoritesNodeTitle() {
         launchOnMain {
-            sendEvent(MainEvent.UpdateFavoritesNodeTitle)
+            sendEvent(MainEvent.Favorites.UpdateFavoritesNodeTitle)
         }
     }
 
@@ -2043,14 +2056,21 @@ class MainViewModel(
 
     /**
      * Открытие объекта из поисковой выдачи в зависимости от его типа.
-     * @param found
      */
-    fun openFoundObject(found: ITetroidObject) {
-        when (found.type) {
-            FoundType.TYPE_RECORD -> (found as? TetroidRecord)?.let { openRecord(it) }
-            FoundType.TYPE_FILE -> (found as? TetroidFile)?.let { showRecordAttaches(it.record) }
-            FoundType.TYPE_NODE -> (found as? TetroidNode)?.let { showNode(it) }
-            FoundType.TYPE_TAG -> (found as? TetroidTag)?.let { showTagRecords(it) }
+    fun openFoundObject(obj: ITetroidObject) {
+        when (obj) {
+            is TetroidRecord -> {
+                openRecord(record = obj)
+            }
+            is TetroidFile -> {
+                showRecordAttaches(record = obj.record)
+            }
+            is TetroidNode -> {
+                showNode(node = obj)
+            }
+            is TetroidTag -> {
+                showTagRecords(tag = obj)
+            }
         }
     }
 
@@ -2102,22 +2122,58 @@ class MainViewModel(
 
     // region History
 
-    fun openStorageObjectFromHistory(objectType: TetroidObjectType, objectId: String) {
-        when (objectType) {
-            TetroidObjectType.NONE -> {
-                showError(resourcesProvider.getString(R.string.error_object_type_is_none))
+    fun openStorageObjectFromHistory(data: Intent, obj: TetroidObject) {
+        val objectId = obj.id
+        if (isLoadedFavoritesOnly()) {
+            when (obj.type) {
+                TetroidObjectType.NONE -> {
+                    showError(resourcesProvider.getString(R.string.error_object_type_is_none))
+                }
+                TetroidObjectType.RECORD -> {
+                    if (favoritesManager.isFavorite(objectId)) {
+                        openRecord(recordId = objectId)
+                    } else {
+                        launchOnMain {
+                            sendEvent(MainEvent.Favorites.RequestToLoadAllNodesForOpenObject(data, obj))
+                        }
+                    }
+                }
+                TetroidObjectType.ATTACH -> {
+                    val isFavoriteRecord = favoritesManager.getFavoriteRecords().any { record ->
+                        record.attachedFiles.any { it.id == objectId }
+                    }
+                    if (isFavoriteRecord) {
+                        openRecord(recordId = objectId)
+                    } else {
+                        launchOnMain {
+                            sendEvent(MainEvent.Favorites.RequestToLoadAllNodesForOpenObject(data, obj))
+                        }
+                    }
+                }
+                else -> {
+                    launchOnMain {
+                        sendEvent(MainEvent.Favorites.RequestToLoadAllNodesForOpenObject(data, obj))
+                    }
+                }
             }
-            TetroidObjectType.RECORD -> {
-                openRecord(recordId = objectId)
-            }
-            TetroidObjectType.NODE -> {
-                showNode(nodeId = objectId)
-            }
-            TetroidObjectType.ATTACH -> {
-                openAttach(attachId = objectId)
-            }
-            TetroidObjectType.TAG -> {
-                showTagRecords(tagName = objectId)
+        } else {
+            when (obj.type) {
+                TetroidObjectType.NONE -> {
+                    showError(resourcesProvider.getString(R.string.error_object_type_is_none))
+                }
+                TetroidObjectType.RECORD -> {
+                    openRecord(recordId = objectId)
+                }
+                TetroidObjectType.NODE -> {
+                    showNode(nodeId = objectId)
+                }
+                TetroidObjectType.ATTACH -> {
+                    openAttach(attachId = objectId)
+                }
+                TetroidObjectType.TAG -> {
+                    showTagRecords(tagName = objectId)
+                }
+                TetroidObjectType.IMAGE -> Unit
             }
         }
     }

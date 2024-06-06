@@ -10,6 +10,7 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.model.enums.SearchInNodeMode
+import com.gee12.mytetroid.model.obj.*
 import java.util.regex.Pattern
 
 class GlobalSearchUseCase(
@@ -133,7 +134,7 @@ class GlobalSearchUseCase(
         val profile = params.profile
 
         for (node in nodes) {
-            if (!node.isNonCryptedOrDecrypted) {
+            if (!node.isNonEncryptedOrDecrypted) {
                 isExistEncryptedNodes = true
                 continue
             }
@@ -171,15 +172,15 @@ class GlobalSearchUseCase(
                 addFoundObject(foundObjects, record, FoundType.TYPE_RECORD)
             }
             // поиск по авторам
-            if (profile.inRecordAuthor && record.author.matches(regex)) {
+            if (profile.inRecordAuthor && record.author?.matches(regex) == true) {
                 addFoundObject(foundObjects, record, FoundType.TYPE_AUTHOR)
             }
             // поиск по ссылкам
-            if (profile.inRecordUrl && record.author.matches(regex)) {
+            if (profile.inRecordUrl && record.author?.matches(regex) == true) {
                 addFoundObject(foundObjects, record, FoundType.TYPE_URL)
             }
             // поиск по имени каталога
-            if (profile.inRecordFolderName && record.dirName.matches(regex)) {
+            if (profile.inRecordFolderName && record.folderName.matches(regex)) {
                 addFoundObject(foundObjects, record, FoundType.TYPE_RECORD_FOLDER_NAME)
             }
             // поиск по файлам записи
@@ -214,7 +215,7 @@ class GlobalSearchUseCase(
                 // 1 - добавляем саму метку в результат
 //                globalSearchInTags(record.getTags(), query, isOnlyWholeWords);
                 // 2 - добавляем запись, содержащую метку
-                if (record.tagsString.matches(regex)) {
+                if (record.tagsString?.matches(regex) == true) {
                     addFoundObject(foundObjects, record, FoundType.TYPE_TAG)
                 }
             }
@@ -277,7 +278,7 @@ class GlobalSearchUseCase(
     private suspend fun searchInNodesNamesRecursively(nodes: List<TetroidNode>, regex: Regex): List<TetroidNode> {
         val res: MutableList<TetroidNode> = ArrayList()
         for (node in nodes) {
-            if (!node.isNonCryptedOrDecrypted) {
+            if (!node.isNonEncryptedOrDecrypted) {
                 continue
             }
             if (node.name.matches(regex)) {

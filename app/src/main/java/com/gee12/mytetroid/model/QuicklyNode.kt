@@ -2,6 +2,7 @@ package com.gee12.mytetroid.model
 
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
+import com.gee12.mytetroid.model.obj.TetroidNode
 
 sealed class QuicklyNode {
     object IsNotSet : QuicklyNode()

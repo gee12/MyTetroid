@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.model
 
 import com.gee12.mytetroid.model.enums.TetroidObjectType
+import com.gee12.mytetroid.model.obj.TetroidObject
 
 data class TetroidScriptToObject(
     var id: Int = 0,
@@ -15,5 +16,4 @@ data class TetroidScriptToObject(
     fun isObjectFilled(): Boolean {
         return objectId != null && objectType != null
     }
-
 }

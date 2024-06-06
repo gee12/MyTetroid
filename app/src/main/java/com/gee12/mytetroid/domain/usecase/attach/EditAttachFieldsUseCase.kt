@@ -15,7 +15,7 @@ import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
-import com.gee12.mytetroid.model.TetroidFile
+import com.gee12.mytetroid.model.obj.TetroidFile
 import com.gee12.mytetroid.domain.usecase.record.GetRecordFolderUseCase
 import com.gee12.mytetroid.domain.usecase.storage.SaveStorageTreeUseCase
 import com.gee12.mytetroid.model.FilePath
@@ -88,12 +88,12 @@ class EditAttachFieldsUseCase(
                 return Failure.File.NotExist(srcFilePath).toLeft()
             }
         }
-        val oldName = attach.getName(true)
+        val oldName = attach.sourceName
         // обновляем поля
-        val isEncrypted = attach.isCrypted
-        attach.name = encryptFieldIfNeed(name, isEncrypted)
+        val isEncrypted = attach.isEncrypted
+        attach.sourceName = encryptFieldIfNeed(name, isEncrypted) ?: name
         if (isEncrypted) {
-            attach.setDecryptedName(name)
+            attach.decryptedName = name
         }
 
         // перезаписываем структуру хранилища в файл
@@ -119,15 +119,15 @@ class EditAttachFieldsUseCase(
             }.onFailure {
                 logger.logOperCancel(LogObj.FILE_FIELDS, LogOper.CHANGE)
                 // возвращаем изменения
-                attach.name = oldName
+                attach.sourceName = oldName
                 if (isEncrypted) {
-                    attach.setDecryptedName(cryptManager.decryptTextBase64(oldName))
+                    attach.decryptedName = cryptManager.decryptTextBase64(oldName)
                 }
             }
     }
 
-    private fun encryptFieldIfNeed(fieldValue: String, isEncrypt: Boolean): String? {
-        return if (isEncrypt) cryptManager.encryptTextBase64(fieldValue) else fieldValue
+    private fun encryptFieldIfNeed(value: String?, isEncrypt: Boolean): String? {
+        return if (isEncrypt) value?.let { cryptManager.encryptTextBase64(value) } else value
     }
 
 }

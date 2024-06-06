@@ -1,6 +1,6 @@
 package com.gee12.mytetroid.domain;
 
-import com.gee12.mytetroid.model.TetroidRecord;
+import com.gee12.mytetroid.model.obj.TetroidRecord;
 
 import java.util.Comparator;
 
@@ -8,6 +8,9 @@ import java.util.Comparator;
  * Структура для сравнения записей по определенному полю.
  */
 public class TetroidRecordComparator implements Comparator<TetroidRecord> {
+
+    public static final int FIELD_ID = 1;
+    public static final int FIELD_DIR_NAME = 2;
 
     /**
      * Id
@@ -29,11 +32,11 @@ public class TetroidRecordComparator implements Comparator<TetroidRecord> {
     private class DirNameComparator extends TetroidRecordComparator {
         @Override
         public int compare(TetroidRecord o1, TetroidRecord o2) {
-            return o1.getDirName().compareTo(o2.getDirName());
+            return o1.getFolderName().compareTo(o2.getFolderName());
         }
         @Override
         public boolean compare(String fieldValue, TetroidRecord obj) {
-            return fieldValue.equals(obj.getDirName());
+            return fieldValue.equals(obj.getFolderName());
         }
     }
 
@@ -44,9 +47,9 @@ public class TetroidRecordComparator implements Comparator<TetroidRecord> {
 
     public TetroidRecordComparator(int fieldType) {
         this.mFieldType = fieldType;
-        this.mComparator = (fieldType == TetroidRecord.FIELD_ID)
+        this.mComparator = (fieldType == FIELD_ID)
                 ? new IdComparator()
-                : (fieldType == TetroidRecord.FIELD_DIR_NAME)
+                : (fieldType == FIELD_DIR_NAME)
                 ? new DirNameComparator()
                 : null;
     }

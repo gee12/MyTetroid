@@ -13,7 +13,7 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.FilePath
-import com.gee12.mytetroid.model.TetroidFile
+import com.gee12.mytetroid.model.obj.TetroidFile
 
 /**
  * Удаление прикрепленного файла.

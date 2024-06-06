@@ -1,7 +1,7 @@
 package com.gee12.mytetroid.domain.usecase.tag
 
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidRecord
 import com.gee12.mytetroid.domain.provider.IStorageProvider
 import java.util.*
 

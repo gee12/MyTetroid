@@ -35,7 +35,7 @@ class RecordActivityComponent(
             }
         }
         val intent = buildIntent {
-            action = Constants.ACTION_RECORD
+            action = Constants.ACTION_RECORD_ACTIVITY
             putExtras(resultBundle)
         }
         // если возвращаться некуда, то можем просто закрывать приложение.

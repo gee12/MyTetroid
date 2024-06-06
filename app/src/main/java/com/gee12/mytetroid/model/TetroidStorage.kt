@@ -1,25 +1,26 @@
 package com.gee12.mytetroid.model
 
+import android.os.Parcelable
 import com.gee12.mytetroid.database.entity.StorageDbEntity
+import kotlinx.parcelize.Parcelize
 
+
+// TODO: отделить от DbEntity
+@Parcelize
 class TetroidStorage(
-    name: String,
-    uri: String
+    override var name: String,
+    override var uri: String,
+    var isNew: Boolean = false,
+    var error: String? = null,
+
+    var isInited: Boolean = false, // загружены ли служебные файлы хранилища
+    var isLoaded: Boolean = false, // загружено ли дерево веток хранилища
+    var isEncrypted: Boolean = false, // зашифровано ли хранилище
+    var isDecrypted: Boolean = false, // расшифровано ли хранилище (на время сеанса)
 ) : StorageDbEntity(
-    name,
-    uri
-) {
-    var isNew = false
-    var error: String? = null
-
-    /**
-     * Состояние
-     */
-    var isInited = false // загружены ли служебные файлы хранилища
-    var isLoaded = false // загружено ли дерево веток хранилища
-    var isCrypted = false // зашифровано ли хранилище
-    var isDecrypted = false // расшифровано ли хранилище (на время сеанса)
-
+    name = name,
+    uri = uri,
+), Parcelable {
 
     constructor(name: String, uri: String, isDefault: Boolean, isReadOnly: Boolean, isNew: Boolean)
             : this(name, uri) {
@@ -34,34 +35,9 @@ class TetroidStorage(
             it.error = error
             it.isInited = isInited
             it.isLoaded = isLoaded
-            it.isCrypted = isCrypted
+            it.isEncrypted = isEncrypted
             it.isDecrypted = isDecrypted
         }
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is TetroidStorage) return false
-
-        if (isNew != other.isNew) return false
-        if (error != other.error) return false
-        if (isInited != other.isInited) return false
-        if (isLoaded != other.isLoaded) return false
-        if (isCrypted != other.isCrypted) return false
-        if (isDecrypted != other.isDecrypted) return false
-
-        return super.equals(other)
-    }
-
-    override fun hashCode(): Int {
-        var result = super.hashCode()
-        result = 31 * result + isNew.hashCode()
-        result = 31 * result + (error?.hashCode() ?: 0)
-        result = 31 * result + isInited.hashCode()
-        result = 31 * result + isLoaded.hashCode()
-        result = 31 * result + isCrypted.hashCode()
-        result = 31 * result + isDecrypted.hashCode()
-        return result
     }
 
 }

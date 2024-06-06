@@ -15,7 +15,7 @@ import com.gee12.mytetroid.common.extensions.orFalse
 import com.gee12.mytetroid.common.extensions.setTintList
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
-import com.gee12.mytetroid.model.ITetroidObject
+import com.gee12.mytetroid.model.obj.ITetroidObject
 import com.gee12.mytetroid.model.TetroidScript
 import com.gee12.mytetroid.model.TetroidScriptToObject
 import com.gee12.mytetroid.model.enums.TetroidObjectType
@@ -211,7 +211,7 @@ class ScriptsAdapter(
         }
 
         private fun TetroidScriptToObject.stringTitle(): String? {
-            return if (obj?.isNonCryptedOrDecrypted == true || objectType in arrayOf(TetroidObjectType.NONE, null)) {
+            return if (obj?.isNonEncryptedOrDecrypted == true || objectType in arrayOf(TetroidObjectType.NONE, null)) {
                 val objName = obj?.name.orEmpty()
                 when (objectType) {
                     TetroidObjectType.RECORD -> {

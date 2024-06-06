@@ -10,6 +10,8 @@ import com.gee12.mytetroid.data.ini.DatabaseConfig
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.*
+import com.gee12.mytetroid.model.obj.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidTag
 import java.util.HashMap
 
 interface IStorageProvider {
@@ -28,8 +30,8 @@ interface IStorageProvider {
     fun reset()
     fun isLoaded(): Boolean
     fun isLoadedFavoritesOnly(): Boolean
-    fun isExistCryptedNodes(): Boolean
-    fun setIsExistCryptedNodes(value: Boolean)
+    fun isExistEncryptedNodes(): Boolean
+    fun setIsExistEncryptedNodes(value: Boolean)
     fun getRootNodes(): List<TetroidNode>
     fun getTagsMap(): HashMap<String, TetroidTag>
     fun getRootNode(): TetroidNode
@@ -90,11 +92,11 @@ class StorageProvider(
                 &&*/ dataProcessor.isLoadFavoritesOnlyMode()
     }
 
-    override fun isExistCryptedNodes(): Boolean {
+    override fun isExistEncryptedNodes(): Boolean {
         return dataProcessor.isExistCryptedNodes
     }
 
-    override fun setIsExistCryptedNodes(value: Boolean) {
+    override fun setIsExistEncryptedNodes(value: Boolean) {
         dataProcessor.isExistCryptedNodes = value
     }
 

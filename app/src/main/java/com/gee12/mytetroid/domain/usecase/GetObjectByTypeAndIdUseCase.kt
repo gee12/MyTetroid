@@ -5,7 +5,7 @@ import com.gee12.mytetroid.common.Failure
 import com.gee12.mytetroid.common.UseCase
 import com.gee12.mytetroid.domain.usecase.node.GetNodeByIdUseCase
 import com.gee12.mytetroid.domain.usecase.record.GetRecordByIdUseCase
-import com.gee12.mytetroid.model.TetroidObject
+import com.gee12.mytetroid.model.obj.TetroidObject
 import com.gee12.mytetroid.model.enums.TetroidObjectType
 
 class GetObjectByTypeAndIdUseCase(
@@ -46,7 +46,7 @@ class GetObjectByTypeAndIdUseCase(
                     //TetroidObjectType.TAG -> TODO ?
                     //TetroidObjectType.ATTACH -> TODO ?
                     else -> {
-                        TetroidObject(type.id, objectId)
+                        null
                     }
                 }
             }

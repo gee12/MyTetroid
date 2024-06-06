@@ -1,6 +1,7 @@
 package com.gee12.mytetroid.model
 
 import com.gee12.mytetroid.common.Failure
+import com.gee12.mytetroid.model.obj.ITetroidObject
 import java.util.Date
 
 data class TetroidScript(
@@ -39,18 +40,18 @@ data class TetroidScript(
     fun getObjects(obj: ITetroidObject?): List<TetroidScriptToObject>? {
         return objects?.filterNot {
             obj == null && it.objectId == null && it.objectType == null
-                    || obj != null && it.objectId == obj.id && it.objectType?.id == obj.type
+                    || obj != null && it.objectId == obj.id && it.objectType == obj.type
         }
     }
 
     fun getScriptObject(obj: ITetroidObject?): TetroidScriptToObject? {
-        return objects?.firstOrNull { it.objectId == obj?.id && it.objectType?.id == obj?.type }
+        return objects?.firstOrNull { it.objectId == obj?.id && it.objectType == obj?.type }
     }
 
     fun isActiveForObject(obj: ITetroidObject?): Boolean {
         return objects?.any {
             it.objectId == obj?.id
-                    && it.objectType?.id == obj?.type
+                    && it.objectType == obj?.type
                     && it.isActive
         } ?: false
     }

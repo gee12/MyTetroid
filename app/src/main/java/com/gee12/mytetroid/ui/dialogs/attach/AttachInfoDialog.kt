@@ -6,7 +6,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.utils.Utils
-import com.gee12.mytetroid.model.TetroidFile
+import com.gee12.mytetroid.model.obj.TetroidFile
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.ui.storage.StorageViewModel
 import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
@@ -21,7 +21,7 @@ class AttachInfoDialog(
 
     override fun getRequiredTag() = TAG
 
-    override fun isPossibleToShow() = attach != null && attach.isNonCryptedOrDecrypted
+    override fun isPossibleToShow() = attach != null && attach.isNonEncryptedOrDecrypted
 
     override fun getLayoutResourceId() = R.layout.dialog_attach_info
 
@@ -44,7 +44,7 @@ class AttachInfoDialog(
         (dialogView.findViewById<View>(R.id.text_view_id) as TextView).text = attach.id
         (dialogView.findViewById<View>(R.id.text_view_record) as TextView).text = record?.name
         (dialogView.findViewById<View>(R.id.text_view_crypted) as TextView).setText(
-            if (attach.isCrypted) R.string.answer_yes else R.string.answer_no
+            if (attach.isEncrypted) R.string.answer_yes else R.string.answer_no
         )
         val dateFormat = getString(R.string.full_date_format_string)
 

@@ -12,11 +12,12 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.anggrayudi.storage.extension.launchOnUiThread
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.common.extensions.format
 import com.gee12.mytetroid.domain.RecordFieldsSelector
 import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidRecord
 import java.util.*
 
 abstract class RecordsBaseListAdapter(
@@ -49,7 +50,7 @@ abstract class RecordsBaseListAdapter(
     protected var isShowNodeName = false
 
     fun prepareView(position: Int, viewHolder: RecordViewHolder, convertView: View, record: TetroidRecord) {
-        val nonCryptedOrDecrypted = record.isNonCryptedOrDecrypted
+        val nonCryptedOrDecrypted = record.isNonEncryptedOrDecrypted
         // иконка
         if (!nonCryptedOrDecrypted) {
             viewHolder.iconView.visibility = View.VISIBLE
@@ -63,8 +64,8 @@ abstract class RecordsBaseListAdapter(
         // номер строки
         viewHolder.lineNumView.text = (position + 1).toString()
         // название
-        val cryptedName = resourcesProvider.getString(R.string.title_crypted_node_name)
-        viewHolder.nameView.text = record.getCryptedName(cryptedName)
+        val nameWhenEncrypted = resourcesProvider.getString(R.string.title_crypted_node_name)
+        viewHolder.nameView.text = if (record.isNonEncryptedOrDecrypted) record.name else nameWhenEncrypted
         viewHolder.nameView.setTextColor(
             ContextCompat.getColor(
                 context,
@@ -73,7 +74,7 @@ abstract class RecordsBaseListAdapter(
         )
         // ветка
         val node = record.node
-        if (isShowNodeName && nonCryptedOrDecrypted && node != null) {
+        if (isShowNodeName && nonCryptedOrDecrypted) {
             viewHolder.nodeNameView.visibility = View.VISIBLE
             viewHolder.nodeNameView.text = node.name
         } else {
@@ -98,7 +99,7 @@ abstract class RecordsBaseListAdapter(
         // дата создания
         if (nonCryptedOrDecrypted && fieldsSelector.checkIsCreatedDate()) {
             viewHolder.createdView.visibility = View.VISIBLE
-            viewHolder.createdView.text = record.getCreatedString(dateTimeFormat)
+            viewHolder.createdView.text = record.created?.format(dateTimeFormat)
         } else {
             viewHolder.createdView.visibility = View.GONE
         }
@@ -109,9 +110,7 @@ abstract class RecordsBaseListAdapter(
         ) {
             viewHolder.editedView.visibility = View.VISIBLE
             launchOnUiThread {
-                val edited = getEditedDateCallback(record)?.let { date ->
-                    Utils.dateToString(date, dateTimeFormat)
-                } ?: "-"
+                val edited = getEditedDateCallback(record)?.format(dateTimeFormat) ?: "-"
                 viewHolder.editedView.text = edited
             }
         } else {

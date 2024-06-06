@@ -49,9 +49,9 @@ import com.gee12.mytetroid.domain.TetroidClipboardListener
 import com.gee12.mytetroid.domain.usecase.html.CreateTagsHtmlStringUseCase
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.logs.Message
-import com.gee12.mytetroid.model.TetroidFile
-import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidFile
+import com.gee12.mytetroid.model.obj.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidRecord
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.model.permission.TetroidPermission
 import com.gee12.mytetroid.ui.base.BaseEvent
@@ -644,7 +644,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
                     val end = spannable.getSpanEnd(span)
                     val clickableSpan = object : ClickableSpan() {
                         override fun onClick(view: View) {
-                            viewModel.onTagUrlLoad(span.url)
+                            viewModel.onTagUrlLoad(url = span.url)
                         }
                     }
                     spannable.removeSpan(span)

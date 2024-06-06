@@ -6,9 +6,9 @@ import com.gee12.mytetroid.common.extensions.orFalse
 import com.gee12.mytetroid.domain.IFailureHandler
 import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.logs.ITetroidLogger
-import com.gee12.mytetroid.model.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidNode
 import com.gee12.mytetroid.model.TetroidStorage
-import com.gee12.mytetroid.model.TetroidTag
+import com.gee12.mytetroid.model.obj.TetroidTag
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.model.FilePath
@@ -77,7 +77,7 @@ abstract class BaseStorageViewModel(
 
     fun isStorageLoaded() = storage?.isLoaded.orFalse() && storageProvider.isLoaded()
 
-    open fun isStorageEncrypted(): Boolean = storageProvider.isExistCryptedNodes()
+    open fun isStorageEncrypted(): Boolean = storageProvider.isExistEncryptedNodes()
 
     fun isStorageDecrypted() = storage?.isDecrypted.orFalse()
 

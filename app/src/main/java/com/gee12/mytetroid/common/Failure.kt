@@ -53,6 +53,7 @@ sealed class Failure(val ex: Throwable? = null) {
     sealed class Node(ex: Throwable? = null) : Failure(ex) {
         object NameIsEmpty : Node()
         class NotFound(val nodeId: String) : Node()
+        object ParentIsNull : Node()
     }
 
     sealed class Record(ex: Throwable? = null) : Failure(ex) {

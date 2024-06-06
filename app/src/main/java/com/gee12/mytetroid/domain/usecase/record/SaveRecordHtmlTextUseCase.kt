@@ -7,7 +7,7 @@ import com.anggrayudi.storage.file.openOutputStream
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.model.FilePath
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidRecord
 
 /**
  * Сохранение содержимого записи в файл.
@@ -31,7 +31,7 @@ class SaveRecordHtmlTextUseCase(
             GetRecordFolderUseCase.Params(
                 record = record,
                 createIfNeed = true,
-                inTrash = record.isTemp,
+                inTrash = record.isTemporary,
                 showMessage = true,
             )
         ).foldResult(
@@ -52,7 +52,7 @@ class SaveRecordHtmlTextUseCase(
 
         // запись файла с шифрованием при необходимости
         try {
-            val bytes = if (record.isCrypted) {
+            val bytes = if (record.isEncrypted) {
                 cryptManager.encryptTextBytes(html)
             } else {
                 html.toByteArray()

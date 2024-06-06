@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.model
+package com.gee12.mytetroid.model.enums
 
 enum class ImageFileType(
     val extension: String,

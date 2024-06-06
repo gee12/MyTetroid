@@ -108,17 +108,17 @@ class HistoryAdapter(
             ivIcon.setImageResource(item.type.iconResId())
 
             tvName.text = item.obj.name
-            tvType.text = item.type.getString(resourcesProvider).uppercase()
+            tvType.text = item.type.getTypeName(resourcesProvider).uppercase()
             tvCreated.text = item.createdDate?.let { Utils.dateToString(it, dateTimeFormat) }
         }
 
         private fun TetroidObjectType.iconResId(): Int {
             return when (this) {
-                TetroidObjectType.NONE -> R.drawable.ic_history
                 TetroidObjectType.RECORD -> R.drawable.ic_record
                 TetroidObjectType.NODE -> R.drawable.ic_tree
                 TetroidObjectType.ATTACH -> R.drawable.ic_attachment
                 TetroidObjectType.TAG -> R.drawable.ic_tag_2
+                else -> R.drawable.ic_history
             }
         }
     }

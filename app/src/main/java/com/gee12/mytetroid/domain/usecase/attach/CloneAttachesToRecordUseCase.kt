@@ -6,8 +6,8 @@ import com.gee12.mytetroid.common.UseCase
 import com.gee12.mytetroid.common.toRight
 import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.domain.provider.IDataNameProvider
-import com.gee12.mytetroid.model.TetroidFile
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidFile
+import com.gee12.mytetroid.model.obj.TetroidRecord
 
 /**
  * Перемещение или копирование прикрепленных файлов в другую запись.
@@ -29,23 +29,23 @@ class CloneAttachesToRecordUseCase(
         val isCutting = params.isCutting
 
         if (srcRecord.attachedFilesCount > 0) {
-            val isCrypted = destRecord.isCrypted
+            val isEncrypted = destRecord.isEncrypted
             val attaches = mutableListOf<TetroidFile>()
             for (srcAttach in srcRecord.attachedFiles) {
                 // генерируем уникальные идентификаторы, если запись копируется
                 val id = if (isCutting) srcAttach.id else dataNameProvider.createUniqueId()
                 val name = srcAttach.name
                 val attach = TetroidFile(
-                    isCrypted,
-                    id,
-                    encryptFieldIfNeed(name, isCrypted),
-                    srcAttach.fileType,
-                    destRecord,
-                )
-                if (isCrypted) {
-                    attach.setDecryptedName(name)
-                    attach.setIsCrypted(true)
-                    attach.setIsDecrypted(true)
+                    id = id,
+                    name = encryptFieldIfNeed(name, isEncrypted) ?: name,
+                    isEncrypted = isEncrypted,
+                    fileType = srcAttach.fileType,
+                    record = destRecord,
+                ).apply {
+                    if (isEncrypted) {
+                        decryptedName = name
+                        isDecrypted = true
+                    }
                 }
                 attaches.add(attach)
             }
@@ -55,8 +55,9 @@ class CloneAttachesToRecordUseCase(
         return None.toRight()
     }
 
-    private fun encryptFieldIfNeed(fieldValue: String, isEncrypt: Boolean): String? {
-        return if (isEncrypt) cryptManager.encryptTextBase64(fieldValue) else fieldValue
+    private fun encryptFieldIfNeed(value: String?, isEncrypt: Boolean): String? {
+        return if (isEncrypt) value?.let { cryptManager.encryptTextBase64(value) } else value
     }
+
 
 }

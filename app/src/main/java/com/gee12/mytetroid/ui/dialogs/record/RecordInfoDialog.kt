@@ -8,7 +8,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.utils.Utils
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidRecord
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import com.gee12.mytetroid.ui.storage.StorageViewModel
@@ -24,7 +24,7 @@ class RecordInfoDialog(
 
     override fun getRequiredTag() = TAG
 
-    override fun isPossibleToShow() = record.isNonCryptedOrDecrypted
+    override fun isPossibleToShow() = record.isNonEncryptedOrDecrypted
 
     override fun getLayoutResourceId() = R.layout.dialog_record_info
 
@@ -52,7 +52,7 @@ class RecordInfoDialog(
             }
         }
         dialogView.findViewById<TextView>(R.id.text_view_crypted).setText(
-            if (record.isCrypted) R.string.answer_yes else R.string.answer_no
+            if (record.isEncrypted) R.string.answer_yes else R.string.answer_no
         )
         val dateFormat = getString(R.string.full_date_format_string)
         val created = record.created

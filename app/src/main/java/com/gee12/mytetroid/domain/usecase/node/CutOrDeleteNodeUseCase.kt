@@ -11,7 +11,7 @@ import com.gee12.mytetroid.domain.usecase.tag.DeleteRecordTagsUseCase
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
-import com.gee12.mytetroid.model.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidNode
 import com.gee12.mytetroid.model.enums.TetroidObjectType
 
 /**
@@ -40,11 +40,11 @@ class CutOrDeleteNodeUseCase(
         logger.logOperStart(LogObj.NODE, if (isCutting) LogOper.CUT else LogOper.DELETE, node)
 
         // удаляем ветку из дерева
-        val parentNodes = (if (node.parentNode != null) {
-            node.parentNode.subNodes
+        val parentNodes = if (node.parentNode != null) {
+            node.parentNode?.subNodes ?: mutableListOf()
         } else {
-            storageProvider.getRootNodes()
-        }) as MutableList<TetroidNode>
+            storageProvider.getRootNodes().toMutableList()
+        }
         if (!parentNodes.remove(node)) {
             return Failure.Node.NotFound(nodeId = node.id).toLeft()
         }

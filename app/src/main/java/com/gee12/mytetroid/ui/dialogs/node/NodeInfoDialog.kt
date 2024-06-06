@@ -7,7 +7,7 @@ import androidx.lifecycle.lifecycleScope
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.onFailure
 import com.gee12.mytetroid.common.onSuccess
-import com.gee12.mytetroid.model.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidNode
 import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
 import com.gee12.mytetroid.domain.usecase.node.GetNodesAndRecordsCountUseCase
 import com.gee12.mytetroid.ui.storage.StorageViewModel
@@ -24,7 +24,7 @@ class NodeInfoDialog(
 
     override fun getRequiredTag() = TAG
 
-    override fun isPossibleToShow() = node.isNonCryptedOrDecrypted
+    override fun isPossibleToShow() = node.isNonEncryptedOrDecrypted
 
     override fun getLayoutResourceId() = R.layout.dialog_node_info
 
@@ -36,7 +36,7 @@ class NodeInfoDialog(
 
         (view.findViewById<View>(R.id.text_view_id) as TextView).text = node.id
         (view.findViewById<View>(R.id.text_view_crypted) as TextView).setText(
-            if (node.isCrypted) R.string.answer_yes else R.string.answer_no
+            if (node.isEncrypted) R.string.answer_yes else R.string.answer_no
         )
 
         val getNodesAndRecordsCountUseCase: GetNodesAndRecordsCountUseCase by koinScope.inject()

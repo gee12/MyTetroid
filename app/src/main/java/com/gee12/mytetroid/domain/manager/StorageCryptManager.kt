@@ -4,9 +4,9 @@ import com.gee12.mytetroid.common.onFailure
 import com.gee12.mytetroid.data.crypt.Crypter
 import com.gee12.mytetroid.domain.usecase.crypt.CryptRecordFilesIfNeedUseCase
 import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
-import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.model.TetroidRecord
-import com.gee12.mytetroid.model.TetroidFile
+import com.gee12.mytetroid.model.obj.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidFile
 import com.gee12.mytetroid.logs.ITetroidLogger
 import java.io.InputStream
 import java.io.OutputStream
@@ -25,60 +25,40 @@ interface IStorageCryptManager {
 
     /**
      * Зашифровка веток.
-     * @param nodes
      * @param isReencrypt Если true, то повторное шифрование зашифрованного объекта (должно быть расшифрованно перед этим)
-     * @return
      */
     suspend fun encryptNodes(nodes: List<TetroidNode>, isReencrypt: Boolean): Boolean
 
     /**
      * Зашифровка ветки.
-     * @param node
-     * @param isReencrypt
-     * @return
      */
     suspend fun encryptNode(node: TetroidNode, isReencrypt: Boolean): Boolean
 
     /**
      * Зашифровка полей ветки.
-     * @param node
-     * @param isReencrypt
-     * @return
      */
     fun encryptNodeFields(node: TetroidNode, isReencrypt: Boolean): Boolean
 
     /**
      * Зашифровка полей списка записей и полей их прикрепленных прифайлов.
-     * @param records
      * @param isReencrypt Флаг, заставляющий шифровать файлы записи даже тогда, когда запись
      * уже зашифрована.
-     * @return
      */
     suspend fun encryptRecordsAndFiles(records: List<TetroidRecord>, isReencrypt: Boolean): Boolean
 
     /**
      * Зашифровка полей записи.
-     * @param record
-     * @param isReencrypt
-     * @return
      */
     fun encryptRecordFields(record: TetroidRecord, isReencrypt: Boolean): Boolean
 
     /**
      * Зашифровка полей прикрепленного файла.
-     * @param file
-     * @param isReencrypt
-     * @return
      */
     fun encryptAttach(file: TetroidFile, isReencrypt: Boolean): Boolean
 
     /**
      * Расшифровка веток.
-     * @param nodes
-     * @param isDecryptSubNodes
-     * @param iconLoader
-     * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
-     * @return
+     * @param isDropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
      */
     suspend fun decryptNodes(
         nodes: List<TetroidNode>,
@@ -91,11 +71,7 @@ interface IStorageCryptManager {
 
     /**
      * Расшифровка ветки.
-     * @param node
-     * @param isDecryptSubNodes
-     * @param iconLoader
-     * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
-     * @return
+     * @param isDropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
      */
     suspend fun decryptNode(
         node: TetroidNode,
@@ -108,21 +84,17 @@ interface IStorageCryptManager {
 
     /**
      * Расшифровка полей ветки.
-     * @param node
-     * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
-     * @return
+     * @param idDropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
      */
-    fun decryptNodeFields(node: TetroidNode, dropCrypt: Boolean): Boolean
+    fun decryptNodeFields(node: TetroidNode, idDropCrypt: Boolean): Boolean
 
     /**
      * Расшифровка полей списка записей и полей их прикрепленных прифайлов.
-     * @param records
-     * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
-     * @return
+     * @param idDropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
      */
     suspend fun decryptRecordsAndFiles(
         records: List<TetroidRecord>,
-        dropCrypt: Boolean,
+        idDropCrypt: Boolean,
         decryptFiles: Boolean
     ): Boolean
 
@@ -134,22 +106,18 @@ interface IStorageCryptManager {
 
     /**
      * Расшифровка полей записи.
-     * @param record
-     * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
-     * @return
+     * @param idDropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
      */
     suspend fun decryptRecordFields(
         record: TetroidRecord,
-        dropCrypt: Boolean
+        idDropCrypt: Boolean
     ): Boolean
 
     /**
      * Расшифровка полей прикрепленного файла.
-     * @param file
-     * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
-     * @return
+     * @param isDropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
      */
-    fun decryptAttach(file: TetroidFile, dropCrypt: Boolean): Boolean
+    fun decryptAttach(file: TetroidFile, isDropCrypt: Boolean): Boolean
 
     fun decryptTextBase64(field: String): String?
 
@@ -224,7 +192,7 @@ class StorageCryptManager(
      */
     override suspend fun encryptNode(node: TetroidNode, isReencrypt: Boolean): Boolean {
         var res = true
-        if (!isReencrypt && !node.isCrypted || isReencrypt && node.isCrypted && node.isDecrypted) {
+        if (!isReencrypt && !node.isEncrypted || isReencrypt && node.isEncrypted && node.isDecrypted) {
             // зашифровываем поля
             res = encryptNodeFields(node, isReencrypt)
             if (node.recordsCount > 0) {
@@ -246,11 +214,11 @@ class StorageCryptManager(
         // name
         var temp = encryptTextBase64(node.name)
         res = temp != null
-        if (res) {
-            if (!isReencrypt && !node.isCrypted) {
-                node.setDecryptedName(node.name)
+        if (temp != null) {
+            if (!isReencrypt && !node.isEncrypted) {
+                node.decryptedName = node.name
             }
-            node.name = temp
+            node.sourceName = temp
         }
         // icon
         val iconName = node.iconName.orEmpty()
@@ -258,16 +226,16 @@ class StorageCryptManager(
             temp = encryptTextBase64(iconName)
             res = res and (temp != null)
             if (temp != null) {
-                if (!isReencrypt && !node.isCrypted) {
-                    node.setDecryptedIconName(iconName)
+                if (!isReencrypt && !node.isEncrypted) {
+                    node.decryptedIconName = iconName
                 }
-                node.iconName = temp
+                node.sourceIconName = temp
             }
         }
         // encryption result
-        if (!isReencrypt && !node.isCrypted) {
-            node.setIsCrypted(res)
-            node.setIsDecrypted(res)
+        if (!isReencrypt && !node.isEncrypted) {
+            node.isEncrypted = res
+            node.isDecrypted = res
         }
         return res
     }
@@ -283,7 +251,7 @@ class StorageCryptManager(
             // зашифровываем файлы записи
             res = res and cryptRecordFiles(
                 record = record,
-                isCrypted = record.isCrypted && !isReencrypt,
+                isEncrypted = record.isEncrypted && !isReencrypt,
                 isEncrypt = true
             )
             res = res and encryptRecordFields(record, isReencrypt)
@@ -303,48 +271,48 @@ class StorageCryptManager(
         var res: Boolean
         var temp = encryptTextBase64(record.name)
         res = temp != null
-        if (res) {
-            if (!isReencrypt && !record.isCrypted) {
-                record.setDecryptedName(record.name)
+        if (temp != null) {
+            if (!isReencrypt && !record.isEncrypted) {
+                record.decryptedName = record.name
             }
-            record.name = temp
+            record.sourceName = temp
         }
         val tagsString = record.tagsString
-        if (tagsString.isNotEmpty()) {
+        if (!tagsString.isNullOrEmpty()) {
             temp = encryptTextBase64(tagsString)
             res = res and (temp != null)
             if (temp != null) {
-                if (!isReencrypt && !record.isCrypted) {
-                    record.setDecryptedTagsString(tagsString)
+                if (!isReencrypt && !record.isEncrypted) {
+                    record.decryptedTagsString = tagsString
                 }
                 record.tagsString = temp
             }
         }
         val author = record.author
-        if (author.isNotEmpty()) {
+        if (!author.isNullOrEmpty()) {
             temp = encryptTextBase64(author)
             res = res and (temp != null)
             if (temp != null) {
-                if (!isReencrypt && !record.isCrypted) {
-                    record.setDecryptedAuthor(author)
+                if (!isReencrypt && !record.isEncrypted) {
+                    record.decryptedAuthor = author
                 }
                 record.author = temp
             }
         }
         val url = record.url
-        if (url.isNotEmpty()) {
+        if (!url.isNullOrEmpty()) {
             temp = encryptTextBase64(url)
             res = res and (temp != null)
             if (temp != null) {
-                if (!isReencrypt && !record.isCrypted) {
-                    record.setDecryptedUrl(url)
+                if (!isReencrypt && !record.isEncrypted) {
+                    record.decryptedUrl = url
                 }
                 record.url = temp
             }
         }
-        if (!isReencrypt && !record.isCrypted) {
-            record.setIsCrypted(res)
-            record.setIsDecrypted(res)
+        if (!isReencrypt && !record.isEncrypted) {
+            record.isEncrypted = res
+            record.isDecrypted = res
         }
         return res
     }
@@ -355,15 +323,15 @@ class StorageCryptManager(
     override fun encryptAttach(file: TetroidFile, isReencrypt: Boolean): Boolean {
         val temp = encryptTextBase64(file.name)
         val res = temp != null
-        if (res) {
-            if (!isReencrypt && !file.isCrypted) {
-                file.setDecryptedName(file.name)
+        if (temp != null) {
+            if (!isReencrypt && !file.isEncrypted) {
+                file.decryptedName = file.name
             }
-            file.name = temp
+            file.sourceName = temp
         }
-        if (!isReencrypt && !file.isCrypted) {
-            file.setIsCrypted(res)
-            file.setIsDecrypted(res)
+        if (!isReencrypt && !file.isEncrypted) {
+            file.isEncrypted = res
+            file.isDecrypted = res
         }
         return res
     }
@@ -407,7 +375,7 @@ class StorageCryptManager(
         isDecryptFiles: Boolean
     ): Boolean {
         var res = true
-        if (node.isCrypted && (!node.isDecrypted || isDropCrypt || isDecryptFiles)) {
+        if (node.isEncrypted && (!node.isDecrypted || isDropCrypt || isDecryptFiles)) {
             // расшифровываем поля
             res = decryptNodeFields(node, isDropCrypt)
             // загружаем иконку
@@ -417,7 +385,7 @@ class StorageCryptManager(
             if (isDecryptRecords && node.recordsCount > 0) {
                 res = res and decryptRecordsAndFiles(
                     records = node.records,
-                    dropCrypt = isDropCrypt,
+                    idDropCrypt = isDropCrypt,
                     decryptFiles = isDecryptFiles
                 )
             }
@@ -438,52 +406,52 @@ class StorageCryptManager(
 
     /**
      * Расшифровка полей ветки.
-     * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
+     * @param idDropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
      */
-    override fun decryptNodeFields(node: TetroidNode, dropCrypt: Boolean): Boolean {
+    override fun decryptNodeFields(node: TetroidNode, idDropCrypt: Boolean): Boolean {
         var res: Boolean
         // name
-        var temp = decryptTextBase64(node.getName(true))
+        var temp = decryptTextBase64(node.sourceName)
         res = temp != null
-        if (res) {
-            if (dropCrypt) {
-                node.name = temp
-                node.setDecryptedName(null)
+        if (temp != null) {
+            if (idDropCrypt) {
+                node.sourceName = temp
+                node.decryptedName = null
             } else {
-                node.setDecryptedName(temp)
+                node.decryptedName = temp
             }
         }
         // icon
-        node.getIconName(true)?.also { iconName ->
+        node.sourceIconName?.also { iconName ->
             temp = decryptTextBase64(iconName)
             res = res and (temp != null)
         }
         if (temp != null) {
-            if (dropCrypt) {
-                node.iconName = temp
-                node.setDecryptedIconName(null)
+            if (idDropCrypt) {
+                node.sourceIconName = temp
+                node.decryptedIconName = null
             } else {
-                node.setDecryptedIconName(temp)
+                node.decryptedIconName = temp
             }
         }
         // decryption result
-        if (dropCrypt) {
-            node.setIsCrypted(!res)
-            node.setIsDecrypted(!res)
+        if (idDropCrypt) {
+            node.isEncrypted = !res
+            node.isDecrypted = !res
         } else {
-            node.setIsDecrypted(res)
+            node.isDecrypted = res
         }
         return res
     }
 
     /**
      * Расшифровка полей списка записей и полей их прикрепленных прифайлов.
-     * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
+     * @param idDropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
      */
-    override suspend fun decryptRecordsAndFiles(records: List<TetroidRecord>, dropCrypt: Boolean, decryptFiles: Boolean): Boolean {
+    override suspend fun decryptRecordsAndFiles(records: List<TetroidRecord>, idDropCrypt: Boolean, decryptFiles: Boolean): Boolean {
         var res = true
         for (record in records) {
-            res = res and decryptRecordAndFiles(record, dropCrypt, decryptFiles)
+            res = res and decryptRecordAndFiles(record, idDropCrypt, decryptFiles)
         }
         return res
     }
@@ -499,7 +467,7 @@ class StorageCryptManager(
         if ((dropCrypt || decryptFiles)) {
             res = res and cryptRecordFiles(
                 record = record,
-                isCrypted = true,
+                isEncrypted = true,
                 isEncrypt = false
             )
         }
@@ -508,28 +476,28 @@ class StorageCryptManager(
 
     /**
      * Расшифровка полей записи.
-     * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
+     * @param idDropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
      */
-    override suspend fun decryptRecordFields(record: TetroidRecord, dropCrypt: Boolean): Boolean {
+    override suspend fun decryptRecordFields(record: TetroidRecord, idDropCrypt: Boolean): Boolean {
         var res: Boolean
-        var temp = decryptTextBase64(record.getName(true))
+        var temp = decryptTextBase64(record.sourceName)
         res = temp != null
-        if (res) {
-            if (dropCrypt) {
-                record.name = temp
-                record.setDecryptedName(null)
+        if (temp != null) {
+            if (idDropCrypt) {
+                record.sourceName = temp
+                record.decryptedName = null
             } else {
-                record.setDecryptedName(temp)
+                record.decryptedName = temp
             }
         }
-        temp = decryptTextBase64(record.getTagsString(true))
+        temp = record.sourceTagsString?.let { decryptTextBase64(it) }
         res = res and (temp != null)
         if (temp != null) {
-            if (dropCrypt) {
+            if (idDropCrypt) {
                 record.tagsString = temp
-                record.setDecryptedTagsString(null)
+                record.decryptedTagsString = null
             } else {
-                record.setDecryptedTagsString(temp)
+                record.decryptedTagsString = temp
             }
             parseRecordTagsUseCase.run(
                 ParseRecordTagsUseCase.Params(
@@ -540,55 +508,55 @@ class StorageCryptManager(
                 logger.logFailure(it, show = false)
             }
         }
-        temp = decryptTextBase64(record.getAuthor(true))
+        temp = record.sourceAuthor?.let { decryptTextBase64(it) }
         res = res and (temp != null)
         if (temp != null) {
-            if (dropCrypt) {
+            if (idDropCrypt) {
                 record.author = temp
-                record.setDecryptedAuthor(null)
+                record.decryptedAuthor = null
             } else {
-                record.setDecryptedAuthor(temp)
+                record.decryptedAuthor = temp
             }
         }
-        temp = decryptTextBase64(record.getUrl(true))
+        temp = record.sourceUrl?.let { decryptTextBase64(it) }
         res = res and (temp != null)
         if (temp != null) {
-            if (dropCrypt) {
+            if (idDropCrypt) {
                 record.url = temp
-                record.setDecryptedUrl(null)
+                record.decryptedUrl = null
             } else {
-                record.setDecryptedUrl(temp)
+                record.decryptedUrl = temp
             }
         }
-        if (dropCrypt) {
-            record.setIsCrypted(!res)
-            record.setIsDecrypted(!res)
+        if (idDropCrypt) {
+            record.isEncrypted = !res
+            record.isDecrypted = !res
         } else {
-            record.setIsDecrypted(res)
+            record.isDecrypted = res
         }
         return res
     }
 
     /**
      * Расшифровка полей прикрепленного файла.
-     * @param dropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
+     * @param isDropCrypt Если true - сбросить шифрование объекта, false - временная расшифровка.
      */
-    override fun decryptAttach(file: TetroidFile, dropCrypt: Boolean): Boolean {
-        val temp = decryptTextBase64(file.getName(true))
+    override fun decryptAttach(file: TetroidFile, isDropCrypt: Boolean): Boolean {
+        val temp = decryptTextBase64(file.sourceName)
         val res = temp != null
-        if (res) {
-            if (dropCrypt) {
-                file.name = temp
-                file.setDecryptedName(null)
+        if (temp != null) {
+            if (isDropCrypt) {
+                file.sourceName = temp
+                file.decryptedName = null
             } else {
-                file.setDecryptedName(temp)
+                file.decryptedName = temp
             }
         }
-        if (dropCrypt) {
-            file.setIsCrypted(!res)
-            file.setIsDecrypted(!res)
+        if (isDropCrypt) {
+            file.isEncrypted = !res
+            file.isDecrypted = !res
         } else {
-            file.setIsDecrypted(res)
+            file.isDecrypted = res
         }
         return res
     }
@@ -613,11 +581,11 @@ class StorageCryptManager(
         return crypter.encryptDecryptFile(srcFileStream, destFileStream, encrypt)
     }
 
-    private suspend fun cryptRecordFiles(record: TetroidRecord, isCrypted: Boolean, isEncrypt: Boolean): Boolean {
+    private suspend fun cryptRecordFiles(record: TetroidRecord, isEncrypted: Boolean, isEncrypt: Boolean): Boolean {
         return cryptRecordFilesIfNeedUseCase.run(
             CryptRecordFilesIfNeedUseCase.Params(
                 record = record,
-                isEncrypted = isCrypted,
+                isEncrypted = isEncrypted,
                 isEncrypt = isEncrypt,
             )
         ).foldResult(

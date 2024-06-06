@@ -14,7 +14,7 @@ import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.model.FilePath
-import com.gee12.mytetroid.model.TetroidFile
+import com.gee12.mytetroid.model.obj.TetroidFile
 
 /**
  * Сохранение прикрепленного файла по указанному пути.
@@ -81,7 +81,7 @@ class SaveAttachToFileUseCase(
                 srcFile = srcFile,
                 destFile = destFile,
                 isEncrypt = false,
-                isDecrypt = attach.isCrypted,
+                isDecrypt = attach.isEncrypted,
             )
         )
     }

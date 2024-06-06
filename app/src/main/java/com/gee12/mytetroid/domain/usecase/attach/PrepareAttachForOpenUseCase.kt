@@ -10,7 +10,7 @@ import com.gee12.mytetroid.common.extensions.getExtensionWithoutComma
 import com.gee12.mytetroid.common.extensions.withExtension
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.logs.ITetroidLogger
-import com.gee12.mytetroid.model.TetroidFile
+import com.gee12.mytetroid.model.obj.TetroidFile
 import com.gee12.mytetroid.domain.usecase.crypt.EncryptOrDecryptFileIfNeedUseCase
 import com.gee12.mytetroid.domain.usecase.file.GetContentUriFromFileUseCase
 import com.gee12.mytetroid.domain.usecase.record.GetRecordFolderUseCase
@@ -65,7 +65,7 @@ class PrepareAttachForOpenUseCase(
             return Failure.File.NotExist(attachFilePath).toLeft()
         }
         // если запись зашифрована
-        return if (record.isCrypted && storageSettingsProvider.isDecryptAttachesToTempFolder()) {
+        return if (record.isEncrypted && storageSettingsProvider.isDecryptAttachesToTempFolder()) {
             decryptAttachFile(attach, attachFile)
         } else {
             attachFile.toRight()

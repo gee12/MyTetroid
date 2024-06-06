@@ -68,7 +68,7 @@ class IconsViewModel(
 
     private fun selectCurrentIcon(iconPath: String) {
         launchOnIo {
-            val pathParts = iconPath.split(File.separator).toTypedArray()
+            val pathParts = iconPath.split(File.separator)
             if (pathParts.size >= 2) {
                 val name = pathParts[pathParts.size - 1]
                 val folder = pathParts[pathParts.size - 2]

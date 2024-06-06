@@ -30,6 +30,7 @@ import com.gee12.mytetroid.domain.*
 import com.gee12.mytetroid.domain.manager.*
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.domain.repo.StoragesRepo
+import com.gee12.mytetroid.domain.usecase.ParseObjectFromUrlUseCase
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.ui.base.BaseEvent
@@ -53,6 +54,10 @@ import com.gee12.mytetroid.domain.usecase.storage.*
 import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
+import com.gee12.mytetroid.model.enums.TetroidObjectType
+import com.gee12.mytetroid.model.obj.TetroidImage
+import com.gee12.mytetroid.model.obj.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidRecord
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.model.permission.TetroidPermission
 import com.gee12.mytetroid.ui.storage.StorageEvent
@@ -119,6 +124,7 @@ class RecordViewModel(
     private val prepareFileForOpenUseCase: PrepareFileForOpenUseCase,
     private val getActiveScriptsForRecordUseCase: GetActiveScriptsForRecordUseCase,
     private val getScriptTextUseCase: GetScriptTextUseCase,
+    private val parseObjectFromUrlUseCase: ParseObjectFromUrlUseCase,
 
     cryptRecordFilesIfNeedUseCase: CryptRecordFilesIfNeedUseCase,
     parseRecordTagsUseCase: ParseRecordTagsUseCase,
@@ -334,7 +340,7 @@ class RecordViewModel(
             }
 
             // сбрасываем флаг, т.к. уже воспользовались
-            curRecord.value!!.setIsNew(false)
+            curRecord.value!!.isNew = false
             switchMode(mode)
         } else {
             // переключаем только views
@@ -431,56 +437,66 @@ class RecordViewModel(
         if (baseUrl != null && url.startsWith(baseUrl)) {
             url = url.replace(baseUrl, "")
         }
-        TetroidObject.parseUrl(url)?.let { obj ->
-            // обрабатываем внутреннюю ссылку
-            when (obj.type) {
-                FoundType.TYPE_RECORD -> {
-                    if (isLoadedFavoritesOnly()) {
-                        openAnotherRecord(recordId = obj.id, isAskForSave = true)
-                    } else {
-                        launchOnMain {
-                            val record = getRecord(obj.id)
-                            if (record != null) {
-                                openAnotherRecord(recordId = record.id, isAskForSave = true)
+
+        launchOnMain {
+            withIo {
+                parseObjectFromUrlUseCase.run(
+                    ParseObjectFromUrlUseCase.Params(url)
+                )
+            }.onSuccess { obj ->
+                if (obj != null) {
+                    // обрабатываем внутреннюю ссылку
+                    when (obj.type) {
+                        TetroidObjectType.RECORD -> {
+                            if (isLoadedFavoritesOnly()) {
+                                openAnotherRecord(recordId = obj.id, isAskForSave = true)
                             } else {
-                                logWarning(getString(R.string.log_not_found_record) + obj.id)
+                                launchOnMain {
+                                    val record = getRecord(obj.id)
+                                    if (record != null) {
+                                        openAnotherRecord(recordId = record.id, isAskForSave = true)
+                                    } else {
+                                        logWarning(getString(R.string.log_not_found_record) + obj.id)
+                                    }
+                                }
                             }
                         }
-                    }
-                }
-                FoundType.TYPE_NODE ->
-                    if (isLoadedFavoritesOnly()) {
-                        openAnotherNode(nodeId = obj.id, isAskForSave = true)
-                    } else {
-                        launchOnMain {
-                            val node = getNode(obj.id)
-                            if (node != null) {
-                                openAnotherNode(nodeId = node.id, isAskForSave = true)
+                        TetroidObjectType.NODE ->
+                            if (isLoadedFavoritesOnly()) {
+                                openAnotherNode(nodeId = obj.id, isAskForSave = true)
                             } else {
-                                logWarning(getString(R.string.error_node_not_found_with_id_mask, obj.id))
+                                launchOnMain {
+                                    val node = getNode(obj.id)
+                                    if (node != null) {
+                                        openAnotherNode(nodeId = node.id, isAskForSave = true)
+                                    } else {
+                                        logWarning(getString(R.string.error_node_not_found_with_id_mask, obj.id))
+                                    }
+                                }
+                            }
+                        TetroidObjectType.TAG -> {
+                            val tag = obj.id
+                            if (tag.isNotEmpty()) {
+                                openTag(tagName = tag, isAskForSave = true)
+                            } else {
+                                logWarning(getString(R.string.title_tag_name_is_empty))
                             }
                         }
+                        TetroidObjectType.ATTACH -> {
+                            //TODO
+                        }
+                        else -> {
+                            logWarning(getString(R.string.log_link_to_obj_parsing_error))
+                        }
                     }
-                FoundType.TYPE_TAG -> {
-                    val tag = obj.id
-                    if (tag.isNotEmpty()) {
-                        openTag(tagName = tag, isAskForSave = true)
-                    } else {
-                        logWarning(getString(R.string.title_tag_name_is_empty))
+                } else {
+                    // обрабатываем внешнюю ссылку
+                    launchOnMain {
+                        sendEvent(RecordEvent.OpenWebLink(link = url))
                     }
-                }
-                FoundType.TYPE_AUTHOR,
-                FoundType.TYPE_FILE -> {
-                }
-                else -> {
-                    logWarning(getString(R.string.log_link_to_obj_parsing_error))
                 }
             }
-        } ?: run {
-            // обрабатываем внешнюю ссылку
-            launchOnMain {
-                sendEvent(RecordEvent.OpenWebLink(link = url))
-            }
+
         }
     }
 
@@ -499,12 +515,13 @@ class RecordViewModel(
             logError(getString(R.string.log_url_decode_error) + url, ex)
             null
         }
-        if (decodedUrl?.startsWith(TetroidTag.LINKS_PREFIX) == true) {
+        val linkPrefix = "${TetroidObjectType.TAG.getPrefix()}:"
+        if (decodedUrl?.startsWith(linkPrefix) == true) {
             // избавляемся от приставки "tag:"
-            val tagName = decodedUrl.substring(TetroidTag.LINKS_PREFIX.length)
-            openTag(tagName, true)
+            val tagName = decodedUrl.substring(linkPrefix.length)
+            openTag(tagName, isAskForSave = true)
         } else {
-            logWarning(getString(R.string.log_wrong_tag_link_format))
+            logWarning(getString(R.string.log_wrong_tag_link_format_mask, decodedUrl.orEmpty()))
         }
     }
 
@@ -580,7 +597,7 @@ class RecordViewModel(
                 GetRecordFolderUseCase.Params(
                     record = record,
                     createIfNeed = false,
-                    inTrash = record.isTemp,
+                    inTrash = record.isTemporary,
                     showMessage = true,
                 )
             )
@@ -656,7 +673,7 @@ class RecordViewModel(
                     )
                 }
                 if (text == null) {
-                    if (record.isCrypted && cryptManager.getErrorCode() > 0) {
+                    if (record.isEncrypted && cryptManager.getErrorCode() > 0) {
                         logError(R.string.log_error_record_file_decrypting)
                         sendEvent(BaseEvent.ShowMoreInLogs)
                     }
@@ -1005,7 +1022,7 @@ class RecordViewModel(
         var runBeforeSaving = false
         if (isNeedSave
             && CommonSettings.isRecordAutoSave(getContext())
-            && !curRecord.value!!.isTemp
+            && !curRecord.value!!.isTemporary
         ) {
             // автоматически сохраняем текст записи, если:
             //  * есть изменения
@@ -1423,7 +1440,7 @@ class RecordViewModel(
             sendEvent(RecordEvent.SaveFields.InProcess)
 
             val record = curRecord.value!!
-            val wasTemporary = record.isTemp
+            val wasTemporary = record.isTemporary
             withIo {
                 editRecordFieldsUseCase.run(
                     EditRecordFieldsUseCase.Params(
@@ -1533,7 +1550,7 @@ class RecordViewModel(
 
     fun isRecordNew() = curRecord.value?.isNew ?: true
 
-    fun isRecordTemporary() = curRecord.value?.isTemp ?: true
+    fun isRecordTemporary() = curRecord.value?.isTemporary ?: true
 
     fun isViewMode() = editorMode == EditorMode.VIEW
 

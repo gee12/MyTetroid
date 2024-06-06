@@ -2,7 +2,7 @@ package com.gee12.mytetroid.domain.usecase.tag
 
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.domain.provider.IStorageProvider
-import com.gee12.mytetroid.model.TetroidTag
+import com.gee12.mytetroid.model.obj.TetroidTag
 
 /**
  * Поиск метки по наименованию.

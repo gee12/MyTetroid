@@ -4,8 +4,8 @@ import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.domain.TetroidRecordComparator
 import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.domain.manager.FavoritesManager
-import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidRecord
 
 class GetRecordByIdUseCase(
     private val storageProvider: IStorageProvider,
@@ -16,7 +16,7 @@ class GetRecordByIdUseCase(
         val recordId: String,
     )
 
-    private val comparator = TetroidRecordComparator(TetroidRecord.FIELD_ID)
+    private val comparator = TetroidRecordComparator(TetroidRecordComparator.FIELD_ID)
 
     suspend fun run(recordId: String): Either<Failure, TetroidRecord> {
         return run(Params(recordId))

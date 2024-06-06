@@ -8,10 +8,10 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "storages")
 open class StorageDbEntity(
     @ColumnInfo(name = "name")
-    var name: String,
+    open var name: String,
 
     @ColumnInfo(name = "path")
-    var uri: String
+    open var uri: String
 ) : BaseDbEntity() {
 
     @PrimaryKey(autoGenerate = true)

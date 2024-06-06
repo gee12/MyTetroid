@@ -7,12 +7,11 @@ import com.gee12.mytetroid.domain.provider.IDataNameProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
-import com.gee12.mytetroid.model.TetroidNode
-import com.gee12.mytetroid.model.TetroidRecord
+import com.gee12.mytetroid.model.obj.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidRecord
 import com.gee12.mytetroid.domain.usecase.node.icon.LoadNodeIconUseCase
 import com.gee12.mytetroid.domain.usecase.record.CloneRecordToNodeUseCase
 import com.gee12.mytetroid.domain.usecase.storage.SaveStorageTreeUseCase
-import java.util.ArrayList
 
 /**
  * Вставка ветки в указанную родительскую ветку.
@@ -71,21 +70,20 @@ class InsertNodeUseCase(
         val iconName = srcNode.iconName
 
         // создаем копию ветки
-        val isEncrypted = parentNode.isCrypted
+        val isEncrypted = parentNode.isEncrypted
         val node = TetroidNode(
-            isEncrypted,
-            id,
-            encryptFieldIfNeed(name, isEncrypted),
-            iconName.ifNotEmpty { encryptFieldIfNeed(iconName, isEncrypted) },
-            parentNode.level + 1
-        )
-        node.parentNode = parentNode
-        node.records = ArrayList()
-        node.subNodes = ArrayList()
-        if (isEncrypted) {
-            node.setDecryptedName(name)
-            node.setDecryptedIconName(iconName)
-            node.setIsDecrypted(true)
+            id = id,
+            sourceName = encryptFieldIfNeed(name, isEncrypted) ?: name,
+            isEncrypted = isEncrypted,
+            sourceIconName = iconName.ifNotEmpty { encryptFieldIfNeed(it, isEncrypted) },
+            level = parentNode.level + 1,
+            parentNode = parentNode,
+        ).apply {
+            if (isEncrypted) {
+                decryptedName = name
+                decryptedIconName = iconName
+                isDecrypted = true
+            }
         }
         // загружаем такую же иконку
         loadNodeIconUseCase.execute(
@@ -130,8 +128,8 @@ class InsertNodeUseCase(
         return node.toRight()
     }
 
-    private fun encryptFieldIfNeed(fieldValue: String, isEncrypt: Boolean): String? {
-        return if (isEncrypt) cryptManager.encryptTextBase64(fieldValue) else fieldValue
+    private fun encryptFieldIfNeed(value: String?, isEncrypt: Boolean): String? {
+        return if (isEncrypt) value?.let { cryptManager.encryptTextBase64(value) } else value
     }
 
     private suspend fun cloneRecordToNode(

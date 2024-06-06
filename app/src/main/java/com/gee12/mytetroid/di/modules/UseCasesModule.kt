@@ -110,6 +110,14 @@ object UseCasesModule {
                 )
             }
 
+            scoped {
+                ParseObjectFromUrlUseCase()
+            }
+
+            scoped {
+                CreateObjectUrlUseCase()
+            }
+
             //endregion App
 
             //region File
@@ -548,7 +556,6 @@ object UseCasesModule {
                     resourcesProvider = get(),
                     logger = get(),
                     storageProvider = get(),
-                    recordPathProvider = get(),
                     cryptManager = get(),
                     getRecordFolderUseCase = get(),
                 )

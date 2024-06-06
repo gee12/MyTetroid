@@ -5,7 +5,7 @@ import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
-import com.gee12.mytetroid.model.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidNode
 import com.gee12.mytetroid.domain.usecase.storage.SaveStorageTreeUseCase
 
 /**
@@ -30,27 +30,27 @@ class EditNodeFieldsUseCase(
             return Failure.Node.NameIsEmpty.toLeft()
         }
         logger.logOperStart(LogObj.NODE_FIELDS, LogOper.CHANGE, node)
-        val oldName = node.getName(true)
+        val oldName = node.sourceName
         // обновляем поля
-        val isEncrypted = node.isCrypted
-        node.name = encryptFieldIfNeed(name, isEncrypted)
+        val isEncrypted = node.isEncrypted
+        node.sourceName = encryptFieldIfNeed(name, isEncrypted) ?: name
         if (isEncrypted) {
-            node.setDecryptedName(name)
+            node.decryptedName = name
         }
         // перезаписываем структуру хранилища в файл
         return saveStorageTreeUseCase.run()
             .onFailure {
                 logger.logOperCancel(LogObj.NODE_FIELDS, LogOper.CHANGE)
                 // возвращаем изменения
-                node.name = oldName
+                node.sourceName = oldName
                 if (isEncrypted) {
-                    node.setDecryptedName(cryptManager.decryptTextBase64(oldName))
+                    node.decryptedName = cryptManager.decryptTextBase64(oldName)
                 }
             }
     }
 
-    private fun encryptFieldIfNeed(fieldValue: String, isEncrypt: Boolean): String? {
-        return if (isEncrypt) cryptManager.encryptTextBase64(fieldValue) else fieldValue
+    private fun encryptFieldIfNeed(value: String?, isEncrypt: Boolean): String? {
+        return if (isEncrypt) value?.let { cryptManager.encryptTextBase64(value) } else value
     }
 
 }

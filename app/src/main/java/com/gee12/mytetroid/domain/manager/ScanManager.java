@@ -1,9 +1,9 @@
 package com.gee12.mytetroid.domain.manager;
 
-import com.gee12.mytetroid.model.TetroidFile;
-import com.gee12.mytetroid.model.TetroidNode;
-import com.gee12.mytetroid.model.TetroidRecord;
-import com.gee12.mytetroid.model.TetroidTag;
+import com.gee12.mytetroid.model.obj.TetroidFile;
+import com.gee12.mytetroid.model.obj.TetroidNode;
+import com.gee12.mytetroid.model.obj.TetroidRecord;
+import com.gee12.mytetroid.model.obj.TetroidTag;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,7 +33,7 @@ public class ScanManager {
     private static List<TetroidNode> searchInNodesNamesRecursively(List<TetroidNode> nodes, String regex) {
         List<TetroidNode> res = new ArrayList<>();
         for (TetroidNode node : nodes) {
-            if (!node.isNonCryptedOrDecrypted())
+            if (!node.isNonEncryptedOrDecrypted())
                 continue;
             if (node.getName().matches(regex)) {
                 res.add(node);
