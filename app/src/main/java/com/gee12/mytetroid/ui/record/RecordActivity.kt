@@ -682,7 +682,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
         val dateFormat = getString(R.string.full_date_format_string)
         val tvCreated = findViewById<TextView>(R.id.text_view_record_created)
         val created = record.created
-        tvCreated.text = if (created != null) Utils.dateToString(created, dateFormat) else ""
+        tvCreated.text = created?.format(dateFormat) ?: ""
         if (buildInfoProvider.isFullVersion()) {
             findViewById<View>(R.id.label_record_edited).isVisible = true
             val tvEdited = findViewById<TextView>(R.id.text_view_record_edited)
@@ -690,9 +690,7 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
             //TODO: использовать события вместо корутины
             lifecycleScope.launch {
-                val edited = viewModel.getEditedDate(record)?.let { date ->
-                    Utils.dateToString(date, dateFormat)
-                } ?: "-"
+                val edited = viewModel.getEditedDate(record)?.format(dateFormat) ?: "-"
                 tvEdited.text = edited
             }
         }
@@ -1768,7 +1766,10 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
 
     private fun openRecordFolder(uri: Uri) {
         if (!interactionManager.openFolder(activity = this, uri = uri)) {
-            Utils.writeToClipboard(this, resourcesProvider.getString(R.string.title_record_folder_uri), uri.toString())
+            this.writeToClipboard(
+                label = resourcesProvider.getString(R.string.title_record_folder_uri),
+                text = uri.toString(),
+            )
             showMessage(R.string.log_missing_file_manager)
         }
     }

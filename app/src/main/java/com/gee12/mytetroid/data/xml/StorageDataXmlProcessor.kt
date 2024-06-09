@@ -4,9 +4,9 @@ import android.util.Xml
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.extensions.format
 import com.gee12.mytetroid.common.extensions.orZero
+import com.gee12.mytetroid.common.extensions.toDate
 import com.gee12.mytetroid.common.onFailure
 import kotlin.Throws
-import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.domain.manager.FavoritesManager
 import com.gee12.mytetroid.domain.usecase.node.icon.LoadNodeIconUseCase
@@ -454,7 +454,7 @@ open class StorageDataXmlProcessor(
             author = parser.getAttributeValue(ns, "author")
             url = parser.getAttributeValue(ns, "url")
             // строка формата "yyyyMMddHHmmss" (например, "20180901211132")
-            created = Utils.toDate(parser.getAttributeValue(ns, "ctime"), Constants.DATE_TIME_FORMAT)
+            created = parser.getAttributeValue(ns, "ctime")?.toDate(Constants.DATE_TIME_FORMAT)
             dirName = parser.getAttributeValue(ns, "dir")
             fileName = parser.getAttributeValue(ns, "file")
         }

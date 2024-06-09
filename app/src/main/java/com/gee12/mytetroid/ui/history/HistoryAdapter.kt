@@ -9,7 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.utils.Utils
+import com.gee12.mytetroid.common.extensions.format
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.model.HistoryEntity
 import com.gee12.mytetroid.model.enums.TetroidObjectType
@@ -109,7 +109,7 @@ class HistoryAdapter(
 
             tvName.text = item.obj.name
             tvType.text = item.type.getTypeName(resourcesProvider).uppercase()
-            tvCreated.text = item.createdDate?.let { Utils.dateToString(it, dateTimeFormat) }
+            tvCreated.text = item.createdDate?.format(dateTimeFormat)
         }
 
         private fun TetroidObjectType.iconResId(): Int {

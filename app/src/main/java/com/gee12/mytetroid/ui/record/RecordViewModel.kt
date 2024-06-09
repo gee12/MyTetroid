@@ -17,10 +17,10 @@ import com.anggrayudi.storage.file.*
 import com.gee12.htmlwysiwygeditor.model.ImageParams
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
+import com.gee12.mytetroid.common.extensions.format
 import com.gee12.mytetroid.common.extensions.getFileName
 import com.gee12.mytetroid.common.extensions.orFalse
 import com.gee12.mytetroid.model.*
-import com.gee12.mytetroid.common.utils.Utils
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.util.*
@@ -1164,9 +1164,8 @@ class RecordViewModel(
                     )
                 }.onFailure {
                     logFailure(it)
-                }.map { date ->
-                    Utils.dateToString(date, getString(R.string.full_date_format_string))
-                }.onSuccess { dateString ->
+                }.onSuccess { date ->
+                    val dateString = date.format(getString(R.string.full_date_format_string))
                     sendEvent(RecordEvent.EditedDateChanged(dateString = dateString))
                 }
             }

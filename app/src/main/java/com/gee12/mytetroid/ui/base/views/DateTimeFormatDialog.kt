@@ -1,58 +1,52 @@
-package com.gee12.mytetroid.ui.base.views;
+package com.gee12.mytetroid.ui.base.views
 
-import android.os.Bundle;
-import android.view.View;
-import android.widget.EditText;
+import android.view.View
+import android.widget.EditText
+import androidx.preference.PreferenceDialogFragmentCompat
+import com.gee12.mytetroid.R
+import com.gee12.mytetroid.common.extensions.buildBundle
+import com.gee12.mytetroid.common.extensions.checkDateFormatString
+import com.gee12.mytetroid.logs.LogType
+import com.gee12.mytetroid.logs.Message
+import com.gee12.mytetroid.ui.TetroidMessage
+import com.gee12.mytetroid.ui.base.views.prefs.DateTimeFormatPreference
 
-import androidx.preference.PreferenceDialogFragmentCompat;
+class DateTimeFormatDialog : PreferenceDialogFragmentCompat() {
 
-import com.gee12.mytetroid.R;
-import com.gee12.mytetroid.logs.LogType;
-import com.gee12.mytetroid.logs.Message;
-import com.gee12.mytetroid.common.utils.Utils;
-import com.gee12.mytetroid.ui.TetroidMessage;
-import com.gee12.mytetroid.ui.base.views.prefs.DateTimeFormatPreference;
+    private var mEditText: EditText? = null
 
-public class DateTimeFormatDialog extends PreferenceDialogFragmentCompat {
-
-    private EditText mEditText;
-
-    @Override
-    protected void onBindDialogView(View view) {
-        super.onBindDialogView(view);
-
-        DateTimeFormatPreference pref = (DateTimeFormatPreference) getPreference();
-        if (pref == null) {
-            return;
-        }
-        String value = pref.getValue();
-        this.mEditText = view.findViewById(R.id.edit_text_value);
-        mEditText.setText(value);
-        mEditText.setSelection(value.length());
+    override fun onBindDialogView(view: View) {
+        super.onBindDialogView(view)
+        val pref = preference as DateTimeFormatPreference
+        val value = pref.value
+        mEditText = view.findViewById(R.id.edit_text_value)
+        mEditText?.setText(value)
+        mEditText?.setSelection(value.length)
     }
 
-    @Override
-    public void onDialogClosed(boolean positiveResult) {
+    override fun onDialogClosed(positiveResult: Boolean) {
         if (positiveResult) {
-            String newValue = mEditText.getText().toString();
-            if (!newValue.isEmpty() && Utils.checkDateFormatString(newValue)) {
+            val newValue = mEditText?.text?.toString()
+            if (!newValue.isNullOrEmpty() && checkDateFormatString(newValue)) {
                 // сохраняем значение опции
-                DateTimeFormatPreference pref = (DateTimeFormatPreference) getPreference();
-                if (pref != null) {
-                    pref.setValue(newValue);
+                (preference as? DateTimeFormatPreference)?.also { pref ->
+                    pref.value = newValue
                 }
             } else {
-                TetroidMessage.show(getContext(), new Message(getString(R.string.mes_input_wrong_date_format), LogType.WARNING));
+                TetroidMessage.show(context, Message(getString(R.string.mes_input_wrong_date_format), LogType.WARNING))
             }
         }
     }
 
-    public static DateTimeFormatDialog newInstance(String key) {
-        final DateTimeFormatDialog fragment = new DateTimeFormatDialog();
-        final Bundle b = new Bundle(1);
-        b.putString(ARG_KEY, key);
-        fragment.setArguments(b);
+    companion object {
 
-        return fragment;
+        fun newInstance(key: String?): DateTimeFormatDialog {
+            val fragment = DateTimeFormatDialog()
+            fragment.arguments = buildBundle {
+                putString(ARG_KEY, key)
+            }
+            return fragment
+        }
+
     }
 }

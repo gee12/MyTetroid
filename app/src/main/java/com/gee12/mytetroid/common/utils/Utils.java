@@ -1,23 +1,9 @@
 package com.gee12.mytetroid.common.utils;
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
-import android.text.Spanned;
-import android.text.TextUtils;
-import androidx.core.text.HtmlCompat;
-import java.math.BigInteger;
-import java.nio.charset.Charset;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Random;
 
 public class Utils {
@@ -32,79 +18,6 @@ public class Utils {
     public static boolean isEquals(String one, String two, boolean checkCase) {
         return (one != null && (checkCase && one.equals(two) || !checkCase && one.equalsIgnoreCase(two)));
     }
-
-    /***
-     * Преобразование строки в дату.
-     * @param dateString
-     * @return
-     */
-    public static Date toDate(String dateString, String pattern) {
-        if (TextUtils.isEmpty(dateString)) {
-            return null;
-        }
-        Date convertedDate = null;
-        try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(pattern, Locale.getDefault());
-            convertedDate = dateFormat.parse(dateString);
-        } catch (ParseException e) {
-//            e.printStackTrace();
-        }
-        return convertedDate;
-    }
-
-    /**
-     * Преобразование строки в дату.
-     * @param date
-     * @param pattern
-     * @return
-     */
-    public static String dateToString(Date date, String pattern) {
-        return new SimpleDateFormat(pattern, Locale.getDefault()).format(date);
-    }
-
-    /**
-     *
-     * @param format
-     * @return
-     */
-    public static boolean checkDateFormatString(String format) {
-        try {
-            SimpleDateFormat dateFormat = new SimpleDateFormat(format, Locale.getDefault());
-            dateFormat.format(new Date());
-        } catch (Exception e) {
-//            e.printStackTrace();
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Преобразование текста в MD5.
-     * @param data Массив байт данных (можно signed, не имеет значение)
-     * @return
-     * @throws NoSuchAlgorithmException
-     */
-    public static byte[] toMD5(byte[] data) throws NoSuchAlgorithmException {
-        MessageDigest md = MessageDigest.getInstance("MD5");
-        return md.digest(data);
-    }
-
-    public static String toMD5Hex(String s) {
-        byte[] md5Bytes = null;
-        try {
-            md5Bytes = toMD5(s.getBytes(Charset.forName("UTF-8")));
-        } catch (NoSuchAlgorithmException ex) {
-            // если алгоритм в getInstance() не существует
-            ex.printStackTrace();
-        }
-        BigInteger bigInt = new BigInteger(1, md5Bytes);
-        StringBuilder md5Hex = new StringBuilder(bigInt.toString(16));
-        while (md5Hex.length() < 32) {
-            md5Hex.insert(0, "0");
-        }
-        return md5Hex.toString();
-    }
-
     /**
      *
      * @param b
@@ -168,16 +81,6 @@ public class Utils {
         return res;
     }
 
-//    public static byte[] toBytes(List<Integer> ia) {
-//        if (ia == null)
-//            return null;
-//        byte[] res = new byte[ia.size()];
-//        for (int i = 0; i < ia.size(); i ++) {
-//            res[i] = ia.get(i).byteValue();
-//        }
-//        return res;
-//    }
-
     /**
      * Удаление элемента из массива строк по индексу.
      * @param array
@@ -213,10 +116,6 @@ public class Utils {
             }
         }
         return sb.toString();
-//        return String.join(separ, parts);
-//        return StringUtils.join(ArrayUtils.toObject(arr), " - ");
-//        return Arrays.stream(arr).mapToObj(String::valueOf)
-//                .collect(Collectors.joining(" - "));
     }
 
     public static int[] addElem(int[] arr, int value) {
@@ -289,18 +188,6 @@ public class Utils {
             ret[i] = iterator.next().intValue();
         }
         return ret;
-    }
-
-    /**
-     * Запись текста в буфер обмена.
-     * @param context
-     * @param label
-     * @param text
-     */
-    public static void writeToClipboard(Context context, String label, String text) {
-        ClipboardManager clipboard = (ClipboardManager)context.getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText(label, text);
-        clipboard.setPrimaryClip(clip);
     }
 
     /**

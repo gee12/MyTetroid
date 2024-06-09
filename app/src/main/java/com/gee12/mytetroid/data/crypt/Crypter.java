@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
@@ -226,7 +227,7 @@ public class Crypter {
             // добавляем соль
             byte[] passHashSigned = calculateMiddleHash(pass);
             // преобразуем к MD5 виду
-            byte[] keySigned = Utils.toMD5(passHashSigned);
+            byte[] keySigned = toMD5(passHashSigned);
             res = Utils.toUnsigned(keySigned);
         } catch (Exception e) {
             addLog(e);
@@ -239,7 +240,7 @@ public class Crypter {
         try {
             byte[] passHashSigned = decodeBase64(passHash);
             // преобразуем к MD5 виду
-            byte[] keySigned = Utils.toMD5(passHashSigned);
+            byte[] keySigned = toMD5(passHashSigned);
             res = Utils.toUnsigned(keySigned);
         } catch (Exception e) {
             addLog(e);
@@ -337,4 +338,16 @@ public class Crypter {
     public int getErrorCode() {
         return rc5.getErrorCode();
     }
+
+    /**
+     /**
+     * Преобразование текста в MD5.
+     * @param data Массив байт данных (можно signed, не имеет значение)
+     * @throws NoSuchAlgorithmException
+     */
+    public static byte[] toMD5(byte[] data) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        return md.digest(data);
+    }
+
 }

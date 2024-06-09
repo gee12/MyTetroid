@@ -29,7 +29,7 @@ import com.gee12.mytetroid.common.ICallback
 import com.gee12.mytetroid.common.extensions.fromHtml
 import com.gee12.mytetroid.common.extensions.orZero
 import com.gee12.mytetroid.common.extensions.showForcedWithIcons
-import com.gee12.mytetroid.common.utils.Utils
+import com.gee12.mytetroid.common.extensions.writeToClipboard
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.di.ScopeSource
@@ -1573,7 +1573,10 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
     private fun openRecordFolder(uri: Uri) {
         if (!interactionManager.openFolder(activity = this, uri = uri)) {
-            Utils.writeToClipboard(this, resourcesProvider.getString(R.string.title_record_folder_uri), uri.toString())
+            this.writeToClipboard(
+                label = resourcesProvider.getString(R.string.title_record_folder_uri),
+                text = uri.toString(),
+            )
             showMessage(R.string.log_missing_file_manager)
         }
     }

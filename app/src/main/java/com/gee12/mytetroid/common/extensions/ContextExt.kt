@@ -1,5 +1,7 @@
 package com.gee12.mytetroid.common.extensions
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.os.Environment
 import com.gee12.mytetroid.common.utils.FileUtils
@@ -25,4 +27,10 @@ fun Context.getExternalPublicDocsOrAppDir(forWrite: Boolean): String? {
     } else {
         getAppExternalFilesDir()
     }
+}
+
+fun Context.writeToClipboard(label: String?, text: String?) {
+    val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    val clip = ClipData.newPlainText(label, text)
+    clipboard.setPrimaryClip(clip)
 }

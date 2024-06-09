@@ -7,7 +7,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.utils.Utils
+import com.gee12.mytetroid.common.extensions.format
 import com.gee12.mytetroid.model.obj.TetroidRecord
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.ui.dialogs.TetroidStorageDialogFragment
@@ -56,17 +56,14 @@ class RecordInfoDialog(
         )
         val dateFormat = getString(R.string.full_date_format_string)
         val created = record.created
-        dialogView.findViewById<TextView>(R.id.text_view_created).text =
-            if (created != null) Utils.dateToString(created, dateFormat) else "-"
+        dialogView.findViewById<TextView>(R.id.text_view_created).text = created?.format(dateFormat) ?: "-"
 
         if (buildInfoProvider.isFullVersion()) {
             dialogView.findViewById<View>(R.id.table_row_edited).visibility = View.VISIBLE
 
             //TODO: использовать события вместо корутины
             lifecycleScope.launch {
-                val edited = viewModel.getEditedDate(record)?.let { date ->
-                    Utils.dateToString(date, dateFormat)
-                } ?: "-"
+                val edited = viewModel.getEditedDate(record)?.format(dateFormat) ?: "-"
                 dialogView.findViewById<TextView>(R.id.text_view_edited).text = edited
             }
         }

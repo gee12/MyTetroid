@@ -4,8 +4,8 @@ import android.content.Context
 import android.preference.PreferenceManager
 import com.gee12.htmlwysiwygeditor.enums.ActionButtonSize
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.common.extensions.checkDateFormatString
 import com.gee12.mytetroid.common.extensions.getExternalPublicDocsOrAppDir
-import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.data.StringList
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.domain.RecordFieldsSelector
@@ -130,7 +130,7 @@ class CommonSettingsManager(
      */
     fun checkDateFormatString(): String {
         val dateFormatString = CommonSettings.getDateFormatString(context)
-        return if (Utils.checkDateFormatString(dateFormatString)) {
+        return if (!dateFormatString.isNullOrEmpty() && checkDateFormatString(dateFormatString)) {
             dateFormatString
         } else {
             logger.logWarning(resourcesProvider.getString(R.string.log_incorrect_dateformat_in_settings), show = false)

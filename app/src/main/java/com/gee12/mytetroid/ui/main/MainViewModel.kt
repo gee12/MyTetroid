@@ -12,6 +12,7 @@ import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.getIdString
 import com.gee12.mytetroid.common.extensions.isFileExist
 import com.gee12.mytetroid.common.extensions.orZero
+import com.gee12.mytetroid.common.extensions.writeToClipboard
 import com.gee12.mytetroid.data.*
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
@@ -771,7 +772,10 @@ class MainViewModel(
             }.onSuccess { url ->
                 val typeName = obj.type.getTypeNameForAction(resourcesProvider)
                 val label = getString(R.string.link_to_tetroid_object_mask, typeName)
-                Utils.writeToClipboard(getContext(), label, url)
+                getContext().writeToClipboard(
+                    label = label,
+                    text = url,
+                )
                 showMessage(getString(R.string.title_link_was_copied) + url)
             }
         }

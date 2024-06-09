@@ -5,7 +5,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import com.gee12.mytetroid.R
-import com.gee12.mytetroid.common.utils.Utils
+import com.gee12.mytetroid.common.extensions.format
 import com.gee12.mytetroid.model.obj.TetroidFile
 import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.ui.storage.StorageViewModel
@@ -42,7 +42,7 @@ class AttachInfoDialog(
         val record = attach.record
 
         (dialogView.findViewById<View>(R.id.text_view_id) as TextView).text = attach.id
-        (dialogView.findViewById<View>(R.id.text_view_record) as TextView).text = record?.name
+        (dialogView.findViewById<View>(R.id.text_view_record) as TextView).text = record.name
         (dialogView.findViewById<View>(R.id.text_view_crypted) as TextView).setText(
             if (attach.isEncrypted) R.string.answer_yes else R.string.answer_no
         )
@@ -52,9 +52,9 @@ class AttachInfoDialog(
             dialogView.findViewById<View>(R.id.table_row_edited)?.visibility = View.VISIBLE
             val edited = viewModel.getAttachEditedDate(requireContext(), attach)
             (dialogView.findViewById<View>(R.id.text_view_edited) as TextView).text =
-                if (edited != null) Utils.dateToString(edited, dateFormat) else "-"
+                edited?.format(dateFormat) ?: "-"
         }
-        val path = viewModel.getPathToRecordFolder(record!!)
+        val path = viewModel.getPathToRecordFolder(record)
         (dialogView.findViewById<View>(R.id.text_view_path) as TextView).text = path.fullPath
         var sizeString = viewModel.getAttachFileSize(requireContext(), attach)
         val tvSize = dialogView.findViewById<TextView>(R.id.text_view_size)

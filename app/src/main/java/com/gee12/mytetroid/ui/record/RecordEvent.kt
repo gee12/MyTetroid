@@ -62,7 +62,7 @@ sealed class RecordEvent : StorageEvent() {
         val isEdited: Boolean,
     ) : RecordEvent()
     data class EditedDateChanged(
-        val dateString: String,
+        val dateString: String?,
     ) : RecordEvent()
 
     data class OpenImageFile(

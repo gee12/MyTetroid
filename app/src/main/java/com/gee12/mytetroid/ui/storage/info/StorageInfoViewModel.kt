@@ -111,7 +111,7 @@ class StorageInfoViewModel(
         sealed class GetMyTetraXmlLastModifiedDate : StorageInfoEvent() {
             object InProgress : GetMyTetraXmlLastModifiedDate()
             data class Failed(val failure: Failure) : GetMyTetraXmlLastModifiedDate()
-            data class Success(val date: String) : GetMyTetraXmlLastModifiedDate()
+            data class Success(val date: String?) : GetMyTetraXmlLastModifiedDate()
         }
         sealed class GetStorageFolderSize : StorageInfoEvent() {
             object InProgress : GetStorageFolderSize()
@@ -187,13 +187,12 @@ class StorageInfoViewModel(
                 GetFileModifiedDateInStorageUseCase.Params(
                     fileRelativePath = Constants.MYTETRA_XML_FILE_NAME,
                 )
-            ).map { date ->
-                date.format(getString(R.string.full_date_format_string))
-            }.onFailure {
+            ).onFailure {
                 sendEvent(StorageInfoEvent.GetMyTetraXmlLastModifiedDate.Failed(it))
                 val message = failureHandler.getFailureMessage(it).getFullMessage()
                 logError(getString(R.string.error_get_mytetra_xml_modified_date_mask, message))
-            }.onSuccess { dateString ->
+            }.onSuccess { date ->
+                val dateString = date.format(getString(R.string.full_date_format_string))
                 sendEvent(StorageInfoEvent.GetMyTetraXmlLastModifiedDate.Success(dateString))
             }
         }
