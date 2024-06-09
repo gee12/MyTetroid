@@ -154,10 +154,7 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
             requireContext(),
             resourcesProvider = resourcesProvider,
             buildInfoProvider = buildInfoProvider,
-            dateTimeFormat = settingsManager.checkDateFormatString(),
-            isHighlightAttach = settingsManager.isHighlightRecordWithAttach(),
-            highlightAttachColor = settingsManager.highlightAttachColor(),
-            fieldsSelector = settingsManager.getRecordFieldsSelector(),
+            settingsManager = settingsManager,
             getEditedDateCallback = { record ->
                 viewModel.getEditedDate(record)
             },

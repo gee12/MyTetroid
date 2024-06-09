@@ -832,8 +832,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
         // список веток
         listAdapterNodes = NodesListAdapter(
             context = this,
-            isHighlightCryptedNodes = settingsManager.isHighlightCryptedNodes(),
-            highlightColor = settingsManager.highlightAttachColor(),
+            settingsManager = settingsManager,
             onClick = { node, pos ->
                 if (node.isExpandable && CommonSettings.isExpandEmptyNode(this@MainActivity)) {
                     // если у ветки есть подветки и установлена опция
@@ -1764,7 +1763,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 data?.let { onStorageSettingsActivityResult(data) }
             }
             Constants.REQUEST_CODE_COMMON_SETTINGS_ACTIVITY -> {
-                data?.let { onCommonSettingsActivityResult(data) }
+                onCommonSettingsActivityResult(data)
             }
             Constants.REQUEST_CODE_HISTORY_ACTIVITY -> {
                 data?.let { onHistoryActivityResult(data) }
@@ -1828,9 +1827,10 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
     /**
      * Обработка возвращаемого результата активности общих настроек приложения.
      */
-    private fun onCommonSettingsActivityResult(data: Intent) {
+    private fun onCommonSettingsActivityResult(data: Intent?) {
         // обновляем списки, могли измениться настройки отображения
         viewModel.updateRecordsList()
+        viewModel.updateNodes()
         updateNodes()
     }
 

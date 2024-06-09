@@ -419,30 +419,6 @@ public class CommonSettings {
                 context.getString(R.string.pref_show_record_fields_no));
     }
 
-    /**
-     * Выделять записи в списке, у которых есть прикрепленные файлы ?
-     * По-умолчанию - нет.
-     */
-    public static boolean isHighlightRecordWithAttach(Context context) {
-        return getBoolean(context, R.string.pref_key_is_highlight_attach, false);
-    }
-
-    /**
-     * Выделять зашифрованные ветки в списке ?
-     * По-умолчанию - нет.
-     */
-    public static boolean isHighlightEncryptedNodes(Context context) {
-        return getBoolean(context, R.string.pref_key_is_highlight_crypted_nodes, false);
-    }
-
-    /**
-     * Цвет подсветки.
-     * По-умолчанию - светло зеленый.
-     */
-    public static int getHighlightColor(Context context) {
-        return getInt(context, R.string.pref_key_highlight_attach_color, R.color.background_highlight);
-    }
-
     public static int[] getPickedColors(Context context) {
         String value = getString(context, R.string.pref_key_picked_colors, null);
         return (value != null) ? Utils.splitToInts(value, ";") : null;
@@ -463,14 +439,6 @@ public class CommonSettings {
         int[] savedColors = CommonSettings.getPickedColors(context);
         int[] res = Utils.removeElem(savedColors, color);
         CommonSettings.setPickedColors(context, res);
-    }
-
-    /**
-     * Формат даты создания записи.
-     */
-    public static String getDateFormatString(Context context) {
-        return getString(context, R.string.pref_key_date_format_string,
-                context.getString(R.string.def_date_format_string));
     }
 
     /**

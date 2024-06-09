@@ -61,7 +61,6 @@
         android:dialogTitle="@string/pref_date_format_string"
         android:inputType="text"
         android:key="@string/pref_key_date_format_string"
-        android:summary="@string/pref_date_format_string_summ"
         android:title="@string/pref_date_format_string" />
 
     <MultiSelectListPreference

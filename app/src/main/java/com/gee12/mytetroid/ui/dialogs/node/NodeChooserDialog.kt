@@ -63,8 +63,7 @@ class NodeChooserDialog(
 
         adapter = NodesListAdapter(
             context = requireContext(),
-            isHighlightCryptedNodes = settingsManager.isHighlightCryptedNodes(),
-            highlightColor = settingsManager.highlightAttachColor(),
+            settingsManager = settingsManager,
             onClick = { node, _ ->
                 onSelectNode(node)
             },

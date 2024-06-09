@@ -14,7 +14,7 @@ import com.anggrayudi.storage.extension.launchOnUiThread
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.extensions.format
 import com.gee12.mytetroid.domain.RecordFieldsSelector
-import com.gee12.mytetroid.common.utils.Utils
+import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.model.obj.TetroidRecord
@@ -24,10 +24,12 @@ abstract class RecordsBaseListAdapter(
     protected val context: Context,
     protected val resourcesProvider: IResourcesProvider,
     protected val buildInfoProvider: BuildInfoProvider,
-    protected val dateTimeFormat: String,
-    protected val isHighlightAttach: Boolean,
-    protected val highlightAttachColor: Int,
-    protected val fieldsSelector: RecordFieldsSelector,
+    private val settingsManager: CommonSettingsManager,
+    protected var dateTimeFormat: String = settingsManager.getDateFormatString(),
+    protected var isHighlightAttach: Boolean = settingsManager.isHighlightRecordWithAttach(),
+    protected var highlightAttachColor: Int = settingsManager.getHighlightColor(),
+    protected var fieldsSelector: RecordFieldsSelector = settingsManager.getRecordFieldsSelector(),
+    protected var isShowNodeName: Boolean = false,
     protected val getEditedDateCallback: suspend (record: TetroidRecord) -> Date?,
     protected val onClick: (record: TetroidRecord) -> Unit,
 ) : BaseAdapter() {
@@ -47,7 +49,14 @@ abstract class RecordsBaseListAdapter(
     }
 
     protected val inflater: LayoutInflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-    protected var isShowNodeName = false
+
+    override fun notifyDataSetChanged() {
+        dateTimeFormat = settingsManager.getDateFormatString()
+        isHighlightAttach = settingsManager.isHighlightRecordWithAttach()
+        highlightAttachColor = settingsManager.getHighlightColor()
+        fieldsSelector = settingsManager.getRecordFieldsSelector()
+        super.notifyDataSetChanged()
+    }
 
     fun prepareView(position: Int, viewHolder: RecordViewHolder, convertView: View, record: TetroidRecord) {
         val nonCryptedOrDecrypted = record.isNonEncryptedOrDecrypted

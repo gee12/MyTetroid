@@ -74,6 +74,7 @@ class SettingsDisplayFragment : TetroidSettingsFragment() {
             }
         }
 
+        updateSummaryDateFormatString()
         updateSummaryIfContains(R.string.pref_key_record_fields_in_list, getRecordFieldsValuesString())
     }
 
@@ -93,8 +94,7 @@ class SettingsDisplayFragment : TetroidSettingsFragment() {
                 // TODO
             }
             getString(R.string.pref_key_date_format_string) -> {
-                // меняем формат даты
-                // TODO
+                updateSummaryDateFormatString()
             }
             getString(R.string.pref_key_app_theme) -> {
                 settingsManager.getAppTheme().also { appTheme ->
@@ -126,6 +126,13 @@ class SettingsDisplayFragment : TetroidSettingsFragment() {
         }
     }
 
+    private fun updateSummaryDateFormatString() {
+        updateSummary(
+            R.string.pref_key_date_format_string,
+            resourcesProvider.getString(R.string.pref_date_format_string_summ_mask, settingsManager.getDateFormatString()),
+        )
+    }
+
     private fun getRecordFieldsValuesString(): String {
         val arrayId = if (buildInfoProvider.isFullVersion()) R.array.record_fields_in_list_entries_pro else R.array.record_fields_in_list_entries
         val recordFieldsInList = settingsManager.getRecordFieldsSelector()
@@ -134,8 +141,8 @@ class SettingsDisplayFragment : TetroidSettingsFragment() {
 
     private fun setHighlightPrefAvailability() {
         findPreference<Preference>(getString(R.string.pref_key_highlight_attach_color))!!.isEnabled = (
-                CommonSettings.isHighlightRecordWithAttach(context)
-                        || CommonSettings.isHighlightEncryptedNodes(context))
+                settingsManager.isHighlightRecordWithAttach()
+                        || settingsManager.isHighlightEncryptedNodes())
     }
 
     override fun onDisplayPreferenceDialog(preference: Preference) {

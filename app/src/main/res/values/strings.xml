@@ -362,7 +362,7 @@
     <string name="pref_key_trash_path" translatable="false">pref_key_trash_path</string>
     <string name="pref_key_date_format_string" translatable="false">pref_key_date_format_string</string>
     <string name="pref_date_format_string">Date format string</string>
-    <string name="pref_date_format_string_summ">Format string for created date/time display</string>
+    <string name="pref_date_format_string_summ_mask">Format string for date/time display in app: «%s»</string>
     <string name="pref_category_display">Display</string>
     <string name="pref_key_is_write_log" translatable="false">pref_key_is_write_log</string>
     <string name="pref_key_log_path" translatable="false">pref_key_log_path</string>

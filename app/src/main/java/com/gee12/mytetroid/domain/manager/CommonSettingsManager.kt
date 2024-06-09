@@ -30,6 +30,10 @@ class CommonSettingsManager(
 ) {
 
     companion object {
+        const val DEF_DATE_FORMAT_STRING = "dd MMM yyyy HH:mm"
+        const val DEF_IS_HIGHLIGHT_RECORDS_WITH_ATTACH = false
+        const val DEF_IS_HIGHLIGHT_ENCRYPTED_NODES = false
+        val DEF_HIGHLIGHT_COLOR = R.color.background_highlight
         const val DEF_IS_WRITE_HISTORY = true
         const val DEF_HISTORY_MAX_SIZE = 100
         val DEF_HISTORY_WRITE_MODE = HistoryWriteMode.ALL
@@ -123,13 +127,23 @@ class CommonSettingsManager(
         return EditorTheme.getById(getString(R.string.pref_key_editor_theme) ?: default.id) ?: default
     }
 
+    fun getDateFormatString(): String {
+        return getString(
+            resourcesProvider.getString(R.string.pref_key_date_format_string),
+            DEF_DATE_FORMAT_STRING,
+        ) ?: DEF_DATE_FORMAT_STRING
+    }
+
     /**
      * Проверка строки формата даты/времени.
      * В версии приложения <= 11 введенная строка в настройках не проверялась,
      *  что могло привести к падению приложения при отображении списка.
      */
     fun checkDateFormatString(): String {
-        val dateFormatString = CommonSettings.getDateFormatString(context)
+        val dateFormatString = getString(
+            id = resourcesProvider.getString(R.string.pref_key_date_format_string),
+            default = null,
+        )
         return if (!dateFormatString.isNullOrEmpty() && checkDateFormatString(dateFormatString)) {
             dateFormatString
         } else {
@@ -139,15 +153,24 @@ class CommonSettingsManager(
     }
 
     fun isHighlightRecordWithAttach(): Boolean {
-        return CommonSettings.isHighlightRecordWithAttach(context)
+        return getBoolean(
+            id = resourcesProvider.getString(R.string.pref_key_is_highlight_attach),
+            default = DEF_IS_HIGHLIGHT_RECORDS_WITH_ATTACH,
+        )
     }
 
-    fun isHighlightCryptedNodes(): Boolean {
-        return CommonSettings.isHighlightEncryptedNodes(context)
+    fun isHighlightEncryptedNodes(): Boolean {
+        return getBoolean(
+            id = resourcesProvider.getString(R.string.pref_key_is_highlight_crypted_nodes),
+            default = DEF_IS_HIGHLIGHT_ENCRYPTED_NODES,
+        )
     }
 
-    fun highlightAttachColor(): Int {
-        return CommonSettings.getHighlightColor(context)
+    fun getHighlightColor(): Int {
+        return getInt(
+            id = resourcesProvider.getString(R.string.pref_key_highlight_attach_color),
+            default = DEF_HIGHLIGHT_COLOR,
+        )
     }
 
     fun getRecordFieldsSelector(): RecordFieldsSelector {

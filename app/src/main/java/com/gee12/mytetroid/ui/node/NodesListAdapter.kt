@@ -15,6 +15,7 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import com.gee12.mytetroid.R
+import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.model.obj.TetroidNode
 import pl.openrnd.multilevellistview.ItemInfo
 import pl.openrnd.multilevellistview.MultiLevelListAdapter
@@ -22,8 +23,9 @@ import java.util.*
 
 class NodesListAdapter(
     private val context: Context,
-    private val isHighlightCryptedNodes: Boolean,
-    private val highlightColor: Int,
+    private val settingsManager: CommonSettingsManager,
+    private var isHighlightEncryptedNodes: Boolean = settingsManager.isHighlightEncryptedNodes(),
+    private var highlightColor: Int = settingsManager.getHighlightColor(),
     private val onClick: (TetroidNode, Int) -> Unit,
     private val onLongClick: (View, TetroidNode, Int) -> Boolean,
 ) : MultiLevelListAdapter() {
@@ -37,6 +39,12 @@ class NodesListAdapter(
 
     private val inflater: LayoutInflater = LayoutInflater.from(context)
     var curNode: TetroidNode? = null
+
+    override fun notifyDataSetChanged() {
+        isHighlightEncryptedNodes = settingsManager.isHighlightEncryptedNodes()
+        highlightColor = settingsManager.getHighlightColor()
+        super.notifyDataSetChanged()
+    }
 
     fun reset() {
         super.setDataItems(ArrayList<Any?>())
@@ -135,7 +143,7 @@ class NodesListAdapter(
         if (curNode == node) {
             view.setBackgroundColor(ContextCompat.getColor(context, R.color.background_current_node))
             viewHolder.arrowView.setBackgroundColor(ContextCompat.getColor(context, R.color.background_current_node))
-        } else if (node.isEncrypted && isHighlightCryptedNodes) {
+        } else if (node.isEncrypted && isHighlightEncryptedNodes) {
             view.setBackgroundColor(highlightColor)
         } else {
             view.setBackgroundColor(Color.TRANSPARENT)
