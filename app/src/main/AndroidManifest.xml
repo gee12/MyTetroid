@@ -107,7 +107,7 @@
         <activity
             android:name=".ui.history.HistoryActivity"
             android:configChanges="orientation|screenSize"
-            android:label="@string/title_storage_history"
+            android:label="@string/title_storage_opening_history"
             android:launchMode="singleTop"
             android:exported="true">
             <intent-filter>

@@ -59,7 +59,7 @@
     <string name="title_about_app">О приложении</string>
     <string name="title_global_search">Глобальный поиск</string>
     <string name="title_history">История</string>
-    <string name="title_storage_history">История хранилища</string>
+    <string name="title_storage_opening_history">История открытия</string>
     <string name="title_attached_files">Прикрепленные файлы</string>
     <string name="title_cur_record">Текст записи</string>
     <string name="title_storages">Список хранилищ</string>
@@ -310,7 +310,7 @@
     <string name="pref_category_main">Основное</string>
     <string name="pref_category_storage">Хранилище</string>
     <string name="pref_category_handling">Управление</string>
-    <string name="pref_sub_category_history">История</string>
+    <string name="pref_sub_category_history">История открытия</string>
     <string name="pref_sub_category_logs">Логи</string>
     <string name="pref_sub_category_search">Поиск</string>
     <string name="pref_category_history_and_logs">История и логи</string>
@@ -914,7 +914,7 @@
     <string name="log_migration_finished_successfully">Миграция прошла успешно</string>
     <string name="log_field_changed_mask">Изменен параметр хранилища \"%1$s\" с \"%2$s\" на \"%3$s\"</string>
     <string name="log_loading_script_to_record_masked">Загрузка JS-скрипта: %s</string>
-    <string name="log_storage_history_was_cleared">История хранилища была очищена</string>
+    <string name="log_storage_history_was_cleared">История открытия объектов хранилища была очищена</string>
 
     <string name="error_record_create_mask">Ошибка создания записи:\n%s</string>
     <string name="error_record_name_is_empty">Пустое имя записи</string>

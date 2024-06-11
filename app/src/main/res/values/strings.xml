@@ -50,7 +50,7 @@
     <string name="title_open_record_folder">Open folder</string>
     <string name="title_global_search">Global search</string>
     <string name="title_history">History</string>
-    <string name="title_storage_history">Storage history</string>
+    <string name="title_storage_opening_history">History of opening</string>
     <string name="title_filter_records">Records filter</string>
     <string name="title_open_tag_records">Open tag records</string>
     <string name="title_edit_record_fields">Edit properties</string>
@@ -319,7 +319,7 @@
     <string name="pref_key_is_save_pass_hash_local" translatable="false">pref_key_is_save_pass_hash_local</string>
     <string name="pref_key_is_load_last_storage_path" translatable="false">pref_key_is_load_last_storage_path</string>
     <string name="pref_category_handling">Handling</string>
-    <string name="pref_sub_category_history">History</string>
+    <string name="pref_sub_category_history">History of opening</string>
     <string name="pref_sub_category_logs">Logs</string>
     <string name="pref_sub_category_search">Search</string>
     <string name="pref_category_history_and_logs">History and logs</string>
