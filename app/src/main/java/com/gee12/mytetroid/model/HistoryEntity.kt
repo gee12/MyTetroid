@@ -11,6 +11,5 @@ data class HistoryEntity(
     val id: Int? = null,
     val storageId: Int,
     val obj: TetroidObject,
-    val type: TetroidObjectType,
     val createdDate: Date?,
 ) : Parcelable

@@ -130,7 +130,7 @@ class HistoryActivity : TetroidStorageActivity<HistoryViewModel>() {
     }
 
     private fun showOpenHistoryItemDialog(historyEntity: HistoryEntity) {
-        val typeName = historyEntity.type.getTypeNameForAction(resourcesProvider)
+        val typeName = historyEntity.obj.type.getTypeNameForAction(resourcesProvider)
         val objName = historyEntity.obj.name
         AskDialogs.showYesDialog(
             context = this,
@@ -142,7 +142,7 @@ class HistoryActivity : TetroidStorageActivity<HistoryViewModel>() {
     }
 
     private fun showDeleteHistoryItemDialog(historyEntity: HistoryEntity) {
-        val typeName = historyEntity.type.getTypeNameForAction(resourcesProvider)
+        val typeName = historyEntity.obj.type.getTypeNameForAction(resourcesProvider)
         val objName = historyEntity.obj.name
         AskDialogs.showYesDialog(
             context = this,

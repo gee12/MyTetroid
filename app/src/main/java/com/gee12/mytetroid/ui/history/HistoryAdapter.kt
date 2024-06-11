@@ -105,10 +105,10 @@ class HistoryAdapter(
                 onItemMenuClickListener?.invoke(item, ivMenu)
             }
 
-            ivIcon.setImageResource(item.type.iconResId())
+            ivIcon.setImageResource(item.obj.type.iconResId())
 
             tvName.text = item.obj.name
-            tvType.text = item.type.getTypeName(resourcesProvider).uppercase()
+            tvType.text = item.obj.type.getTypeName(resourcesProvider).uppercase()
             tvCreated.text = item.createdDate?.format(dateTimeFormat)
         }
 

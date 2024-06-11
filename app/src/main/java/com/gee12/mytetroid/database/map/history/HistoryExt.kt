@@ -18,7 +18,6 @@ fun HistoryDbEntity.toEntity(): HistoryEntity {
             type = type,
             sourceName = dbEntity.name,
         ),
-        type = type,
         createdDate = dbEntity.createdDate,
     )
 }
@@ -29,7 +28,7 @@ fun HistoryEntity.toDbEntity(): HistoryDbEntity {
         id = entity.id.orZero(),
         storageId = entity.storageId,
         objectId = obj.id,
-        typeId = type.id,
+        typeId = obj.type.id,
         name = obj.name,
     ).apply {
         createdDate = entity.createdDate

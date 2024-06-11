@@ -83,7 +83,6 @@ class HistoryManager(
             HistoryEntity(
                 storageId = storageId,
                 obj = record,
-                type = TetroidObjectType.RECORD,
                 createdDate = Date(),
             )
         )
@@ -94,7 +93,6 @@ class HistoryManager(
             HistoryEntity(
                 storageId = storageId,
                 obj = node,
-                type = TetroidObjectType.NODE,
                 createdDate = Date(),
             )
         )
@@ -105,7 +103,6 @@ class HistoryManager(
             HistoryEntity(
                 storageId = storageId,
                 obj = attach,
-                type = TetroidObjectType.ATTACH,
                 createdDate = Date(),
             )
         )
@@ -116,7 +113,6 @@ class HistoryManager(
             HistoryEntity(
                 storageId = storageId,
                 obj = tag,
-                type = TetroidObjectType.TAG,
                 createdDate = Date(),
             )
         )
@@ -148,7 +144,7 @@ class HistoryManager(
             // удаляем существующие записи по этому объекту
             for (i in lastIndex downTo 0) {
                 val entity = chain[i]
-                if (entity.type == historyEntity.type && entity.obj.id == historyEntity.obj.id) {
+                if (entity.obj.type == historyEntity.obj.type && entity.obj.id == historyEntity.obj.id) {
                     historyDbRepo.delete(entity = entity.toDbEntity())
                         .onFailure {
                             return it.toLeft()
