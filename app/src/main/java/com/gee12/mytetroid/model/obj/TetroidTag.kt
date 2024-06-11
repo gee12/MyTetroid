@@ -5,7 +5,7 @@ import com.gee12.mytetroid.model.enums.TetroidObjectType
 class TetroidTag(
     sourceName: String,
     val records: MutableList<TetroidRecord> = mutableListOf(),
-    val isEmpty: Boolean,
+    val isEmpty: Boolean = false,
 ) : TetroidObject(
     id = sourceName,
     type = TetroidObjectType.TAG,

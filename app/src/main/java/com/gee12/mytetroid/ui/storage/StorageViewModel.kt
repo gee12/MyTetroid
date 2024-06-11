@@ -35,6 +35,7 @@ import com.gee12.mytetroid.domain.usecase.storage.*
 import com.gee12.mytetroid.model.QuicklyNode
 import com.gee12.mytetroid.model.obj.TetroidFile
 import com.gee12.mytetroid.model.obj.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidObject
 import com.gee12.mytetroid.model.obj.TetroidRecord
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
 import com.gee12.mytetroid.model.permission.TetroidPermission
@@ -390,7 +391,7 @@ open class StorageViewModel(
         isNeedDecrypt: Boolean = true,
     ) {
         val params = StorageParams(
-            node = null,
+            obj = null,
             isNodeOpening = false,
             isLoadFavoritesOnly = isLoadFavoritesOnly,
             isHandleReceivedIntent = isHandleReceivedIntent,
@@ -440,21 +441,19 @@ open class StorageViewModel(
         //  1) не используем проверку ПИН-кода
         //  2) используем проверку ПИН-кода, при этом расшифровуем с открытием конкретной <b>зашифрованной</b> ветки
         //   (или ветки Избранное)
-        val node = params.node
-        var isDecrypt = params.isDecrypt ?: false
-        isDecrypt = (isDecrypt
+        val obj = params.obj
+        val isDecrypt = params.isDecrypt == true
                 && (!isRequestPinCode()
-                    || isRequestPinCode() && node != null
-                        && (node.isEncrypted || node == FavoritesManager.FAVORITES_NODE)))
+                    || obj != null && (obj.isEncrypted || obj === FavoritesManager.FAVORITES_NODE))
         if (isStorageLoaded() && isDecrypt && isNodesExist()) {
             // расшифровываем уже загруженное хранилище
-            startDecryptStorage(node)
+            startDecryptStorage(obj = obj)
         } else {
             // загружаем хранилище впервые, с расшифровкой (если нужно)
             startReadStorage(
                 isDecrypt = isDecrypt,
                 isFavoritesOnly = params.isLoadFavoritesOnly,
-                isOpenLastNode = params.isHandleReceivedIntent
+                isOpenLastNode = params.isHandleReceivedIntent,
             )
         }
     }
@@ -545,7 +544,7 @@ open class StorageViewModel(
     /**
      * Непосредственная расшифровка уже загруженного хранилища.
      */
-    private fun startDecryptStorage(node: TetroidNode?) {
+    private fun startDecryptStorage(obj: TetroidObject?) {
         logOperStart(LogObj.STORAGE, LogOper.DECRYPT)
 
         launchOnMain {
@@ -563,11 +562,11 @@ open class StorageViewModel(
                 logFailure(it)
                 logDuringOperErrors(LogObj.STORAGE, LogOper.DECRYPT, show = true)
                 afterStorageDecrypted(null)
-            }.onSuccess { result ->
-                if (result) {
+            }.onSuccess { isDecrypted ->
+                if (isDecrypted) {
                     log(R.string.log_storage_decrypted, show = true)
                     // действия после расшифровки хранилища
-                    afterStorageDecrypted(node)
+                    afterStorageDecrypted(obj)
                 } else {
                     logDuringOperErrors(LogObj.STORAGE, LogOper.DECRYPT, show = true)
                     afterStorageDecrypted(null)
@@ -578,7 +577,7 @@ open class StorageViewModel(
         }
     }
 
-    open fun afterStorageDecrypted(node: TetroidNode?) {
+    open fun afterStorageDecrypted(obj: TetroidObject?) {
         launchOnMain {
             sendEvent(StorageEvent.Decrypted/*, node*/)
         }
@@ -599,11 +598,11 @@ open class StorageViewModel(
      * @param isHandleReceivedIntent  Нужно ли после загрузки открыть ветку, сохраненную в опции getLastNodeId(),
      * или ветку с избранным (если именно она передана в node)
      */
-    private fun checkPassAndDecryptStorage(params: StorageParams) {
+    protected fun checkPassAndDecryptStorage(params: StorageParams) {
         val callbackEvent = StorageEvent.LoadOrDecrypt(params)
 
         // устанавливаем признак
-        setIsPINNeedToEnter()
+        setIsPinNeedToEnter()
 
         launchOnMain {
             withIo {
@@ -642,43 +641,7 @@ open class StorageViewModel(
         }
     }
 
-    protected fun checkAndDecryptNode(node: TetroidNode): Boolean {
-        if (!node.isNonEncryptedOrDecrypted) {
-            val params = StorageParams(
-                node = node,
-                isDecrypt = true,
-                isNodeOpening = true,
-                isLoadFavoritesOnly = false,
-                isHandleReceivedIntent = false
-            )
-
-            checkPassAndDecryptStorage(params)
-            // выходим,запрос пароля будет в асинхронном режиме
-            return false
-        }
-        return true
-    }
-
-    fun checkAndDecryptRecord(record: TetroidRecord): Boolean {
-        if (record.isFavorite && !record.isNonEncryptedOrDecrypted) {
-            // запрос на расшифровку записи может поступить только из списка Избранных записей,
-            //  поэтому отправляем FAVORITES_NODE
-            val params = StorageParams(
-                isDecrypt = true,
-                node = FavoritesManager.FAVORITES_NODE,
-                isNodeOpening = true,
-                isLoadFavoritesOnly = isLoadFavoritesOnly(),
-                isHandleReceivedIntent = false
-            )
-
-            checkPassAndDecryptStorage(params)
-            // выходим,запрос пароля будет в асинхронном режиме
-            return true
-        }
-        return false
-    }
-
-    fun setIsPINNeedToEnter() {
+    fun setIsPinNeedToEnter() {
         isPinNeedEnter = true
     }
 
@@ -887,7 +850,7 @@ open class StorageViewModel(
             )
         }.foldResult(
             onLeft = {
-                logFailure(it)
+                logFailure(failure = it, show = true)
                 null
             },
             onRight = { it }
@@ -1114,7 +1077,7 @@ open class StorageViewModel(
      * Проверка использования ПИН-кода с учетом версии приложения.
      * @return
      */
-    fun isRequestPinCode(): Boolean {
+    private fun isRequestPinCode(): Boolean {
         return buildInfoProvider.isFullVersion()
                 && CommonSettings.isRequestPINCode(getContext())
                 && isPinNeedEnter

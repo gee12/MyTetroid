@@ -251,7 +251,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
     override fun onPause() {
         // устанавливаем признак необходимости запроса PIN-кода
-        viewModel.setIsPINNeedToEnter()
+        viewModel.setIsPinNeedToEnter()
         super.onPause()
     }
 

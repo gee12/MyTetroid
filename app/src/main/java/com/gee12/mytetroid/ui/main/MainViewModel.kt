@@ -19,7 +19,6 @@ import com.gee12.mytetroid.logs.LogOper
 import com.gee12.mytetroid.logs.TaskStage
 import com.gee12.mytetroid.logs.TaskStage.Stages
 import com.gee12.mytetroid.model.*
-import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.domain.*
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -50,6 +49,7 @@ import com.gee12.mytetroid.model.enums.TagsSearchMode
 import com.gee12.mytetroid.model.enums.TetroidObjectType
 import com.gee12.mytetroid.model.obj.*
 import com.gee12.mytetroid.model.permission.PermissionRequestCode
+import com.gee12.mytetroid.ui.storage.StorageParams
 import com.gee12.mytetroid.ui.storage.StorageViewModel
 import kotlinx.coroutines.*
 import java.util.ArrayList
@@ -783,7 +783,6 @@ class MainViewModel(
 
     /**
      * Вырезание записи из ветки.
-     * @param record
      */
     fun cutRecord(record: TetroidRecord) {
         // добавляем в "буфер обмена"
@@ -872,9 +871,28 @@ class MainViewModel(
     fun openRecord(record: TetroidRecord) {
         // проверка нужно ли расшифровать избранную запись перед отображением
         // (т.к. в избранной ветке записи могут быть нерасшифрованные)
-        if (!checkAndDecryptRecord(record)) {
+        if (!checkAndDecryptRecordIfNeed(record)) {
             openRecord(recordId = record.id, recordName = record.name)
         }
+    }
+
+    private fun checkAndDecryptRecordIfNeed(record: TetroidRecord): Boolean {
+        if (record.isFavorite && !record.isNonEncryptedOrDecrypted) {
+            // запрос на расшифровку записи может поступить только из списка Избранных записей,
+            //  поэтому отправляем FAVORITES_NODE
+            val params = StorageParams(
+                isDecrypt = true,
+                obj = record,
+                isNodeOpening = true,
+                isLoadFavoritesOnly = isLoadFavoritesOnly(),
+                isHandleReceivedIntent = false,
+            )
+
+            checkPassAndDecryptStorage(params)
+            // выходим,запрос пароля будет в асинхронном режиме
+            return true
+        }
+        return false
     }
 
     /**
@@ -989,7 +1007,6 @@ class MainViewModel(
 
     /**
      * Открытие записей ветки.
-     * @param node
      */
     fun showNode(
         node: TetroidNode,
@@ -997,7 +1014,7 @@ class MainViewModel(
         writeToHistory: Boolean = true,
     ) {
         // проверка нужно ли расшифровать ветку перед отображением
-        if (!checkAndDecryptNode(node)) {
+        if (!checkAndDecryptNodeIfNeed(node)) {
             return
         }
 
@@ -1026,6 +1043,23 @@ class MainViewModel(
             // сохраняем выбранную ветку
             saveLastSelectedNode(nodeId = node.id)
         }
+    }
+
+    private fun checkAndDecryptNodeIfNeed(node: TetroidNode): Boolean {
+        if (!node.isNonEncryptedOrDecrypted) {
+            val params = StorageParams(
+                obj = node,
+                isDecrypt = true,
+                isNodeOpening = true,
+                isLoadFavoritesOnly = false,
+                isHandleReceivedIntent = false,
+            )
+
+            checkPassAndDecryptStorage(params)
+            // выходим,запрос пароля будет в асинхронном режиме
+            return false
+        }
+        return true
     }
 
     /**
@@ -1358,14 +1392,25 @@ class MainViewModel(
         )
     }
 
-    override fun afterStorageDecrypted(node: TetroidNode?) {
+    override fun afterStorageDecrypted(obj: TetroidObject?) {
         launchOnMain {
             sendEvent(StorageEvent.Decrypted)
-            if (node != null) {
-                if (node === FavoritesManager.FAVORITES_NODE) {
-                    showFavorites()
-                } else {
-                    showNode(node)
+            when (obj) {
+                is TetroidRecord -> {
+                    openRecord(record = obj)
+                }
+                is TetroidNode -> {
+                    if (obj === FavoritesManager.FAVORITES_NODE) {
+                        showFavorites()
+                    } else {
+                        showNode(node = obj)
+                    }
+                }
+                is TetroidFile -> {
+                    checkPermissionIfNeedAndOpenAttach(attach = obj)
+                }
+                is TetroidTag -> {
+                    showTagRecords(tagName = obj.name)
                 }
             }
             sendEvent(MainEvent.HandleReceivedIntent)
@@ -2147,7 +2192,7 @@ class MainViewModel(
                         record.attachedFiles.any { it.id == objectId }
                     }
                     if (isFavoriteRecord) {
-                        openRecord(recordId = objectId)
+                        openAttach(attachId = objectId)
                     } else {
                         launchOnMain {
                             sendEvent(MainEvent.Favorites.RequestToLoadAllNodesForOpenObject(data, obj))
@@ -2166,16 +2211,98 @@ class MainViewModel(
                     showError(resourcesProvider.getString(R.string.error_object_type_is_none))
                 }
                 TetroidObjectType.RECORD -> {
-                    openRecord(recordId = objectId)
+                    launchOnMain {
+                        withIo {
+                            getRecordByIdUseCase.run(
+                                GetRecordByIdUseCase.Params(
+                                    recordId = objectId,
+                                )
+                            )
+                        }.onFailure {
+                            logFailure(failure = it, show = true)
+                        }.onSuccess { record ->
+                            if (record.isNonEncryptedOrDecrypted) {
+                                openRecord(recordId = objectId)
+                            } else {
+                                val params = StorageParams(
+                                    isDecrypt = true,
+                                    obj = record,
+                                    isNodeOpening = true,
+                                    isLoadFavoritesOnly = false,
+                                    isHandleReceivedIntent = false,
+                                )
+
+                                checkPassAndDecryptStorage(params)
+                            }
+                        }
+
+                    }
                 }
                 TetroidObjectType.NODE -> {
-                    showNode(nodeId = objectId)
+                    launchOnMain {
+                        withIo {
+                            getNodeByIdUseCase.run(
+                                GetNodeByIdUseCase.Params(
+                                    nodeId = objectId,
+                                )
+                            )
+                        }.onFailure {
+                            logFailure(failure = it, show = true)
+                        }.onSuccess { node ->
+                            if (node.isNonEncryptedOrDecrypted) {
+                                showNode(node = node)
+                            } else {
+                                val params = StorageParams(
+                                    isDecrypt = true,
+                                    obj = node,
+                                    isNodeOpening = true,
+                                    isLoadFavoritesOnly = false,
+                                    isHandleReceivedIntent = false,
+                                )
+                                checkPassAndDecryptStorage(params)
+                            }
+                        }
+
+                    }
                 }
                 TetroidObjectType.ATTACH -> {
-                    openAttach(attachId = objectId)
+                    launchOnMain {
+                        withIo {
+                            getAttachByIdUseCase.run(
+                                GetAttachByIdUseCase.Params(attachId = objectId)
+                            )
+                        }.onFailure {
+                            logFailure(it)
+                        }.onSuccess { attach ->
+                            if (attach.isNonEncryptedOrDecrypted) {
+                                checkPermissionIfNeedAndOpenAttach(attach)
+                            } else {
+                                val params = StorageParams(
+                                    isDecrypt = true,
+                                    obj = attach,
+                                    isNodeOpening = true,
+                                    isLoadFavoritesOnly = false,
+                                    isHandleReceivedIntent = false,
+                                )
+                                checkPassAndDecryptStorage(params)
+                            }
+                        }
+                    }
                 }
                 TetroidObjectType.TAG -> {
-                    showTagRecords(tagName = objectId)
+                    if (isStorageNonEncryptedOrDecrypted()) {
+                        showTagRecords(tagName = objectId)
+                    } else {
+                        val params = StorageParams(
+                            isDecrypt = true,
+                            obj = TetroidTag(sourceName = objectId),
+                            isNodeOpening = true,
+                            isLoadFavoritesOnly = false,
+                            isHandleReceivedIntent = false,
+                        )
+
+                        checkPassAndDecryptStorage(params)
+                    }
                 }
                 TetroidObjectType.IMAGE -> Unit
             }

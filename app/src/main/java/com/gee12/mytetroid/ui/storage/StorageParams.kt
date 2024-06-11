@@ -1,11 +1,11 @@
 package com.gee12.mytetroid.ui.storage
 
-import com.gee12.mytetroid.model.obj.TetroidNode
+import com.gee12.mytetroid.model.obj.TetroidObject
 
 data class StorageParams(
     var result: Boolean = false, // результат открытия/расшифровки
     var isDecrypt: Boolean? = null, // расшифровка хранилища, а не просто открытие
-    val node: TetroidNode? = null, // ветка, которую нужно открыть после расшифровки хранилища
+    val obj: TetroidObject? = null, // объект, который нужно открыть после расшифровки хранилища
     val isNodeOpening: Boolean = false, // если true, значит хранилище уже было загружено, и нажали на еще не расшифрованную ветку
     var isLoadFavoritesOnly: Boolean, // нужно ли загружать только избранные записи,
                                   //  или загружены только избранные записи, т.е. в избранном нажали на не расшифрованную запись
