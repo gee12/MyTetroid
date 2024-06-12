@@ -16,8 +16,8 @@ import com.gee12.mytetroid.database.entity.*
     ],
     exportSchema = true,
     autoMigrations = [
-        AutoMigration(from = 21, to = 22),
-        AutoMigration(from = 22, to = 23),
+        AutoMigration(from = 21, to = 22), // scripts
+        AutoMigration(from = 22, to = 23), // history
     ],
 )
 @TypeConverters(DataConverter::class)

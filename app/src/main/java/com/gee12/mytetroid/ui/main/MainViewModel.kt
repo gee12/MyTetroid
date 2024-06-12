@@ -878,8 +878,7 @@ class MainViewModel(
 
     private fun checkAndDecryptRecordIfNeed(record: TetroidRecord): Boolean {
         if (record.isFavorite && !record.isNonEncryptedOrDecrypted) {
-            // запрос на расшифровку записи может поступить только из списка Избранных записей,
-            //  поэтому отправляем FAVORITES_NODE
+            // запрос на расшифровку записи может поступить только из списка Избранных записей
             val params = StorageParams(
                 isDecrypt = true,
                 obj = record,
@@ -2173,45 +2172,19 @@ class MainViewModel(
 
     fun openStorageObjectFromHistory(data: Intent, obj: TetroidObject) {
         val objectId = obj.id
-        if (isLoadedFavoritesOnly()) {
-            when (obj.type) {
-                TetroidObjectType.NONE -> {
-                    showError(resourcesProvider.getString(R.string.error_object_type_is_none))
-                }
-                TetroidObjectType.RECORD -> {
-                    if (favoritesManager.isFavorite(objectId)) {
-                        openRecord(recordId = objectId)
-                    } else {
-                        launchOnMain {
-                            sendEvent(MainEvent.Favorites.RequestToLoadAllNodesForOpenObject(data, obj))
-                        }
-                    }
-                }
-                TetroidObjectType.ATTACH -> {
-                    val isFavoriteRecord = favoritesManager.getFavoriteRecords().any { record ->
-                        record.attachedFiles.any { it.id == objectId }
-                    }
-                    if (isFavoriteRecord) {
-                        openAttach(attachId = objectId)
-                    } else {
-                        launchOnMain {
-                            sendEvent(MainEvent.Favorites.RequestToLoadAllNodesForOpenObject(data, obj))
-                        }
-                    }
-                }
-                else -> {
+        when (obj.type) {
+            TetroidObjectType.NONE -> {
+                showError(resourcesProvider.getString(R.string.error_object_type_is_none))
+            }
+            TetroidObjectType.RECORD -> {
+                if (isLoadedFavoritesOnly() && !favoritesManager.isFavorite(objectId)) {
                     launchOnMain {
                         sendEvent(MainEvent.Favorites.RequestToLoadAllNodesForOpenObject(data, obj))
                     }
-                }
-            }
-        } else {
-            when (obj.type) {
-                TetroidObjectType.NONE -> {
-                    showError(resourcesProvider.getString(R.string.error_object_type_is_none))
-                }
-                TetroidObjectType.RECORD -> {
+                } else {
                     launchOnMain {
+                        // если загружены все ветки,
+                        // или если загружено только избранное и эта запись - в избранном
                         withIo {
                             getRecordByIdUseCase.run(
                                 GetRecordByIdUseCase.Params(
@@ -2235,10 +2208,15 @@ class MainViewModel(
                                 checkPassAndDecryptStorage(params)
                             }
                         }
-
                     }
                 }
-                TetroidObjectType.NODE -> {
+            }
+            TetroidObjectType.NODE -> {
+                if (isLoadedFavoritesOnly()) {
+                    launchOnMain {
+                        sendEvent(MainEvent.Favorites.RequestToLoadAllNodesForOpenObject(data, obj))
+                    }
+                } else {
                     launchOnMain {
                         withIo {
                             getNodeByIdUseCase.run(
@@ -2262,10 +2240,20 @@ class MainViewModel(
                                 checkPassAndDecryptStorage(params)
                             }
                         }
-
                     }
                 }
-                TetroidObjectType.ATTACH -> {
+            }
+            TetroidObjectType.ATTACH -> {
+                val isFavoriteRecord by lazy {
+                    favoritesManager.getFavoriteRecords().any { record ->
+                        record.attachedFiles.any { it.id == objectId }
+                    }
+                }
+                if (isLoadedFavoritesOnly() && !isFavoriteRecord) {
+                    launchOnMain {
+                        sendEvent(MainEvent.Favorites.RequestToLoadAllNodesForOpenObject(data, obj))
+                    }
+                } else {
                     launchOnMain {
                         withIo {
                             getAttachByIdUseCase.run(
@@ -2289,23 +2277,27 @@ class MainViewModel(
                         }
                     }
                 }
-                TetroidObjectType.TAG -> {
-                    if (isStorageNonEncryptedOrDecrypted()) {
-                        showTagRecords(tagName = objectId)
-                    } else {
-                        val params = StorageParams(
-                            isDecrypt = true,
-                            obj = TetroidTag(sourceName = objectId),
-                            isNodeOpening = true,
-                            isLoadFavoritesOnly = false,
-                            isHandleReceivedIntent = false,
-                        )
-
-                        checkPassAndDecryptStorage(params)
-                    }
-                }
-                TetroidObjectType.IMAGE -> Unit
             }
+            TetroidObjectType.TAG -> {
+                if (isLoadedFavoritesOnly()) {
+                    launchOnMain {
+                        sendEvent(MainEvent.Favorites.RequestToLoadAllNodesForOpenObject(data, obj))
+                    }
+                } else if (isStorageNonEncryptedOrDecrypted()) {
+                    showTagRecords(tagName = objectId)
+                } else {
+                    val params = StorageParams(
+                        isDecrypt = true,
+                        obj = TetroidTag(sourceName = objectId),
+                        isNodeOpening = true,
+                        isLoadFavoritesOnly = false,
+                        isHandleReceivedIntent = false,
+                    )
+
+                    checkPassAndDecryptStorage(params)
+                }
+            }
+            TetroidObjectType.IMAGE -> Unit
         }
     }
 

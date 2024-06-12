@@ -449,6 +449,8 @@ open class StorageViewModel(
             // расшифровываем уже загруженное хранилище
             startDecryptStorage(obj = obj)
         } else {
+            // TODO: сюда уходит код, в т.ч. когда открывали запись из избранного.
+            //  Нужно добавить, чтобы она отрывалась после расшифровки хранилища.
             // загружаем хранилище впервые, с расшифровкой (если нужно)
             startReadStorage(
                 isDecrypt = isDecrypt,
@@ -635,7 +637,7 @@ open class StorageViewModel(
                             )
                         )
                     }
-                    else -> {}
+                    else -> Unit
                 }
             }
         }

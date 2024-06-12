@@ -32,7 +32,7 @@ object AskDialogs {
         title: CharSequence? = null,
         message: CharSequence,
         onApply: () -> Unit,
-        onCancel: (() -> Unit)? = null,
+        onCancel: () -> Unit = {},
         onDismiss: (() -> Unit)? = null,
     ) {
         showDialog(

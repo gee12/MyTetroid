@@ -73,7 +73,7 @@ class MainPageFragment : TetroidFragment<MainViewModel>, MainPage {
         // обработка нажатия на пустом месте списка записей
         lvRecords.setOnTouchListener(this)
         //
-        lvRecords.setOnItemClickListener { _: AdapterView<*>?, _: View?, position: Int, _: Long -> 
+        lvRecords.setOnItemClickListener { _, _, position, _ ->
             showRecord(position) 
         }
         tvRecordsEmpty = view.findViewById(R.id.text_view_empty_records)
