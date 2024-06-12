@@ -29,7 +29,7 @@ import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.domain.*
 import com.gee12.mytetroid.domain.manager.*
 import com.gee12.mytetroid.domain.provider.*
-import com.gee12.mytetroid.domain.repo.StoragesRepo
+import com.gee12.mytetroid.database.repo.StoragesDbRepo
 import com.gee12.mytetroid.domain.usecase.ParseObjectFromUrlUseCase
 import com.gee12.mytetroid.logs.LogType
 import com.gee12.mytetroid.logs.ITetroidLogger
@@ -81,7 +81,7 @@ class RecordViewModel(
     recordPathProvider: IRecordPathProvider,
     dataNameProvider: IDataNameProvider,
 
-    storagesRepo: StoragesRepo,
+    storagesRepo: StoragesDbRepo,
     cryptManager: IStorageCryptManager,
     storageDataProcessor: IStorageDataProcessor,
 

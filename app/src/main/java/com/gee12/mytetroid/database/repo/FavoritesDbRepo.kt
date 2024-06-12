@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.domain.repo
+package com.gee12.mytetroid.database.repo
 
 import android.content.Context
 import com.gee12.mytetroid.database.TetroidDatabase
@@ -7,7 +7,7 @@ import com.gee12.mytetroid.model.TetroidFavorite
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class FavoritesRepo(context: Context) : DbRepo() {
+class FavoritesDbRepo(context: Context) : DbRepo() {
 
     private val dataBase = TetroidDatabase.create(context)
 

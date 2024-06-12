@@ -7,15 +7,15 @@ import com.gee12.mytetroid.common.map
 import com.gee12.mytetroid.common.toRight
 import com.gee12.mytetroid.domain.usecase.storage.FillStorageFieldsFromDefaultSettingsUseCase
 import com.gee12.mytetroid.domain.provider.BuildInfoProvider
-import com.gee12.mytetroid.domain.repo.FavoritesRepo
-import com.gee12.mytetroid.domain.repo.StoragesRepo
+import com.gee12.mytetroid.database.repo.FavoritesDbRepo
+import com.gee12.mytetroid.database.repo.StoragesDbRepo
 import com.gee12.mytetroid.model.TetroidStorage
 
 class MigrationManager(
     private val buildInfoProvider: BuildInfoProvider,
     private val settingsManager: CommonSettingsManager,
-    private val storagesRepo: StoragesRepo,
-    private val favoritesRepo: FavoritesRepo,
+    private val storagesRepo: StoragesDbRepo,
+    private val favoritesRepo: FavoritesDbRepo,
     private val fillStorageFieldsFromDefaultSettingsUseCase: FillStorageFieldsFromDefaultSettingsUseCase,
 ) {
 

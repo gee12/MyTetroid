@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.domain.repo
+package com.gee12.mytetroid.database.repo
 
 import android.content.Context
 import com.gee12.mytetroid.database.TetroidDatabase
@@ -7,9 +7,9 @@ import com.gee12.mytetroid.model.TetroidStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class StoragesRepo(context: Context) : DbRepo() {
+class StoragesDbRepo(context: Context) : DbRepo() {
 
-    val dataBase = TetroidDatabase.create(context)
+    private val dataBase = TetroidDatabase.create(context)
 
     suspend fun getStorages() = withContext(Dispatchers.IO) {
         dataBase.storagesDao.getAll().map(::toTetroidStorage)

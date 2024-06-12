@@ -22,7 +22,7 @@ import com.gee12.mytetroid.model.*
 import com.gee12.mytetroid.data.xml.IStorageDataProcessor
 import com.gee12.mytetroid.domain.*
 import com.gee12.mytetroid.logs.ITetroidLogger
-import com.gee12.mytetroid.domain.repo.StoragesRepo
+import com.gee12.mytetroid.database.repo.StoragesDbRepo
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.storage.StorageEvent
 import com.gee12.mytetroid.domain.manager.*
@@ -73,7 +73,7 @@ class MainViewModel(
     private val storageSettingsProvider: IStorageSettingsProvider,
     private val suggestionsManager: SuggestionsManager,
 
-    storagesRepo: StoragesRepo,
+    storagesRepo: StoragesDbRepo,
     cryptManager: IStorageCryptManager,
     storageDataProcessor: IStorageDataProcessor,
 

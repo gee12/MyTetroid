@@ -6,14 +6,14 @@ import com.gee12.mytetroid.domain.provider.IStorageProvider
 import com.gee12.mytetroid.model.TetroidFavorite
 import com.gee12.mytetroid.model.obj.TetroidNode
 import com.gee12.mytetroid.model.obj.TetroidRecord
-import com.gee12.mytetroid.domain.repo.FavoritesRepo
+import com.gee12.mytetroid.database.repo.FavoritesDbRepo
 import com.gee12.mytetroid.domain.usecase.SwapFavoriteRecordsUseCase
 
 /**
  * Работа с избранными записями.
  */
 class FavoritesManager(
-    private val favoritesRepo: FavoritesRepo,
+    private val favoritesRepo: FavoritesDbRepo,
     private val storageProvider: IStorageProvider,
     private val swapFavoriteRecordsUseCase: SwapFavoriteRecordsUseCase,
 ) {

@@ -8,7 +8,7 @@ import com.anggrayudi.storage.file.recreateFile
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.domain.provider.ISensitiveDataProvider
 import com.gee12.mytetroid.domain.provider.IStorageProvider
-import com.gee12.mytetroid.domain.repo.StoragesRepo
+import com.gee12.mytetroid.database.repo.StoragesDbRepo
 import com.gee12.mytetroid.model.FilePath
 import com.gee12.mytetroid.model.TetroidStorage
 
@@ -19,7 +19,7 @@ class DropAllPasswordDataUseCase(
     private val context: Context,
     private val storageProvider: IStorageProvider,
     private val sensitiveDataProvider: ISensitiveDataProvider,
-    private val storagesRepo: StoragesRepo,
+    private val storagesRepo: StoragesDbRepo,
 ) : UseCase<UseCase.None, DropAllPasswordDataUseCase.Params>() {
 
     object Params

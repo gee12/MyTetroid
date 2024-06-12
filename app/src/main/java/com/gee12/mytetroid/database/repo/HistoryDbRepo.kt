@@ -8,7 +8,6 @@ import com.gee12.mytetroid.database.TetroidDatabase
 import com.gee12.mytetroid.database.dao.HistoryDao
 import com.gee12.mytetroid.database.entity.HistoryDbEntity
 import com.gee12.mytetroid.database.query.history.GetAllHistoryItemsQuery
-import com.gee12.mytetroid.domain.repo.DbRepo
 import com.gee12.mytetroid.model.enums.HistorySortMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

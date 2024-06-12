@@ -1,7 +1,6 @@
 package com.gee12.mytetroid.di.modules
 
-import com.gee12.mytetroid.database.repo.HistoryDbRepo
-import com.gee12.mytetroid.domain.repo.*
+import com.gee12.mytetroid.database.repo.*
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -9,19 +8,13 @@ object RepositoriesModule {
     val repositoriesModule = module {
 
         single {
-            CommonSettingsRepo(
+            StoragesDbRepo(
                 context = androidContext()
             )
         }
 
         single {
-            StoragesRepo(
-                context = androidContext()
-            )
-        }
-
-        single {
-            FavoritesRepo(
+            FavoritesDbRepo(
                 context = androidContext()
             )
         }

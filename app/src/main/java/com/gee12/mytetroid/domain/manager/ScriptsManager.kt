@@ -7,8 +7,8 @@ import com.gee12.mytetroid.database.map.script.toEntity
 import com.gee12.mytetroid.database.map.scriptToObject.toDbEntity
 import com.gee12.mytetroid.database.map.scriptToObject.toEntity
 import com.gee12.mytetroid.domain.provider.IStorageProvider
-import com.gee12.mytetroid.domain.repo.ScriptsDbRepo
-import com.gee12.mytetroid.domain.repo.ScriptsToObjectsDbRepo
+import com.gee12.mytetroid.database.repo.ScriptsDbRepo
+import com.gee12.mytetroid.database.repo.ScriptsToObjectsDbRepo
 import com.gee12.mytetroid.domain.usecase.node.GetNodeByIdUseCase
 import com.gee12.mytetroid.domain.usecase.record.GetRecordByIdUseCase
 import com.gee12.mytetroid.model.*

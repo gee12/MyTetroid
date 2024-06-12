@@ -7,7 +7,7 @@ import com.anggrayudi.storage.file.openOutputStream
 import com.anggrayudi.storage.file.recreateFile
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.domain.provider.IStorageProvider
-import com.gee12.mytetroid.domain.repo.StoragesRepo
+import com.gee12.mytetroid.database.repo.StoragesDbRepo
 import com.gee12.mytetroid.model.FilePath
 import com.gee12.mytetroid.model.TetroidStorage
 
@@ -17,7 +17,7 @@ import com.gee12.mytetroid.model.TetroidStorage
 class ClearSavedPasswordHashUseCase(
     private val context: Context,
     private val storageProvider: IStorageProvider,
-    private val storagesRepo: StoragesRepo,
+    private val storagesRepo: StoragesDbRepo,
 ) : UseCase<UseCase.None, ClearSavedPasswordHashUseCase.Params>() {
 
     data class Params(

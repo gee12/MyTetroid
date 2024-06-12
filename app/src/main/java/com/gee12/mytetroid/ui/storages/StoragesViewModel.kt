@@ -18,7 +18,7 @@ import com.gee12.mytetroid.model.TetroidStorage
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.domain.provider.*
-import com.gee12.mytetroid.domain.repo.StoragesRepo
+import com.gee12.mytetroid.database.repo.StoragesDbRepo
 import com.gee12.mytetroid.ui.base.BaseViewModel
 import com.gee12.mytetroid.domain.usecase.storage.CheckStorageFilesExistingUseCase
 import com.gee12.mytetroid.domain.usecase.storage.DeleteStorageUseCase
@@ -34,7 +34,7 @@ class StoragesViewModel(
     failureHandler: IFailureHandler,
     settingsManager: CommonSettingsManager,
     appPathProvider: IAppPathProvider,
-    private val storagesRepo: StoragesRepo,
+    private val storagesRepo: StoragesDbRepo,
     private val checkStorageFilesExistingUseCase: CheckStorageFilesExistingUseCase,
     private val fillStorageFieldsFromDefaultSettingsUseCase: FillStorageFieldsFromDefaultSettingsUseCase,
     private val deleteStorageUseCase: DeleteStorageUseCase,

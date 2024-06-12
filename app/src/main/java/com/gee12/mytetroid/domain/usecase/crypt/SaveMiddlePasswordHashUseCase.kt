@@ -8,7 +8,7 @@ import com.anggrayudi.storage.file.recreateFile
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.domain.manager.IStorageCryptManager
 import com.gee12.mytetroid.domain.provider.IStorageProvider
-import com.gee12.mytetroid.domain.repo.StoragesRepo
+import com.gee12.mytetroid.database.repo.StoragesDbRepo
 import com.gee12.mytetroid.model.FilePath
 import com.gee12.mytetroid.model.TetroidStorage
 import java.lang.Exception
@@ -19,7 +19,7 @@ import java.lang.Exception
 class SaveMiddlePasswordHashUseCase(
     private val context: Context,
     private val storageProvider: IStorageProvider,
-    private val storagesRepo: StoragesRepo,
+    private val storagesRepo: StoragesDbRepo,
     private val cryptManager: IStorageCryptManager,
 ) : UseCase<UseCase.None, SaveMiddlePasswordHashUseCase.Params>() {
 

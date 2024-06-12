@@ -11,7 +11,7 @@ import com.gee12.mytetroid.common.extensions.parseUri
 import com.gee12.mytetroid.domain.manager.ScriptsManager
 import com.gee12.mytetroid.domain.provider.IAppPathProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
-import com.gee12.mytetroid.domain.repo.StoragesRepo
+import com.gee12.mytetroid.database.repo.StoragesDbRepo
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.model.FilePath
 import com.gee12.mytetroid.model.TetroidStorage
@@ -22,7 +22,7 @@ class DeleteStorageUseCase(
     private val logger: ITetroidLogger,
     private val appPathProvider: IAppPathProvider,
     private val scriptsManager: ScriptsManager,
-    private val storagesRepo: StoragesRepo,
+    private val storagesRepo: StoragesDbRepo,
 ) : UseCase<UseCase.None, DeleteStorageUseCase.Params>() {
 
     data class Params(

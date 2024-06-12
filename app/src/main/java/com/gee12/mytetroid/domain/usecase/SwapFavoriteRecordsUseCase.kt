@@ -1,7 +1,7 @@
 package com.gee12.mytetroid.domain.usecase
 
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.domain.repo.FavoritesRepo
+import com.gee12.mytetroid.database.repo.FavoritesDbRepo
 import com.gee12.mytetroid.model.TetroidFavorite
 
 /**
@@ -9,7 +9,7 @@ import com.gee12.mytetroid.model.TetroidFavorite
  * @return true - успешно, false - перемещение невозможно (крайний элемент и through=false)
  */
 class SwapFavoriteRecordsUseCase(
-    private val favoritesRepo: FavoritesRepo,
+    private val favoritesRepo: FavoritesDbRepo,
 ) : UseCase<Boolean, SwapFavoriteRecordsUseCase.Params>() {
 
     data class Params(

@@ -23,7 +23,7 @@ import com.gee12.mytetroid.domain.manager.*
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.TaskStage
-import com.gee12.mytetroid.domain.repo.StoragesRepo
+import com.gee12.mytetroid.database.repo.StoragesDbRepo
 import com.gee12.mytetroid.ui.base.BaseEvent
 import com.gee12.mytetroid.ui.base.BaseStorageViewModel
 import com.gee12.mytetroid.domain.usecase.crypt.*
@@ -55,7 +55,7 @@ open class StorageViewModel(
     storageProvider: IStorageProvider,
     storagePathProvider: IStoragePathProvider,
     val sensitiveDataProvider: ISensitiveDataProvider,
-    val storagesRepo: StoragesRepo,
+    val storagesRepo: StoragesDbRepo,
     val recordPathProvider: IRecordPathProvider,
     val dataNameProvider: IDataNameProvider,
 

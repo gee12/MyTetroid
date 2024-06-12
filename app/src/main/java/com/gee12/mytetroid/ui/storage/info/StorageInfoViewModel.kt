@@ -10,7 +10,7 @@ import com.gee12.mytetroid.domain.INotificator
 import com.gee12.mytetroid.domain.manager.*
 import com.gee12.mytetroid.domain.provider.*
 import com.gee12.mytetroid.logs.ITetroidLogger
-import com.gee12.mytetroid.domain.repo.StoragesRepo
+import com.gee12.mytetroid.database.repo.StoragesDbRepo
 import com.gee12.mytetroid.ui.storage.StorageEvent
 import com.gee12.mytetroid.domain.usecase.file.GetFileModifiedDateInStorageUseCase
 import com.gee12.mytetroid.domain.usecase.file.GetFolderSizeInStorageUseCase
@@ -40,7 +40,7 @@ class StorageInfoViewModel(
     recordPathProvider: IRecordPathProvider,
 
     cryptManager: IStorageCryptManager,
-    storagesRepo: StoragesRepo,
+    storagesRepo: StoragesDbRepo,
     private val storageDataProcessor: IStorageDataProcessor,
 
     favoritesManager: FavoritesManager,

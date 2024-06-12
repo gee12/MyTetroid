@@ -1,4 +1,4 @@
-package com.gee12.mytetroid.domain.repo
+package com.gee12.mytetroid.database.repo
 
 import android.database.sqlite.SQLiteConstraintException
 import android.database.sqlite.SQLiteDatabaseCorruptException
