@@ -4,10 +4,12 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.webkit.MimeTypeMap
 import androidx.documentfile.provider.DocumentFile
 import com.anggrayudi.storage.file.*
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
+import com.gee12.mytetroid.common.extensions.getExtensionWithoutComma
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
 import com.gee12.mytetroid.domain.provider.IDataNameProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
@@ -62,15 +64,10 @@ class SaveImageFromUriUseCase(
             }
 
             if (format == null) {
-                // генерируем уникальное имя файла
-                val nameId = dataNameProvider.createUniqueImageName(extension = srcFile.extension)
-                val image = TetroidImage(nameId, record)
-
                 copyImageFile(
                     record = record,
                     srcFile = srcFile,
-                    newFileName = nameId,
-                ).map {
+                ).map { image ->
                     image.apply {
                         width = bitmap.width
                         height = bitmap.height
@@ -115,9 +112,18 @@ class SaveImageFromUriUseCase(
     private suspend fun copyImageFile(
         record: TetroidRecord,
         srcFile: DocumentFile,
-        newFileName: String,
-    ): Either<Failure, None> {
-        logger.logOperRes(LogObj.IMAGE, LogOper.SAVE, record, false)
+    ): Either<Failure, TetroidImage> {
+        val srcFilePath = FilePath.FileFull(srcFile.getAbsolutePath(context).ifEmpty { srcFile.uri.toString() })
+
+        val extension = srcFile.extension.ifEmpty {
+            srcFile.uri.path?.getExtensionWithoutComma()
+        } ?: return Failure.File.UnknownExtension(srcFilePath).toLeft()
+        val mimeType = srcFile.mimeType
+            ?: MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+            ?: return Failure.File.UnknownMimeType(srcFilePath).toLeft()
+
+        val imageFileName = dataNameProvider.createUniqueImageName(extension = extension)
+        val image = TetroidImage(imageFileName, record)
 
         val recordFolder = getRecordFolderUseCase.run(
             GetRecordFolderUseCase.Params(
@@ -132,14 +138,13 @@ class SaveImageFromUriUseCase(
             onRight = { it }
         )
 
-        val srcFilePath = FilePath.FileFull(srcFile.getAbsolutePath(context).ifEmpty { srcFile.uri.toString() })
-        val destFilePath = FilePath.File(recordFolder.getAbsolutePath(context), newFileName)
+        val destFilePath = FilePath.File(recordFolder.getAbsolutePath(context), imageFileName)
 
         // создание нового пустого файла
         val destFile = recordFolder.makeFile(
             context = context,
-            name = newFileName,
-            mimeType = srcFile.mimeType,
+            name = imageFileName,
+            mimeType = mimeType,
             mode = CreateMode.REPLACE,
         ) ?: return Failure.File.Create(srcFilePath).toLeft()
 
@@ -152,7 +157,7 @@ class SaveImageFromUriUseCase(
             if (copiedBytesCount > 0) {
                 val to = resourcesProvider.getString(R.string.log_to_mask, destFilePath.fullPath)
                 logger.logOperRes(LogObj.IMAGE, LogOper.COPY, to, show = false)
-                None.toRight()
+                image.toRight()
             } else {
                 Failure.File.Copy(from = srcFilePath, to = destFilePath).toLeft()
             }
