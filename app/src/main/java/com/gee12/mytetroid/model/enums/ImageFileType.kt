@@ -5,7 +5,9 @@ enum class ImageFileType(
     val supportedAsNodeIcon: Boolean,
 ) {
     SVG("svg", supportedAsNodeIcon = true),
-    PNG("png", supportedAsNodeIcon = true);
+    PNG("png", supportedAsNodeIcon = true),
+    JPG("jpg", supportedAsNodeIcon = false),
+    WEBP("webp", supportedAsNodeIcon = false);
 
     companion object {
 

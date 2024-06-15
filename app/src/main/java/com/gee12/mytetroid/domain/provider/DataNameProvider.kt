@@ -1,13 +1,12 @@
 package com.gee12.mytetroid.domain.provider
 
-import com.gee12.mytetroid.model.enums.ImageFileType
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.abs
 
 interface IDataNameProvider {
     fun createUniqueId(): String
-    fun createUniqueImageName(): String
+    fun createUniqueImageName(extension: String): String
     fun createDateTimePrefix(): String
 }
 
@@ -50,8 +49,8 @@ class DataNameProvider(
         return sb.toString()
     }
 
-    override fun createUniqueImageName(): String {
-        return "image${createUniqueId()}.${ImageFileType.PNG.extension}"
+    override fun createUniqueImageName(extension: String): String {
+        return "image${createUniqueId()}.${extension}"
     }
 
     override fun createDateTimePrefix(): String {

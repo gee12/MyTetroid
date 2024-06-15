@@ -62,7 +62,9 @@ class LoadDrawableFromFileUseCase(
                 ImageFileType.SVG -> {
                     SVGParser.getSVGFromInputStream(inputStream).createPictureDrawable().toRight()
                 }
-                ImageFileType.PNG -> {
+                ImageFileType.PNG,
+                ImageFileType.JPG,
+                ImageFileType.WEBP -> {
                     Drawable.createFromStream(inputStream, "src")?.toRight()
                         ?: Failure.Image.LoadFromFile(filePath).toLeft()
                 }

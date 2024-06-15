@@ -6,16 +6,16 @@ import androidx.documentfile.provider.DocumentFile
 import com.anggrayudi.storage.file.*
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
-import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.domain.provider.IDataNameProvider
+import com.gee12.mytetroid.domain.provider.IResourcesProvider
+import com.gee12.mytetroid.domain.usecase.record.GetRecordFolderUseCase
 import com.gee12.mytetroid.logs.ITetroidLogger
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
+import com.gee12.mytetroid.model.FilePath
+import com.gee12.mytetroid.model.enums.ImageFileType
 import com.gee12.mytetroid.model.obj.TetroidImage
 import com.gee12.mytetroid.model.obj.TetroidRecord
-import com.gee12.mytetroid.domain.usecase.record.GetRecordFolderUseCase
-import com.gee12.mytetroid.model.FilePath
-import java.lang.Exception
 
 /**
  * Сохранение изображения в каталог записи.
@@ -31,8 +31,8 @@ class SaveImageFromBitmapUseCase(
     data class Params(
         val record: TetroidRecord,
         val bitmap: Bitmap,
-        val format: Bitmap.CompressFormat = Bitmap.CompressFormat.PNG,
-        val quality: Int = 100,
+        val format: Bitmap.CompressFormat,
+        val quality: Int,
     )
 
     override suspend fun run(params: Params): Either<Failure, TetroidImage> {
@@ -41,8 +41,13 @@ class SaveImageFromBitmapUseCase(
 
         logger.logOperRes(LogObj.IMAGE, LogOper.SAVE, record, false)
 
+        val type = when (params.format) {
+            Bitmap.CompressFormat.PNG -> ImageFileType.PNG
+            Bitmap.CompressFormat.JPEG -> ImageFileType.JPG
+            else -> ImageFileType.JPG
+        }
         // генерируем уникальное имя файла
-        val nameId = dataNameProvider.createUniqueImageName()
+        val nameId = dataNameProvider.createUniqueImageName(extension = type.extension)
         val image = TetroidImage(nameId, record)
 
         val recordFolder = getRecordFolderUseCase.run(

@@ -5,6 +5,7 @@ import android.content.ContentResolver
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
+import android.os.Build
 import android.print.PrintAttributes
 import android.print.PrintDocumentAdapter
 import android.print.PrintDocumentToFileUseCase
@@ -18,6 +19,7 @@ import com.gee12.htmlwysiwygeditor.model.ImageParams
 import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.format
+import com.gee12.mytetroid.common.extensions.getExtensionWithoutComma
 import com.gee12.mytetroid.common.extensions.getFileName
 import com.gee12.mytetroid.common.extensions.orFalse
 import com.gee12.mytetroid.model.*
@@ -54,6 +56,8 @@ import com.gee12.mytetroid.domain.usecase.storage.*
 import com.gee12.mytetroid.domain.usecase.tag.ParseRecordTagsUseCase
 import com.gee12.mytetroid.logs.LogObj
 import com.gee12.mytetroid.logs.LogOper
+import com.gee12.mytetroid.model.enums.ImageFileType
+import com.gee12.mytetroid.model.enums.ImagesSaveMode
 import com.gee12.mytetroid.model.enums.TetroidObjectType
 import com.gee12.mytetroid.model.obj.TetroidImage
 import com.gee12.mytetroid.model.obj.TetroidNode
@@ -168,7 +172,7 @@ class RecordViewModel(
     getNodeByIdUseCase = getNodeByIdUseCase,
     getRecordByIdUseCase = getRecordByIdUseCase,
 ) {
-
+    // TODO: избавиться от этой херни
     var curRecord = MutableLiveData<TetroidRecord>()
     private var recordFolder: DocumentFile? = null
     val recordState = RecordState(
@@ -354,7 +358,7 @@ class RecordViewModel(
         // вставляем переданные изображения
         if (isReceivedImages) {
             receivedIntent.getParcelableArrayListExtra<Uri>(Constants.EXTRA_IMAGES_URI)?.let { uris ->
-                saveImages(uris, isCamera = false)
+                saveImagesFromFiles(uris, isCamera = false)
             }
         }
     }
@@ -779,7 +783,7 @@ class RecordViewModel(
         }
     }
 
-    fun saveImages(imageUris: List<Uri>, isCamera: Boolean) {
+    fun saveImagesFromFiles(imageUris: List<Uri>, isCamera: Boolean) {
         if (imageUris.isEmpty()) return
 
         launchOnMain {
@@ -814,7 +818,7 @@ class RecordViewModel(
         }
     }
 
-    fun saveImage(imageUri: Uri, deleteSrcFile: Boolean) {
+    fun saveImageFromFile(imageUri: Uri, deleteSrcFile: Boolean) {
         launchOnMain {
             withIo {
                 saveImageFromUriUseCase.run(
@@ -833,14 +837,38 @@ class RecordViewModel(
         }
     }
 
-    private fun saveImage(bitmap: Bitmap) {
+    private fun saveImageFromWeb(url: String, bitmap: Bitmap) {
         launchOnMain {
             showProgressWithText(R.string.state_image_saving)
             withIo {
+                val format = when (settingsManager.getImagesSaveMode()) {
+                    ImagesSaveMode.AS_IS -> {
+
+                        //TODO: проверить
+
+                        when (url.getExtensionWithoutComma()) {
+                            ImageFileType.PNG.extension -> Bitmap.CompressFormat.PNG
+                            ImageFileType.JPG.extension -> Bitmap.CompressFormat.JPEG
+                            ImageFileType.WEBP.extension -> {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                                    Bitmap.CompressFormat.WEBP_LOSSY
+                                } else {
+                                    Bitmap.CompressFormat.WEBP
+                                }
+                            }
+                            else -> Bitmap.CompressFormat.JPEG
+                        }
+                    }
+                    ImagesSaveMode.CONVERT_TO_PNG -> Bitmap.CompressFormat.PNG
+                    ImagesSaveMode.CONVERT_TO_JPG -> Bitmap.CompressFormat.JPEG
+                }
+
                 saveImageFromBitmapUseCase.run(
                     SaveImageFromBitmapUseCase.Params(
                         record = curRecord.value!!,
                         bitmap = bitmap,
+                        format = format,
+                        quality = settingsManager.getImagesSaveQuality(),
                     )
                 )
             }.onComplete {
@@ -919,7 +947,7 @@ class RecordViewModel(
             }.onComplete {
                 hideProgress()
             }.onSuccess { bitmap ->
-                saveImage(bitmap)
+                saveImageFromWeb(url, bitmap)
             }.onFailure {
                 logFailure(it, show = true)
             }

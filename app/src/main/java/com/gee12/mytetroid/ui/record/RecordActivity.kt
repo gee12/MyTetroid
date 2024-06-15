@@ -41,7 +41,6 @@ import com.gee12.mytetroid.R
 import com.gee12.mytetroid.common.Constants
 import com.gee12.mytetroid.common.extensions.*
 import com.gee12.mytetroid.common.onSuccess
-import com.gee12.mytetroid.common.utils.Utils
 import com.gee12.mytetroid.common.utils.ViewUtils
 import com.gee12.mytetroid.data.settings.CommonSettings
 import com.gee12.mytetroid.di.ScopeSource
@@ -913,11 +912,11 @@ class RecordActivity : TetroidStorageActivity<RecordViewModel>(),
     }
 
     private fun saveSelectedImages(uris: List<Uri>, isCameraMode: Boolean) {
-        viewModel.saveImages(uris, isCameraMode)
+        viewModel.saveImagesFromFiles(uris, isCameraMode)
     }
 
     fun saveImage(uri: Uri, deleteSrcFile: Boolean) {
-        viewModel.saveImage(uri, deleteSrcFile)
+        viewModel.saveImageFromFile(uri, deleteSrcFile)
     }
 
     /**

@@ -873,8 +873,11 @@ object UseCasesModule {
                 SaveImageFromUriUseCase(
                     context = androidContext(),
                     resourcesProvider = get(),
+                    settingsManager = get(),
                     logger = get(),
+                    dataNameProvider = get(),
                     saveImageFromBitmapUseCase = get(),
+                    getRecordFolderUseCase = get(),
                 )
             }
 
