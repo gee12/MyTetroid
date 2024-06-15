@@ -114,7 +114,6 @@ dependencies {
     implementation 'org.ini4j:ini4j:0.5.4'
     implementation 'net.cachapa.expandablelayout:expandablelayout:2.9.2'
     implementation 'org.jdom:jdom2:2.0.6'
-    implementation 'com.google.android.play:core:1.10.3'
     implementation 'com.github.clans:fab:1.6.4'
     implementation "androidx.core:core-ktx:$core_ktx_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
