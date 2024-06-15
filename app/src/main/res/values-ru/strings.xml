@@ -270,6 +270,13 @@
     <string name="title_settings_history_write_mode_last">Только последние</string>
     <string name="title_settings_history_write_mode_last_summ">Сохранять только последние события, более ранние (повторные) события одного и того же объекта удалять из истории</string>
 
+    <string name="title_settings_images_save_mode_as_is">Как есть</string>
+    <string name="title_settings_images_save_mode_as_is_summ">Копировать файл изображения в заметку как есть</string>
+    <string name="title_settings_images_save_mode_convert_to_png">Преобразовывать в PNG</string>
+    <string name="title_settings_images_save_mode_convert_to_png_summ">Преобразовывать исходный файл изображения в формат PNG (сохраняет качество, но может занимать много памяти)</string>
+    <string name="title_settings_images_save_mode_convert_to_jpg">Преобразовывать в JPG</string>
+    <string name="title_settings_images_save_mode_convert_to_jpg_summ">Преобразовывать исходный файл изображения в формат JPG (можно указать нужное качество, занимает меньше памяти)</string>
+
     <string name="title_settings_editor_theme_as_app_theme">Как в теме приложения</string>
     <string name="title_settings_editor_theme_light">Светлая</string>
     <string name="title_settings_editor_theme_dark">Темная</string>
@@ -313,6 +320,7 @@
     <string name="pref_sub_category_history">История открытия</string>
     <string name="pref_sub_category_logs">Логи</string>
     <string name="pref_sub_category_search">Поиск</string>
+    <string name="pref_sub_category_images">Изображения</string>
     <string name="pref_category_history_and_logs">История и логи</string>
     <string name="pref_storage_path">Каталог хранилища</string>
     <string name="pref_storage_path_summ">Путь к каталогу, содержащий database.ini, mytetra.xml и base/</string>
@@ -370,6 +378,8 @@
     <string name="pref_title_history_max_size_summ_mask">Максимальное количество объектов, хранимое в истории для каждого хранилища: %d</string>
     <string name="pref_title_history_write_mode">Режим записи</string>
     <string name="pref_title_history_write_mode_summ_mask">В каком режиме объекты будут записываться в историю: %s</string>
+    <string name="pref_title_images_save_mode">Режим сохранения изображений</string>
+    <string name="pref_title_images_save_quality">Качество сохранения в JPEG</string>
     <string name="pref_keep_screen_on_summ">Не гасить экран, когда запись открыта</string>
     <string name="pref_show_logs">Показать логи</string>
     <string name="pref_show_logs_summ">Логи текущего сеанса запуска или содержимое лог-файла</string>

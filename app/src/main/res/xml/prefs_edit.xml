@@ -19,4 +19,22 @@
         android:summary="@string/pref_fix_empty_paragraphs_summ"
         android:title="@string/pref_fix_empty_paragraphs" />
 
+    <PreferenceCategory android:key="pref_key_sub_category_images" android:title="@string/pref_sub_category_images">
+
+        <!--TODO: как из xml получить константы ?-->
+
+        <Preference
+            android:key="pref_key_images_save_mode"
+            android:title="@string/pref_title_images_save_mode" />
+
+        <!--TODO: как из xml получить константы ?-->
+
+        <com.gee12.mytetroid.ui.base.views.prefs.IntEditTextPreference
+            android:defaultValue="90"
+            android:dialogTitle="@string/pref_title_images_save_quality"
+            android:key="pref_key_images_save_quality"
+            android:title="@string/pref_title_images_save_quality" />
+
+    </PreferenceCategory>
+
 </PreferenceScreen>

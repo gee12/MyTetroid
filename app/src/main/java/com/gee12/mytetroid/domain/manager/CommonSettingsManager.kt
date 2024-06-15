@@ -13,10 +13,7 @@ import com.gee12.mytetroid.domain.SortHelper
 import com.gee12.mytetroid.domain.provider.BuildInfoProvider
 import com.gee12.mytetroid.domain.provider.IResourcesProvider
 import com.gee12.mytetroid.logs.ITetroidLogger
-import com.gee12.mytetroid.model.enums.AppTheme
-import com.gee12.mytetroid.model.enums.EditorTheme
-import com.gee12.mytetroid.model.enums.HistoryWriteMode
-import com.gee12.mytetroid.model.enums.TagsSearchMode
+import com.gee12.mytetroid.model.enums.*
 
 class CommonSettingsManager(
     private val context: Context,
@@ -37,6 +34,16 @@ class CommonSettingsManager(
         const val DEF_IS_WRITE_HISTORY = true
         const val DEF_HISTORY_MAX_SIZE = 100
         val DEF_HISTORY_WRITE_MODE = HistoryWriteMode.ALL
+    }
+
+    object Key {
+        const val IMAGES_SAVE_MODE = "pref_key_images_save_mode"
+        const val IMAGES_SAVE_QUALITY = "pref_key_images_save_quality"
+    }
+
+    object Default {
+        val IMAGES_SAVE_MODE = ImagesSaveMode.AS_IS
+        const val IMAGES_SAVE_QUALITY = 90
     }
 
     fun init() {
@@ -252,8 +259,37 @@ class CommonSettingsManager(
 
     fun setHistoryWriteMode(value: HistoryWriteMode) {
         setInt(
-            resourcesProvider.getString(R.string.pref_key_history_write_mode),
+            id = resourcesProvider.getString(R.string.pref_key_history_write_mode),
             value = value.id,
+        )
+    }
+
+    fun getImagesSaveMode(): ImagesSaveMode {
+        val value = getInt(
+            id = Key.IMAGES_SAVE_MODE,
+            default = Default.IMAGES_SAVE_MODE.id,
+        )
+        return ImagesSaveMode.getById(value) ?: Default.IMAGES_SAVE_MODE
+    }
+
+    fun setImagesSaveMode(value: ImagesSaveMode) {
+        setInt(
+            id = Key.IMAGES_SAVE_MODE,
+            value = value.id,
+        )
+    }
+
+    fun getImagesSaveQuality(): Int {
+        return getInt(
+            id = Key.IMAGES_SAVE_QUALITY,
+            default = Default.IMAGES_SAVE_QUALITY,
+        )
+    }
+
+    fun setImagesSaveQuality(value: Int) {
+        setInt(
+            id = Key.IMAGES_SAVE_QUALITY,
+            value = value,
         )
     }
 

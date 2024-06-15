@@ -271,6 +271,13 @@
     <string name="title_settings_history_write_mode_last">Last</string>
     <string name="title_settings_history_write_mode_last_summ">Save only the latest events, delete earlier (repeated) events of the same object from the history</string>
 
+    <string name="title_settings_images_save_mode_as_is">As is</string>
+    <string name="title_settings_images_save_mode_as_is_summ">Copy the image file to the note as is</string>
+    <string name="title_settings_images_save_mode_convert_to_png">Convert to PNG</string>
+    <string name="title_settings_images_save_mode_convert_to_png_summ">Convert the original image file to PNG format (retains quality, but may take up a lot of memory)</string>
+    <string name="title_settings_images_save_mode_convert_to_jpg">Convert to JPG</string>
+    <string name="title_settings_images_save_mode_convert_to_jpg_summ">Convert the original image file to JPG format (you can specify the desired quality, it takes less memory)</string>
+
     <string name="title_settings_editor_theme_as_app_theme">As in app theme</string>
     <string name="title_settings_editor_theme_light">Light</string>
     <string name="title_settings_editor_theme_dark">Dark</string>
@@ -322,6 +329,7 @@
     <string name="pref_sub_category_history">History of opening</string>
     <string name="pref_sub_category_logs">Logs</string>
     <string name="pref_sub_category_search">Search</string>
+    <string name="pref_sub_category_images">Images</string>
     <string name="pref_category_history_and_logs">History and logs</string>
     <string name="pref_is_keep_selected_node">Choose the last branch</string>
     <string name="pref_is_keep_selected_node_summ">Set the current branch selected last time \n(used as default value for new storages)</string>
@@ -425,6 +433,8 @@
     <string name="pref_title_history_max_size_summ_mask">Max count of saved objects in history for storage: %d</string>
     <string name="pref_title_history_write_mode">Write mode</string>
     <string name="pref_title_history_write_mode_summ_mask">In which mode will objects be recorded to history: %s</string>
+    <string name="pref_title_images_save_mode">Image saving mode</string>
+    <string name="pref_title_images_save_quality">The quality of saving in JPEG</string>
     <string name="pref_key_is_keep_screen_on" translatable="false">pref_key_keep_screen_on</string>
     <string name="pref_key_is_write_history" translatable="false">pref_key_is_write_history</string>
     <string name="pref_key_history_max_size" translatable="false">pref_key_history_max_size</string>
