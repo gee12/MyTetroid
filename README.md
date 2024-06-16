@@ -2,8 +2,8 @@
 
 **MyTetroid** — неофициальная Android версия программы [MyTetra](https://github.com/xintrea/mytetra_dev), полнофункционального кроссплатформенного менеджера заметок, персональная ***база знаний*** на телефоне.
 
-<a href="https://apps.rustore.ru/app/com.gee12.mytetroid" target="_blank" rel="noopener"> <img class="alignnone" src="https://gee12.space/wp-content/uploads/2023/06/rustore1.png" alt="Скачать из RuStore" width="200" /> </a>
-<a href='https://play.google.com/store/apps/details?id=com.gee12.mytetroid'><img alt='Доступно в Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/ru_badge_web_generic.png' width='200'/></a>
+<a href="https://apps.rustore.ru/app/com.gee12.mytetroid" target="_blank" rel="noopener"><img class="alignnone" src="https://gee12.space/wp-content/uploads/2023/06/rustore1.png" alt="Скачать из RuStore" width="200" /></a>
+<a href='https://play.google.com/store/apps/details?id=com.gee12.mytetroid' target="_blank"><img alt='Доступно в Google Play' src='https://gee12.space/wp-content/uploads/2024/06/gp_logo.png' width='200'/></a>
 
 Позволяет ***упорядоченно*** хранить информацию в виде заметок, рассортированных по веткам и снабженных тегами.  
 В визуальном редакторе можно выполнить любое ***форматирование*** текста, создавать списки, вставлять изображения и прочее.  
