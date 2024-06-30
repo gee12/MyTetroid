@@ -53,10 +53,6 @@ class SaveImageFromUriUseCase(
         val srcFile = DocumentFileCompat.fromUri(context, srcUri)
             ?: return Failure.File.Get(srcFilePath).toLeft()
 
-        if (!srcFile.exists()) {
-            return Failure.File.NotExist(srcFilePath).toLeft()
-        }
-
         return loadBitmap(
             imageFile = srcFile,
             filePath = srcFilePath,
