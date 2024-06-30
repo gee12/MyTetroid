@@ -915,8 +915,8 @@
     <string name="log_selected_files_is_missing">Missing selected image files</string>
     <string name="log_start_image_file_saving_mask">Start saving image [%1$s] to record id=%2$s</string>
     <string name="log_start_image_file_converting_mask">Start converting image file to [%s]</string>
-    <string name="error_load_image_from_file_mask">Failed to load image from file:\n%s</string>
-    <string name="error_save_image_to_ile_mask">Failed to save image to file:\n%s</string>
+    <string name="error_load_image_from_file_mask">Failed to load image from file: %s</string>
+    <string name="error_save_image_to_ile_mask">Failed to save image to file: %s</string>
     <string name="error_image_file_unknown_type_mask">Image file has unknown type: %s</string>
 <!--    <string name="log_failed_to_save_images_mask">Failed to save images: %d (more in the logs)</string>-->
     <string name="log_failed_to_save_images_mask">Failed to save images: %d</string>

@@ -53,6 +53,10 @@ class SaveImageFromUriUseCase(
         val srcFile = DocumentFileCompat.fromUri(context, srcUri)
             ?: return Failure.File.Get(srcFilePath).toLeft()
 
+        if (!srcFile.exists()) {
+            return Failure.File.NotExist(srcFilePath).toLeft()
+        }
+
         return loadBitmap(
             imageFile = srcFile,
             filePath = srcFilePath,
@@ -102,7 +106,9 @@ class SaveImageFromUriUseCase(
     ): Either<Failure, Bitmap> {
         return try {
             imageFile.openInputStream(context)?.use { inputStream ->
-                BitmapFactory.decodeStream(inputStream).toRight()
+                val bitmap = BitmapFactory.decodeStream(inputStream)
+                bitmap?.toRight()
+                    ?: Failure.Image.LoadFromFile(filePath).toLeft()
             } ?: Failure.File.Read(filePath).toLeft()
         } catch (ex: Exception) {
             Failure.Image.LoadFromFile(filePath, ex).toLeft()

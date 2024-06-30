@@ -801,6 +801,7 @@ class RecordViewModel(
                         )
                     )
                 }.onFailure {
+                    logFailure(failure = it, show = false)
                     errorCount++
                 }.onSuccess { image ->
                     savedImages.add(image)
@@ -829,7 +830,7 @@ class RecordViewModel(
                     )
                 )
             }.onFailure {
-                logFailure(it)
+                logFailure(it, show = true)
                 sendEvent(BaseEvent.ShowMoreInLogs)
             }.onSuccess { image ->
                 sendEvent(RecordEvent.InsertImages(images = listOf(image)))

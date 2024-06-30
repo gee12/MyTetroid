@@ -808,8 +808,8 @@
     <string name="log_selected_files_is_missing">Отсутствуют выбранные файлы изображений</string>
     <string name="log_start_image_file_saving_mask">Начало сохранения изображения [%1$s] в запись id=%2$s</string>
     <string name="log_start_image_file_converting_mask">Начало конвертирования файла изображения в [%s]</string>
-    <string name="error_load_image_from_file_mask">Не удалось загрузить изображение из файла:\n%s</string>
-    <string name="error_save_image_to_ile_mask">Не удалось сохранить изображение в файл:\n%s</string>
+    <string name="error_load_image_from_file_mask">Не удалось загрузить изображение из файла: %s</string>
+    <string name="error_save_image_to_ile_mask">Не удалось сохранить изображение в файл: %s</string>
     <string name="error_image_file_unknown_type_mask">Неизвестный тип изображения: %s</string>
 <!--    <string name="log_failed_to_save_images_mask">Не удалось сохранить изображений: %d (подробнее в логах)</string>-->
     <string name="log_failed_to_save_images_mask">Не удалось сохранить изображений: %d</string>
