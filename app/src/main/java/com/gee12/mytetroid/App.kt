@@ -2,6 +2,7 @@ package com.gee12.mytetroid
 
 import androidx.multidex.MultiDex
 import androidx.multidex.MultiDexApplication
+import com.gee12.mytetroid.common.network.NetworkHelper.installGooglePlayServicesRepairIfNeed
 import com.gee12.mytetroid.di.modules.*
 import com.gee12.mytetroid.domain.AppThemeHelper
 import com.gee12.mytetroid.domain.manager.CommonSettingsManager
@@ -29,6 +30,9 @@ class AppKoin : MultiDexApplication() {
         }
 
         setTheme()
+
+        // for URLConnection on Android 4.4-4.4.4
+        applicationContext.installGooglePlayServicesRepairIfNeed()
     }
 
     private fun setTheme() {

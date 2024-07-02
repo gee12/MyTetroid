@@ -3,6 +3,7 @@ package com.gee12.mytetroid.domain.usecase.network
 import android.net.Uri
 import com.gee12.mytetroid.common.*
 import com.gee12.mytetroid.common.extensions.makePath
+import com.gee12.mytetroid.common.network.NetworkHelper
 import com.gee12.mytetroid.common.utils.UriUtils
 import com.gee12.mytetroid.domain.provider.IAppPathProvider
 import com.gee12.mytetroid.domain.provider.IDataNameProvider
@@ -10,7 +11,6 @@ import java.io.DataInputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.lang.Exception
-import java.net.URL
 
 /**
  * Загрузка файла по URL в каталог кэша на устройстве.
@@ -22,6 +22,7 @@ class DownloadFileFromWebUseCase(
 
     data class Params(
         val url: String,
+        val connectTimeoutMillis: Int = 5000,
     )
 
     override suspend fun run(params: Params): Either<Failure, Uri> {
@@ -32,8 +33,11 @@ class DownloadFileFromWebUseCase(
         val outputFileName = makePath(pathToCacheFolder, fileName)
 
         return try {
-            val url = URL(params.url)
-            url.openStream().use { inputStream ->
+            val connection = NetworkHelper.createURLConnection(
+                url = params.url,
+                connectTimeout = params.connectTimeoutMillis,
+            )
+            connection.inputStream.use { inputStream ->
                 DataInputStream(inputStream).use { dis ->
                     FileOutputStream(outputFileName).use { fos ->
                         val buffer = ByteArray(1024)
