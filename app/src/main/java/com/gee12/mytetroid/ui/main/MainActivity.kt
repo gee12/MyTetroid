@@ -1116,7 +1116,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
 
     override fun afterStorageDecrypted() {
         updateNodes()
-        updateTags()
+        reloadTags()
         // обновляем и записи, т.к. расшифровка могла быть вызвана из Favorites
         viewModel.updateRecordsList()
         checkReceivedIntent(receivedIntent)
@@ -1864,7 +1864,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 } else if (data.getBooleanExtra(Constants.EXTRA_IS_PASS_CHANGED, false)) {
                     // обновляем списки, т.к. хранилище должно было расшифроваться
                     updateNodes()
-                    updateTags()
+                    reloadTags()
                 }
             }
         }
@@ -1906,7 +1906,7 @@ class MainActivity : TetroidStorageActivity<MainViewModel>() {
                 if (data.getBooleanExtra(Constants.EXTRA_IS_PASS_CHANGED, false)) {
                     // обновляем списки, т.к. хранилище должно было расшифроваться
                     updateNodes()
-                    updateTags()
+                    reloadTags()
                 }
             }
             Constants.RESULT_OPEN_RECORD -> {
