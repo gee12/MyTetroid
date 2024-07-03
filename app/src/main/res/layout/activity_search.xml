@@ -33,6 +33,7 @@
                 android:inputType="text"
                 android:hint="@string/search_hint_input_query"
                 app:clearButtonMode="always"
+                android:imeOptions="actionSearch"
                 tools:text="test query"/>
 
             <TextView

@@ -83,6 +83,10 @@ class SearchActivity : TetroidStorageActivity<SearchViewModel>() {
         }
 
         etQuery.setSelection(etQuery.text?.length ?: 0)
+        etQuery.setOnEditorActionListener { _, _, _ ->
+            commit()
+            true
+        }
 
         var nodeId: String? = null
 
@@ -219,12 +223,16 @@ class SearchActivity : TetroidStorageActivity<SearchViewModel>() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.action_query_submit) {
-            viewModel.checkValuesAndFinish(
-                searchProfile = buildSearchProfileFromUi(),
-            )
+            commit()
             return true
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun commit() {
+        viewModel.checkValuesAndFinish(
+            searchProfile = buildSearchProfileFromUi(),
+        )
     }
 
     companion object {
